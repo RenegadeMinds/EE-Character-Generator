@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.11.2</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.11.3</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -36711,7 +36711,7 @@ function renderAttrGrid(){
   const scores=editId?chars.find(c=>c.id===editId)?.attrs||[10,10,10,10,10,10]:[10,10,10,10,10,10];
   g.innerHTML=ATTR_NAMES.map((a,i)=>`
     <div class="attr-box"><span class="attr-nm">${a}</span>
-    <input class="attr-inp" type="number" id="a${i}" value="${scores[i]}" min="1" max="40" onchange="onAC(${i})" oninput="onAC(${i})">
+    <input class="attr-inp" type="number" id="a${i}" value="${scores[i]}" min="1" max="100" title="Theoretical ceiling 100 (the bonus progression extrapolates: modifier = (score &minus; 10) / 2, so 100 = +45; carrying capacity rides Tremendous Strength, HH p.263)" onchange="onAC(${i})" oninput="onAC(${i})">
     <span class="attr-mod" id="am${i}">${ms(scores[i])}</span></div>`).join('');
   updateDerived();
 }
