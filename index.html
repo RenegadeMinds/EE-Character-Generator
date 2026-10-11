@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.12.0</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.12.1</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -9860,14 +9860,15 @@ function computeGrapple(c) {
     const agg = aggregateBonuses(aeG);
     if (agg.total) { total += agg.total; parts.push(`active powers +${agg.total}`); }
   }
-  // v8.59.3 (Adam's ruling, from his Weaponmaster field test): the declared
-  // PA/CE trade SPENDS Base Attack itself (feat table: "reduce Base Attack
-  // modifier") — Grapple is BA-keyed, so the full declared total applies.
-  // Fixing it HERE means the Sheet cell, drilldowns, and print all inherit.
+  // v9.12.1 (§270, superseding the v8.59.3 rationale): PA/CE are penalties
+  // to MELEE ATTACK ROLLS, never a spend of Base Attack — and "a grapple
+  // check is like a melee attack roll" (the v8.63.1 Reckless Offense
+  // precedent), so the penalty reaches the Grapple AS a roll penalty. Same
+  // number as before, correct provenance: the BA component stays printed.
   const _dG = (typeof combatDecl === 'function') ? combatDecl(c) : { pa: 0, ce: 0, ro: false };
   if (_dG.pa + _dG.ce > 0) {
     total -= (_dG.pa + _dG.ce);
-    parts.push(`declared stance (PA ${_dG.pa} · CE ${_dG.ce}) −${_dG.pa + _dG.ce}`);
+    parts.push(`declared stance penalty on melee attack rolls (PA ${_dG.pa} · CE ${_dG.ce}; grapple checks ride them — the RO precedent) −${_dG.pa + _dG.ce}`);
   }
   // v8.71.0 (found wiring the Tracker's Grapple drop-down): Improved
   // Grapple's +4 is UNCONDITIONAL — "a +4 bonus on all grapple checks,
@@ -10247,19 +10248,21 @@ async function baDeclAdjust(dir) {
     else if (from === 'ce' && d.ce > 0) d.ce -= 1;
     else { toast('Nothing assigned to that modifier.'); return; }
   } else {
-    if (d.pa + d.ce >= caps.bab) { toast('Base Attack is fully assigned — nothing left to trade.'); return; }
+    // v9.12.1 (§270): the stances are attack-roll penalties, not spends —
+    // there is no shared Base Attack pool. Each caps on its own feat text:
+    // PA ≤ Base Attack; CE ≤ min(5, Base Attack). Both may run at once.
+    const paOpen = hasPA && d.pa < caps.bab;
     const ceOpen = hasCE && d.ce < caps.ceMax;
-    let to = (hasPA && ceOpen) ? null : (hasPA ? 'pa' : (ceOpen ? 'ce' : null));
-    if (to === null && hasPA && hasCE && !ceOpen) to = 'pa';
-    if (to === null) to = await declWhichModal('Assign the point of Base Attack to which modifier?', ['Power Attack', 'Combat Expertise']);
+    if (!paOpen && !ceOpen) { toast('Both stances are at their caps (PA ≤ Base Attack; CE ≤ +5 or Base Attack).'); return; }
+    let to = (paOpen && ceOpen) ? null : (paOpen ? 'pa' : 'ce');
+    if (to === null) to = await declWhichModal('Declare the point of penalty on which stance?', ['Power Attack', 'Combat Expertise']);
     if (!to) return;
-    if (to === 'ce' && d.ce >= caps.ceMax) { toast('Combat Expertise caps at +5 (HH p.207).'); return; }
-    if (to === 'pa' && !hasPA) { toast('You don’t have the Power Attack feat.'); return; }
+    if (to === 'ce' && !ceOpen) { toast('Combat Expertise caps at +5 or your Base Attack, whichever is less (HH p.207).'); return; }
+    if (to === 'pa' && !paOpen) { toast(hasPA ? 'Power Attack caps at your Base Attack (HH p.235).' : 'You don’t have the Power Attack feat.'); return; }
     if (to === 'pa') d.pa += 1; else d.ce += 1;
   }
   c.combatDecl = d;
-  const eff = caps.bab - d.pa - d.ce;
-  if (typeof logAct === 'function') logAct(`⚔ Stance declared: Power Attack ${d.pa} · Combat Expertise ${d.ce} → effective Base Attack ${eff >= 0 ? '+' : ''}${eff}. Holds until re-declared.`);
+  if (typeof logAct === 'function') logAct(`⚔ Stance declared: −${d.pa + d.ce} on melee attack rolls (Power Attack ${d.pa} → +${d.pa} melee damage · Combat Expertise ${d.ce} → +${d.ce} Defense Bonus). Base Attack untouched — printed iteratives stand. Holds until re-declared.`);
   save(); renderSheet();
 }
 // Focus paths for the spike feats.
@@ -13931,7 +13934,7 @@ function computeStatBlock(char, activeConditions) {
   // −4 (reaches touch too; recklessness isn't cured by being flat-footed).
   // Parry/Dodge get the same lines in their own compute functions.
   const _ceDecl = (typeof combatDecl === 'function') ? (combatDecl(char).ce || 0) : 0;
-  const _ceEntry = _ceDecl ? [{ type: 'dodge', source: 'declared:combatExpertise', value: _ceDecl, label: `Combat Expertise (declared — −${_ceDecl} Base Attack)` }] : [];
+  const _ceEntry = _ceDecl ? [{ type: 'dodge', source: 'declared:combatExpertise', value: _ceDecl, label: `Combat Expertise (declared — −${_ceDecl} on melee attack rolls; Base Attack untouched)` }] : [];
   const _roDecl = (typeof combatDecl === 'function') ? !!combatDecl(char).ro : false;
   const _roEntry = _roDecl ? [{ type: 'untyped', source: 'declared:recklessOffense', value: -4, label: 'Reckless Offense (declared — +2 melee attack rolls)' }] : [];
   // v8.67.0 (Mutant sync): Unnatural Prowess/Resilience lanes — the bab/def
@@ -39262,16 +39265,16 @@ function computeParryBonus(c, opts){
   // mirror, Adam's ruling: "right down to the attendant Defense Bonus
   // modifier").
   const _bd = (typeof combatDecl === 'function') ? (combatDecl(c).bd || 0) : 0;
-  // v8.98.0 (Adam's ruling, 2026-10-05): Parry is BASE-ATTACK-KEYED, so the
-  // declared stances' BA spend reaches it — Power Attack's trade now costs
-  // the Parry its points (previously ignored: PA slipped through unpunished).
-  // Combat Expertise's BA spend reaches it too, offset by the CE AMENDMENT
-  // (book letter on TODO): "for every point of Base Attack traded through
-  // Combat Expertise, the character gains +1 to Parry and +1 Defense Bonus"
-  // — preserving CE's defensive spirit (net +N Parry) instead of the static
-  // net-zero the unamended wording would produce.
+  // v9.12.1 (§270, Adam's re-reading 2026-10-10, superseding v8.98.0): PA
+  // and CE are penalties to MELEE ATTACK ROLLS while engaged — Base Attack
+  // is never spent (both feat BODIES, HH pp.207/235; the summary table's
+  // "reduce Base Attack modifier" is the book typo, letter on TODO). A
+  // parry is not a melee attack roll, so neither stance's penalty reaches
+  // it, no refund is needed, and the v8.98.0 CE-amendment letter is
+  // WITHDRAWN. What DOES reach the Parry: CE's Defense bonus — "affects
+  // the character's AC (both touch and total), dodge modifier, and PARRY
+  // modifier" (HH p.207) — so CE nets +N Parry with no arithmetic contortions.
   const _dP = (typeof combatDecl === 'function') ? combatDecl(c) : { pa: 0, ce: 0, ro: false, bd: 0 };
-  const _paP = _dP.pa || 0;
   const _ceP = _dP.ce || 0;
   const _roP = _dP.ro ? 4 : 0;
   const parts = [
@@ -39285,11 +39288,7 @@ function computeParryBonus(c, opts){
   // whenever the wielder holds the weapon, even flat-footed (GMG).
   const _pw = (typeof parryingHeldBonus === 'function') ? parryingHeldBonus(c) : 0;
   if (_pw) parts.push({label:'Parrying weapon (insight — held, even flat-footed)', value:_pw});
-  if (_paP) parts.push({label:'Power Attack (declared — BA spent)', value:-_paP});
-  if (_ceP) {
-    parts.push({label:'Combat Expertise (declared — BA spent)', value:-_ceP});
-    parts.push({label:`CE amendment: +1 Parry & +1 Def Bonus per BA point (+${_ceP} each)`, value: 2 * _ceP});
-  }
+  if (_ceP) parts.push({label:'Combat Expertise (declared — the Defense bonus reaches the Parry, HH p.207)', value:_ceP});
   if (_bd) parts.push({label:'Best Defense (declared)', value:-_bd});
   if (_roP) parts.push({label:'Reckless Offense (declared)', value:-_roP});
   // v8.97.0 (Adam's flag request): the declaration-speed ladder, HH p.373 —
@@ -39306,7 +39305,9 @@ function computeParryBonus(c, opts){
   // Amended total: BA (minus PA and CE spends) + Str + Def + Shield, the CE
   // amendment restoring +2 per CE point (+1 Parry, +1 Def Bonus) → PA costs
   // its full spend, CE nets +N defensive, exactly the ruling's intent.
-  return { total: bab - _paP - _ceP + strM + def + shield + 2 * _ceP - _bd - _roP + _pw, parts, ready, shieldParry };
+  // v9.12.1 (§270): no stance spends Base Attack — PA never reaches the
+  // Parry, and CE contributes only its Defense bonus (+_ceP, the p.207 flow).
+  return { total: bab + strM + def + shield + _ceP - _bd - _roP + _pw, parts, ready, shieldParry };
 }
 
 // Compute Dodge attempt modifier per handbook HH p.373.
@@ -41089,11 +41090,16 @@ function renderSheet(){
   // v8.8.0 (Adam's Talents sweep): the Initiative CELL shows the full
   // computed total (Improved Initiative, talent init bonuses).
   const initTotal = (typeof computeStatBlock === 'function' && computeStatBlock(c).init) ? computeStatBlock(c).init.total : dM;
+  // v9.12.1 (§270, Adam's re-reading): the stances are penalties to MELEE
+  // ATTACK ROLLS — Base Attack is never spent, so the cell always shows the
+  // printed value (no effective-BA arithmetic, no lost iteratives). The
+  // Defense Bonus bump is CE's engaged-flag; the chips here are PA's.
+  const _paCap = (c.bab || 0), _ceCap = Math.min(5, c.bab || 0);
   const _baCell = {l:'Base Attack',
-     v: _dclSpent ? `${_effBA >= 0 ? '+' : ''}${_effBA}` : (c.bab>=0?'+':'')+c.bab,
+     v: (c.bab>=0?'+':'')+c.bab,
      k:'bab',
-     tooltip: _dclOwn ? `Declared stance — holds until re-declared. Power Attack ${_dcl.pa} · Combat Expertise ${_dcl.ce} · base Base Attack ${(c.bab>=0?'+':'')+(c.bab||0)}. ▼ assigns a point of Base Attack to a modifier; ▲ returns one. Melee attack rows apply the penalty; Power Attack adds damage (×2 two-handed, none on light weapons); Combat Expertise adds Defense.` : undefined,
-     extraHtml: _dclOwn ? `<span style="display:block;margin-top:2px;white-space:nowrap;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent >= ((c.bab)||0) ? 'opacity:.35;' : ''}" title="Assign a point of Base Attack to Power Attack / Combat Expertise" onclick="event.stopPropagation();baDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent <= 0 ? 'opacity:.35;' : ''}" title="Return a point of Base Attack" onclick="event.stopPropagation();baDeclAdjust(1)">▲</button>${_dclSpent ? `<span style="font-size:9px;color:#d4b870;margin-left:4px;">PA ${_dcl.pa} · CE ${_dcl.ce}</span>` : ''}</span>` : ''};
+     tooltip: _dclOwn ? `Declared stance — holds until re-declared. Power Attack ${_dcl.pa} · Combat Expertise ${_dcl.ce}: each is a PENALTY ON MELEE ATTACK ROLLS while engaged (Grapple included — a grapple check is like a melee attack roll), never a spend of Base Attack: the printed value stands, and the iterative ladder never loses attacks. Power Attack adds the same number to melee damage (×2 two-handed, none on light weapons; caps at your Base Attack). Combat Expertise adds the same number to your Defense Bonus — AC, touch, dodge, and Parry all rise (HH p.207; caps at +5 or your Base Attack, whichever is less). ▼ declares a point; ▲ withdraws one.` : undefined,
+     extraHtml: _dclOwn ? `<span style="display:block;margin-top:2px;white-space:nowrap;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${(_dcl.pa >= _paCap && _dcl.ce >= _ceCap) ? 'opacity:.35;' : ''}" title="Declare a point of penalty on melee attack rolls (Power Attack / Combat Expertise)" onclick="event.stopPropagation();baDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent <= 0 ? 'opacity:.35;' : ''}" title="Withdraw a declared point" onclick="event.stopPropagation();baDeclAdjust(1)">▲</button>${_dclSpent ? `<span style="font-size:9px;color:#d4b870;margin-left:4px;">PA −${_dcl.pa} · CE −${_dcl.ce} (attack rolls)</span>` : ''}</span>` : ''};
   // v8.65.0 (Adam's go): Best Defense stepper — the BA-card idiom mirrored
   // (Survivor 5+ only; free action to adjust, holds until re-declared).
   const _defCell = (() => {
