@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.12.1</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.13.0</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -1207,8 +1207,8 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
           <label class="hbg-w">Kind<br><select id="hbg-kind" style="width:100%;">
             <option>light</option><option selected>one-handed</option><option>two-handed</option><option>ranged</option>
           </select></label>
-          <label class="hbg-w">Damage type<br><select id="hbg-dtype" style="width:100%;">
-            <option selected>slashing</option><option>piercing</option><option>bludgeoning</option><option>ballistic</option><option>fire</option><option>electricity</option><option>cold</option><option>acid</option><option>sonic</option><option>energy</option>
+          <label class="hbg-w">Damage type <span style="opacity:.55;font-size:9.5px;">(the catalog's own vocabulary)</span><br><select id="hbg-dtype" style="width:100%;" onchange="hbgDtypeChange()">
+            <option selected>slashing</option><option>piercing</option><option>bludgeoning</option><option>ballistic</option><option>laser</option><option>fire</option><option>electricity</option><option value="ionic" title="Electrical nonlethal — 'ionization' (HH p.231 region): de-ionize electronics via Repair DC 15, 1 hour per 20 HP.">ionic</option><option>plasma</option><option>cryonic</option><option>acid</option><option>sonic</option><option value="concussion" title="Nonlethal sonic/blast damage (HH: concussion grenades deal nonlethal concussion damage).">concussion</option><option>disintegration</option>
           </select></label>
           <label class="hbg-w">Damage (Medium)<br><input id="hbg-dmgm" type="text" value="1d8" style="width:100%;"></label>
           <label class="hbg-w">Damage (Small)<br><input id="hbg-dmgs" type="text" value="1d6" style="width:100%;"></label>
@@ -1238,6 +1238,8 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
               <option value="Reactive">Reactive (TS 8 — mythralloy protection, no mithral)</option>
               <option value="Unobtanium">Unobtanium (TS 9 — ask your GM!)</option>
             </select></label>
+          <label style="grid-column:1 / -1;">Standard-feature Gadget <span style="opacity:.55;font-size:9.5px;">(built in at the forge — occupies the item's base gadget slot, the "one before Mastercrafting" of HH pp.274-275; mastercraft slots stack on top as normal)</span><br>
+            <select id="hbg-gadget" style="width:100%;"><option value="" selected>None</option></select></label>
           <label style="grid-column:1 / -1;">Notes <span style="opacity:.55;font-size:9.5px;">(special qualities stay prose — the GM adjudicates them at the table)</span><br>
             <textarea id="hbg-notes" rows="2" style="width:100%;font-size:11.5px;"></textarea></label>
         </div>
@@ -4696,6 +4698,24 @@ function hbgTypeChange() {
   const w = document.getElementById('hbg-type').value === 'weapon';
   for (const el of document.querySelectorAll('.hbg-w')) el.style.display = w ? '' : 'none';
   for (const el of document.querySelectorAll('.hbg-a')) el.style.display = w ? 'none' : '';
+  // v9.13.0 (§271): the standard-feature gadget list follows the type —
+  // weapon gadgets for weapons, armor gadgets for armor (GADGETS_CATALOG).
+  const sel = document.getElementById('hbg-gadget');
+  if (sel && typeof GADGETS_CATALOG !== 'undefined') {
+    const keep = sel.value;
+    const kind = w ? 'weapon' : 'armor';
+    sel.innerHTML = '<option value="">None</option>' + GADGETS_CATALOG
+      .filter(g => g.type === kind)
+      .map(g => `<option${g.name === keep ? ' selected' : ''}>${escapeHTML(g.name)}</option>`).join('');
+  }
+}
+// v9.13.0 (§271): ionic and concussion are nonlethal BY DEFINITION (HH:
+// "ionization" = electrical nonlethal; concussion grenades deal "nonlethal
+// concussion damage") — picking them flips the lethality select, which
+// stays editable for deliberate divergence.
+function hbgDtypeChange() {
+  const dt = document.getElementById('hbg-dtype').value;
+  if (dt === 'ionic' || dt === 'concussion') document.getElementById('hbg-leth').value = 'nonlethal';
 }
 function hbgAutoSpeed() {
   const t = document.getElementById('hbg-atype').value;
@@ -4743,6 +4763,9 @@ function hbgSave() {
       rec.hb_hardness = subTS <= 4 ? rec.ac_bonus : ((row && row[cat] != null) ? row[cat] : rec.ac_bonus);
     }
   }
+  // v9.13.0 (§271): the standard-feature gadget travels on the record.
+  const gad = v('hbg-gadget');
+  if (gad) rec.hb_gadget = gad;
   const i = homebrewGear.findIndex(r => r.name === name && (r.category === 'weapon') === isWeapon);
   if (i >= 0) homebrewGear[i] = rec; else homebrewGear.push(rec);
   hbgStoreSave(); hbGearSync(); hbgRenderList();
@@ -4760,9 +4783,10 @@ function hbgRenderList() {
   const el = document.getElementById('hbg-list'); if (!el) return;
   el.innerHTML = homebrewGear.length
     ? homebrewGear.map((r, i) => {
-        const line = r.category === 'weapon'
+        const line = (r.category === 'weapon'
           ? `${r.dmg_m} · ${r.crit} · ${r.tail}`
-          : `+${r.ac_bonus} AC · ${r.type}${r.hb_substance ? ` · ${r.hb_substance} (hardness ${r.hb_hardness})` : ''} · ${r.weight}`;
+          : `+${r.ac_bonus} AC · ${r.type}${r.hb_substance ? ` · ${r.hb_substance} (hardness ${r.hb_hardness})` : ''} · ${r.weight}`)
+          + (r.hb_gadget ? ` · ⚙ ${r.hb_gadget} (standard feature)` : '');
         return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
           <div><b>${escapeHTML(r.name)}</b> <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
             <div style="font-size:10.5px;opacity:.6;">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
@@ -11333,6 +11357,11 @@ async function addItemToChar(catalogue, ref, slot, opts) {
     gadgets: [],
   };
   if (provenance) item.provenance = provenance;
+  // v9.13.0 (§271): a homebrew variant forged with a STANDARD-FEATURE gadget
+  // arrives with it installed — it occupies the item's base gadget slot (the
+  // "one Gadget before Mastercrafting allows additional", HH pp.274-275), so
+  // the 1 + mastercraft capacity math is untouched.
+  if (entry.hb_gadget) item.gadgets = [{ ref: entry.hb_gadget, builtin: true }];
   // v9.1.0: parameterized gear (Masterwork tool → a Craft; instruments → a
   // Perform row) asks once on add; re-pickable from the inventory row.
   if (catalogue === 'equipment' && entry.effect && entry.effect.param) {

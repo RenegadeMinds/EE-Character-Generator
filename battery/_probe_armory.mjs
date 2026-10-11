@@ -93,6 +93,32 @@ await t('OWNED-HOMEBREW-INTEGRITY', async () => {
     || (!!g && g.hardness === 15) || { g: g && { hardness: g.hardness } };
 });
 
+await t('IONIC-AUTOFLIPS-NONLETHAL', () => {
+  const dt = document.getElementById('hbg-dtype');
+  const opts = [...dt.options].map(o => o.value || o.text);
+  if (!opts.includes('ionic') || !opts.includes('concussion') || !opts.includes('cryonic')) return { opts };
+  dt.value = 'ionic'; hbgDtypeChange();
+  return document.getElementById('hbg-leth').value === 'nonlethal' || { leth: document.getElementById('hbg-leth').value };
+});
+
+await t('STANDARD-FEATURE-GADGET-INSTALLS', async () => {
+  const c = chars.find(x => x.id === curId);
+  document.getElementById('hbg-type').value = 'weapon';
+  hbgTypeChange();
+  document.getElementById('hbg-name').value = 'Shock Maul';
+  document.getElementById('hbg-dtype').value = 'ionic';
+  hbgDtypeChange();
+  document.getElementById('hbg-gadget').value = 'Stun Module';
+  hbgSave();
+  const w = WEAPONS_CATALOG.find(x => x.name === 'Shock Maul');
+  if (!w || w.hb_gadget !== 'Stun Module' || w.lethality !== 'nonlethal') return { w: w && { g: w.hb_gadget, l: w.lethality } };
+  window.promptProvenance = async () => '';
+  await addItemToChar('weapon', 'Shock Maul', 'main_hand', { skipPurchase: true });
+  const it = (c.items || []).find(x => x.ref === 'Shock Maul');
+  return (!!it && it.gadgets.length === 1 && it.gadgets[0].ref === 'Stun Module' && it.gadgets[0].builtin === true)
+    || { gadgets: it && it.gadgets };
+});
+
 await t('UNMAKE-REMOVES-FROM-CATALOG', () => {
   const i = homebrewGear.findIndex(r => r.name === 'Chainsword');
   hbgDelete(i);
