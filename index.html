@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.11.3</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.12.0</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -1173,6 +1173,85 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
     <div class="sec-head sm" onclick="toggleGearCyber()" style="cursor:pointer;user-select:none;border-top:1px solid rgba(120,175,205,.25);padding-top:8px;"><span id="gear-cyber-chev" style="font-size:9px;color:#78afcd;">▸</span> <span style="color:#78afcd;">🦾 Cybernetics</span> <span class="cite cite-HH" title="Hero's Handbook, pp. 332-339 — Cybernetic Attachments & Implants">HH 332</span> <span id="gear-cyber-summary" style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0;color:rgba(120,175,205,.85);margin-left:8px;"></span></div>
     <div id="gear-cyber-wrap" style="display:none;border-bottom:1px solid rgba(120,175,205,.25);padding-bottom:10px;margin-bottom:.9rem;">
       <div id="gear-cyber-body"></div>
+    </div>
+
+    <!-- v9.12.0 (§269): the Homebrew Armory — GM-authored weapons and armor
+         join the real catalogs (browse, purchase, equip, stat strips, armor
+         integrity all ride the normal rails). Armor may be forged from a
+         named substance (HH pp.329-331 alloys; hardness per the p.384 row
+         of the substance's NATIVE Tech Scale). -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+      <button class="btn btn-sm" onclick="hbgOpen()" title="GM lane: author custom weapons and armor. Entries join the shop catalogs below (gated by the scenario's Tech Scale like any canon item) and export as a file for your players. Armor can be forged from a named Tech Scale alloy (HH pp.329-331) — its hardness follows the substance's native-TS row on the Armor Hardness table (HH p.384).">🛠 Homebrew Armory</button>
+    </div>
+    <div id="hbg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
+      <div style="max-width:720px;margin:5vh auto;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;padding:18px 20px;">
+        <div class="modal-title" style="margin-bottom:4px;">🛠 Homebrew Armory — Forge Your Arms &amp; Armor</div>
+        <div style="font-size:11.5px;color:rgba(200,151,30,.6);margin-bottom:10px;line-height:1.5;">
+          GM lane. Entries join the real catalogs — browsable, purchasable (at your Purchase DC), equippable, with live stat strips and T/AC armor integrity. Book anchors: armor hardness by Tech Scale and standard substance (HH p.384); the named alloys and their characters (HH pp.329-331, the vehicular armor list — personal-armor use is a GM extrapolation the table supports).
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 12px;font-size:12px;">
+          <label>Type<br><select id="hbg-type" style="width:100%;" onchange="hbgTypeChange()">
+            <option value="weapon" selected>Weapon</option><option value="armor">Armor / Shield</option>
+          </select></label>
+          <label>Name<br><input id="hbg-name" type="text" placeholder="e.g. Chainsword" style="width:100%;"></label>
+          <label>Tech Scale<br><select id="hbg-ts" style="width:100%;">
+            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
+          </select></label>
+          <label>Purchase DC<br><input id="hbg-dc" type="number" min="1" max="60" value="15" style="width:100%;"></label>
+          <label>Weight (lb.)<br><input id="hbg-weight" type="number" min="0" value="5" style="width:100%;"></label>
+          <label></label>
+          <!-- weapon fields -->
+          <label class="hbg-w">Proficiency<br><select id="hbg-cat" style="width:100%;">
+            <option>Simple</option><option selected>Martial</option><option>Exotic</option><option>Personal Firearm</option><option>Heavy Weapon</option>
+          </select></label>
+          <label class="hbg-w">Kind<br><select id="hbg-kind" style="width:100%;">
+            <option>light</option><option selected>one-handed</option><option>two-handed</option><option>ranged</option>
+          </select></label>
+          <label class="hbg-w">Damage type<br><select id="hbg-dtype" style="width:100%;">
+            <option selected>slashing</option><option>piercing</option><option>bludgeoning</option><option>ballistic</option><option>fire</option><option>electricity</option><option>cold</option><option>acid</option><option>sonic</option><option>energy</option>
+          </select></label>
+          <label class="hbg-w">Damage (Medium)<br><input id="hbg-dmgm" type="text" value="1d8" style="width:100%;"></label>
+          <label class="hbg-w">Damage (Small)<br><input id="hbg-dmgs" type="text" value="1d6" style="width:100%;"></label>
+          <label class="hbg-w">Critical<br><input id="hbg-crit" type="text" value="19–20/x2" style="width:100%;"></label>
+          <label class="hbg-w">Range increment (ft)<br><input id="hbg-range" type="number" min="0" value="10" style="width:100%;" title="Melee weapons: the thrown increment, or 0 for none."></label>
+          <label class="hbg-w">Lethality<br><select id="hbg-leth" style="width:100%;"><option selected>lethal</option><option>nonlethal</option></select></label>
+          <label class="hbg-w"></label>
+          <!-- armor fields -->
+          <label class="hbg-a" style="display:none;">Category<br><select id="hbg-atype" style="width:100%;" onchange="hbgAutoSpeed()">
+            <option selected>light</option><option>medium</option><option>heavy</option><option>shield</option>
+          </select></label>
+          <label class="hbg-a" style="display:none;">AC bonus<br><input id="hbg-ac" type="number" min="0" max="15" value="3" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;">Max Dex<br><input id="hbg-mdex" type="text" value="+4" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;">Armor check penalty<br><input id="hbg-acp" type="text" value="-2" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;">Arcane spell failure<br><input id="hbg-asf" type="text" value="20%" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;">Speed (30’ base / 20’ base)<br><input id="hbg-speed" type="text" value="30’/20’" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;grid-column:1 / -1;">Substance <span style="opacity:.55;font-size:9.5px;">(hardness follows the substance's NATIVE-TS row on HH p.384 — a Megatanium chain shirt is hard like Megatanium, whatever its pattern's age)</span><br>
+            <select id="hbg-substance" style="width:100%;">
+              <option value="" selected>Standard for its Tech Scale (HH p.384 default)</option>
+              <option value="Alumisteel">Alumisteel (TS 5)</option><option value="Duraplastic">Duraplastic (TS 5)</option>
+              <option value="Duralloy">Duralloy (TS 6)</option><option value="Mythralloy">Mythralloy (TS 6 — mithral alloy, expensive)</option>
+              <option value="Resilium">Resilium (TS 6)</option><option value="Steelskin">Steelskin (TS 6 — printed vanadium scale)</option>
+              <option value="Adamantium">Adamantium (TS 7 — diamond-over-steel sheen)</option><option value="Crystal Carbon">Crystal Carbon (TS 7 — orbital-grown)</option>
+              <option value="Neovulcanium">Neovulcanium (TS 7 — plasma-forged)</option><option value="Tithralium">Tithralium (TS 7 — titanium/mithral, light)</option>
+              <option value="Krithium">Krithium (TS 8 — the budget option)</option><option value="Megatanium">Megatanium (TS 8 — layered magnetic matrix)</option>
+              <option value="Mythandium">Mythandium (TS 8 — dwarven secret; Illegal +4)</option><option value="Nanofluidic">Nanofluidic (TS 8 — smart armor; Military +3)</option>
+              <option value="Reactive">Reactive (TS 8 — mythralloy protection, no mithral)</option>
+              <option value="Unobtanium">Unobtanium (TS 9 — ask your GM!)</option>
+            </select></label>
+          <label style="grid-column:1 / -1;">Notes <span style="opacity:.55;font-size:9.5px;">(special qualities stay prose — the GM adjudicates them at the table)</span><br>
+            <textarea id="hbg-notes" rows="2" style="width:100%;font-size:11.5px;"></textarea></label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+          <button class="btn btn-pri btn-sm" onclick="hbgSave()">⚒ Forge It</button>
+          <button class="btn btn-sm" onclick="hbgExport()" title="Export the armory as a JSON file for your players.">⬇ Export</button>
+          <button class="btn btn-sm" onclick="document.getElementById('hbg-import-file').click()" title="Import an armory file. Adds only; name collisions with canon entries are refused.">⬆ Import</button>
+          <input id="hbg-import-file" type="file" accept=".json" style="display:none;" onchange="hbgImport(this)">
+          <span style="flex:1;"></span>
+          <button class="btn btn-sm" onclick="hbgClose()">Close</button>
+        </div>
+        <div class="sec-head sm" style="margin-top:12px;">The Armory</div>
+        <div id="hbg-list" style="max-height:220px;overflow-y:auto;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+      </div>
     </div>
 
     <div class="sec-head sm">Inventory — Weapons</div>
@@ -4578,6 +4657,148 @@ function hbAdjSummary(r) {
 }
 function hbOpen() { hbRenderList(); document.getElementById('hb-choose-panel').style.display = 'none'; document.getElementById('hb-modal').style.display = 'block'; }
 function hbClose() { document.getElementById('hb-modal').style.display = 'none'; }
+
+// ============================================================================
+// v9.12.0 (§269): THE HOMEBREW ARMORY — GM-authored weapons and armor that
+// JOIN the real catalogs (hbGearSync pushes them into WEAPONS_CATALOG /
+// ARMOR_CATALOG at boot and on every save), so browse, purchase, equip,
+// stat strips, mastercraft/enchant, and T/AC armor integrity all ride the
+// normal rails with zero special-casing. Armor may be forged from a NAMED
+// SUBSTANCE (HH pp.329-331, the alloy list): its hardness follows the
+// substance's native-TS row on the Armor Hardness table (HH p.384) — a
+// Megatanium chain shirt is hard like Megatanium, whatever its pattern's
+// age. Store is campaign-level (localStorage, like the feat Forge), with
+// export/import for the players' table.
+const HBG_SUBSTANCES = {  // name → native Tech Scale (HH pp.329-331)
+  'Alumisteel': 5, 'Duraplastic': 5,
+  'Duralloy': 6, 'Mythralloy': 6, 'Resilium': 6, 'Steelskin': 6,
+  'Adamantium': 7, 'Crystal Carbon': 7, 'Neovulcanium': 7, 'Tithralium': 7,
+  'Krithium': 8, 'Megatanium': 8, 'Mythandium': 8, 'Nanofluidic': 8, 'Reactive': 8,
+  'Unobtanium': 9,
+};
+let homebrewGear = [];
+try { homebrewGear = JSON.parse(localStorage.getItem('dxd20v2_homebrew_gear') || '[]'); } catch (e) { homebrewGear = []; }
+function hbgStoreSave() { try { localStorage.setItem('dxd20v2_homebrew_gear', JSON.stringify(homebrewGear)); } catch (e) {} }
+function hbGearSync() {
+  if (typeof WEAPONS_CATALOG === 'undefined' || typeof ARMOR_CATALOG === 'undefined') return;
+  for (const arr of [WEAPONS_CATALOG, ARMOR_CATALOG]) {
+    for (let i = arr.length - 1; i >= 0; i--) if (arr[i] && arr[i].hb) arr.splice(i, 1);
+  }
+  for (const rec of homebrewGear) {
+    const arr = rec.category === 'weapon' ? WEAPONS_CATALOG : ARMOR_CATALOG;
+    if (arr.some(e => e.name === rec.name && !e.hb)) continue;  // never shadow canon
+    arr.push(rec);
+  }
+}
+function hbgOpen() { hbgRenderList(); hbgTypeChange(); document.getElementById('hbg-modal').style.display = 'block'; }
+function hbgClose() { document.getElementById('hbg-modal').style.display = 'none'; }
+function hbgTypeChange() {
+  const w = document.getElementById('hbg-type').value === 'weapon';
+  for (const el of document.querySelectorAll('.hbg-w')) el.style.display = w ? '' : 'none';
+  for (const el of document.querySelectorAll('.hbg-a')) el.style.display = w ? 'none' : '';
+}
+function hbgAutoSpeed() {
+  const t = document.getElementById('hbg-atype').value;
+  document.getElementById('hbg-speed').value = t === 'light' || t === 'shield' ? '30’/20’' : '20’/15’';
+}
+function hbgSave() {
+  const v = (id) => (document.getElementById(id) || {}).value || '';
+  const name = v('hbg-name').trim();
+  if (!name) { toast('The forge needs a name.'); return; }
+  const isWeapon = v('hbg-type') === 'weapon';
+  const canon = (isWeapon ? WEAPONS_CATALOG : ARMOR_CATALOG).some(e => e.name === name && !e.hb);
+  if (canon) { toast(`"${name}" already exists in the canon catalogue — pick another name.`); return; }
+  const ts = parseInt(v('hbg-ts'), 10) || 0;
+  const dc = parseInt(v('hbg-dc'), 10) || 15;
+  const weight = parseFloat(v('hbg-weight')) || 0;
+  const notes = v('hbg-notes').trim();
+  let rec;
+  if (isWeapon) {
+    const range = parseInt(v('hbg-range'), 10) || 0;
+    const dt = v('hbg-dtype');
+    rec = {
+      n: name, cat: v('hbg-cat'), tl: ts, kind: v('hbg-kind'), name, ts,
+      category: 'weapon', dc: String(dc), dmg_s: v('hbg-dmgs').trim() || '—', dmg_m: v('hbg-dmgm').trim() || '1d6',
+      crit: v('hbg-crit').trim() || 'x2',
+      tail: `${range ? range + '’ ' : ''}${weight} lb. ${dt.charAt(0).toUpperCase() + dt.slice(1)}`,
+      damage_type: [dt], lethality: v('hbg-leth'), rof: [], rof_raw: null,
+      magazine_raw: null, magazine_capacity: null, scale: 'character',
+      hb: true, hb_notes: notes,
+    };
+  } else {
+    const atype = v('hbg-atype');
+    rec = {
+      name, tl: ts, type: atype, category: 'armor', dc,
+      ac_bonus: parseInt(v('hbg-ac'), 10) || 0,
+      max_dex: v('hbg-mdex').trim() || '—', armor_check_penalty: v('hbg-acp').trim() || '+/-0',
+      arcane_spell_failure: v('hbg-asf').trim() || '—', speed: v('hbg-speed').trim() || '30’/20’',
+      weight: `${weight} lb.`, scale: 'character', hb: true, hb_notes: notes,
+    };
+    const sub = v('hbg-substance');
+    if (sub && HBG_SUBSTANCES[sub]) {
+      const subTS = HBG_SUBSTANCES[sub];
+      const row = (typeof ARMOR_HARDNESS_BY_TS !== 'undefined') ? ARMOR_HARDNESS_BY_TS[Math.min(subTS, 8)] : null;
+      const cat = atype === 'shield' ? 'medium' : atype;  // p.384 has no shield column; medium row, GM may adjust
+      rec.hb_substance = sub;
+      rec.hb_hardness = subTS <= 4 ? rec.ac_bonus : ((row && row[cat] != null) ? row[cat] : rec.ac_bonus);
+    }
+  }
+  const i = homebrewGear.findIndex(r => r.name === name && (r.category === 'weapon') === isWeapon);
+  if (i >= 0) homebrewGear[i] = rec; else homebrewGear.push(rec);
+  hbgStoreSave(); hbGearSync(); hbgRenderList();
+  if (typeof renderGear === 'function' && typeof curId !== 'undefined' && curId) renderGear();
+  toast(`⚒ ${name} forged${rec.hb_substance ? ` in ${rec.hb_substance} (hardness ${rec.hb_hardness}, native-TS row — HH p.384)` : ''} — it now sits in the ${isWeapon ? 'weapons' : 'armor'} catalogue (TS ${ts}, DC ${dc}).`);
+}
+function hbgDelete(i) {
+  const r = homebrewGear[i]; if (!r) return;
+  homebrewGear.splice(i, 1);
+  hbgStoreSave(); hbGearSync(); hbgRenderList();
+  if (typeof renderGear === 'function' && typeof curId !== 'undefined' && curId) renderGear();
+  toast(`${r.name} unmade. Owned copies on characters keep their records (the dossier loses its catalogue page).`);
+}
+function hbgRenderList() {
+  const el = document.getElementById('hbg-list'); if (!el) return;
+  el.innerHTML = homebrewGear.length
+    ? homebrewGear.map((r, i) => {
+        const line = r.category === 'weapon'
+          ? `${r.dmg_m} · ${r.crit} · ${r.tail}`
+          : `+${r.ac_bonus} AC · ${r.type}${r.hb_substance ? ` · ${r.hb_substance} (hardness ${r.hb_hardness})` : ''} · ${r.weight}`;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
+          <div><b>${escapeHTML(r.name)}</b> <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
+            <div style="font-size:10.5px;opacity:.6;">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
+          <button class="btn btn-sm btn-danger" style="font-size:10px;" onclick="hbgDelete(${i})">✕</button>
+        </div>`;
+      }).join('')
+    : '<div style="padding:5px 6px;font-size:11px;opacity:.5;">Nothing forged yet — weapons and armor you author here join the shop catalogues and export as a file for your players.</div>';
+}
+function hbgExport() {
+  const blob = new Blob([JSON.stringify({ _kind: 'ee-homebrew-gear', v: 1, gear: homebrewGear }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'EE_Homebrew_Armory.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function hbgImport(inp) {
+  const f = inp.files && inp.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const data = JSON.parse(rd.result);
+      const list = Array.isArray(data) ? data : (data.gear || []);
+      let added = 0;
+      for (const r of list) {
+        if (!r || !r.name || !r.category) continue;
+        if ((r.category === 'weapon' ? WEAPONS_CATALOG : ARMOR_CATALOG).some(e => e.name === r.name && !e.hb)) continue;
+        if (homebrewGear.some(x => x.name === r.name && x.category === r.category)) continue;
+        r.hb = true; homebrewGear.push(r); added++;
+      }
+      hbgStoreSave(); hbGearSync(); hbgRenderList();
+      toast(`⬆ Armory import: ${added} added.`);
+    } catch (e) { toast('Import failed — not a valid armory file.'); }
+    inp.value = '';
+  };
+  rd.readAsText(f);
+}
 async function hbSave() {
   const name = (document.getElementById('hb-name').value || '').trim();
   if (!name) { toast('Name the feat first.'); return; }
@@ -8460,7 +8681,14 @@ function armorItemIntegrity(it) {
             : def.type === 'power' ? 'heavy'   // heavy-row hardness pending the mecha pass
             : def.type;
   let hardness, hardSrc;
-  if (ts <= 4) { hardness = def.ac_bonus; hardSrc = `Steel: equipment AC bonus (${def.ac_bonus})`; }
+  // v9.12.0 (§269): a homebrew armor forged from a NAMED substance carries
+  // its hardness with it — the substance's native-TS row (HH p.384), stamped
+  // at forge time. A Megatanium chain shirt is hard like Megatanium.
+  if (def.hb_substance && def.hb_hardness != null) {
+    hardness = def.hb_hardness;
+    hardSrc = `${def.hb_substance} (homebrew substance — native-TS row, HH p.384; alloy list HH pp.329-331): ${hardness}`;
+  }
+  else if (ts <= 4) { hardness = def.ac_bonus; hardSrc = `Steel: equipment AC bonus (${def.ac_bonus})`; }
   else {
     const row = ARMOR_HARDNESS_BY_TS[Math.min(ts, 8)];
     hardness = (row && row[cat] != null) ? row[cat] : def.ac_bonus;
@@ -8481,7 +8709,7 @@ function armorItemIntegrity(it) {
   // superstructure hardness and size-table HP replace the body-armor
   // conversion (FF Ch.III: the Implacable is Duralloy 15 / 50 HP, not
   // ac_bonus-derived). Enchantment durability still rides on top.
-  let paUnit = null, substance = ts <= 4 ? 'Steel' : (ARMOR_SUBSTANCE_BY_TS[Math.min(ts, 9)] || 'Steel');
+  let paUnit = null, substance = def.hb_substance || (ts <= 4 ? 'Steel' : (ARMOR_SUBSTANCE_BY_TS[Math.min(ts, 9)] || 'Steel'));
   if (typeof POWER_ARMOR_DB !== 'undefined' && POWER_ARMOR_DB[it.ref]) {
     paUnit = POWER_ARMOR_DB[it.ref];
     hardness = paUnit.hardness + (m > 0 ? ENCH_BONUS_HARDNESS[m] : 0);
@@ -54172,6 +54400,7 @@ populateRaceDropdown();
 renderSixLevelsGrid();
 initCreateAccordion();  // v8.5.4 ergo C2
 applyScenarioPreset(); // applies the default-selected 'The Ordinary World' preset
+if (typeof hbGearSync === 'function') hbGearSync();  // v9.12.0 (§269): the Armory joins the catalogs before first render
 renderAttrGrid();updateRaceInfo();renderClassList();updateClassPreview();renderRoster();
 // v8.3.17: paint the initial gate state. Default is 'awaiting' for a fresh page;
 // editCurrentChar() sets 'locked' before showing the form.
