@@ -119,6 +119,35 @@ await t('STANDARD-FEATURE-GADGET-INSTALLS', async () => {
     || { gadgets: it && it.gadgets };
 });
 
+await t('TECH-UPGRADES-STAMP-AND-STRIP', async () => {
+  const c = chars.find(x => x.id === curId);
+  document.getElementById('hbg-type').value = 'weapon';
+  hbgTypeChange();
+  document.getElementById('hbg-name').value = 'Power Glaive';
+  document.getElementById('hbg-dtype').value = 'slashing';
+  document.getElementById('hbg-aa').value = '4';
+  document.getElementById('hbg-reach').checked = true;
+  document.getElementById('hbg-hcrit').checked = true; hbgTechChange('hcrit');
+  document.getElementById('hbg-ppack').checked = true;
+  document.getElementById('hbg-stun').checked = false;
+  document.getElementById('hbg-emp').checked = false;
+  document.getElementById('hbg-gadget').value = '';
+  hbgSave();
+  const w = WEAPONS_CATALOG.find(x => x.name === 'Power Glaive');
+  if (!w || !w.hb_tech || w.hb_tech.aa !== 4 || !w.hb_tech.reach || !w.hb_tech.heavyCrit || !w.hb_tech.powerPack) return { t: w && w.hb_tech };
+  const strip = weaponStatStrip(w, { gadgets: [] });
+  return (/Power Weapon — ignores ALL hardness/.test(strip) && /reach \+5/.test(strip) && /Heavy Crit/.test(strip) && /power pack: 50 uses/.test(strip)) || { strip };
+});
+
+await t('STUN-EMP-INTERLOCK', () => {
+  document.getElementById('hbg-stun').checked = true; hbgTechChange('stun');
+  const afterStun = { dt: document.getElementById('hbg-dtype').value, leth: document.getElementById('hbg-leth').value, emp: document.getElementById('hbg-emp').checked };
+  document.getElementById('hbg-emp').checked = true; hbgTechChange('emp');
+  const afterEmp = { dt: document.getElementById('hbg-dtype').value, stun: document.getElementById('hbg-stun').checked };
+  return (afterStun.dt === 'concussion' && afterStun.leth === 'nonlethal' && afterStun.emp === false
+       && afterEmp.dt === 'ionic' && afterEmp.stun === false) || { afterStun, afterEmp };
+});
+
 await t('UNMAKE-REMOVES-FROM-CATALOG', () => {
   const i = homebrewGear.findIndex(r => r.name === 'Chainsword');
   hbgDelete(i);

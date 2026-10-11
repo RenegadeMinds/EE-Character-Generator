@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.13.0</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.14.0</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -1238,6 +1238,15 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
               <option value="Reactive">Reactive (TS 8 — mythralloy protection, no mithral)</option>
               <option value="Unobtanium">Unobtanium (TS 9 — ask your GM!)</option>
             </select></label>
+          <label class="hbg-w" style="grid-column:1 / -1;">Tech Upgrades <span style="opacity:.55;font-size:9.5px;">(Adam's gaveled list, 2026-10-11 — display riders, adjudicated at the table like the ⛏ convention)</span><br>
+            <span style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11.5px;margin-top:2px;">
+              <span>Anti-Armor <select id="hbg-aa" style="font-size:11.5px;"><option value="0" selected>None</option><option value="1">I (ignore 5 hardness)</option><option value="2">II (ignore 10)</option><option value="3">III (ignore 20)</option><option value="4">Power Weapon (ignores ALL hardness)</option></select></span>
+              <label style="display:inline;"><input type="checkbox" id="hbg-stun" onchange="hbgTechChange('stun')"> Stun Pulse</label>
+              <label style="display:inline;"><input type="checkbox" id="hbg-emp" onchange="hbgTechChange('emp')"> EMP (ionic)</label>
+              <label style="display:inline;"><input type="checkbox" id="hbg-reach"> Extended Reach (+5′)</label>
+              <label style="display:inline;"><input type="checkbox" id="hbg-hcrit" onchange="hbgTechChange('hcrit')"> Heavy Crit (×3)</label>
+              <label style="display:inline;" title="The High Frequency Sword's economy: the upgrades run 50 uses per power pack. (It will go the way of ammunition tracking, but technically it belongs.)"><input type="checkbox" id="hbg-ppack"> Power-Pack Economy</label>
+            </span></label>
           <label style="grid-column:1 / -1;">Standard-feature Gadget <span style="opacity:.55;font-size:9.5px;">(built in at the forge — occupies the item's base gadget slot, the "one before Mastercrafting" of HH pp.274-275; mastercraft slots stack on top as normal)</span><br>
             <select id="hbg-gadget" style="width:100%;"><option value="" selected>None</option></select></label>
           <label style="grid-column:1 / -1;">Notes <span style="opacity:.55;font-size:9.5px;">(special qualities stay prose — the GM adjudicates them at the table)</span><br>
@@ -4717,6 +4726,26 @@ function hbgDtypeChange() {
   const dt = document.getElementById('hbg-dtype').value;
   if (dt === 'ionic' || dt === 'concussion') document.getElementById('hbg-leth').value = 'nonlethal';
 }
+// v9.14.0 (§272): the tech-upgrade interlocks — Stun Pulse IS concussion
+// damage and EMP IS ionic (Adam's gavels 3-4), so checking one sets the
+// damage type (and nonlethal) and unchecks the other; Heavy Crit suggests
+// the ×3 multiplier into the crit field (editable).
+function hbgTechChange(which) {
+  const stun = document.getElementById('hbg-stun'), emp = document.getElementById('hbg-emp');
+  if (which === 'stun' && stun.checked) {
+    emp.checked = false;
+    document.getElementById('hbg-dtype').value = 'concussion'; hbgDtypeChange();
+  }
+  if (which === 'emp' && emp.checked) {
+    stun.checked = false;
+    document.getElementById('hbg-dtype').value = 'ionic'; hbgDtypeChange();
+  }
+  if (which === 'hcrit' && document.getElementById('hbg-hcrit').checked) {
+    const cr = document.getElementById('hbg-crit');
+    cr.value = cr.value.replace(/x\d+/i, 'x3');
+    if (!/x3/i.test(cr.value)) cr.value = 'x3';
+  }
+}
 function hbgAutoSpeed() {
   const t = document.getElementById('hbg-atype').value;
   document.getElementById('hbg-speed').value = t === 'light' || t === 'shield' ? '30’/20’' : '20’/15’';
@@ -4766,6 +4795,16 @@ function hbgSave() {
   // v9.13.0 (§271): the standard-feature gadget travels on the record.
   const gad = v('hbg-gadget');
   if (gad) rec.hb_gadget = gad;
+  // v9.14.0 (§272): the gaveled Tech Upgrades (weapons only).
+  if (isWeapon) {
+    const chk = (id) => !!(document.getElementById(id) || {}).checked;
+    const tech = {
+      aa: parseInt(v('hbg-aa'), 10) || 0,
+      stun: chk('hbg-stun'), emp: chk('hbg-emp'),
+      reach: chk('hbg-reach'), heavyCrit: chk('hbg-hcrit'), powerPack: chk('hbg-ppack'),
+    };
+    if (tech.aa || tech.stun || tech.emp || tech.reach || tech.heavyCrit || tech.powerPack) rec.hb_tech = tech;
+  }
   const i = homebrewGear.findIndex(r => r.name === name && (r.category === 'weapon') === isWeapon);
   if (i >= 0) homebrewGear[i] = rec; else homebrewGear.push(rec);
   hbgStoreSave(); hbGearSync(); hbgRenderList();
@@ -4786,7 +4825,8 @@ function hbgRenderList() {
         const line = (r.category === 'weapon'
           ? `${r.dmg_m} · ${r.crit} · ${r.tail}`
           : `+${r.ac_bonus} AC · ${r.type}${r.hb_substance ? ` · ${r.hb_substance} (hardness ${r.hb_hardness})` : ''} · ${r.weight}`)
-          + (r.hb_gadget ? ` · ⚙ ${r.hb_gadget} (standard feature)` : '');
+          + (r.hb_gadget ? ` · ⚙ ${r.hb_gadget} (standard feature)` : '')
+          + (r.hb_tech ? [r.hb_tech.aa ? (r.hb_tech.aa === 4 ? ' · ⚡⛏ Power Wpn' : ` · ⛏ AA ${['','I','II','III'][r.hb_tech.aa]}`) : '', r.hb_tech.stun ? ' · Stun Pulse' : '', r.hb_tech.emp ? ' · EMP' : '', r.hb_tech.reach ? ' · Reach +5′' : '', r.hb_tech.heavyCrit ? ' · ×3' : '', r.hb_tech.powerPack ? ' · ⚡pack' : ''].join('') : '');
         return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
           <div><b>${escapeHTML(r.name)}</b> <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
             <div style="font-size:10.5px;opacity:.6;">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
@@ -7796,7 +7836,7 @@ const CYBERNETICS_DB = [
   { n: 'Artificial Organ Upgrade', ts: 6, type: 'Internal', hard: '–/4', pdc: 21, rx: '—', slot: 'torso', d: 'Upgraded TS 5 artificial organ — more resilient; cannot be disabled by massive damage effects.' },
   { n: 'Prosthetic Arm Upgrade', ts: 6, type: 'External', hard: '5/10', pdc: 19, rx: '—', slot: 'arm', replaceArm: true, d: 'Upgraded TS 5 prosthetic arm — greater hardness and HP. RESTORES the off hand lost to the Lost Arm drawback.' },
   { n: 'Prosthetic Leg Upgrade', ts: 6, type: 'External', hard: '5/15', pdc: 19, rx: '—', slot: 'leg', replaceLeg: true, d: 'Upgraded TS 5 prosthetic leg — greater hardness and HP.' },
-  { n: 'Anti-Shock Implant', ts: 6, type: 'Internal', hard: '–/1', pdc: 15, rx: '—', slot: 'neural', d: 'Embedded near the brain stem; protects itself and other cybernetic hardware. NEGATES the recipient’s electricity vulnerability from cybernetics.' },
+  { n: 'Anti-Shock Implant', ts: 6, type: 'Internal', hard: '–/1', pdc: 15, rx: '—', slot: 'neural', d: 'Embedded near the brain stem; protects itself and other cybernetic hardware. NEGATES the recipient’s electricity vulnerability from cybernetics — and renders the character’s cybernetics IMMUNE to ionic damage (ionization, the nonlethal electrical type; ordinary electricity still applies — Adam’s EMP ruling, 2026-10-11).' },
   { n: 'External Weapon Mount', ts: 6, type: 'External', hard: '10/5', pdc: 0, pdcNote: 'melee 15 / ranged 17 (+arm, +weapon)', rx: 'Mil (+3)', slot: 'arm', needsArm: true, d: 'The prosthetic arm ends in a weapon instead of a hand. Disarm attempts automatically fail (the weapon can still be attacked). Base PDC: melee mount 15, ranged mount 17 — prosthetic arm and weapon not included. REQUIRES a prosthetic arm.' },
   { n: 'Identity Chip', ts: 6, type: 'Internal', hard: '–/1', pdc: 5, rx: '—', slot: 'torso', d: 'Subcutaneous legal ID + credit card; use your Wealth even when separated from your funds.' },
   { n: 'Injector Unit', ts: 6, type: 'External', hard: '2/5', pdc: 15, rx: 'Lic (+1)', slot: 'limb', d: 'Forearm/thigh unit with three hypo-syringes (antitox, boost, neutrad, sporekill [TS 6], or biocort [TS 7]). Inject any or all as a FREE action; replacing a drained hypo is a full-round action.' },
@@ -10167,6 +10207,19 @@ function weaponStatStrip(def, it) {
   if (effMag != null) bits.push(`mag ${hasGadget(it, 'Expanded Magazine') ? `${effMag} (expanded)` : def.magazine_raw || effMag}`);
   else if (def.magazine_raw) bits.push(`mag ${def.magazine_raw}`);
   if (hasGadget(it, 'Spring Loaded')) bits.push('Quick Draw (spring-loaded)');
+  // v9.14.0 (§272, Adam's tech-upgrade gavels): homebrew Tech Upgrades wear
+  // their chips on every strip surface — display riders, table-adjudicated
+  // (the ⛏ convention: damage math untouched).
+  const _ht = def.hb_tech;
+  if (_ht) {
+    if (_ht.aa === 4) bits.push('⚡⛏ Power Weapon — ignores ALL hardness (natural incl.)');
+    else if (_ht.aa) bits.push(`⛏ Anti-Armor ${['','I','II','III'][_ht.aa]} — ignores the first ${[0,5,10,20][_ht.aa]} hardness (natural incl.)`);
+    if (_ht.stun) bits.push('Stun Pulse — concussion (nonlethal); Fort DC 10 + damage dealt or stunned 1 rd');
+    if (_ht.emp) bits.push('EMP — ionic (nonlethal electrical); vs cyborgs it strikes ONLY the tech implants (usually disabling them); an Anti-Shock Implant makes cybernetics immune to ionic');
+    if (_ht.reach) bits.push('reach +5′ (Extended Reach)');
+    if (_ht.heavyCrit) bits.push('Heavy Crit (×3)');
+    if (_ht.powerPack) bits.push('power pack: 50 uses per pack (HF-Sword economy)');
+  }
   return bits.join(' · ');
 }
 
