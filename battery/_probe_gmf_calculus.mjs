@@ -33,6 +33,13 @@ const r = await page.evaluate(() => {
     if (c.resid >= 2) flavors.tricks++; else if (c.resid <= -2) flavors.hot++; else flavors.fair++;
   }
   out.flavors = flavors;
+  // The named-tricks display (v0.5.3): the Medusa's residual must name its
+  // unpriced abilities inline.
+  document.getElementById('b-q').value = 'medusa';
+  renderB();
+  const mRow = document.querySelector('.card .statrow.calculus');
+  out.medusa = mRow ? mRow.textContent.slice(0, 220) : null;
+  out.medusaNames = mRow ? /in tricks: .+/.test(mRow.textContent) : null;
   // A dragon card renders with the derived note in its tooltip.
   document.getElementById('b-q').value = 'red dragon';
   renderB();
@@ -43,5 +50,5 @@ const r = await page.evaluate(() => {
 console.log(JSON.stringify(r, null, 1));
 console.log('console errors:', errors.length, errors.slice(0, 3));
 await browser.close();
-if (errors.length || !r.aboleth || !r.abolethMage || r.dragon !== true) { console.log('PROBE RED'); process.exit(1); }
+if (errors.length || !r.aboleth || !r.abolethMage || r.dragon !== true || r.medusaNames !== true) { console.log('PROBE RED'); process.exit(1); }
 console.log('PROBE GREEN');
