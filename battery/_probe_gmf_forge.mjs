@@ -48,11 +48,27 @@ const r = await page.evaluate(() => {
   TRAY = []; ROSTER = Array.from({ length: 4 }, (_, i) => ({ name: 'L3-' + i, ecl: 3 })); saveForge(); renderF();
   forgeAdd(fOgre, 0); renderF();
   out.solo = document.getElementById('f-meter').textContent.includes('out-acted');
+  // v0.7.1 THE TS TOGGLE: arming + armoring the ogre lifts its effective CR
+  // by 2 (3 -> 5) and the EL with it.
+  const elBefore = +document.getElementById('f-meter').dataset.el;
+  forgeTS(0, 'tsA'); forgeTS(0, 'tsD');
+  out.tsEL = +document.getElementById('f-meter').dataset.el === elBefore + 2;
+  out.tsChip = /↑2/.test(document.getElementById('f-tray').innerHTML);
+  forgeTS(0, 'tsA'); forgeTS(0, 'tsD');
+  // v0.7.1 THE TREASURE ROLLER: deterministic rng — EL-10 haul has the three
+  // columns and the budget line (6,500 gp at EL 10).
+  const seq = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
+  let si = 0; const rnd = () => seq[si++ % seq.length];
+  const lines = rollTreasure(10, 1, rnd);
+  out.lootLines = lines.length === 2 && /coins:/.test(lines[0]) && /goods:/.test(lines[0]) && /items:/.test(lines[0]);
+  out.lootBudget = /6,500 gp/.test(lines[1]);
+  const dbl = rollTreasure(10, 2, rnd);
+  out.lootDouble = dbl.length === 3 && /Roll 1:/.test(dbl[0]) && /Roll 2:/.test(dbl[1]);
   return out;
 });
 console.log(JSON.stringify(r, null, 1));
 console.log('console errors:', errors.length, errors.slice(0, 3));
 await browser.close();
-const ok = r.tabVisible && r.cr4 === 7 && r.cr5 === 8 && r.cr5attr === 9 && r.cr5tuned === 8 && r.el7 && r.shares && r.reload && r.chaff && r.solo && !errors.length;
+const ok = r.tabVisible && r.cr4 === 7 && r.cr5 === 8 && r.cr5attr === 9 && r.cr5tuned === 8 && r.el7 && r.shares && r.reload && r.chaff && r.solo && r.tsEL && r.tsChip && r.lootLines && r.lootBudget && r.lootDouble && !errors.length;
 console.log(ok ? 'PROBE GREEN' : 'PROBE RED');
 if (!ok) process.exit(1);
