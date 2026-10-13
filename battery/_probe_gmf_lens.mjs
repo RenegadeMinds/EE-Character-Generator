@@ -45,6 +45,22 @@ const r = await page.evaluate(() => {
   out.classicMD = /massive damage \(50\+\)|MD under E&E/.test(card().textContent);
   // persistence
   out.stored = localStorage.getItem('gmf_lens') === 'classic';
+  // v0.6.8 (Adam's Chemical Toxyderm catch): clean drop-down labels + the
+  // lens backs out ONLY the MD-attributable CR delta.
+  setLens('ee');
+  document.getElementById('b-q').value = 'toxyderm'; renderB();
+  const ctf = BESTIARY.find(f => f.parent === 'CHEMICAL TOXYDERM');
+  const ctv = ctf.variants[0];
+  out.cleanLabel = !/errata|prints/i.test(document.getElementById('b-list').innerHTML.match(/<option[^>]*>[^<]*Toxyderm[^<]*<\/option>/i)?.[0] || '');
+  out.eeCR = lensCR(ctv);
+  setLens('modern');
+  out.modernCR = lensCR(ctv);
+  const kr = BESTIARY.find(f => f.parent === 'KRAKEN').variants[0];
+  out.krakenModern = lensCR(kr);
+  // the tantalize CR line renders on a lensed MD-errata card
+  document.getElementById('b-q').value = 'chemical toxyderm'; renderB();
+  const cc = document.querySelector('.card'); cc.setAttribute('open', '');
+  out.crDelta = /E&E rates this creature CR 17/.test(cc.textContent);
   setLens('ee');
   return out;
 });
@@ -53,6 +69,6 @@ console.log('console errors:', errors.length, errors.slice(0, 3));
 await browser.close();
 const ok = r.nativeParry && r.classicBA && r.classicParryDelta && r.classicAC && r.classicDodgeDelta
   && r.classicHardness && r.classicNote && r.calcStays && r.modernDefense && r.modernMD && r.classicMD
-  && r.stored && !errors.length;
+  && r.stored && r.cleanLabel && r.eeCR === 17 && r.modernCR === 15 && r.krakenModern === 13 && r.crDelta && !errors.length;
 console.log(ok ? 'PROBE GREEN' : 'PROBE RED');
 if (!ok) process.exit(1);
