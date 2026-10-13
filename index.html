@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.14.0</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.15.0</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -4690,6 +4690,109 @@ const HBG_SUBSTANCES = {  // name → native Tech Scale (HH pp.329-331)
 let homebrewGear = [];
 try { homebrewGear = JSON.parse(localStorage.getItem('dxd20v2_homebrew_gear') || '[]'); } catch (e) { homebrewGear = []; }
 function hbgStoreSave() { try { localStorage.setItem('dxd20v2_homebrew_gear', JSON.stringify(homebrewGear)); } catch (e) {} }
+// ========== v9.15.0 §273: THE MONSTROUS HERITAGE LANE ==========
+// The CG half of the GMF bridge (Adam's gavel, 2026-10-13): the Familiar's
+// "Seed → CG" button exports a creature seed; importing it here births a
+// playable character — the creature's racial Hit Dice ride as a MONSTROUS-
+// tier class (progressions from the FF Creature Types chapter: good saves
+// 2 + HD/2, poor HD/3, BAB by type fraction), the creature itself becomes
+// a race entry (ability adjustments = listed − the 10/11 baseline, RLM =
+// its printed Level Adjustment), and class levels then advance normally in
+// the full engine. Monstrous classes never appear in the class picker —
+// they exist only through seed import. Creatures of 1 HD or less follow
+// FF p.34 (class levels REPLACE the monster level): race only, no class.
+const MONSTROUS_CLASSES = {};
+let monstrousStore = { classes: {}, races: {} };
+try { monstrousStore = JSON.parse(localStorage.getItem('dxd20v2_monstrous') || '{"classes":{},"races":{}}'); } catch (e) { monstrousStore = { classes: {}, races: {} }; }
+function monstrousSave() { try { localStorage.setItem('dxd20v2_monstrous', JSON.stringify(monstrousStore)); } catch (e) {} }
+const MONSTER_TYPE_PROG = { // FF Creature Types: die, BAB fraction, good saves
+  'Aberration':{d:8,b:.75,g:['will']}, 'Animal':{d:8,b:.75,g:['fort','ref']},
+  'Construct':{d:10,b:.75,g:[]}, 'Dragon':{d:12,b:1,g:['fort','ref','will']},
+  'Elemental':{d:8,b:.75,g:['fort']}, 'Fey':{d:6,b:.5,g:['will']},
+  'Giant':{d:8,b:.75,g:['fort']}, 'Humanoid':{d:8,b:.75,g:['ref']},
+  'Magical Beast':{d:10,b:1,g:['fort','ref']}, 'Monstrous Humanoid':{d:8,b:1,g:['ref','will']},
+  'Ooze':{d:10,b:.75,g:[]}, 'Outsider':{d:8,b:1,g:['fort','ref','will']},
+  'Plant':{d:8,b:.75,g:['fort']}, 'Undead':{d:12,b:.5,g:['will']}, 'Vermin':{d:8,b:.75,g:['fort']},
+};
+function buildMonstrousClass(typeName, maxHD) {
+  const key = Object.keys(MONSTER_TYPE_PROG).find(k => k.toLowerCase() === String(typeName || '').trim().toLowerCase());
+  const p = MONSTER_TYPE_PROG[key] || { d: 8, b: .75, g: ['fort'] };
+  const n = Math.max(20, Math.min(54, maxHD || 20));
+  const bab = [], fort = [], ref = [], will = [], def = [], rep = [];
+  for (let i = 1; i <= n; i++) {
+    bab.push(Math.floor(p.b * i));
+    fort.push(p.g.includes('fort') ? 2 + Math.floor(i / 2) : Math.floor(i / 3));
+    ref.push(p.g.includes('ref') ? 2 + Math.floor(i / 2) : Math.floor(i / 3));
+    will.push(p.g.includes('will') ? 2 + Math.floor(i / 2) : Math.floor(i / 3));
+    def.push(0); rep.push(0);
+  }
+  return { attr: 'STR', hd: p.d, bab, fort, ref, will, def, rep, sp: 2, monster: true, mType: key || 'Aberration' };
+}
+function monstrousBoot() {
+  for (const [n, d] of Object.entries(monstrousStore.classes || {})) MONSTROUS_CLASSES[n] = d;
+  for (const [n, d] of Object.entries(monstrousStore.races || {})) if (typeof RACES !== 'undefined' && !RACES[n]) RACES[n] = d;
+}
+monstrousBoot();
+function importCreatureSeed(seed) {
+  const fam = String(seed.fam || seed.label || 'Creature');
+  const nice = fam.toLowerCase().replace(/(^|[\s\-('])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+  const hdM = String(seed.hit_dice || '').match(/(\d+)d(\d+)/);
+  const hpM = String(seed.hit_dice || '').match(/\((\d+)\s*hp\)/i);
+  const hd = hdM ? +hdM[1] : 1;
+  const la = (() => { const m = String(seed.level_adjustment || '').match(/[+−-]?\s*(\d+)/); return m ? +m[1] : 0; })();
+  const typeName = String(seed.type || 'Aberration');
+  // race entry: adjustments vs the 10/11 baseline (FF: statblocks assume average)
+  const adj = {};
+  for (const am of String(seed.attributes || '').matchAll(/(Str|Dex|Con|Int|Wis|Cha)\s+(\d+)/gi)) {
+    const v = +am[2]; const a = v - (v % 2 === 0 ? 10 : 11);
+    if (a) adj[am[1].toUpperCase()] = a;
+  }
+  const raceName = nice + ' (Monstrous)';
+  const sz = String(seed.size || '');
+  const raceDef = {
+    adj, ecl: la, size: /Small|Tiny|Diminutive|Fine/i.test(sz) ? 'S' : (/Large|Huge|Gargantuan|Colossal/i.test(sz) ? 'L' : undefined),
+    notes: `Monstrous Heritage (GMF seed): ${nice}, ${sz} ${typeName}. SA: ${seed.special_attacks || '—'}. SQ: ${seed.special_qualities || '—'}. True size ${sz} (race engine treats beyond-Large as L); natural armor, racial abilities and their DCs are the GM's finishing touches from the statblock.`,
+  };
+  if (typeof RACES !== 'undefined' && !RACES[raceName]) RACES[raceName] = raceDef;
+  monstrousStore.races[raceName] = raceDef;
+  const id = 'seed-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+  const classes = [];
+  if (hd >= 2) {
+    const advHi = Math.max(hd, ...[...String(seed.advancement || '').matchAll(/(\d+)/g)].map(m => +m[1]).filter(x => x < 60), 0);
+    const clsName = 'Monstrous: ' + nice + ' (' + typeName + ')';
+    const clsDef = buildMonstrousClass(typeName, advHi);
+    MONSTROUS_CLASSES[clsName] = clsDef;
+    monstrousStore.classes[clsName] = clsDef;
+    classes.push({ tier: 'monstrous', name: clsName, level: hd, first: true });
+  }
+  monstrousSave();
+  const baseAttrs = ['STR','DEX','CON','INT','WIS','CHA'].map(k => {
+    const m = String(seed.attributes || '').match(new RegExp(k.charAt(0) + k.slice(1).toLowerCase() + '\\s+(\\d+)'));
+    if (!m) return 10;
+    const v = +m[1]; return v - (adj[k] || 0);
+  });
+  const c = {
+    id, name: nice, race: raceName, sex: '', align: 'Neutral', hybrid: null, allegiance: '',
+    occupations: [], xp: 0, hpMode: 'hero',
+    schemaVer: (typeof CURRENT_SCHEMA_VER !== 'undefined') ? CURRENT_SCHEMA_VER : 1,
+    attrs: baseAttrs, attrBumps: [],
+    sixLevels: { arcane: 5, divine: 5, heroic: 5, mutation: 5, psionic: 5, tech: 5 },
+    scenarioPreset: 'Custom',
+    classes, skills: {}, feats: [], powers: [], talents: [], items: [], gear: [],
+    maxHP: 10, hp: 10,
+    log: [
+      'Monstrous Heritage import (GMF seed, v9.15.0): ' + nice + ' — ' + (seed.hit_dice || '') + ', ' + sz + ' ' + typeName + (la ? ', LA +' + la : '') + '.',
+      hd >= 2 ? 'Racial Hit Dice ride as the Monstrous class (' + hd + ' levels); add character classes on top — ECL = HD + classes + LA.' : 'At 1 HD or less, class levels REPLACE the monster level (FF p.34): pick a class as normal.',
+      hpM ? 'Statblock prints ' + hpM[1] + ' hp; the sheet derives HP from the Hit Dice engine — GM may set hp to the printed value.' : '',
+      'GM finishing touches: natural armor, special attack/quality DCs, skills and feats from the statblock; Six Scales set permissive (5s) — tune to the scenario.',
+    ].filter(Boolean),
+  };
+  chars.push(c);
+  if (typeof reconcileMissingHP === 'function') reconcileMissingHP(c);
+  save(); renderRoster();
+  if (typeof selChar === 'function') selChar(id);
+  toast('⬆ Monstrous Heritage: ' + nice + ' imported — ' + (hd >= 2 ? hd + ' racial HD as the Monstrous class, ' : '') + 'RLM +' + la + '. See the log for the GM finishing touches.');
+}
 function hbGearSync() {
   if (typeof WEAPONS_CATALOG === 'undefined' || typeof ARMOR_CATALOG === 'undefined') return;
   for (const arr of [WEAPONS_CATALOG, ARMOR_CATALOG]) {
@@ -5490,7 +5593,7 @@ const PRESTIGE_CLASSES = {
 };
 // Look up a class by name across all four tiers
 function getClassData(name) {
-  return HERO_CLASSES[name] || ORDINARY_CLASSES[name] || BASIC_CLASSES[name] || ADVANCED_CLASSES[name] || PRESTIGE_CLASSES[name] || null;
+  return HERO_CLASSES[name] || ORDINARY_CLASSES[name] || BASIC_CLASSES[name] || ADVANCED_CLASSES[name] || PRESTIGE_CLASSES[name] || MONSTROUS_CLASSES[name] || null;
 }
 // Check whether a character meets the prerequisites for a given Advanced or Prestige class.
 // Returns {met: bool, missing: [string]} listing each unmet requirement-group.
@@ -16424,6 +16527,7 @@ function _compassTierOf(name) {
   if (typeof HERO_CLASSES !== 'undefined' && HERO_CLASSES[name]) return 'hero';
   if (typeof BASIC_CLASSES !== 'undefined' && BASIC_CLASSES[name]) return 'basic';
   if (typeof ORDINARY_CLASSES !== 'undefined' && ORDINARY_CLASSES[name]) return 'ordinary';
+  if (typeof MONSTROUS_CLASSES !== 'undefined' && MONSTROUS_CLASSES[name]) return 'monstrous'; // v9.15.0 §273
   return null;
 }
 
@@ -17227,6 +17331,7 @@ function getClassEntry(e) {
   if (e.tier === 'basic') return BASIC_CLASSES[e.name];
   if (e.tier === 'advanced') return ADVANCED_CLASSES[e.name];
   if (e.tier === 'prestige') return PRESTIGE_CLASSES[e.name];
+  if (e.tier === 'monstrous') return MONSTROUS_CLASSES[e.name]; // v9.15.0 §273
   // Best-effort fallback when tier is missing — try each table
   return getClassData(e.name);
 }
@@ -40630,6 +40735,8 @@ function importRosterFile(inp) {
   reader.onload = () => {
     try {
       const data = JSON.parse(reader.result);
+      // v9.15.0 §273: a GMF creature seed takes the Monstrous Heritage lane.
+      if (data && typeof data === 'object' && !Array.isArray(data) && data.seed === 'ee-creature') { importCreatureSeed(data); return; }
       const list = Array.isArray(data) ? data : [data];
       const valid = list.filter(x => x && typeof x === 'object' && x.name && (Array.isArray(x.classes) || x.heroClass !== undefined));
       if (!valid.length) { toast('⬆ Import refused: no recognizable E&E characters in that file.'); return; }
