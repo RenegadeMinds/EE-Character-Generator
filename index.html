@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.15.0</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.15.1</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -4749,21 +4749,42 @@ function importCreatureSeed(seed) {
   }
   const raceName = nice + ' (Monstrous)';
   const sz = String(seed.size || '');
+  // v9.15.1 §274: natural armor parsed from the seed's AC line (v0.6.5+
+  // seeds carry touch_full_ac_t_ac; older seeds fall back to the GM note).
+  const natM = String(seed.touch_full_ac_t_ac || '').match(/\+(\d+)\s*natural/i);
   const raceDef = {
     adj, ecl: la, size: /Small|Tiny|Diminutive|Fine/i.test(sz) ? 'S' : (/Large|Huge|Gargantuan|Colossal/i.test(sz) ? 'L' : undefined),
-    notes: `Monstrous Heritage (GMF seed): ${nice}, ${sz} ${typeName}. SA: ${seed.special_attacks || '—'}. SQ: ${seed.special_qualities || '—'}. True size ${sz} (race engine treats beyond-Large as L); natural armor, racial abilities and their DCs are the GM's finishing touches from the statblock.`,
+    ...(natM ? { natAC: +natM[1] } : {}),
+    notes: `Monstrous Heritage (GMF seed): ${nice}, ${sz} ${typeName}. SA: ${seed.special_attacks || '—'}. SQ: ${seed.special_qualities || '—'}.${seed.t_ac_system_adj ? ' T/AC: ' + seed.t_ac_system_adj + '.' : ''} True size ${sz} (race engine treats beyond-Large as L); ${natM ? 'natural armor +' + natM[1] + ' wired from the statblock; ' : 'natural armor, '}racial abilities and their DCs are the GM's finishing touches.`,
   };
-  if (typeof RACES !== 'undefined' && !RACES[raceName]) RACES[raceName] = raceDef;
+  // v9.15.1: UPSERT — a re-import refreshes the race entry (an enriched
+  // seed, e.g. one carrying the AC line, must win over a stale registration).
+  if (typeof RACES !== 'undefined') RACES[raceName] = raceDef;
   monstrousStore.races[raceName] = raceDef;
   const id = 'seed-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+  // v9.15.1 §274: honor the seed's PLAN — the Advancer panel's advanced HD
+  // and class overlay picks pre-assign here (Adam's Aasimar arrived class
+  // 'Unassigned' because the v0.6.2 seed dropped them).
+  const hdPlanned = Math.max(hd, +seed.hdPlan || 0);
   const classes = [];
-  if (hd >= 2) {
-    const advHi = Math.max(hd, ...[...String(seed.advancement || '').matchAll(/(\d+)/g)].map(m => +m[1]).filter(x => x < 60), 0);
+  if (hdPlanned >= 2) {
+    const advHi = Math.max(hdPlanned, ...[...String(seed.advancement || '').matchAll(/(\d+)/g)].map(m => +m[1]).filter(x => x < 60), 0);
     const clsName = 'Monstrous: ' + nice + ' (' + typeName + ')';
     const clsDef = buildMonstrousClass(typeName, advHi);
     MONSTROUS_CLASSES[clsName] = clsDef;
     monstrousStore.classes[clsName] = clsDef;
-    classes.push({ tier: 'monstrous', name: clsName, level: hd, first: true });
+    classes.push({ tier: 'monstrous', name: clsName, level: hdPlanned, first: true });
+  }
+  let planNote = '';
+  if (seed.classPlan && seed.classPlan.name && +seed.classPlan.levels > 0) {
+    const pn = String(seed.classPlan.name), pl = Math.min(20, +seed.classPlan.levels);
+    const tier = (typeof _compassTierOf === 'function' && _compassTierOf(pn)) || (getClassData(pn) ? 'basic' : null);
+    if (tier && tier !== 'monstrous') {
+      classes.push({ tier, name: pn, level: pl, first: classes.length === 0 });
+      planNote = 'Class plan pre-assigned from the Familiar: ' + pn + ' ' + pl + ' — skill, feat and talent/spell picks for those levels are OWED (open the editor to choose; the Quickdraw auto-allocator for monstrous bases is on the roadmap).';
+    } else {
+      planNote = 'Seed named a class plan (' + pn + ') the CG does not recognize — add the class in the editor.';
+    }
   }
   monstrousSave();
   const baseAttrs = ['STR','DEX','CON','INT','WIS','CHA'].map(k => {
@@ -4781,8 +4802,9 @@ function importCreatureSeed(seed) {
     classes, skills: {}, feats: [], powers: [], talents: [], items: [], gear: [],
     maxHP: 10, hp: 10,
     log: [
-      'Monstrous Heritage import (GMF seed, v9.15.0): ' + nice + ' — ' + (seed.hit_dice || '') + ', ' + sz + ' ' + typeName + (la ? ', LA +' + la : '') + '.',
-      hd >= 2 ? 'Racial Hit Dice ride as the Monstrous class (' + hd + ' levels); add character classes on top — ECL = HD + classes + LA.' : 'At 1 HD or less, class levels REPLACE the monster level (FF p.34): pick a class as normal.',
+      'Monstrous Heritage import (GMF seed, v9.15.1): ' + nice + ' — ' + (seed.hit_dice || '') + ', ' + sz + ' ' + typeName + (la ? ', LA +' + la : '') + (hdPlanned > hd ? ', advanced to ' + hdPlanned + ' HD per the Familiar plan' : '') + '.',
+      planNote,
+      hdPlanned >= 2 ? 'Racial Hit Dice ride as the Monstrous class (' + hdPlanned + ' levels); add character classes on top — ECL = HD + classes + LA.' : 'At 1 HD or less, class levels REPLACE the monster level (FF p.34): pick a class as normal.',
       hpM ? 'Statblock prints ' + hpM[1] + ' hp; the sheet derives HP from the Hit Dice engine — GM may set hp to the printed value.' : '',
       'GM finishing touches: natural armor, special attack/quality DCs, skills and feats from the statblock; Six Scales set permissive (5s) — tune to the scenario.',
     ].filter(Boolean),
@@ -4791,7 +4813,7 @@ function importCreatureSeed(seed) {
   if (typeof reconcileMissingHP === 'function') reconcileMissingHP(c);
   save(); renderRoster();
   if (typeof selChar === 'function') selChar(id);
-  toast('⬆ Monstrous Heritage: ' + nice + ' imported — ' + (hd >= 2 ? hd + ' racial HD as the Monstrous class, ' : '') + 'RLM +' + la + '. See the log for the GM finishing touches.');
+  toast('⬆ Monstrous Heritage: ' + nice + ' imported — ' + (hdPlanned >= 2 ? hdPlanned + ' racial HD as the Monstrous class, ' : '') + (seed.classPlan && seed.classPlan.name ? seed.classPlan.name + ' ' + seed.classPlan.levels + ' pre-assigned, ' : '') + 'RLM +' + la + '. See the log.');
 }
 function hbGearSync() {
   if (typeof WEAPONS_CATALOG === 'undefined' || typeof ARMOR_CATALOG === 'undefined') return;

@@ -8,7 +8,7 @@
 import puppeteer from 'puppeteer';
 import { pathToFileURL } from 'node:url';
 
-const FILE = 'C:/Users/adam_/OneDrive/Desktop/E&E/EpicsAndEpochs_Character_Generator_v9.15.0.html';
+const FILE = 'C:/Users/adam_/OneDrive/Desktop/E&E/EpicsAndEpochs_Character_Generator_v9.15.1.html';
 const SEED = {
   seed: 'ee-creature', from: 'GMF v0.6.2', fam: 'ABOLETH', label: 'Aboleth',
   size: 'Huge', type: 'Aberration', hit_dice: '8d8+40 (76 hp)',
@@ -49,6 +49,20 @@ const r = await page.evaluate((seed) => {
   // re-import does not crash and adds a second hero
   importCreatureSeed(seed);
   out.reimport = chars.length === 2;
+  // v9.15.1 SS274: the PLAN — hdPlan advances the monstrous level, classPlan
+  // pre-assigns; natural armor parses from the v0.6.5 AC line.
+  importCreatureSeed({ ...seed, hdPlan: 12, classPlan: { name: 'Expert', levels: 1 },
+    touch_full_ac_t_ac: '9/16 (−2 size, +1 Dex, +7 natural), flat-footed 15' });
+  const p = chars[2];
+  out.planHD = p.classes?.[0]?.level;
+  out.planCls = p.classes?.[1]?.name + ' ' + p.classes?.[1]?.level + ' (' + p.classes?.[1]?.tier + ')';
+  out.planNat = RACES[p.race]?.natAC;
+  // the 1-HD case with a plan: class pre-assigned, no monstrous class
+  importCreatureSeed({ seed: 'ee-creature', fam: 'AASIMARISH', label: 'Aasimarish', size: 'Medium',
+    type: 'Humanoid', hit_dice: '1d8+1 (5 hp)', attributes: 'Str 13, Dex 10, Con 12, Int 10, Wis 13, Cha 14',
+    level_adjustment: '+1', advancement: 'By character class', classPlan: { name: 'Expert', levels: 1 } });
+  const a2 = chars[3];
+  out.oneHD = (a2.classes?.length === 1) && a2.classes[0].name === 'Expert' && a2.classes[0].tier === 'basic' && a2.classes[0].first === true;
   return out;
 }, SEED);
 console.log(JSON.stringify(r, null, 1));
@@ -58,6 +72,7 @@ const ok = r.charCount === 1 && r.name === 'Aboleth' && r.clsTier === 'monstrous
   && r.resolved && r.hd === 8 && r.bab8 === 6 && r.will8 === 6 && r.fort8 === 2
   && r.raceEcl === 9 && r.adjSTR === 16 && r.adjCON === 10
   && r.attrsBase === '10,10,10,11,11,11'
-  && r.expertResolved && r.stored && r.tierOf === 'monstrous' && r.reimport && !errors.length;
+  && r.expertResolved && r.stored && r.tierOf === 'monstrous' && r.reimport
+  && r.planHD === 12 && r.planCls === 'Expert 1 (basic)' && r.planNat === 7 && r.oneHD && !errors.length;
 console.log(ok ? 'PROBE GREEN' : 'PROBE RED');
 if (!ok) process.exit(1);
