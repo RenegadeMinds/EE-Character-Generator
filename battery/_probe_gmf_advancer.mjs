@@ -27,7 +27,7 @@ const r = await page.evaluate(() => {
   const d17 = advanceCreature('ABOLETH', 0, 17, '', 0);
   out.size17 = d17.size; out.str17 = d17.str; out.con17 = d17.con;
   out.model17 = d17.modelCR != null;
-  const dW = advanceCreature('ABOLETH', 0, 12, 'Warrior', 4);
+  const dW = advanceCreature('ABOLETH', 0, 12, 'Strong Hero', 4);
   out.warriorBab = dW.bab - d12.bab; // +4 (full BAB overlay)
   out.warriorHpUp = dW.hp > d12.hp;
   // UI: open the aboleth card, open the Advance panel
