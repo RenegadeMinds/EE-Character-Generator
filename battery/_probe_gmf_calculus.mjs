@@ -40,6 +40,11 @@ const r = await page.evaluate(() => {
   const mRow = document.querySelector('.card .statrow.calculus');
   out.medusa = mRow ? mRow.textContent.slice(0, 220) : null;
   out.medusaNames = mRow ? /in tricks: .+/.test(mRow.textContent) : null;
+  // v0.6.1: the comma-inverted hover alias (the Lammasu catch) + the
+  // Alicorn body no longer ends in the ALIEN pointer stub.
+  out.greaterInv = REFMAP.has('greater invisibility') && REFMAP.get('greater invisibility') !== REFMAP.get('invisibility');
+  const ali = BESTIARY.find(f => f.parent === 'ALICORN');
+  out.alicornClean = !/ALIEN \(see/.test(ali.body);
   // A dragon card renders with the derived note in its tooltip.
   document.getElementById('b-q').value = 'red dragon';
   renderB();
@@ -50,5 +55,5 @@ const r = await page.evaluate(() => {
 console.log(JSON.stringify(r, null, 1));
 console.log('console errors:', errors.length, errors.slice(0, 3));
 await browser.close();
-if (errors.length || !r.aboleth || !r.abolethMage || r.dragon !== true || r.medusaNames !== true) { console.log('PROBE RED'); process.exit(1); }
+if (errors.length || !r.aboleth || !r.abolethMage || r.dragon !== true || r.medusaNames !== true || r.greaterInv !== true || r.alicornClean !== true) { console.log('PROBE RED'); process.exit(1); }
 console.log('PROBE GREEN');
