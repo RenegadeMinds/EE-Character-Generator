@@ -37,8 +37,17 @@ const r = await page.evaluate(() => {
   out.panel = !!document.querySelector('[id^="advhd-"]');
   // field an advanced foe into the Forge
   TRAY = []; saveForge();
-  forgeAddAdvanced(JSON.stringify({ fam: 'ABOLETH', label: 'Aboleth — advanced 12 HD (Huge)', cr: 9 }));
-  out.trayed = TRAY.length === 1 && TRAY[0].cr === 9 && TRAY[0].vi === -1;
+  // v0.6.3 (the Terror of the Greymist Moors): field the FULL derived body,
+  // save the encounter, wipe, reload — the stats must survive the round trip.
+  forgeAddAdvanced({ fam: 'ABOLETH', d: d17 });
+  out.trayed = TRAY.length === 1 && TRAY[0].vi === -1 && !!TRAY[0].d && TRAY[0].d.hp === d17.hp;
+  document.getElementById('f-encname').value = 'Terror of the Greymist Moors'; forgeSave();
+  TRAY = []; saveForge(); renderF();
+  forgeLoad(0);
+  out.terrorBack = TRAY.length === 1 && !!TRAY[0].d && TRAY[0].d.size === 'Gargantuan' && TRAY[0].d.hp === d17.hp;
+  renderF(); const sb = document.querySelector('[id^="trayst-"]');
+  trayStats(0);
+  out.statsToggle = !!document.getElementById('trayst-0') && document.getElementById('trayst-0').innerHTML.includes('Gargantuan');
   return out;
 });
 console.log(JSON.stringify(r, null, 1));
@@ -46,6 +55,6 @@ console.log('console errors:', errors.length, errors.slice(0, 3));
 await browser.close();
 const ok = r.hp12 === 114 && r.bab12 === 9 && r.will12 === 13 && r.fort12 === 9 && r.str12 === 27 && r.size12 === 'Huge'
   && r.size17 === 'Gargantuan' && r.str17 > r.str12 && r.con17 === 24 + 0 && r.model17
-  && r.warriorBab === 4 && r.warriorHpUp && r.panel && r.trayed && !errors.length;
+  && r.warriorBab === 4 && r.warriorHpUp && r.panel && r.trayed && r.terrorBack && r.statsToggle && !errors.length;
 console.log(ok ? 'PROBE GREEN' : 'PROBE RED');
 if (!ok) process.exit(1);
