@@ -4,7 +4,8 @@
   "description": "Headless oracle battery for the E&E Character Generator",
   "main": "index.js",
   "scripts": {
-    "test": "node battery.mjs"
+    "test": "node battery.mjs && node _oracle_bab.mjs && node _oracle_saves.mjs && node _oracle_ecl.mjs && node _oracle_hp.mjs && node _oracle_bumps.mjs",
+    "test:battery": "node battery.mjs"
   },
   "keywords": [],
   "author": "",

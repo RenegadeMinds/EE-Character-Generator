@@ -329,7 +329,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.15.1</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.15.2</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -2163,7 +2163,9 @@ const BASIC_CLASSES = {
   'Bard':        {attr:'CHA',hd:6, sp:6,
     bab :[0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,12,12,13,14,15],
     fort:[0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6],
-    ref :[2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,10,11,12],
+    // v9.15.2 (§275 F10): Ref L18 10→11 per the printed row (HH p.76:
+    // "18th … +13 +6 +11 +11") — single-cell transcription typo.
+    ref :[2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
     will:[2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
     def :[0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10],
     rep :[1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7], apB:'cha'},
@@ -2257,7 +2259,9 @@ const BASIC_CLASSES = {
     ref :[2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
     will:[2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12],
     def :[0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10],
-    rep :[0,1,1,1,2,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7], apB:'cha',attrMin:10,attrMinKey:'CHA'},
+    // v9.15.2 (§275 F10): Rep L8 2→3 per the printed row (HH p.106) —
+    // single-cell transcription typo.
+    rep :[0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7], apB:'cha',attrMin:10,attrMinKey:'CHA'},
   'Wizard':      {attr:'INT',hd:4, sp:2,
     bab :[0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10],
     fort:[0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6],
@@ -3512,7 +3516,11 @@ const CASTER_PROGRESSION = {
     maxPowerLvl:  [1, 1,  2,  2,  3,  3,  4,  4,  5,   5,   6,   6,   7,   7,   8,   8,   9,   9,   9,   9],
   },
   'Saint': {
-    pool:'divine',  attr:'WIS', prep:false,  // HH: "Unlike a Cleric, a Saint need not prepare their spells"
+    // v9.15.2 (§275 F7): WIS→CHA — the Saint's own entry (HH p.100) says
+    // Charisma three times (casting requirement, save DCs, bonus PP at Cha
+    // 12+); only the p.19 Wisdom blurb disagrees (book conflict B6, letter
+    // banked). Drives bonus PP AND saveDcBase.
+    pool:'divine',  attr:'CHA', prep:false,  // HH: "Unlike a Cleric, a Saint need not prepare their spells"
     pp:           [8, 10, 11, 21, 24, 42, 50, 76, 88, 122, 138, 180, 200, 250, 274, 332, 364, 430, 462, 496],
     maxPowerLvl:  [1,  1,  1,  2,  2,  3,  3,  4,  4,   5,   5,   6,   6,   7,   7,   8,   8,   9,   9,   9],
   },
@@ -3594,7 +3602,10 @@ const CASTER_PROGRESSION = {
   // PP is 0 for L1-L3 (encoded as 0 since handbook shows "—"). PP/maxPowerLvl
   // both 0 for pre-L4 levels.
   'Paladin': {
-    pool:'divine',  attr:'WIS', prep:false,  // HH: "casts their spells spontaneously, like a Saint"
+    // v9.15.2 (§275 F8): HH p.90 — bonus PP apply "if they have a high Wisdom
+    // or Charisma score, whichever is better". attrAlt marks the either-or;
+    // computeCasterStats picks the better score per computation.
+    pool:'divine',  attr:'WIS', attrAlt:'CHA', prep:false,  // HH: "casts their spells spontaneously, like a Saint"
     pp:           [0, 0, 0, 1, 1, 1, 1, 3, 3, 4, 8, 9, 9, 16, 17, 20, 33, 37, 42, 60],
     maxPowerLvl:  [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3,  4,  4,  4,  5,  5,  5,  6],
   },
@@ -3725,7 +3736,16 @@ function computeCasterStats(char) {
     }
     // v8.6.0 firm-wire: casting attributes use the EFFECTIVE score (equipped
     // item enhancements included, derived live) — DCs and bonus PP follow.
-    const attrScore = ((typeof effAttrs === 'function') ? effAttrs(char) : (char.attrs || [10,10,10,10,10,10]))[attrIdx[prog.attr]] || 10;
+    const _effA = (typeof effAttrs === 'function') ? effAttrs(char) : (char.attrs || [10,10,10,10,10,10]);
+    // v9.15.2 (§275 F8): attrAlt = either-or casting attribute (Paladin's
+    // "Wisdom or Charisma, whichever is better", HH p.90) — take the better
+    // score; usedAttr carries the winner into the pool and contributor rows.
+    let usedAttr = prog.attr;
+    let attrScore = _effA[attrIdx[usedAttr]] || 10;
+    if (prog.attrAlt) {
+      const _altScore = _effA[attrIdx[prog.attrAlt]] || 10;
+      if (_altScore > attrScore) { usedAttr = prog.attrAlt; attrScore = _altScore; }
+    }
     const attrMod = Math.floor((attrScore - 10) / 2);
     const classBonusPP = clContribution > 0
       ? Math.ceil(attrMod * clContribution / 2)
@@ -3746,7 +3766,7 @@ function computeCasterStats(char) {
     pool.ppBonus += classBonusPPClamped;
     if (classMaxPowerLvl > pool.maxPowerLvl) pool.maxPowerLvl = classMaxPowerLvl;
     if (attrMod > pool.bestAttrMod) pool.bestAttrMod = attrMod;
-    pool.attrs.add(prog.attr);
+    pool.attrs.add(usedAttr);
     if (prog.prep) pool.prep = true;
 
     // Powers known (psionic)
@@ -3765,7 +3785,7 @@ function computeCasterStats(char) {
       class: e.name,
       level: lvl,
       prep: !!prog.prep,
-      attr: prog.attr,
+      attr: usedAttr,
       attrScore,
       attrMod,
       clContribution,
@@ -4787,20 +4807,24 @@ function importCreatureSeed(seed) {
     }
   }
   monstrousSave();
-  const baseAttrs = ['STR','DEX','CON','INT','WIS','CHA'].map(k => {
+  // v9.15.2 (§275 F1): store the LISTED statblock scores. The create form
+  // bakes racial adjustments into c.attrs at save time, and the Edit loader
+  // sets formBudget.racialApplied = c.race (adjustments assumed applied) —
+  // so the stored scores must already carry the race's adj. The old code
+  // stored listed − adj (all 10s/11s) and nothing ever added adj back: the
+  // Aboleth played Str 10 / Con 10, Fort +2 instead of +7 (HH p.350).
+  const listedAttrs = ['STR','DEX','CON','INT','WIS','CHA'].map(k => {
     const m = String(seed.attributes || '').match(new RegExp(k.charAt(0) + k.slice(1).toLowerCase() + '\\s+(\\d+)'));
-    if (!m) return 10;
-    const v = +m[1]; return v - (adj[k] || 0);
+    return m ? +m[1] : 10;
   });
   const c = {
     id, name: nice, race: raceName, sex: '', align: 'Neutral', hybrid: null, allegiance: '',
     occupations: [], xp: 0, hpMode: 'hero',
     schemaVer: (typeof CURRENT_SCHEMA_VER !== 'undefined') ? CURRENT_SCHEMA_VER : 1,
-    attrs: baseAttrs, attrBumps: [],
+    attrs: listedAttrs, attrBumps: [], racialApplied: raceName,
     sixLevels: { arcane: 5, divine: 5, heroic: 5, mutation: 5, psionic: 5, tech: 5 },
     scenarioPreset: 'Custom',
     classes, skills: {}, feats: [], powers: [], talents: [], items: [], gear: [],
-    maxHP: 10, hp: 10,
     log: [
       'Monstrous Heritage import (GMF seed, v9.15.1): ' + nice + ' — ' + (seed.hit_dice || '') + ', ' + sz + ' ' + typeName + (la ? ', LA +' + la : '') + (hdPlanned > hd ? ', advanced to ' + hdPlanned + ' HD per the Familiar plan' : '') + '.',
       planNote,
@@ -4809,8 +4833,24 @@ function importCreatureSeed(seed) {
       'GM finishing touches: natural armor, special attack/quality DCs, skills and feats from the statblock; Six Scales set permissive (5s) — tune to the scenario.',
     ].filter(Boolean),
   };
+  // v9.15.2 (§275 F2+F3): the import log's promise made true — max HP comes
+  // from the Hit Dice engine (hero-mode rolls, max first die, Con mod per
+  // die, natural-AC ×5 HP — the same recipe as the form-save path) instead
+  // of the old hard-coded 10; totalLvl and the derived stat block are
+  // stamped at import so ECL, skill caps and level-up math are right before
+  // the first Edit → Save.
+  c.hpRolls = generateHpRolls(classes, 'hero');
+  const _impConM = am(c.attrs[2]);
+  const _impNat = (typeof computeNaturalAC === 'function') ? (computeNaturalAC(c).total || 0) : (natM ? +natM[1] : 0);
+  c.maxHP = Math.max(1, computeMaxHPFromRolls(classes, c.hpRolls, _impConM) + _impNat * 5);
+  c.hp = c.maxHP; c.currentHP = c.maxHP;
+  const _impStats = computeStatsFromClasses(classes, c.attrs[5] || 10, effectiveHeroicLevelForAP(c), 0);
+  c.totalLvl = _impStats.totalLvl;
+  c.bab = _impStats.bab; c.def = _impStats.def; c.fort = _impStats.fort; c.ref = _impStats.ref; c.will = _impStats.will; c.rep = _impStats.rep;
+  c.apMax = _impStats.ap; c.ap = _impStats.ap;
   chars.push(c);
   if (typeof reconcileMissingHP === 'function') reconcileMissingHP(c);
+  if (typeof refreshEclXp === 'function') refreshEclXp(c);
   save(); renderRoster();
   if (typeof selChar === 'function') selChar(id);
   toast('⬆ Monstrous Heritage: ' + nice + ' imported — ' + (hdPlanned >= 2 ? hdPlanned + ' racial HD as the Monstrous class, ' : '') + (seed.classPlan && seed.classPlan.name ? seed.classPlan.name + ' ' + seed.classPlan.levels + ' pre-assigned, ' : '') + 'RLM +' + la + '. See the log.');
@@ -5209,7 +5249,9 @@ const PRESTIGE_CLASSES = {
     fort:[0,0,1,1,1,2,2,2,3,3],
     ref :[2,3,3,4,4,5,5,6,6,7],
     will:[2,3,3,4,4,5,5,6,6,7],
-    def :[1,1,2,2,3,3,4,4,5,5],
+    // v9.15.2 (§275 F9): DB corrected to the printed ladder (GMG p.188:
+    // 1,1,1,2,2,2,3,3,3,4) — the old array ran +1 high from L3 (+2 at L9).
+    def :[1,1,1,2,2,2,3,3,3,4],
     rep :[0,0,1,1,1,2,2,2,3,3],
     prereqs:[
       [{type:'sixLevel',axis:'arcane',min:1}],
@@ -5237,7 +5279,9 @@ const PRESTIGE_CLASSES = {
       [{type:'featParamCount',name:'Spell Focus',min:2,desc:'Spell Focus in two different schools'}],
       [{type:'powerAccess',pools:['arcane'],lvl:7,desc:'Access to 7th-level arcane spells'}],
       [{type:'powerRepertoire',pool:'arcane',minLvl:5,distinctSchools:5,desc:'5th-level+ spells known from at least 5 different schools'}],
-    ]},
+    // v9.15.2 (§275 F13): GMG p.155 prints Cha mod + ½ level — stamped for
+    // completeness (every route in already carries a Basic apB:'cha').
+    ], apB:'cha'},
   'Artificer':            {attr:'INT',hd:6, sp:6, maxLvl:5,
     bab :[0,1,1,2,2],
     fort:[0,0,1,1,1],
@@ -5266,7 +5310,8 @@ const PRESTIGE_CLASSES = {
       [{type:'skill',name:'Move Silently',min:8}],
       [{type:'note',text:'Must have successfully completed a contract killing'}],
     ], apB:'cha'},
-  'Bloodluster':          {attr:'STR',hd:10, sp:4, maxLvl:10,
+  // v9.15.2 (§275 F6): hd 10→12 — GMG p.160 prints "d12 (d6+6)".
+  'Bloodluster':          {attr:'STR',hd:12, sp:4, maxLvl:10,
     bab :[1,2,3,4,5,6,7,8,9,10],
     fort:[2,3,3,4,4,5,5,6,6,7],
     ref :[0,0,1,1,1,2,2,2,3,3],
@@ -5280,7 +5325,8 @@ const PRESTIGE_CLASSES = {
       [{type:'skill',name:'Survival',min:8}],
       [{type:'classAbility',name:'Rage'},{type:'classAbility',name:'Euphoriac'}],
     ], apB:'cha'},
-  'Crusader':             {attr:'WIS',hd:8, sp:4, maxLvl:10,
+  // v9.15.2 (§275 F6): hd 8→10 — GMG p.161 prints "d10 (d5+5)".
+  'Crusader':             {attr:'WIS',hd:10, sp:4, maxLvl:10,
     bab :[0,1,2,3,3,4,5,6,6,7],
     fort:[1,2,2,2,3,3,4,4,4,5],
     ref :[1,2,2,2,3,3,4,4,4,5],
@@ -5426,7 +5472,8 @@ const PRESTIGE_CLASSES = {
       [{type:'featParamIs',name:'Skill Focus',paramPrefix:'Knowledge',desc:'Skill Focus (any Knowledge)'}],
       [{type:'powerRepertoire',schools:['Divination','Clairsentience'],count:7,desc:'7 different Divination spells or Clairsentience powers known'}],
       [{type:'powerRepertoire',schools:['Divination','Clairsentience'],minLvl:3,count:1,desc:'at least one of them 3rd-level or higher'}],
-    ]},
+    // v9.15.2 (§275 F13): GMG p.174 prints Cha mod + ½ level.
+    ], apB:'cha'},
   'Metamind':             {attr:'INT',hd:4, sp:4, maxLvl:5,
     bab :[0,1,1,2,2],
     fort:[0,0,1,1,1],
@@ -5443,7 +5490,8 @@ const PRESTIGE_CLASSES = {
       [{type:'powerAccess',pools:['psionic'],lvl:7,desc:'Access to 7th-level psionic powers'}],
       [{type:'powerRepertoire',pool:'psionic',minLvl:4,distinctSchools:2,desc:'4th-level+ powers known from at least 2 different disciplines'}],
     ], apB:'cha'},
-  'Mystic Theurge':       {attr:'INT/WIS',hd:6, sp:4, maxLvl:10,
+  // v9.15.2 (§275 F6): hd 6→4 — GMG p.187 prints "d4 (d2+2)".
+  'Mystic Theurge':       {attr:'INT/WIS',hd:4, sp:4, maxLvl:10,
     bab :[0,1,1,2,2,3,3,4,4,5],
     fort:[0,0,1,1,1,2,2,2,3,3],
     ref :[0,0,1,1,1,2,2,2,3,3],
@@ -5458,7 +5506,9 @@ const PRESTIGE_CLASSES = {
       [{type:'featParamIs',name:'Skill Focus',param:'Spellcraft',desc:'Skill Focus (Spellcraft)'}],
       [{type:'powerAccess',pools:['arcane'],lvl:2,desc:'Able to cast 2nd-level arcane spells'}],
       [{type:'powerAccess',pools:['divine'],lvl:2,desc:'Able to cast 2nd-level divine spells'}],
-    ]},
+    // v9.15.2 (§275 F13): GMG p.187 prints Cha mod + ½ level (the Psychic
+    // Theurge entry already carried it).
+    ], apB:'cha'},
   'Planestrider':         {attr:'WIS',hd:8, sp:4, maxLvl:10,
     bab :[0,1,2,3,3,4,5,6,6,7],
     fort:[2,3,3,4,4,5,5,6,6,7],
@@ -5472,7 +5522,8 @@ const PRESTIGE_CLASSES = {
       [{type:'skill',name:'Survival',min:10}],
       [{type:'classAbility',name:'Terrain Mastery'},{type:'knowsPower',name:'Plane Shift',desc:'ability to cast/manifest Plane Shift'}],
     ], apB:'cha'},
-  'Psychic Theurge':      {attr:'INT/WIS',hd:6, sp:4, maxLvl:10,
+  // v9.15.2 (§275 F6): hd 6→4 — the Theurge variants share GMG p.187's "d4 (d2+2)".
+  'Psychic Theurge':      {attr:'INT/WIS',hd:4, sp:4, maxLvl:10,
     bab :[0,1,1,2,2,3,3,4,4,5],
     fort:[0,0,1,1,1,2,2,2,3,3],
     ref :[0,0,1,1,1,2,2,2,3,3],
@@ -5493,7 +5544,9 @@ const PRESTIGE_CLASSES = {
     fort:[0,0,1,1,1,2,2,2,3,3],
     ref :[2,3,3,4,4,5,5,6,6,7],
     will:[2,3,3,4,4,5,5,6,6,7],
-    def :[1,1,2,2,3,3,4,4,5,5],
+    // v9.15.2 (§275 F9): DB corrected to the printed ladder (GMG p.188) —
+    // the Trickster variants share the table.
+    def :[1,1,1,2,2,2,3,3,3,4],
     rep :[0,0,1,1,1,2,2,2,3,3],
     prereqs:[
       [{type:'sixLevel',axis:'psionic',min:1}],
@@ -5578,7 +5631,8 @@ const PRESTIGE_CLASSES = {
       [{type:'mpTotal',min:20,desc:'20 or more Mutation Points'}],
       [{type:'allegiance',value:'Evil',polarity:'has'}],
     ], apB:7},
-  'Technomage':           {attr:'INT',hd:4, sp:6, maxLvl:10,
+  // v9.15.2 (§275 F6): hd 4→6 — GMG p.185 prints "d6 (d3+3)".
+  'Technomage':           {attr:'INT',hd:6, sp:6, maxLvl:10,
     bab :[0,1,1,2,2,3,3,4,4,5],
     fort:[1,2,2,2,3,3,4,4,4,5],
     ref :[0,0,1,1,1,2,2,2,3,3],
@@ -14254,7 +14308,11 @@ function computeStatBlock(char, activeConditions) {
   // v8.3.19: At Heroic Scale 0, AP is unavailable entirely (HH p.54-56 /
   // GM Guide). Fate Points spent permanently reduce future AP pool
   // replenishment (HH p.55).
-  const heroicLvl = (char && char.sixLevels?.heroic) ?? (char && char.heroicLevel) ?? 1;
+  // v9.15.2 (§275 F12): route through effectiveHeroicLevelForAP like the v7
+  // path (verifyParity) does — the raw scenario read gave Ordinary (and
+  // pure-monstrous) characters AP the book denies them (HH p.42), surfacing
+  // as a [v8 parity drift] warning on every such save.
+  const heroicLvl = effectiveHeroicLevelForAP(char || {});
   if (heroicLvl < 1) {
     out.ap = 0;
     return out;
@@ -41083,9 +41141,14 @@ function renderSheet(){
   }
   if (c.bab === undefined && Array.isArray(c.classes) && c.classes.length) {
     try {
-      const s = computeStatsFromClasses(c.classes);
+      // v9.15.2 (§275 F3+F12): the heal passes Cha and the AP-effective
+      // Heroic Scale (the bare call granted AP for monstrous/Ordinary-only
+      // records and resolved no 'cha' apB), and restamps totalLvl too —
+      // ECL, skill caps and level-up math were wrong until an Edit → Save.
+      const s = computeStatsFromClasses(c.classes, (c.attrs && c.attrs[5]) || 10, effectiveHeroicLevelForAP(c), c.fatePoints || 0);
       c.bab = s.bab; c.def = s.def; c.fort = s.fort; c.ref = s.ref; c.will = s.will; c.rep = s.rep;
       c.apMax = s.ap; c.ap = s.ap;
+      c.totalLvl = s.totalLvl;
       // v8.67.0: the stamp rebuilt bab/def from class tables — zero the
       // Unnatural Prowess ledger halves so the reconciler re-applies.
       if (c.mutSubApplied) { c.mutSubApplied.bab = 0; c.mutSubApplied.def = 0; if (typeof reconcileMutantSubtype === 'function') reconcileMutantSubtype(c); }
@@ -42181,6 +42244,13 @@ function getClassSkillSources(skillName, arg2, occupation){
 
   // Helper: check one class's class-skill list, return source string or null
   function classMatch(className, classLevel) {
+    // v9.15.2 (§275 F3): monstrous-tier classes (GMF seed imports) — FF p.47:
+    // "All listed skills are class skills". The seed carries no skill list,
+    // so the lane treats every skill as class; pruning is the GM's finishing
+    // touch, like the rest of the statblock's skill section.
+    if (typeof MONSTROUS_CLASSES !== 'undefined' && MONSTROUS_CLASSES[className]) {
+      return `class:${className} (monstrous — FF: a creature's listed skills are class skills)`;
+    }
     const skills = CLASS_SKILLS[className];
     if (!skills) {
       // Fall back to HC_SKILLS for Hero classes if CLASS_SKILLS doesn't have them
@@ -42462,7 +42532,10 @@ function renderSkills(){
   // v8.3.15 hotfix: `lvl` is still used later in the row-building loop to
   // compute the max-rank cap (`max="${lvl+4}"`). It was previously declared
   // inline with the broken budget formula; preserve it here standalone.
-  const lvl = c.totalLvl || 0;
+  // v9.15.2 (§275 F3): unstamped records derive character level from the
+  // class array — the skill cap (HH p.146: level + 4) must not collapse to
+  // 0+4 just because no save path has stamped c.totalLvl yet.
+  const lvl = c.totalLvl || migrateLegacyClasses(c).reduce((s, e) => s + (e.level || 0), 0);
   // v8.2.2 (Issue 4): correct cost-differential calc per HH p.541-544.
   // Class skills: 1 pt/rank. Cross-class: 2 pts/rank. Reads c.skills (the
   // saved record) here for the initial render; recomputeSkillBudget() reads
@@ -46529,7 +46602,11 @@ function reconcileMutantLevelXp(c) {
 function refreshEclXp(c) {
   if (!c) return;
   reconcileMutantLevelXp(c);
-  c.ecl = (c.totalLvl || 1) + ((typeof raceEclOf === 'function') ? raceEclOf(c) : (RACES[c.race]?.ecl || 0)) + getMPState(c).mutantLevel;  // v8.68.0: Hybrid RLM (A+B+1, or the GM override)
+  // v9.15.2 (§275 F3): records without a stamped c.totalLvl (imports,
+  // hand-built) derive it from the class array — HH p.22 keys ECL off class
+  // levels earned, not off whether a save path has run yet.
+  const _lvl = c.totalLvl || migrateLegacyClasses(c).reduce((s, e) => s + (e.level || 0), 0) || 1;
+  c.ecl = _lvl + ((typeof raceEclOf === 'function') ? raceEclOf(c) : (RACES[c.race]?.ecl || 0)) + getMPState(c).mutantLevel;  // v8.68.0: Hybrid RLM (A+B+1, or the GM override)
   c.xpNext = xpThreshold(c.ecl + 1);
 }
 
@@ -53865,11 +53942,9 @@ function lvlupCommit(skipBump) {
   }
   if (!Array.isArray(c.hpRolls)) c.hpRolls = [];
   c.hpRolls.push(lu.hpRoll);
-  const conM = am(c.attrs[2]);
-  const hpGain = Math.max(1, lu.hpRoll + conM);
-  c.maxHP += hpGain;
-  c.currentHP = Math.min(c.currentHP + hpGain, c.maxHP);
-  // Apply attribute bump if chosen
+  const conMPreBump = am(c.attrs[2]);
+  // Apply attribute bump if chosen — BEFORE the HP math, so a Con bump
+  // reaches the new die and back-fills the earlier ones (v9.15.2 §275 F5).
   if (!skipBump && lu.bumpChoice) {
     const idx = ATTR_NAMES.indexOf(lu.bumpChoice);
     if (idx >= 0) {
@@ -53878,6 +53953,16 @@ function lvlupCommit(skipBump) {
       c.attrBumps.push(lu.bumpChoice);
     }
   }
+  // v9.15.2 (§275 F5): HP uses the POST-bump Con mod and, when the bump
+  // raised the modifier, back-fills +1 per EXISTING level — HH p.21 ("update
+  // all the associated modifiers") + HH p.350 (Con applies to each hit die).
+  // The incremental form (new die + Con delta × prior levels) equals the
+  // form-save path's computeMaxHPFromRolls recompute when the rolls ledger
+  // is complete, and stays correct for legacy records without full rolls.
+  const conM = am(c.attrs[2]);
+  const hpGain = Math.max(1, lu.hpRoll + conM) + (conM - conMPreBump) * (oldLvl || 0);
+  c.maxHP += hpGain;
+  c.currentHP = Math.min(c.currentHP + hpGain, c.maxHP);
   // Recompute derived stats from the (possibly updated) class array
   // v8.3.19: include heroic level (zeros AP at H0) and any fate points
   // permanently spent prior to this level-up.
