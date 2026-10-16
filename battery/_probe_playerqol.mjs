@@ -64,7 +64,7 @@ const typeRank = async (val) => {
   return page.$eval(sel, el => el.id);
 };
 
-await t('VERSION-STAMPED', () => (CG_VERSION === 'v9.16.0' && /v9\.16\.0/.test(document.querySelector('.site-subtitle').textContent)) || { CG_VERSION });
+await t('VERSION-STAMPED', () => (CG_VERSION === 'v9.17.0' && /v9\.17\.0/.test(document.querySelector('.site-subtitle').textContent)) || { CG_VERSION });
 
 const heroId = await makeHero(page, 'QoL Probe');
 await tn('HERO-CREATED', async () => !!heroId || { heroId });
@@ -168,7 +168,7 @@ await tn('ERROR-RING-CAPTURES', async () => page.evaluate(() => {
 await tn('REPORT-BUTTON-OPENS-WITH-CONTEXT', async () => {
   await page.click('#nav-report-btn');
   const s = await page.evaluate(() => ({ open: document.getElementById('bug-modal').classList.contains('open'), ctx: document.getElementById('bug-ctx').textContent, to: document.getElementById('bug-email').textContent }));
-  const ok = s.open && /CG version: v9\.16\.0/.test(s.ctx) && /Page: /.test(s.ctx) && /Hero: QoL Probe/.test(s.ctx) && /Browser: .*Mozilla/.test(s.ctx) && /probe-boom/.test(s.ctx) && /When: 20\d\d-/.test(s.ctx) && s.to === 'admin@epicsandepochs.com';
+  const ok = s.open && /CG version: v9\.\d+\.\d+/.test(s.ctx) && /Page: /.test(s.ctx) && /Hero: QoL Probe/.test(s.ctx) && /Browser: .*Mozilla/.test(s.ctx) && /probe-boom/.test(s.ctx) && /When: 20\d\d-/.test(s.ctx) && s.to === 'admin@epicsandepochs.com';
   return ok || s;
 });
 await tn('SEND-REQUIRES-DESCRIPTION', async () => {
@@ -183,7 +183,7 @@ await tn('SEND-OPENS-MAILTO-AND-LOGS', async () => {
     const list = JSON.parse(localStorage.getItem('dxd20v2_bugreports') || '[]');
     const body = decodeURIComponent((href.split('&body=')[1] || ''));
     const subj = decodeURIComponent((href.split('subject=')[1] || '').split('&')[0]);
-    const ok = href.startsWith('mailto:admin@epicsandepochs.com?') && /^\[E&E CG v9\.16\.0\] Bug report: Ranks vanished/.test(subj) && /WHAT HAPPENED\nRanks vanished/.test(body) && /CG version: v9\.16\.0/.test(body)
+    const ok = href.startsWith('mailto:admin@epicsandepochs.com?') && /^\[E&E CG v9\.\d+\.\d+\] Bug report: Ranks vanished/.test(subj) && /WHAT HAPPENED\nRanks vanished/.test(body) && /CG version: v9\.\d+\.\d+/.test(body)
       && list.length === 1 && list[0].sent[0].how === 'email' && !list[0].charJson && document.querySelectorAll('#bug-list button').length === 4;
     return ok || { href: href.slice(0, 160), n: list.length };
   });
@@ -210,7 +210,7 @@ await tn('COPY-FALLBACK', async () => {
   return page.evaluate(async () => {
     const clip = (await navigator.clipboard.readText()).replace(/\r\n/g, '\n');
     const list = JSON.parse(localStorage.getItem('dxd20v2_bugreports'));
-    return (/^To: admin@epicsandepochs\.com\nSubject: \[E&E CG v9\.16\.0\]/.test(clip) && /Copy path check/.test(clip) && list.length === 3 && list[2].sent[0].how === 'copy') || { clip: clip.slice(0, 120), n: list.length };
+    return (/^To: admin@epicsandepochs\.com\nSubject: \[E&E CG v9\.\d+\.\d+\]/.test(clip) && /Copy path check/.test(clip) && list.length === 3 && list[2].sent[0].how === 'copy') || { clip: clip.slice(0, 120), n: list.length };
   });
 });
 await tn('MY-REPORTS-VIEW-AND-RESEND', async () => {
@@ -305,6 +305,34 @@ await tn('PREFERS-CONTRAST-AUTO-APPLIES', async () => {
   await page.evaluate(() => { window.name = ''; setDisplayPref('theme', 'auto'); });
   const off = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
   return (auto === 'hc' && overridden === null && off === null) || { auto, overridden, off };
+});
+
+await tn('V9161-TRIO (signed Rep · unarmed carries stance · no-melee hint)', async () => {
+  // Bug report #1 (Adam/Xander, 2026-10-15): (1) Reputation prints signed;
+  // (2) the Unarmed strike row moves when a stance is declared (it already
+  // did — this pins it); (3) declaring with no melee weapon equipped raises
+  // the where-to-look toast instead of silent nothing-moves confusion.
+  return page.evaluate(async () => {
+    let c = chars.find(x => x.id === curId) || chars[0];
+    if (!c) return { noChar: true };
+    curId = c.id;
+    c.feats = c.feats || [];
+    if (!c.feats.some(f => (f.name || f.n) === 'Combat Expertise')) c.feats.push({ name: 'Combat Expertise' });
+    c.items = (c.items || []).filter(it => it.catalogue !== 'weapon'); // no melee equipped
+    c.combatDecl = { pa: 0, ce: 0, ro: false, bd: 0 };
+    save(); renderSheet();
+    const repCell = [...document.querySelectorAll('#sh-stats *')].map(e => e.textContent).find(t => /Reputation/.test(t) && t.length < 80) || '';
+    const repSigned = /\+\d/.test(repCell);
+    const uaBefore = computeEquippedWeaponSummaries(c).find(r => r.name === 'Unarmed strike').attackBonus;
+    await baDeclAdjust(-1); // only CE owned → routes straight to Combat Expertise 1
+    const d = combatDecl(c);
+    const uaAfter = computeEquippedWeaponSummaries(c).find(r => r.name === 'Unarmed strike').attackBonus;
+    const hint = document.getElementById('toast').textContent;
+    const ok = repSigned && d.ce === 1 && (uaBefore - uaAfter) === 1 && /MELEE attack rolls only/.test(hint) && /Unarmed strike/.test(hint);
+    // leave the stance clean for any later tests
+    c.combatDecl = { pa: 0, ce: 0, ro: false, bd: 0 }; save(); renderSheet();
+    return ok || { repCell: repCell.slice(0, 40), repSigned, ce: d.ce, uaBefore, uaAfter, hint: hint.slice(0, 80) };
+  });
 });
 
 mark('ZERO-CONSOLE-ERRORS', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
