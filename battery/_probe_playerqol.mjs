@@ -64,7 +64,7 @@ const typeRank = async (val) => {
   return page.$eval(sel, el => el.id);
 };
 
-await t('VERSION-STAMPED', () => (CG_VERSION === 'v9.17.0' && /v9\.17\.0/.test(document.querySelector('.site-subtitle').textContent)) || { CG_VERSION });
+await t('VERSION-STAMPED', () => (/^v9\.\d+\.\d+$/.test(CG_VERSION) && document.querySelector('.site-subtitle').textContent.includes(CG_VERSION)) || { CG_VERSION, sub: document.querySelector('.site-subtitle').textContent.slice(0, 60) });
 
 const heroId = await makeHero(page, 'QoL Probe');
 await tn('HERO-CREATED', async () => !!heroId || { heroId });
@@ -323,15 +323,18 @@ await tn('V9161-TRIO (signed Rep · unarmed carries stance · no-melee hint)', a
     save(); renderSheet();
     const repCell = [...document.querySelectorAll('#sh-stats *')].map(e => e.textContent).find(t => /Reputation/.test(t) && t.length < 80) || '';
     const repSigned = /\+\d/.test(repCell);
+    // v9.17.1: the BA headline = the COMPUTED total (not the stored base).
+    const baCellTxt = [...document.querySelectorAll('#sh-stats *')].map(e => e.textContent).find(t => /Base Attack/.test(t) && t.length < 260) || '';
+    const baOk = new RegExp('\\+' + computeStatBlock(c).bab.total + '(\\D|$)').test(baCellTxt);
     const uaBefore = computeEquippedWeaponSummaries(c).find(r => r.name === 'Unarmed strike').attackBonus;
     await baDeclAdjust(-1); // only CE owned → routes straight to Combat Expertise 1
     const d = combatDecl(c);
     const uaAfter = computeEquippedWeaponSummaries(c).find(r => r.name === 'Unarmed strike').attackBonus;
     const hint = document.getElementById('toast').textContent;
-    const ok = repSigned && d.ce === 1 && (uaBefore - uaAfter) === 1 && /MELEE attack rolls only/.test(hint) && /Unarmed strike/.test(hint);
+    const ok = repSigned && baOk && d.ce === 1 && (uaBefore - uaAfter) === 1 && /MELEE attack rolls only/.test(hint) && /Unarmed strike/.test(hint);
     // leave the stance clean for any later tests
     c.combatDecl = { pa: 0, ce: 0, ro: false, bd: 0 }; save(); renderSheet();
-    return ok || { repCell: repCell.slice(0, 40), repSigned, ce: d.ce, uaBefore, uaAfter, hint: hint.slice(0, 80) };
+    return ok || { repCell: repCell.slice(0, 40), repSigned, baOk, baCellTxt: baCellTxt.slice(0, 50), ce: d.ce, uaBefore, uaAfter, hint: hint.slice(0, 80) };
   });
 });
 

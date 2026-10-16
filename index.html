@@ -438,7 +438,7 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 
 <header class="site-header">
   <div class="site-title">Epics &amp; Epochs</div>
-  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.17.0</div>
+  <div class="site-subtitle">Character Generator &amp; Tracker · Powered by the Epics &amp; Epochs (E&amp;E) System · v9.17.1</div>
 </header>
 
 <!-- v8.6.0 (Adam's ordering, 2026-09-01): build-progression tab order —
@@ -37409,7 +37409,7 @@ function toggleDrill(id){const el=document.getElementById(id);el.classList.toggl
 // (3) DISPLAY — Parchment / Classic / High Contrast + text size (prefs
 //     applied in <head>; theme tokens in the first <style> :root block).
 // ============================================================================
-const CG_VERSION = 'v9.17.0';
+const CG_VERSION = 'v9.17.1';
 const BUG_REPORT_EMAIL = 'admin@epicsandepochs.com';  // Adam, 2026-10-15 (public in page source, by his choice)
 var _createDirty = false;
 var _skBaseline = null;           // {id, skills:{name:ranks}} — last saved/entered state
@@ -41879,8 +41879,14 @@ function renderSheet(){
   // printed value (no effective-BA arithmetic, no lost iteratives). The
   // Defense Bonus bump is CE's engaged-flag; the chips here are PA's.
   const _paCap = (c.bab || 0), _ceCap = Math.min(5, c.bab || 0);
+  // v9.17.1 (§278, Adam's Xander report #2): the headline shows the COMPUTED
+  // bab total like every sibling cell — modifiers (active buffs, mutant
+  // lanes, feat bonuses) reached the drilldown but the cell printed the
+  // stored base. The §270 stance doctrine is untouched: PA/CE never enter
+  // the bab lane — they remain attack-ROLL penalties, chipped below.
+  const _baTotal = (() => { try { return computeStatBlock(c).bab.total; } catch (e) { return c.bab || 0; } })();
   const _baCell = {l:'Base Attack',
-     v: (c.bab>=0?'+':'')+c.bab,
+     v: (_baTotal>=0?'+':'')+_baTotal,
      k:'bab',
      tooltip: _dclOwn ? `Declared stance — holds until re-declared. Power Attack ${_dcl.pa} · Combat Expertise ${_dcl.ce}: each is a PENALTY ON MELEE ATTACK ROLLS while engaged (Grapple included — a grapple check is like a melee attack roll), never a spend of Base Attack: the printed value stands, and the iterative ladder never loses attacks. Power Attack adds the same number to melee damage (×2 two-handed, none on light weapons; caps at your Base Attack). Combat Expertise adds the same number to your Defense Bonus — AC, touch, dodge, and Parry all rise (HH p.207; caps at +5 or your Base Attack, whichever is less). ▼ declares a point; ▲ withdraws one.` : undefined,
      extraHtml: _dclOwn ? `<span style="display:block;margin-top:2px;white-space:nowrap;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${(_dcl.pa >= _paCap && _dcl.ce >= _ceCap) ? 'opacity:.35;' : ''}" title="Declare a point of penalty on melee attack rolls (Power Attack / Combat Expertise)" onclick="event.stopPropagation();baDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent <= 0 ? 'opacity:.35;' : ''}" title="Withdraw a declared point" onclick="event.stopPropagation();baDeclAdjust(1)">▲</button>${_dclSpent ? `<span style="font-size:9px;color:#d4b870;margin-left:4px;">PA −${_dcl.pa} · CE −${_dcl.ce} (attack rolls)</span>` : ''}</span>` : ''};
