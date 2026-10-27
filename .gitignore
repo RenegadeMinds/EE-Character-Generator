@@ -4,3 +4,5 @@ battery/fuzz*.json
 battery/report*.json
 # Python bytecode cache (tools/ holds Python scripts since the Phase 1 split)
 __pycache__/
+# Build output of tools/build_standalone.py (a product, not a source)
+dist/

@@ -53,6 +53,14 @@
 #   wrong place.
 #
 # The output is written into the repository folder (the parent of tools/).
+#
+# AFTER PHASE 1
+#   Phase 2 deliberately changed two things this script produced:
+#   tools/reformat_data.py re-laid out the js/data tables one record per line
+#   (values unchanged), and tools/stamp_version.py added ?v=<version> to the
+#   links in index.html. So --verify-only passes on the Phase 1 commits
+#   only. Do not re-run the split on the current tree: it would overwrite
+#   every file with the original v9.19.0 text.
 # =============================================================================
 
 import argparse

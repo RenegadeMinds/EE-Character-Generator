@@ -16,12 +16,17 @@
        js/rules, js/data, js/app   the app itself (68 files), loaded
                          at the bottom of <body>, in order
      There is no build step: GitHub Pages serves these files as they are.
+     The ?v=... on each script/stylesheet link is the release version. It
+     makes browsers fetch fresh copies after an update instead of mixing
+     old cached files with new ones. Never edit it by hand: after changing
+     CG_VERSION (js/app/42-player-tools.js) and the subtitle below, run
+     python tools/stamp_version.py
      Opening this file straight from disk (file://) also works, as long as
      the folders sit next to it. See js/README.md for the full map.
      ====================================================================== -->
-<script src="js/boot.js"></script>
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/app.css">
+<script src="js/boot.js?v=9.19.0"></script>
+<link rel="stylesheet" href="css/fonts.css?v=9.19.0">
+<link rel="stylesheet" href="css/app.css?v=9.19.0">
 </head>
 <body>
 
@@ -1753,78 +1758,78 @@
                dialogs, saving, and start-up (the last file, init.js)
      ====================================================================== -->
 <!-- js/rules: rules + engine -->
-<script src="js/rules/01-races-and-base-classes.js"></script>
-<script src="js/rules/02-class-features.js"></script>
-<script src="js/rules/03-feat-slots-and-caster-progression.js"></script>
-<script src="js/rules/04-advanced-classes.js"></script>
-<script src="js/rules/05-six-scales-and-scenarios.js"></script>
-<script src="js/rules/06-homebrew-forge-armory-monstrous.js"></script>
-<script src="js/rules/07-prestige-classes.js"></script>
-<script src="js/rules/08-feat-prereqs-and-bonuses.js"></script>
-<script src="js/rules/09-item-effects-and-buffs.js"></script>
-<script src="js/rules/10-minds-ledger-and-magic-browser.js"></script>
-<script src="js/rules/11-cybernetics.js"></script>
-<script src="js/rules/12-wealth-and-prices.js"></script>
-<script src="js/rules/13-armor-integrity-and-enchanting.js"></script>
-<script src="js/rules/14-resistances-speed-dr-size.js"></script>
-<script src="js/rules/15-combat-declarations-and-melee.js"></script>
-<script src="js/rules/16-worn-and-active-gear.js"></script>
-<script src="js/rules/17-per-diem-and-class-choices.js"></script>
-<script src="js/rules/18-companions.js"></script>
-<script src="js/rules/19-bonus-aggregator-and-stat-block.js"></script>
-<script src="js/rules/20-scenario-titles-and-heroic-resources.js"></script>
-<script src="js/rules/21-quickdraw.js"></script>
-<script src="js/rules/22-career-compass.js"></script>
-<script src="js/rules/23-hit-points-xp-skills.js"></script>
-<script src="js/rules/24-synergies-class-skills-citations.js"></script>
-<script src="js/rules/25-citation-helpers-feats-talents-db.js"></script>
+<script src="js/rules/01-races-and-base-classes.js?v=9.19.0"></script>
+<script src="js/rules/02-class-features.js?v=9.19.0"></script>
+<script src="js/rules/03-feat-slots-and-caster-progression.js?v=9.19.0"></script>
+<script src="js/rules/04-advanced-classes.js?v=9.19.0"></script>
+<script src="js/rules/05-six-scales-and-scenarios.js?v=9.19.0"></script>
+<script src="js/rules/06-homebrew-forge-armory-monstrous.js?v=9.19.0"></script>
+<script src="js/rules/07-prestige-classes.js?v=9.19.0"></script>
+<script src="js/rules/08-feat-prereqs-and-bonuses.js?v=9.19.0"></script>
+<script src="js/rules/09-item-effects-and-buffs.js?v=9.19.0"></script>
+<script src="js/rules/10-minds-ledger-and-magic-browser.js?v=9.19.0"></script>
+<script src="js/rules/11-cybernetics.js?v=9.19.0"></script>
+<script src="js/rules/12-wealth-and-prices.js?v=9.19.0"></script>
+<script src="js/rules/13-armor-integrity-and-enchanting.js?v=9.19.0"></script>
+<script src="js/rules/14-resistances-speed-dr-size.js?v=9.19.0"></script>
+<script src="js/rules/15-combat-declarations-and-melee.js?v=9.19.0"></script>
+<script src="js/rules/16-worn-and-active-gear.js?v=9.19.0"></script>
+<script src="js/rules/17-per-diem-and-class-choices.js?v=9.19.0"></script>
+<script src="js/rules/18-companions.js?v=9.19.0"></script>
+<script src="js/rules/19-bonus-aggregator-and-stat-block.js?v=9.19.0"></script>
+<script src="js/rules/20-scenario-titles-and-heroic-resources.js?v=9.19.0"></script>
+<script src="js/rules/21-quickdraw.js?v=9.19.0"></script>
+<script src="js/rules/22-career-compass.js?v=9.19.0"></script>
+<script src="js/rules/23-hit-points-xp-skills.js?v=9.19.0"></script>
+<script src="js/rules/24-synergies-class-skills-citations.js?v=9.19.0"></script>
+<script src="js/rules/25-citation-helpers-feats-talents-db.js?v=9.19.0"></script>
 <!-- js/data: game catalogs -->
-<script src="js/data/26-damage-types.js"></script>
-<script src="js/data/27-spell-damage.js"></script>
-<script src="js/data/28-damage-resolver.js"></script>
-<script src="js/data/29-weapons.js"></script>
-<script src="js/data/30-armor.js"></script>
-<script src="js/data/31-vehicles.js"></script>
-<script src="js/data/32-gadgets.js"></script>
-<script src="js/data/33-mastercraft.js"></script>
-<script src="js/data/34-equipment-items.js"></script>
-<script src="js/data/35-item-slots.js"></script>
-<script src="js/data/36-magic-items.js"></script>
-<script src="js/data/37-spells.js"></script>
-<script src="js/data/38-mutations.js"></script>
-<script src="js/data/39-mutation-rules.js"></script>
+<script src="js/data/26-damage-types.js?v=9.19.0"></script>
+<script src="js/data/27-spell-damage.js?v=9.19.0"></script>
+<script src="js/data/28-damage-resolver.js?v=9.19.0"></script>
+<script src="js/data/29-weapons.js?v=9.19.0"></script>
+<script src="js/data/30-armor.js?v=9.19.0"></script>
+<script src="js/data/31-vehicles.js?v=9.19.0"></script>
+<script src="js/data/32-gadgets.js?v=9.19.0"></script>
+<script src="js/data/33-mastercraft.js?v=9.19.0"></script>
+<script src="js/data/34-equipment-items.js?v=9.19.0"></script>
+<script src="js/data/35-item-slots.js?v=9.19.0"></script>
+<script src="js/data/36-magic-items.js?v=9.19.0"></script>
+<script src="js/data/37-spells.js?v=9.19.0"></script>
+<script src="js/data/38-mutations.js?v=9.19.0"></script>
+<script src="js/data/39-mutation-rules.js?v=9.19.0"></script>
 <!-- js/rules: rules + engine -->
-<script src="js/rules/40-occupations-and-weapon-list.js"></script>
+<script src="js/rules/40-occupations-and-weapon-list.js?v=9.19.0"></script>
 <!-- js/app: pages, dialogs, tracker, start-up -->
-<script src="js/app/41-state-storage-navigation.js"></script>
-<script src="js/app/42-player-tools.js"></script>
-<script src="js/app/43-create-attributes-race-occupation.js"></script>
-<script src="js/app/44-create-scenario-gate-and-layout.js"></script>
-<script src="js/app/45-create-class-list.js"></script>
-<script src="js/app/46-create-preview-and-defense.js"></script>
-<script src="js/app/47-save-character.js"></script>
-<script src="js/app/48-roster-and-export.js"></script>
-<script src="js/app/49-sheet.js"></script>
-<script src="js/app/50-skills-page.js"></script>
-<script src="js/app/51-gm-exceptions-and-talents-page.js"></script>
-<script src="js/app/52-energy-immunity-and-spell-lists.js"></script>
+<script src="js/app/41-state-storage-navigation.js?v=9.19.0"></script>
+<script src="js/app/42-player-tools.js?v=9.19.0"></script>
+<script src="js/app/43-create-attributes-race-occupation.js?v=9.19.0"></script>
+<script src="js/app/44-create-scenario-gate-and-layout.js?v=9.19.0"></script>
+<script src="js/app/45-create-class-list.js?v=9.19.0"></script>
+<script src="js/app/46-create-preview-and-defense.js?v=9.19.0"></script>
+<script src="js/app/47-save-character.js?v=9.19.0"></script>
+<script src="js/app/48-roster-and-export.js?v=9.19.0"></script>
+<script src="js/app/49-sheet.js?v=9.19.0"></script>
+<script src="js/app/50-skills-page.js?v=9.19.0"></script>
+<script src="js/app/51-gm-exceptions-and-talents-page.js?v=9.19.0"></script>
+<script src="js/app/52-energy-immunity-and-spell-lists.js?v=9.19.0"></script>
 <!-- js/data: game catalogs -->
-<script src="js/data/53-domains.js"></script>
+<script src="js/data/53-domains.js?v=9.19.0"></script>
 <!-- js/app: pages, dialogs, tracker, start-up -->
-<script src="js/app/54-powers-repertoire.js"></script>
-<script src="js/app/55-mutations-engine.js"></script>
-<script src="js/app/56-supernatural-attributes-pools-psi-focus.js"></script>
-<script src="js/app/57-armor-and-vehicle-integrity.js"></script>
-<script src="js/app/58-power-armor.js"></script>
-<script src="js/app/59-mecha.js"></script>
-<script src="js/app/60-starships.js"></script>
-<script src="js/app/61-casting-augments-and-powers-page.js"></script>
-<script src="js/app/62-power-suites-feats-page-proficiencies.js"></script>
-<script src="js/app/63-modals.js"></script>
-<script src="js/app/64-tracker.js"></script>
-<script src="js/app/65-tracker-logs-and-damage.js"></script>
-<script src="js/app/66-xp-spending-and-level-up.js"></script>
-<script src="js/app/67-pdf-export.js"></script>
-<script src="js/app/68-init.js"></script>
+<script src="js/app/54-powers-repertoire.js?v=9.19.0"></script>
+<script src="js/app/55-mutations-engine.js?v=9.19.0"></script>
+<script src="js/app/56-supernatural-attributes-pools-psi-focus.js?v=9.19.0"></script>
+<script src="js/app/57-armor-and-vehicle-integrity.js?v=9.19.0"></script>
+<script src="js/app/58-power-armor.js?v=9.19.0"></script>
+<script src="js/app/59-mecha.js?v=9.19.0"></script>
+<script src="js/app/60-starships.js?v=9.19.0"></script>
+<script src="js/app/61-casting-augments-and-powers-page.js?v=9.19.0"></script>
+<script src="js/app/62-power-suites-feats-page-proficiencies.js?v=9.19.0"></script>
+<script src="js/app/63-modals.js?v=9.19.0"></script>
+<script src="js/app/64-tracker.js?v=9.19.0"></script>
+<script src="js/app/65-tracker-logs-and-damage.js?v=9.19.0"></script>
+<script src="js/app/66-xp-spending-and-level-up.js?v=9.19.0"></script>
+<script src="js/app/67-pdf-export.js?v=9.19.0"></script>
+<script src="js/app/68-init.js?v=9.19.0"></script>
 </body>
 </html>

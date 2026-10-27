@@ -41,179 +41,37 @@
 //   inside the code ("v8.3.17 ...", "Adam's ruling ...", the section numbers)
 //   are the original change history and were kept as they were.
 //
-// ---- verbatim from index.html v9.19.0, lines 27209-27408; unchanged below this line ----
+// PHASE 2 LAYOUT (tools/reformat_data.py)
+//   The data tables below were re-laid-out ONE RECORD PER LINE, so a change
+//   to one entry shows up in Git as a one-line change. Only line breaks and
+//   spaces changed: every value, and the order of every key, is identical
+//   (the tool checks this before writing). Everything else in this file,
+//   including the marker comments around each table, is unchanged.
+// ---- from index.html v9.19.0, lines 27209-27408; data tables re-laid-out one record per line (values unchanged) ----
 const ITEM_SLOTS = /*<<JSON:ITEM_SLOTS>>*/ [
-  {
-    "id": "main_hand",
-    "label": "Main Hand",
-    "category": "held",
-    "capacity": 1,
-    "accepts": [
-      "weapon"
-    ]
-  },
-  {
-    "id": "off_hand",
-    "label": "Off Hand",
-    "category": "held",
-    "capacity": 1,
-    "accepts": [
-      "weapon",
-      "shield"
-    ]
-  },
-  {
-    "id": "armor",
-    "label": "Armor",
-    "category": "worn",
-    "capacity": 1,
-    "accepts": [
-      "armor"
-    ]
-  },
-  {
-    "id": "head",
-    "label": "Headband / Helmet",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Mental improvement, ranged attacks"
-  },
-  {
-    "id": "hat",
-    "label": "Hat",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Interaction"
-  },
-  {
-    "id": "phylactery",
-    "label": "Phylactery",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Morale, alignment"
-  },
-  {
-    "id": "eyes",
-    "label": "Crystal mask / lenses / goggles / third eye",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Vision, mental acuity"
-  },
-  {
-    "id": "shoulders",
-    "label": "Cloak / cape / mantle / psychoactive skin",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Transformation, protection"
-  },
-  {
-    "id": "back",
-    "label": "Back (pack / jetpack / aquaconverter)",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Carried systems"
-  },
-  {
-    "id": "neck",
-    "label": "Amulet / brooch / medallion / necklace / periapt / scarab",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Protection, discernment"
-  },
-  {
-    "id": "torc",
-    "label": "Torc",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Mental protection"
-  },
-  {
-    "id": "robe",
-    "label": "Robe",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Multiple effects"
-  },
-  {
-    "id": "shirt",
-    "label": "Shirt",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Physical improvement"
-  },
-  {
-    "id": "vest",
-    "label": "Vest / vestment",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Class ability improvement"
-  },
-  {
-    "id": "bracers",
-    "label": "Bracers",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Combat"
-  },
-  {
-    "id": "bracelets",
-    "label": "Bracelets",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Allies"
-  },
-  {
-    "id": "gloves",
-    "label": "Gloves",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Quickness"
-  },
-  {
-    "id": "gauntlets",
-    "label": "Gauntlets",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Destructive power"
-  },
-  {
-    "id": "belt",
-    "label": "Belt",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Physical improvement"
-  },
-  {
-    "id": "boots",
-    "label": "Boots",
-    "category": "body",
-    "capacity": 1,
-    "affinity": "Movement"
-  },
-  {
-    "id": "ring",
-    "label": "Ring",
-    "category": "body",
-    "capacity": 2,
-    "affinity": "Varied",
-    "note": "Author ruling: up to 2 rings regardless of appendages. (Not in the GMG p.222 table.)"
-  },
-  {
-    "id": "tattoo",
-    "label": "Imbued Tattoo",
-    "category": "body",
-    "capacity": 20,
-    "temporary": true,
-    "affinity": "Varied",
-    "note": "Author ruling: up to 20 imbued tattoos regardless of body size; temporary (psionic equivalent of potions, but with a bodily limit)."
-  },
-  {
-    "id": "carried",
-    "label": "Carried",
-    "category": "carried",
-    "capacity": null,
-    "note": "Unslotted gear (tool kits, consumables, misc). Tool-kit skill bonuses apply by ownership (no equip needed)."
-  }
+  {"id": "main_hand", "label": "Main Hand", "category": "held", "capacity": 1, "accepts": ["weapon"]},
+  {"id": "off_hand", "label": "Off Hand", "category": "held", "capacity": 1, "accepts": ["weapon", "shield"]},
+  {"id": "armor", "label": "Armor", "category": "worn", "capacity": 1, "accepts": ["armor"]},
+  {"id": "head", "label": "Headband / Helmet", "category": "body", "capacity": 1, "affinity": "Mental improvement, ranged attacks"},
+  {"id": "hat", "label": "Hat", "category": "body", "capacity": 1, "affinity": "Interaction"},
+  {"id": "phylactery", "label": "Phylactery", "category": "body", "capacity": 1, "affinity": "Morale, alignment"},
+  {"id": "eyes", "label": "Crystal mask / lenses / goggles / third eye", "category": "body", "capacity": 1, "affinity": "Vision, mental acuity"},
+  {"id": "shoulders", "label": "Cloak / cape / mantle / psychoactive skin", "category": "body", "capacity": 1, "affinity": "Transformation, protection"},
+  {"id": "back", "label": "Back (pack / jetpack / aquaconverter)", "category": "body", "capacity": 1, "affinity": "Carried systems"},
+  {"id": "neck", "label": "Amulet / brooch / medallion / necklace / periapt / scarab", "category": "body", "capacity": 1, "affinity": "Protection, discernment"},
+  {"id": "torc", "label": "Torc", "category": "body", "capacity": 1, "affinity": "Mental protection"},
+  {"id": "robe", "label": "Robe", "category": "body", "capacity": 1, "affinity": "Multiple effects"},
+  {"id": "shirt", "label": "Shirt", "category": "body", "capacity": 1, "affinity": "Physical improvement"},
+  {"id": "vest", "label": "Vest / vestment", "category": "body", "capacity": 1, "affinity": "Class ability improvement"},
+  {"id": "bracers", "label": "Bracers", "category": "body", "capacity": 1, "affinity": "Combat"},
+  {"id": "bracelets", "label": "Bracelets", "category": "body", "capacity": 1, "affinity": "Allies"},
+  {"id": "gloves", "label": "Gloves", "category": "body", "capacity": 1, "affinity": "Quickness"},
+  {"id": "gauntlets", "label": "Gauntlets", "category": "body", "capacity": 1, "affinity": "Destructive power"},
+  {"id": "belt", "label": "Belt", "category": "body", "capacity": 1, "affinity": "Physical improvement"},
+  {"id": "boots", "label": "Boots", "category": "body", "capacity": 1, "affinity": "Movement"},
+  {"id": "ring", "label": "Ring", "category": "body", "capacity": 2, "affinity": "Varied", "note": "Author ruling: up to 2 rings regardless of appendages. (Not in the GMG p.222 table.)"},
+  {"id": "tattoo", "label": "Imbued Tattoo", "category": "body", "capacity": 20, "temporary": true, "affinity": "Varied", "note": "Author ruling: up to 20 imbued tattoos regardless of body size; temporary (psionic equivalent of potions, but with a bodily limit)."},
+  {"id": "carried", "label": "Carried", "category": "carried", "capacity": null, "note": "Unslotted gear (tool kits, consumables, misc). Tool-kit skill bonuses apply by ownership (no equip needed)."}
 ] /*<<END:ITEM_SLOTS>>*/;
 
 // v9.6.0 (§255, Adam's chart, 2026-10-07): THE REAL BODY SLOTS. The GMG

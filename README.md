@@ -33,5 +33,7 @@ Up to v9.19.0 the generator was a single `index.html`. It is now split into ordi
 
 **Start with [`js/README.md`](js/README.md)**: it maps every file, explains the one rule about load order, and explains why the data files are now edited directly (the old data-build scripts are out of date and must not be re-run). To try it locally, run `python -m http.server 8000` in this folder and open http://localhost:8000.
 
+**Releasing a version:** change `CG_VERSION` in `js/app/42-player-tools.js` and the version in the subtitle in `index.html`, then run `python tools/stamp_version.py` so every player's browser fetches the new files. For a single-file copy (offline use, emailing), run `python tools/build_standalone.py`; it writes one self-contained HTML file to `dist/`.
+
 ---
 © Gamer's Pair O' Dice. The generator is provided free for personal tabletop use.
