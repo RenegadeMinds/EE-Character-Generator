@@ -54,6 +54,81 @@ function printSheet(){
   const firstHero=classArr.find(e=>e.tier==='hero');
   const hc=firstHero?HERO_CLASSES[firstHero.name]:null;
 
+  const skillRows = printSkillRows(c, psSkillMisc);
+  const featList = printFeatList(c);
+  const talentList = printTalentList(c);
+  const spellsBlock = printSpellsBlock(c);
+  const mutBlock = printMutationsBlock(c);
+  let gearBlock = printGearBlock(c);
+  // ===================== v8.19.0 PRINT-PARITY PASS =====================
+  // The print sheet's last parity audit was v8.6.x; the v8.7–v8.18 systems
+  // (speeds, SR/DR/resistances, per-diem abilities, class choices,
+  // companions, armor integrity, power armor, Second Skin, vehicles/mecha/
+  // starships) existed only on screen. Print now mirrors the Sheet's
+  // active-loadout dashboard and the Tracker's integrity panels.
+  // Speed & SR join the combat grid; provenance rides the footnote.
+  const psSpd = computeSpeeds(c);
+  const psSpdCell = `<div class="ps-stat"><span class="ps-stat-lbl">Speed</span><span class="ps-stat-val">${psSpd.walk}′</span></div>`;
+  const psSR = computeSR(c);
+  const psSRCell = psSR ? `<div class="ps-stat"><span class="ps-stat-lbl">Spell Resist</span><span class="ps-stat-val">${psSR.total}</span></div>` : '';
+  const psSpdFoot = `<div style="font-size:6.5pt;color:#888;margin-top:2px;">Speed: ${psSpd.parts.join(' · ')} · Run ${psSpd.run}${psSpd.modes.map(m=>` · ${m.type} ${m.speed}′ (${m.note})`).join('')}${psSR?` &nbsp;·&nbsp; SR: ${psSR.note}`:''}</div>`;
+  const psDefLine = printDefensesLine(c);
+  const perDiemBlock = printPerDiemBlock(c);
+  const psChoiceRows = printClassChoiceRows(c);
+  const companionsBlock = printCompanionsBlock(c);
+  gearBlock = printAddArmorIntegrity(c, gearBlock);
+  const machinesBlock = printMachinesBlock(c);
+  // ================== end v8.19.0 print-parity pass ==================
+
+  // v8.6.0 parity: baked attribute-delta footnote for the ability grid,
+  // plus firm-wired equipped-item enhancements (shown as "worn").
+  const psAttrNotes = (c.mutations||[]).filter(m=>m.attrApplied)
+    .map(m=>`${m.attr} ${m.attrApplied>0?'+':''}${m.attrApplied} (${m.name.replace('[Attribute]', ATTR_FULL[m.attr]||m.attr)}${m.name.startsWith('Supernatural')?' — Su, suppressible':m.kind==='attribute'?' — Ex, never negated':''})`);
+  const psItemAttrB = attrItemBonuses(c);
+  ATTR_NAMES.forEach((a,i)=>{ if (psItemAttrB.best[i] > 0) psAttrNotes.push(`${a} +${psItemAttrB.best[i]} worn (${psItemAttrB.from[i]} — item CON does not shift stored max HP)`); });
+
+  // Hero level table (5 levels on print) — uses the first Hero entry, if any
+  let lvlTable='';
+  if(hc && firstHero){
+    lvlTable=`<table class="ps-skill-tbl" style="margin-top:4px;"><thead><tr><th>Lvl</th><th>BAB</th><th>Fort</th><th>Ref</th><th>Will</th><th>Def</th></tr></thead><tbody>
+    ${[1,2,3,4,5].map(l=>{const i=l-1;return`<tr style="${l===firstHero.level?'font-weight:bold;background:#f0ebe0;':''}""><td>${l}</td><td>+${hc.bab[i]}</td><td>+${hc.fort[i]}</td><td>+${hc.ref[i]}</td><td>+${hc.will[i]}</td><td>+${hc.def[i]}</td></tr>`}).join('')}
+    </tbody></table>`;
+  }
+  // Class summary line for the header
+  const classSummary=classArr.map(e=>`${e.name} ${e.level}`).join(' + ')||'—';
+  const classDetailRows = printClassDetailRows(c, classArr);
+  const psOutstanding = printOutstandingStrip(c);
+  document.getElementById('print-sheet').innerHTML=`
+${printHeaderHtml(c, psOutstanding, classSummary)}
+  <div class="ps-body">
+    <!-- LEFT COLUMN -->
+    <div class="ps-col">
+${printAbilityScoresHtml(c, psAttrNotes, psItemAttrB)}
+${printCombatStatsHtml(c, { acDisp, parry, dodge, psInit, psSpdCell, psSRCell, psSpdFoot, psDefLine })}
+${printSavesHtml(psSaveRow, cM, dM, wM)}
+      ${perDiemBlock}
+
+${printXPHtml(c, xpProg, hc, firstHero, lvlTable)}
+${printFeatsAndTalentsHtml(c, featList, talentList)}      ${mutBlock}
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="ps-col">
+${printSkillsHtml(skillRows)}
+${printScenarioRaceOccupationHtml(c)}
+${printClassFeaturesHtml(classDetailRows, psChoiceRows)}
+      ${spellsBlock}
+      ${gearBlock}
+      ${machinesBlock}
+      ${companionsBlock}
+${printNotesTrackerLanguagesHtml(c)}    </div>
+  </div>`;
+
+  window.print();
+}
+
+// Print sheet: skill rows (ranked skills plus the key combat skills).
+function printSkillRows(c, psSkillMisc) {
   // Build skill rows for print — only skills with ranks > 0, plus key combat skills
   const keyCombatSkills=['Bluff','Climb','Concentration','Diplomacy','Hide','Intimidate','Jump','Listen','Move Silently','Search','Sense Motive','Spot','Survival','Swim','Tumble'];
   const printSkills=SKILLS.filter(sk=>{
@@ -71,7 +146,11 @@ function printSheet(){
     const total=ranks+amod+misc;
     return`<tr class="${cls?'cs':''}"><td>${(displaySkillName(c, sk.n)).replace('Knowledge ','Kn. ').replace('Craft ','Cr. ').replace('Perform ','Perf. ')}</td><td class="attr">${sk.k}</td><td class="attr">${amod>=0?'+':''}${amod}</td><td class="cls">${ranks}</td><td class="attr">${misc?((misc>0?'+':'')+misc):'—'}</td><td class="tot">${total>=0?'+':''}${total}</td></tr>`;
   }).join('');
+  return skillRows;
+}
 
+// Print sheet: the feat list.
+function printFeatList(c) {
   // v8.4.1: build the feat list with correct field-name resolution. Previously
   // this read `f.n`, `f.t`, `f.pre`, `f.d` — none of which exist on the
   // canonical character feat entry (which has just `{name, param?, slotSource?, l1Slot?}`).
@@ -88,7 +167,11 @@ function printSheet(){
     const desc = data?.d || '';
     return `<li><span class="ft">${displayName}</span> <span class="ftype">[${family}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span style="color:#555;font-size:7.5pt;">'+desc+'</span>':''}</li>`;
   }).join('');
+  return featList;
+}
 
+// Print sheet: the talent list.
+function printTalentList(c) {
   // v8.4.1: build the talent list for print. Previously the print sheet
   // didn't render Talents at all, so any character with Talents had them
   // invisible in their PDF. We now generate a parallel list to the feats
@@ -103,94 +186,104 @@ function printSheet(){
     const desc = data.d || '';
     return `<li><span class="ft">${t.name}${t.param?' ('+t.param+')':''}</span> <span class="ftype">[${tier}${treeLabel?'; '+treeLabel:''}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span style="color:#555;font-size:7.5pt;">'+desc+'</span>':''}</li>`;
   }).join('');
+  return talentList;
+}
 
+// Print sheet: the Spells & Powers block ("" when the character has none).
+function printSpellsBlock(c) {
   // v8.6.0 parity: Spells & Powers block — pool chips (EAL/EDL/EPL/ESL),
   // sub-options, known lists (source-sensitive names), prepared lists, super.
   let spellsBlock = '';
-  {
-    const cs = computeCasterStats(c);
-    const mpSt = getMPState(c);
-    const parts = [];
-    for (const poolName of ['arcane','divine','psionic']) {
-      const pool = cs[poolName]; if (!pool || !pool.contributors.length) continue;
-      const eff = POOL_EFF_LEVEL[poolName];
-      const pp = getPoolPPState(c, poolName);
-      const sub = [];
-      if (poolName==='arcane' && c.wizardSchool) sub.push(`${c.wizardSchool} specialist (prohibited: ${(c.wizardProhibited||[]).join(', ')||'—'})`);
-      if (poolName==='divine') {
-        if (c.druidOption) sub.push('Druid Option (Druid list)');
-        else if ((c.clericDomains||[]).length) sub.push('Domains: '+c.clericDomains.join(', '));
-        if ((c.saintDomains||[]).length) sub.push('Saint domains: '+c.saintDomains.join(', '));
-        if ((c.paladinDomains||[]).length) sub.push('Paladin domains: '+c.paladinDomains.join(', '));
-      }
-      if (poolName==='psionic' && c.psionDiscipline) sub.push('Discipline: '+c.psionDiscipline);
-      const known = getCharPowers(c).filter(p=>p.pool===poolName).map(p=>{
-        const s = SPELLS_DB.find(x=>x.name===p.name);
-        const nm = (s && p.token) ? displayNameForRoute(s,{token:p.token,lvl:p.lvl,pool:p.pool,applies:p.applies}) : p.name;
-        return nm + (p.personal?' ✦':'');
-      });
-      let prepLines = '';
-      const slots = c.preparedSlots && c.preparedSlots[poolName];
-      if (slots) for (const key in slots) {
-        if (!slots[key].length) continue;
-        prepLines += `<div style="font-size:7.5pt;color:#555;"><b>Prepared (${key.replace(':',' ')}):</b> ${slots[key].map(r=>`${r.qty}× ${r.dispName||r.name} (lvl ${r.lvl}${r.free?', free':', '+r.cost+' PP'})`).join('; ')}</div>`;
-      }
-      parts.push(`<div style="margin-bottom:5px;">
+  const cs = computeCasterStats(c);
+  const mpSt = getMPState(c);
+  const parts = [];
+  for (const poolName of ['arcane','divine','psionic']) {
+    const pool = cs[poolName]; if (!pool || !pool.contributors.length) continue;
+    const eff = POOL_EFF_LEVEL[poolName];
+    const pp = getPoolPPState(c, poolName);
+    const sub = [];
+    if (poolName==='arcane' && c.wizardSchool) sub.push(`${c.wizardSchool} specialist (prohibited: ${(c.wizardProhibited||[]).join(', ')||'—'})`);
+    if (poolName==='divine') {
+      if (c.druidOption) sub.push('Druid Option (Druid list)');
+      else if ((c.clericDomains||[]).length) sub.push('Domains: '+c.clericDomains.join(', '));
+      if ((c.saintDomains||[]).length) sub.push('Saint domains: '+c.saintDomains.join(', '));
+      if ((c.paladinDomains||[]).length) sub.push('Paladin domains: '+c.paladinDomains.join(', '));
+    }
+    if (poolName==='psionic' && c.psionDiscipline) sub.push('Discipline: '+c.psionDiscipline);
+    const known = getCharPowers(c).filter(p=>p.pool===poolName).map(p=>{
+      const s = SPELLS_DB.find(x=>x.name===p.name);
+      const nm = (s && p.token) ? displayNameForRoute(s,{token:p.token,lvl:p.lvl,pool:p.pool,applies:p.applies}) : p.name;
+      return nm + (p.personal?' ✦':'');
+    });
+    let prepLines = '';
+    const slots = c.preparedSlots && c.preparedSlots[poolName];
+    if (slots) for (const key in slots) {
+      if (!slots[key].length) continue;
+      prepLines += `<div style="font-size:7.5pt;color:#555;"><b>Prepared (${key.replace(':',' ')}):</b> ${slots[key].map(r=>`${r.qty}× ${r.dispName||r.name} (lvl ${r.lvl}${r.free?', free':', '+r.cost+' PP'})`).join('; ')}</div>`;
+    }
+    parts.push(`<div style="margin-bottom:5px;">
         <div style="font-size:8.5pt;"><b>${eff.abbr} ${pool.cl}</b> · ${poolName} · max ${poolName === 'psionic' ? 'power' : 'spell'} lvl ${pool.maxPowerLvl} · PP ${pp.max}/day${pool.saveDcBase!=null?` · base DC ${pool.saveDcBase}+lvl`:''}${sub.length?' · '+sub.join(' · '):''}</div>
         ${known.length?`<div style="font-size:7.5pt;color:#555;"><b>Known:</b> ${known.join(', ')}</div>`:''}
         ${prepLines}
       </div>`);
-    }
-    if (mpSt.isSuperMutant) {
-      const spp = getSuperPPState(c);
-      const owned = getCharPowers(c).filter(p=>p.pool==='super').map(p=>p.name+(p.buff?' (Buff)':''));
-      parts.push(`<div style="margin-bottom:5px;">
+  }
+  if (mpSt.isSuperMutant) {
+    const spp = getSuperPPState(c);
+    const owned = getCharPowers(c).filter(p=>p.pool==='super').map(p=>p.name+(p.buff?' (Buff)':''));
+    parts.push(`<div style="margin-bottom:5px;">
         <div style="font-size:8.5pt;"><b>ESL ${mpSt.eml}</b> · super (${mpSt.tier?mpSt.tier.tier:'?'}) · ${mpSt.balance} MP banked · super-PP ${spp.max}/day</div>
         ${owned.length?`<div style="font-size:7.5pt;color:#555;"><b>Super-powers:</b> ${owned.join(', ')}</div>`:''}
       </div>`);
-    }
-    if (parts.length) spellsBlock = `<div class="ps-sec"><div class="ps-sec-head">Spells &amp; Powers</div><div class="ps-sec-body">${parts.join('')}<div style="font-size:6.5pt;color:#888;">PP by spell level: 0/1/3/5/7/9/11/13/15/17 (HH p.404). Prepared casters pay PP at dawn; casting a prepared spell is free. ✦ = Saint Personal Domain pick.</div></div></div>`;
   }
+  if (parts.length) spellsBlock = `<div class="ps-sec"><div class="ps-sec-head">Spells &amp; Powers</div><div class="ps-sec-body">${parts.join('')}<div style="font-size:6.5pt;color:#888;">PP by spell level: 0/1/3/5/7/9/11/13/15/17 (HH p.404). Prepared casters pay PP at dawn; casting a prepared spell is free. ✦ = Saint Personal Domain pick.</div></div></div>`;
+  return spellsBlock;
+}
+
+// Print sheet: the Mutations & MP block ("" when none).
+function printMutationsBlock(c) {
   // v8.6.0 parity: Mutations & MP block (ledger + per-mutation effect lines,
   // (Ex)/(Su)-typed attribute deltas).
   let mutBlock = '';
-  if ((c.mutations||[]).length || (c.mpGrants||[]).length) {
-    const st = getMPState(c);
-    const rows = (c.mutations||[]).map(m=>{
-      const fx = MUTATION_EFFECTS[m.name] || {};
-      const bits = [];
-      if (m.attrApplied) bits.push(`${m.attrApplied>0?'+':''}${m.attrApplied} ${m.attr}${m.name.startsWith('Supernatural')?' (Su)':m.kind==='attribute'?' (Ex)':''}`);
-      for (const sk in (fx.skills||{})) bits.push(`${fx.skills[sk]>0?'+':''}${fx.skills[sk]} ${sk}`);
-      for (const sv in (fx.saves||{})) bits.push(`${fx.saves[sv]>0?'+':''}${fx.saves[sv]} ${({fort:'Fort',ref:'Ref',will:'Will'})[sv]}`);
-      if (fx.naturalAC) bits.push(`+${fx.naturalAC} natural AC`);
-      for (const g of ['senses','natural','active','notes']) for (const t of (fx[g]||[])) bits.push(t);
-      return `<li><span class="ft">${m.name}${m.attr?' ('+m.attr+')':''}</span> <span class="ftype">[${m.kind}]</span>${bits.length?'<br><span style="color:#555;font-size:7.5pt;">'+bits.join(' · ')+'</span>':''}</li>`;
-    }).join('');
-    mutBlock = `<div class="ps-sec"><div class="ps-sec-head">Mutations &amp; MP</div><div class="ps-sec-body">
+  if (!((c.mutations||[]).length || (c.mpGrants||[]).length)) return mutBlock;
+  const st = getMPState(c);
+  const rows = (c.mutations||[]).map(m=>{
+    const fx = MUTATION_EFFECTS[m.name] || {};
+    const bits = [];
+    if (m.attrApplied) bits.push(`${m.attrApplied>0?'+':''}${m.attrApplied} ${m.attr}${m.name.startsWith('Supernatural')?' (Su)':m.kind==='attribute'?' (Ex)':''}`);
+    for (const sk in (fx.skills||{})) bits.push(`${fx.skills[sk]>0?'+':''}${fx.skills[sk]} ${sk}`);
+    for (const sv in (fx.saves||{})) bits.push(`${fx.saves[sv]>0?'+':''}${fx.saves[sv]} ${({fort:'Fort',ref:'Ref',will:'Will'})[sv]}`);
+    if (fx.naturalAC) bits.push(`+${fx.naturalAC} natural AC`);
+    for (const g of ['senses','natural','active','notes']) for (const t of (fx[g]||[])) bits.push(t);
+    return `<li><span class="ft">${m.name}${m.attr?' ('+m.attr+')':''}</span> <span class="ftype">[${m.kind}]</span>${bits.length?'<br><span style="color:#555;font-size:7.5pt;">'+bits.join(' · ')+'</span>':''}</li>`;
+  }).join('');
+  mutBlock = `<div class="ps-sec"><div class="ps-sec-head">Mutations &amp; MP</div><div class="ps-sec-body">
       <div style="font-size:8pt;color:#555;margin-bottom:3px;">MP: earned ${st.totalEarned} · spent ${st.totalSpent} · banked ${st.balance} · Mutant Level +${st.mutantLevel}${st.mutantLevel?` (ECL +${st.mutantLevel})`:''}</div>
       ${rows?`<ul class="ps-feat-list">${rows}</ul>`:''}
     </div></div>`;
-  }
+  return mutBlock;
+}
+
+// Print sheet: the Equipped Gear block: weapons, worn items, carrying
+// capacity, wealth and cybernetics.
+function printGearBlock(c) {
   // v8.6.0 parity: Equipped Gear block (the Gear tab's attack math, reused).
   let gearBlock = '';
-  {
-    const weapons = computeEquippedWeaponSummaries(c);
-    const worn = getCharItems(c).filter(it=>it.equipped && it.catalogue!=='weapon').map(it=>it.ref + (it.slot?` (${it.slot})`:''));
-    if (weapons.length || worn.length) {
-      // v8.6.1 TWF pass: hand tags, off-hand attack sequence, and alt-fire
-      // modes (Double Tap / Burst Fire) reach the print sheet too.
-      const wAtk = (w) => (w.twfExtraAtks && w.twfExtraAtks.length > 1)
-        ? w.twfExtraAtks.map(a=>`${a>=0?'+':''}${a}`).join('/')
-        : (w.fullAttack && w.fullAttack.length > 1)
-          ? `${w.fullAttack[0]>=0?'+':''}${w.fullAttack[0]} (${w.fullAttack.slice(1).map(a=>`${a>=0?'+':''}${a}`).join('/')})`
-          : `${w.attackBonus>=0?'+':''}${w.attackBonus}`;
-      const wAlt = (w) => (w.altModes||[]).map(m=>m.display?`${m.name}: ${m.display}`:`${m.name} ${m.atk>=0?'+':''}${m.atk}/×${m.dmgMult}`).join(', ');
-      const wRows = weapons.map(w=>`<tr><td>${w.name}${w.integratedIn?` <span style="font-size:6pt;color:#888;">(integrated in ${w.integratedIn}${w.detachable?', detachable':''})</span>`:''}${w.hand?` <span style="font-size:6pt;color:#888;">(${w.hand==='main'?'main':'off'} hand)</span>`:''}${w.ignoreHardness?` <span style="font-size:6pt;color:#888;">(ignores ${w.ignoreHardness} hardness${w.ihBane?', +10 bane':''}; GMG p.253)</span>`:''}${w.proficient?'':' ⚠'}${w.statStrip?`<div style="font-size:6pt;color:#888;">${w.statStrip}</div>`:''}${wAlt(w)?`<div style="font-size:6pt;color:#888;">${wAlt(w)}</div>`:''}</td><td class="attr">${wAtk(w)}</td><td>${w.damage||'—'}</td><td class="attr" style="font-size:6.5pt;">${w.typeLabel||(w.damageTypes||[]).join('/')||'—'}</td></tr>`).join('');
-      gearBlock = `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">
+  const weapons = computeEquippedWeaponSummaries(c);
+  const worn = getCharItems(c).filter(it=>it.equipped && it.catalogue!=='weapon').map(it=>it.ref + (it.slot?` (${it.slot})`:''));
+  if (weapons.length || worn.length) {
+    // v8.6.1 TWF pass: hand tags, off-hand attack sequence, and alt-fire
+    // modes (Double Tap / Burst Fire) reach the print sheet too.
+    const wAtk = (w) => (w.twfExtraAtks && w.twfExtraAtks.length > 1)
+      ? w.twfExtraAtks.map(a=>`${a>=0?'+':''}${a}`).join('/')
+      : (w.fullAttack && w.fullAttack.length > 1)
+        ? `${w.fullAttack[0]>=0?'+':''}${w.fullAttack[0]} (${w.fullAttack.slice(1).map(a=>`${a>=0?'+':''}${a}`).join('/')})`
+        : `${w.attackBonus>=0?'+':''}${w.attackBonus}`;
+    const wAlt = (w) => (w.altModes||[]).map(m=>m.display?`${m.name}: ${m.display}`:`${m.name} ${m.atk>=0?'+':''}${m.atk}/×${m.dmgMult}`).join(', ');
+    const wRows = weapons.map(w=>`<tr><td>${w.name}${w.integratedIn?` <span style="font-size:6pt;color:#888;">(integrated in ${w.integratedIn}${w.detachable?', detachable':''})</span>`:''}${w.hand?` <span style="font-size:6pt;color:#888;">(${w.hand==='main'?'main':'off'} hand)</span>`:''}${w.ignoreHardness?` <span style="font-size:6pt;color:#888;">(ignores ${w.ignoreHardness} hardness${w.ihBane?', +10 bane':''}; GMG p.253)</span>`:''}${w.proficient?'':' ⚠'}${w.statStrip?`<div style="font-size:6pt;color:#888;">${w.statStrip}</div>`:''}${wAlt(w)?`<div style="font-size:6pt;color:#888;">${wAlt(w)}</div>`:''}</td><td class="attr">${wAtk(w)}</td><td>${w.damage||'—'}</td><td class="attr" style="font-size:6.5pt;">${w.typeLabel||(w.damageTypes||[]).join('/')||'—'}</td></tr>`).join('');
+    gearBlock = `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">
         ${weapons.length?`<table class="ps-skill-tbl"><thead><tr><th>Weapon</th><th>Atk</th><th>Damage</th><th>Type</th></tr></thead><tbody>${wRows}</tbody></table><div style="font-size:6.5pt;color:#888;">⚠ = not proficient (−4 already included). Alternate fire modes and conditional gadget bonuses: see the Gear tab.</div>`:''}
         ${worn.length?`<div style="font-size:8pt;margin-top:3px;"><b>Worn / held:</b> ${worn.join(', ')}</div>`:''}
       </div></div>`;
-    }
   }
   // v8.8.2 (Adam's Carry/Jump wiring): print parity for the table-relevant
   // lifting numbers — the HH's own character sheet has a Carrying Capacity
@@ -225,154 +318,149 @@ function printSheet(){
         : `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">${extraLines.join('')}</div></div>`;
     }
   }
-  // ===================== v8.19.0 PRINT-PARITY PASS =====================
-  // The print sheet's last parity audit was v8.6.x; the v8.7–v8.18 systems
-  // (speeds, SR/DR/resistances, per-diem abilities, class choices,
-  // companions, armor integrity, power armor, Second Skin, vehicles/mecha/
-  // starships) existed only on screen. Print now mirrors the Sheet's
-  // active-loadout dashboard and the Tracker's integrity panels.
-  const psChk = (n) => Array.from({length:Math.max(0,Math.min(20,n))},()=>'<span style="display:inline-block;width:8px;height:8px;border:1px solid #888;border-radius:1px;margin-right:2px;vertical-align:middle;"></span>').join('');
-  // Speed & SR join the combat grid; provenance rides the footnote.
-  const psSpd = computeSpeeds(c);
-  const psSpdCell = `<div class="ps-stat"><span class="ps-stat-lbl">Speed</span><span class="ps-stat-val">${psSpd.walk}′</span></div>`;
-  const psSR = computeSR(c);
-  const psSRCell = psSR ? `<div class="ps-stat"><span class="ps-stat-lbl">Spell Resist</span><span class="ps-stat-val">${psSR.total}</span></div>` : '';
-  const psSpdFoot = `<div style="font-size:6.5pt;color:#888;margin-top:2px;">Speed: ${psSpd.parts.join(' · ')} · Run ${psSpd.run}${psSpd.modes.map(m=>` · ${m.type} ${m.speed}′ (${m.note})`).join('')}${psSR?` &nbsp;·&nbsp; SR: ${psSR.note}`:''}</div>`;
+  return gearBlock;
+}
+
+// Print sheet: the immunities / resistances / DR line.
+function printDefensesLine(c) {
   // Defenses line — immunities / resistances / DR instances (best-in-situation
   // per attack; class-level x/− pools already folded by computeDR).
   let psDefLine = '';
-  {
-    const ri = computeResistances(c);
-    const cap = t => t.charAt(0).toUpperCase()+t.slice(1);
-    const bits = [];
-    const imm = Object.keys(ri.immune).sort();
-    if (imm.length) bits.push(`<b>Immune:</b> ${imm.map(cap).join(', ')}`);
-    const rs = Object.keys(ri.resists).sort();
-    if (rs.length) bits.push(`<b>Resist:</b> ${rs.map(t=>`${cap(t)} ${ri.resists[t].value}`).join(', ')}`);
-    const dr = computeDR(c);
-    if (dr.length) bits.push(`<b>DR:</b> ${dr.map(d=>`${d.value}/${d.bypass}${d.conditional?'*':''} (${d.source})`).join(', ')}`);
-    if (ri.universal) bits.push('◈ universal energy resistance');
-    if (bits.length) psDefLine = `<div style="font-size:7.5pt;margin-top:3px;">${bits.join(' &nbsp;·&nbsp; ')}${dr.some(d=>d.conditional)?'<div style="font-size:6.5pt;color:#888;">* conditional — see the Sheet for the condition. Best applicable instance applies per attack; instances never stack across sources.</div>':''}</div>`;
-  }
+  const ri = computeResistances(c);
+  const cap = t => t.charAt(0).toUpperCase()+t.slice(1);
+  const bits = [];
+  const imm = Object.keys(ri.immune).sort();
+  if (imm.length) bits.push(`<b>Immune:</b> ${imm.map(cap).join(', ')}`);
+  const rs = Object.keys(ri.resists).sort();
+  if (rs.length) bits.push(`<b>Resist:</b> ${rs.map(t=>`${cap(t)} ${ri.resists[t].value}`).join(', ')}`);
+  const dr = computeDR(c);
+  if (dr.length) bits.push(`<b>DR:</b> ${dr.map(d=>`${d.value}/${d.bypass}${d.conditional?'*':''} (${d.source})`).join(', ')}`);
+  if (ri.universal) bits.push('◈ universal energy resistance');
+  if (bits.length) psDefLine = `<div style="font-size:7.5pt;margin-top:3px;">${bits.join(' &nbsp;·&nbsp; ')}${dr.some(d=>d.conditional)?'<div style="font-size:6.5pt;color:#888;">* conditional — see the Sheet for the condition. Best applicable instance applies per attack; instances never stack across sources.</div>':''}</div>`;
+  return psDefLine;
+}
+
+// Print sheet: per-diem abilities with pencil-and-paper use boxes.
+function printPerDiemBlock(c) {
+  const psChk = (n) => Array.from({length:Math.max(0,Math.min(20,n))},()=>'<span style="display:inline-block;width:8px;height:8px;border:1px solid #888;border-radius:1px;margin-right:2px;vertical-align:middle;"></span>').join('');
   // Per-diem abilities with pencil-and-paper use boxes (weekly ones flagged).
   let perDiemBlock = '';
-  {
-    const pdSpecs = computePerDiemAbilities(c);
-    if (pdSpecs.length) {
-      const rows = pdSpecs.map(s => `<div style="font-size:8pt;margin:2px 0;"><b>${s.name}</b>${s.weekly?' <span style="font-size:6.5pt;color:#888;">(per WEEK)</span>':''} — ${s.kind==='pool'?`pool of ${s.max} pts · spent: ________`:`${s.max}/day ${psChk(s.max)}`}${s.note?`<div style="font-size:6.5pt;color:#888;">${s.note}</div>`:''}</div>`).join('');
-      perDiemBlock = `<div class="ps-sec"><div class="ps-sec-head">Per-Diem Abilities</div><div class="ps-sec-body">${rows}</div></div>`;
-    }
+  const pdSpecs = computePerDiemAbilities(c);
+  if (pdSpecs.length) {
+    const rows = pdSpecs.map(s => `<div style="font-size:8pt;margin:2px 0;"><b>${s.name}</b>${s.weekly?' <span style="font-size:6.5pt;color:#888;">(per WEEK)</span>':''} — ${s.kind==='pool'?`pool of ${s.max} pts · spent: ________`:`${s.max}/day ${psChk(s.max)}`}${s.note?`<div style="font-size:6.5pt;color:#888;">${s.note}</div>`:''}</div>`).join('');
+    perDiemBlock = `<div class="ps-sec"><div class="ps-sec-head">Per-Diem Abilities</div><div class="ps-sec-body">${rows}</div></div>`;
   }
+  return perDiemBlock;
+}
+
+// Print sheet: pending class choices and Favored Enemies.
+function printClassChoiceRows(c) {
   // v8.78.0: the chosen picks now ride INLINE on the level-by-level record
   // (psClassBlock) — this strip keeps only the pending-count advisory and
   // the Favored Enemies consolidation.
   let psChoiceRows = '';
-  {
-    const ccSpecs = computeClassChoiceSpecs(c);
-    const ccPending = ccSpecs.filter(s => !s.chosen).length;
-    const fe = computeFavoredEnemies(c);
-    if (ccPending || fe.length) {
-      psChoiceRows = `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #c8a02d;">
+  const ccSpecs = computeClassChoiceSpecs(c);
+  const ccPending = ccSpecs.filter(s => !s.chosen).length;
+  const fe = computeFavoredEnemies(c);
+  if (ccPending || fe.length) {
+    psChoiceRows = `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #c8a02d;">
       ${ccPending?`<div style="font-size:7.5pt;color:#7a5c00;"><b>⚑ ${ccPending} class choice${ccPending===1?'':'s'} pending</b> — pick in 🎓 Class Choices on the Sheet.</div>`:''}
       ${fe.length?`<div style="font-size:7.5pt;color:#555;"><b>Favored Enemies:</b> ${fe.map(f=>`${f.type} +${f.bonus}`).join(', ')} (damage &amp; Bluff/Listen/Sense Motive/Spot/Survival vs the type)</div>`:''}</div>`;
-    }
   }
+  return psChoiceRows;
+}
+
+// Print sheet: the Companions block ("" when none).
+function printCompanionsBlock(c) {
   // Companions — base stats + the master-level-derived adjustments.
   let companionsBlock = '';
-  if ((c.companions||[]).length) {
-    const compCards = c.companions.map(comp => {
-      const base = COMPANION_BASE_STATS[comp.species] || null;
-      const d = companionDerived(comp, c);
-      const kindLbl = comp.kind==='familiar'?'🦉 Familiar':comp.kind==='mount'?'🐎 Special Mount':'🐾 Animal Companion';
-      const baseLine = base ? (base.ref ? `Base stats: ${base.ref}` : `${base.size} · HD ${base.hd} · AC ${base.ac} · Spd ${base.spd||'—'} · Atk ${base.fatk||base.atk} · Saves ${base.saves||'—'} · ${base.attrs||''}${base.sq?` · SQ: ${base.sq}`:''} (FF p.${base.page})`) : 'Base stats: see the Foe Folio.';
-      return `<div style="margin:3px 0;"><b style="font-size:8.5pt;">${kindLbl}: ${comp.name||comp.species}</b>${comp.name?` <span style="font-size:7pt;color:#888;">(${comp.species})</span>`:''}
+  if (!(c.companions||[]).length) return companionsBlock;
+  const compCards = c.companions.map(comp => {
+    const base = COMPANION_BASE_STATS[comp.species] || null;
+    const d = companionDerived(comp, c);
+    const kindLbl = comp.kind==='familiar'?'🦉 Familiar':comp.kind==='mount'?'🐎 Special Mount':'🐾 Animal Companion';
+    const baseLine = base ? (base.ref ? `Base stats: ${base.ref}` : `${base.size} · HD ${base.hd} · AC ${base.ac} · Spd ${base.spd||'—'} · Atk ${base.fatk||base.atk} · Saves ${base.saves||'—'} · ${base.attrs||''}${base.sq?` · SQ: ${base.sq}`:''} (FF p.${base.page})`) : 'Base stats: see the Foe Folio.';
+    return `<div style="margin:3px 0;"><b style="font-size:8.5pt;">${kindLbl}: ${comp.name||comp.species}</b>${comp.name?` <span style="font-size:7pt;color:#888;">(${comp.species})</span>`:''}
       <div style="font-size:7pt;color:#555;">${baseLine}</div>
       <div style="font-size:7.5pt;">${d.line}</div>
       ${d.specials?`<div style="font-size:7pt;color:#555;">Special: ${d.specials}</div>`:''}${d.perk?`<div style="font-size:7pt;color:#555;">${d.perk}</div>`:''}${d.magicalBeast?`<div style="font-size:7pt;color:#888;">${d.magicalBeast}</div>`:''}</div>`;
-    }).join('');
-    companionsBlock = `<div class="ps-sec"><div class="ps-sec-head">Companions</div><div class="ps-sec-body">${compCards}</div></div>`;
-  }
+  }).join('');
+  companionsBlock = `<div class="ps-sec"><div class="ps-sec-head">Companions</div><div class="ps-sec-body">${compCards}</div></div>`;
+  return companionsBlock;
+}
+
+// Print sheet: appends worn armor & shield integrity to the gear block.
+function printAddArmorIntegrity(c, gearBlock) {
   // Worn armor & shield integrity (T/ACtical, HH p.382) appended to the gear
   // section — hardness, HP, state banners, and a damage-tally blank.
-  {
-    const tArm = trackedArmorItems(c);
-    if (tArm.length) {
-      const aRows = tArm.map(it => {
-        const g = armorItemIntegrity(it);
-        const nm = enchantDisplayName(it);
-        const prof = isProficientWithArmor(c, it.ref);
-        const state = g.destroyed?' · ☠ DESTROYED (salvage only)':g.broken?' · ⚑ BROKEN (no AC bonus; enchantment suppressed)':'';
-        return `<div style="font-size:7.5pt;margin:2px 0;">${g.isShield?'🛡':'⛨'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.alwaysIntercede?' · ◈ always intercedes':''}${prof?'':' · ⚠ non-proficient (ATTACKER chooses the split)'}${g.selfRepairing?' · Self-Repairing (1 HP/min; full overnight)':''}${state} · damage tally: ____________</div>`;
-      }).join('');
-      const integ = `<div style="margin-top:4px;padding-top:3px;border-top:1px solid #ddd;"><div style="font-size:7pt;font-weight:700;color:#6b5320;">Armor Integrity (T/ACtical — HH p.382)</div>${aRows}<div style="font-size:6.5pt;color:#888;">Hits landing in [Touch AC, Total AC) strike the armor: hardness soaks first, the remainder splits (wearer's choice when proficient). Armor does not heal — Repair skill or services (HH p.181).</div></div>`;
-      gearBlock = gearBlock ? gearBlock.replace('</div></div>', integ + '</div></div>') : `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">${integ}</div></div>`;
-    }
+  const tArm = trackedArmorItems(c);
+  if (tArm.length) {
+    const aRows = tArm.map(it => {
+      const g = armorItemIntegrity(it);
+      const nm = enchantDisplayName(it);
+      const prof = isProficientWithArmor(c, it.ref);
+      const state = g.destroyed?' · ☠ DESTROYED (salvage only)':g.broken?' · ⚑ BROKEN (no AC bonus; enchantment suppressed)':'';
+      return `<div style="font-size:7.5pt;margin:2px 0;">${g.isShield?'🛡':'⛨'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.alwaysIntercede?' · ◈ always intercedes':''}${prof?'':' · ⚠ non-proficient (ATTACKER chooses the split)'}${g.selfRepairing?' · Self-Repairing (1 HP/min; full overnight)':''}${state} · damage tally: ____________</div>`;
+    }).join('');
+    const integ = `<div style="margin-top:4px;padding-top:3px;border-top:1px solid #ddd;"><div style="font-size:7pt;font-weight:700;color:#6b5320;">Armor Integrity (T/ACtical — HH p.382)</div>${aRows}<div style="font-size:6.5pt;color:#888;">Hits landing in [Touch AC, Total AC) strike the armor: hardness soaks first, the remainder splits (wearer's choice when proficient). Armor does not heal — Repair skill or services (HH p.181).</div></div>`;
+    gearBlock = gearBlock ? gearBlock.replace('</div></div>', integ + '</div></div>') : `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">${integ}</div></div>`;
   }
+  return gearBlock;
+}
+
+// Print sheet: Machines & Loadouts: the piloted machine, power armor,
+// Second Skin and the idle fleet.
+function printMachinesBlock(c) {
   // Machines & Loadouts — the piloted machine, worn power armor, active
   // Second Skin, then the idle fleet (starships with per-section HP).
   let machinesBlock = '';
-  {
-    const mParts = [];
-    const loadoutLines = (it) => {
-      const ll = paLoadout(it);
-      return ll.length?`<div style="font-size:7pt;color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
-    };
-    const pv = pilotedVehicle(c);
-    const pvG = (pv)?vehicleIntegrity(pv):null;
-    if (pv && pvG && pv.catalogue==='mecha') {
-      const mg = pvG, md = mg.def, mT = mechaTouchAC(md);
-      const mName = pv.custom?pv.custom.name:(pv.customName||pv.ref);
-      mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🦿 Piloting: ${mName}</b> <span style="font-size:7pt;color:#888;">${md.size} TS ${md.ts} mecha${md.superstructure?` · ${md.superstructure}${md.armorType?' / '+md.armorType:''}`:''}</span>
+  const mParts = [];
+  const loadoutLines = (it) => {
+    const ll = paLoadout(it);
+    return ll.length?`<div style="font-size:7pt;color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
+  };
+  const pv = pilotedVehicle(c);
+  const pvG = (pv)?vehicleIntegrity(pv):null;
+  if (pv && pvG && pv.catalogue==='mecha') {
+    const mg = pvG, md = mg.def, mT = mechaTouchAC(md);
+    const mName = pv.custom?pv.custom.name:(pv.customName||pv.ref);
+    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🦿 Piloting: ${mName}</b> <span style="font-size:7pt;color:#888;">${md.size} TS ${md.ts} mecha${md.superstructure?` · ${md.superstructure}${md.armorType?' / '+md.armorType:''}`:''}</span>
       <div style="font-size:7.5pt;">T/AC ${mT}/${mT+(md.equipAC||0)+(paShieldBonus(pv))} · Hardness ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} (drives melee; your BAB attacks) · your Dex caps at ${md.dexMax} · speed ${md.speed}′${md.fly?' · fly':''}</div>${loadoutLines(pv)}</div>`);
-    } else if (pv && pvG) {
-      const vg = pvG, vd = vg.def, vchk = vehicleOperatorCheck(c, vd);
-      mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🕹 Piloting: ${enchantDisplayName(pv)}</b> <span style="font-size:7pt;color:#888;">${vd.maneuver_class} maneuver</span>
+  } else if (pv && pvG) {
+    const vg = pvG, vd = vg.def, vchk = vehicleOperatorCheck(c, vd);
+    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🕹 Piloting: ${enchantDisplayName(pv)}</b> <span style="font-size:7pt;color:#888;">${vd.maneuver_class} maneuver</span>
       <div style="font-size:7.5pt;">T/AC ${vd.touch_ac}/${vd.total_ac} · Hardness ${vg.hardness} · HP ${vg.hp}/${vg.maxHP} · ${vd.skill} ${vchk.withManeuver>=0?'+':''}${vchk.withManeuver}${vchk.initPenalty?` · ${vchk.initPenalty} Initiative`:''} · speed ${vd.top_speed} (${vd.chase_speed})</div></div>`);
-    }
-    const paW = equippedPowerArmor(c);
-    if (paW) {
-      const paG = armorItemIntegrity(paW), paD = POWER_ARMOR_DB[paW.ref];
-      mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🤖 Power Armor: ${enchantDisplayName(paW)}</b> <span style="font-size:7pt;color:#888;">${paD.size} TS ${paD.ts} — a mecha your size (FF Ch.III)</span>
+  }
+  const paW = equippedPowerArmor(c);
+  if (paW) {
+    const paG = armorItemIntegrity(paW), paD = POWER_ARMOR_DB[paW.ref];
+    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🤖 Power Armor: ${enchantDisplayName(paW)}</b> <span style="font-size:7pt;color:#888;">${paD.size} TS ${paD.ts} — a mecha your size (FF Ch.III)</span>
       <div style="font-size:7.5pt;">Hardness ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin?` · Str floors at ${paD.strMin}`:''}${paD.equipStrMod?` · +${paD.equipStrMod} equipment Str`:''}${paD.dexMax?` · Dex caps at ${paD.dexMax}`:''}${paD.fly?` · fly ${paD.fly}`:''} · ◈ always intercedes (full AC confirms crits only)</div>${loadoutLines(paW)}</div>`);
-    }
-    const skW = activeSecondSkin(c);
-    if (skW && !skW.destroyed) {
-      mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🧿 Second Skin</b> <span style="font-size:7pt;color:#888;">lvl ${skW.row.lvl} ectoplasmic sheath — HH p.241</span>
+  }
+  const skW = activeSecondSkin(c);
+  if (skW && !skW.destroyed) {
+    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🧿 Second Skin</b> <span style="font-size:7pt;color:#888;">lvl ${skW.row.lvl} ectoplasmic sheath — HH p.241</span>
       <div style="font-size:7.5pt;">AC +${skW.row.ac} (as armor) · Hardness ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr?` · DR ${skW.row.dr}`:''}${(skW.state.abilities||[]).length?` · ${skW.state.abilities.join(', ')}`:''}</div>
       <div style="font-size:7pt;color:#555;">Every hit strikes the skin first; excess carries over to you (HH p.242). Psionic focus locked; no worn armor.</div></div>`);
-    }
-    for (const it of getCharItems(c)) {
-      if (it.catalogue==='starship') {
-        const sd = shipDefOf(it);
-        const secs = sd?shipSections(it):null;
-        if (sd && secs) mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🚀 ${it.customName||it.ref}</b> <span style="font-size:7pt;color:#888;">${sd.cls} ${it.ship.subtype} · ${it.ship.engine} · ${it.ship.armor} armor · crew ${sd.crew}</span>
+  }
+  for (const it of getCharItems(c)) {
+    if (it.catalogue==='starship') {
+      const sd = shipDefOf(it);
+      const secs = sd?shipSections(it):null;
+      if (sd && secs) mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🚀 ${it.customName||it.ref}</b> <span style="font-size:7pt;color:#888;">${sd.cls} ${it.ship.subtype} · ${it.ship.engine} · ${it.ship.armor} armor · crew ${sd.crew}</span>
         <div style="font-size:7.5pt;">${secs.map(s=>`${s.section} ${s.hp}/${s.maxHP}${s.disabled?' <b>[DISABLED]</b>':''}`).join(' · ')}</div>${loadoutLines(it)}</div>`);
-      } else if ((it.catalogue==='vehicle'||it.catalogue==='mecha') && !it.piloted) {
-        const g = vehicleIntegrity(it); if (!g) continue;
-        const nm = it.custom?it.custom.name:(it.customName||(enchantDisplayName(it)));
-        mParts.push(`<div style="font-size:7.5pt;margin:2px 0;">${it.catalogue==='mecha'?'🦿':'🚗'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed?' · ☠ DESTROYED':g.broken?' · 🛑 DISABLED':''}${it.jointOwners?` · owners: ${it.jointOwners}`:''}</div>`);
-      }
+    } else if ((it.catalogue==='vehicle'||it.catalogue==='mecha') && !it.piloted) {
+      const g = vehicleIntegrity(it); if (!g) continue;
+      const nm = it.custom?it.custom.name:(it.customName||(enchantDisplayName(it)));
+      mParts.push(`<div style="font-size:7.5pt;margin:2px 0;">${it.catalogue==='mecha'?'🦿':'🚗'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed?' · ☠ DESTROYED':g.broken?' · 🛑 DISABLED':''}${it.jointOwners?` · owners: ${it.jointOwners}`:''}</div>`);
     }
-    if (mParts.length) machinesBlock = `<div class="ps-sec"><div class="ps-sec-head">Machines &amp; Loadouts</div><div class="ps-sec-body">${mParts.join('')}<div style="font-size:6.5pt;color:#888;">Operation math lives on the 🕹 Vehicles tab; loadout slots cycle ok → damaged → destroyed per the mecha crit table.</div></div></div>`;
   }
-  // ================== end v8.19.0 print-parity pass ==================
+  if (mParts.length) machinesBlock = `<div class="ps-sec"><div class="ps-sec-head">Machines &amp; Loadouts</div><div class="ps-sec-body">${mParts.join('')}<div style="font-size:6.5pt;color:#888;">Operation math lives on the 🕹 Vehicles tab; loadout slots cycle ok → damaged → destroyed per the mecha crit table.</div></div></div>`;
+  return machinesBlock;
+}
 
-  // v8.6.0 parity: baked attribute-delta footnote for the ability grid,
-  // plus firm-wired equipped-item enhancements (shown as "worn").
-  const psAttrNotes = (c.mutations||[]).filter(m=>m.attrApplied)
-    .map(m=>`${m.attr} ${m.attrApplied>0?'+':''}${m.attrApplied} (${m.name.replace('[Attribute]', ATTR_FULL[m.attr]||m.attr)}${m.name.startsWith('Supernatural')?' — Su, suppressible':m.kind==='attribute'?' — Ex, never negated':''})`);
-  const psItemAttrB = attrItemBonuses(c);
-  ATTR_NAMES.forEach((a,i)=>{ if (psItemAttrB.best[i] > 0) psAttrNotes.push(`${a} +${psItemAttrB.best[i]} worn (${psItemAttrB.from[i]} — item CON does not shift stored max HP)`); });
-
-  // Hero level table (5 levels on print) — uses the first Hero entry, if any
-  let lvlTable='';
-  if(hc && firstHero){
-    lvlTable=`<table class="ps-skill-tbl" style="margin-top:4px;"><thead><tr><th>Lvl</th><th>BAB</th><th>Fort</th><th>Ref</th><th>Will</th><th>Def</th></tr></thead><tbody>
-    ${[1,2,3,4,5].map(l=>{const i=l-1;return`<tr style="${l===firstHero.level?'font-weight:bold;background:#f0ebe0;':''}""><td>${l}</td><td>+${hc.bab[i]}</td><td>+${hc.fort[i]}</td><td>+${hc.ref[i]}</td><td>+${hc.will[i]}</td><td>+${hc.def[i]}</td></tr>`}).join('')}
-    </tbody></table>`;
-  }
-  // Class summary line for the header
-  const classSummary=classArr.map(e=>`${e.name} ${e.level}`).join(' + ')||'—';
+// Print sheet: per-class detail rows with the level-by-level record.
+function printClassDetailRows(c, classArr) {
   // v8.78.0 (Adam's print-parity ask): per-class detail rows for the Class
   // Features & Abilities block — the screen's v8.77.0 restructure on paper
   // (everything expanded by nature, compact by necessity): base line, the
@@ -420,7 +508,11 @@ function printSheet(){
     return psClassBlock(e.name, e, cls);
   }).join('');
   for (const cn in psByClass) if (!psRendered.has(cn)) classDetailRows += psClassBlock(cn, null, null);
+  return classDetailRows;
+}
 
+// Print sheet: the Outstanding Selections and Active Power Effects strips.
+function printOutstandingStrip(c) {
   // v8.33.0 (Adam): the print sheet mirrors the nav attention dots — one
   // consolidated "Outstanding Selections" strip under the header when any
   // page still holds an unmade pick (unspent skill points, open talent/feat
@@ -449,8 +541,12 @@ function printSheet(){
         <b>✨ ACTIVE POWER EFFECTS${c.nullified ? ' — ⊘ SUPPRESSED (Null Power Field)' : ' (baked into the numbers below; end on rest)'}</b> — ${bits.map(escapeHTML).join(' · ')}</div>`;
     }
   } catch (e) {}
-  document.getElementById('print-sheet').innerHTML=`
-  ${psOutstanding}
+  return psOutstanding;
+}
+
+// Print sheet template: the header (name, race, class, ...).
+function printHeaderHtml(c, psOutstanding, classSummary) {
+  return `  ${psOutstanding}
   <div class="ps-header">
     <div class="ps-header-main">
       <img class="ps-logo" alt="" src="${(document.getElementById('site-logo')||{}).src||''}">
@@ -470,11 +566,12 @@ function printSheet(){
     <div class="ps-field"><span class="ps-lbl">Total / ECL</span><span class="ps-val">${c.totalLvl} / ${c.ecl}</span></div>
     <div class="ps-field"><span class="ps-lbl">Languages</span><span class="ps-val">${c.langs||'Common'}</span></div>
   </div>
+`;
+}
 
-  <div class="ps-body">
-    <!-- LEFT COLUMN -->
-    <div class="ps-col">
-      <div class="ps-sec">
+// Print sheet template: Ability Scores.
+function printAbilityScoresHtml(c, psAttrNotes, psItemAttrB) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Ability Scores</div>
         <div class="ps-sec-body">
           <div class="ps-attrs">
@@ -483,8 +580,13 @@ function printSheet(){
           ${psAttrNotes.length?`<div style="font-size:6.5pt;color:#888;margin-top:2px;">Includes: ${psAttrNotes.join(' · ')}</div>`:''}
         </div>
       </div>
+`;
+}
 
-      <div class="ps-sec">
+// Print sheet template: Combat Statistics. s = the precomputed combat values.
+function printCombatStatsHtml(c, s) {
+  const { acDisp, parry, dodge, psInit, psSpdCell, psSRCell, psSpdFoot, psDefLine } = s;
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Combat Statistics</div>
         <div class="ps-sec-body">
           <div class="ps-stats">
@@ -505,8 +607,12 @@ function printSheet(){
           ${psDefLine}
         </div>
       </div>
+`;
+}
 
-      <div class="ps-sec">
+// Print sheet template: Saving Throws.
+function printSavesHtml(psSaveRow, cM, dM, wM) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Saving Throws</div>
         <div class="ps-sec-body">
           <div class="ps-saves">
@@ -516,10 +622,12 @@ function printSheet(){
           </div>
         </div>
       </div>
+`;
+}
 
-      ${perDiemBlock}
-
-      <div class="ps-sec">
+// Print sheet template: Experience & Level (with the Hero level table).
+function printXPHtml(c, xpProg, hc, firstHero, lvlTable) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Experience & Level</div>
         <div class="ps-sec-body">
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
@@ -531,8 +639,12 @@ function printSheet(){
           ${hc?`<div style="margin-top:6px;"><div style="font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#6b5320;margin-bottom:2px;">${firstHero.name} Table (Levels 1–5)</div>${lvlTable}</div>`:''}
         </div>
       </div>
+`;
+}
 
-      <div class="ps-sec">
+// Print sheet template: Feats and Talents.
+function printFeatsAndTalentsHtml(c, featList, talentList) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Feats</div>
         <div class="ps-sec-body">
           ${(c.feats||[]).length?`<ul class="ps-feat-list">${featList}</ul>`:'<div style="font-size:8.5pt;color:#aaa;">No feats recorded.</div>'}
@@ -545,12 +657,12 @@ function printSheet(){
           ${(c.talents||[]).length?`<ul class="ps-feat-list">${talentList}</ul>`:'<div style="font-size:8.5pt;color:#aaa;">No talents recorded.</div>'}
         </div>
       </div>
-      ${mutBlock}
-    </div>
+`;
+}
 
-    <!-- RIGHT COLUMN -->
-    <div class="ps-col">
-      <div class="ps-sec">
+// Print sheet template: Skills.
+function printSkillsHtml(skillRows) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Skills (ranked + key combat skills)</div>
         <div class="ps-sec-body">
           <table class="ps-skill-tbl">
@@ -560,8 +672,12 @@ function printSheet(){
           <div style="font-size:7pt;color:#888;margin-top:4px;">Shaded rows = class skills. All skills shown have ranks > 0 or are key combat skills.</div>
         </div>
       </div>
+`;
+}
 
-      <!-- v8.78.0 (Adam's print-parity ask): the v8.77.0 screen restructure
+// Print sheet template: Scenario, racial features and Starting Occupation.
+function printScenarioRaceOccupationHtml(c) {
+  return `      <!-- v8.78.0 (Adam's print-parity ask): the v8.77.0 screen restructure
            on paper — Scenario leads, race follows (Hybrid parents included),
            then the conflated Class Features & Abilities with the
            level-by-level record. -->
@@ -598,20 +714,24 @@ function printSheet(){
           })()}
         </div>
       </div>
+`;
+}
 
-      <div class="ps-sec">
+// Print sheet template: Class Features & Abilities.
+function printClassFeaturesHtml(classDetailRows, psChoiceRows) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Class Features &amp; Abilities</div>
         <div class="ps-sec-body ps-classes">
           ${classDetailRows}
           ${psChoiceRows}
         </div>
       </div>
+`;
+}
 
-      ${spellsBlock}
-      ${gearBlock}
-      ${machinesBlock}
-      ${companionsBlock}
-      <div class="ps-sec">
+// Print sheet template: Notes, the HP / Condition Tracker, Languages.
+function printNotesTrackerLanguagesHtml(c) {
+  return `      <div class="ps-sec">
         <div class="ps-sec-head">Notes &amp; Backstory</div>
         <div class="ps-sec-body"><div class="ps-notes">${c.notes||'—'}</div></div>
       </div>
@@ -633,9 +753,6 @@ function printSheet(){
           <div style="font-size:9pt;margin-top:3px;"><b>Allegiances:</b> ${c.allegiance||'—'}</div>
         </div>
       </div>
-    </div>
-  </div>`;
-
-  window.print();
+`;
 }
 
