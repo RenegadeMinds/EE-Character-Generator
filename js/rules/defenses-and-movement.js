@@ -797,7 +797,8 @@ function computeParryBonus(c, opts){
 // Compute Dodge attempt modifier per handbook HH p.373.
 // Formula: Reflex save + Defense bonus + dodge AC bonuses (from feats)
 // Reflex save itself already includes Dex mod and class-progression bonus.
-function computeDodgeBonus(c){
+// stats (optional): the caller's computeStatBlock(c), so it isn't recomputed.
+function computeDodgeBonus(c, stats){
   const dexM = am(c.attrs[1]);
   const def = c.def || 0;
   // v8.97.0 (Adam's Rhad report): the Reflex component re-derived as
@@ -806,8 +807,9 @@ function computeDodgeBonus(c){
   // negative levels…). HH p.372: "Dodge attempt = 1d20 + Reflex save
   // modifier + Defense bonus + dodge AC bonus(es)" — the SAVE CELL's own
   // total is the single truth.
-  const refTotal = (computeStatBlock(c).ref)
-    ? computeStatBlock(c).ref.total
+  const _sb = stats || computeStatBlock(c);  // one calculation, not two
+  const refTotal = (_sb.ref)
+    ? _sb.ref.total
     : (c.ref || 0) + dexM;
   // Dodge bonuses from feats: aggregate via the existing bonus pipeline.
   // For now, sum any 'dodge' bonus on the character. Conditional dodge bonuses

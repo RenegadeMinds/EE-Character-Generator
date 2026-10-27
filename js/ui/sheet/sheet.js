@@ -326,7 +326,11 @@ function renderSheet(){
   const cM=effAm(c,2),dM=effAm(c,1),wM=effAm(c,4);  // v8.6.0 firm-wire: effective mods
   const natComputed = computeNaturalAC(c);
   renderNatACMigrationBanner(c, natComputed);
-  renderSheetCombatStats(c, natComputed, dM);
+  // One full stat calculation serves the whole Combat Statistics block
+  // (Initiative, Base Attack, Reputation, Dodge). The saves below make their
+  // own: renderCompanions, which runs in between, can change the record.
+  const stats = computeStatBlock(c);
+  renderSheetCombatStats(c, natComputed, dM, stats);
   renderSheetDefenseStrip(c);
   renderSheetStateBanners(c);
   // v8.8.3: the 🎓 Class Choices panel + 🐾 Companions.
@@ -552,11 +556,12 @@ function renderNatACMigrationBanner(c, natComputedForBanner) {
 
 // Sheet: the Combat Statistics grid (HP, AC, Initiative, AP, Base Attack,
 // Grapple, Speed, Reputation, Defense, Parry, Dodge, then any of Nat.
-// Hardness, SR and DR). dM = effective Dex modifier.
-function renderSheetCombatStats(c, natComputed, dM) {
+// Hardness, SR and DR). dM = effective Dex modifier; stats = computeStatBlock(c),
+// computed once by renderSheet.
+function renderSheetCombatStats(c, natComputed, dM, stats) {
   const acDisp = computeACDisplay(c, {naturalAC: natComputed});
   const parry  = computeParryBonus(c);
-  const dodge  = computeDodgeBonus(c);
+  const dodge  = computeDodgeBonus(c, stats);
   // v8.3.5: natural hardness derives from the EFFECTIVE natural AC (after
   // same-type stacking resolution), not the raw sum. Tooltip shows the
   // provenance so the player can see why their effective NatAC is what it is.
@@ -596,10 +601,10 @@ function renderSheetCombatStats(c, natComputed, dM) {
   const spdVal = `${spd.walk}′${spd.modes.map(m => ` / ${m.type} ${m.speed}′`).join('')}`;
   // v8.8.0 (Adam's Talents sweep): the Initiative CELL shows the full
   // computed total (Improved Initiative, talent init bonuses).
-  const initTotal = (computeStatBlock(c).init) ? computeStatBlock(c).init.total : dM;
-  const _baCell = sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent);
+  const initTotal = (stats.init) ? stats.init.total : dM;
+  const _baCell = sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent, stats);
   const _defCell = sheetDefenseBonusCell(c, _dcl);
-  const _repCell = sheetReputationCell(c);
+  const _repCell = sheetReputationCell(c, stats);
   const statCells = [
     // Row 1 — the vitals.
     {l:'Max HP',v:c.maxHP,k:'hp'},
@@ -636,7 +641,7 @@ function renderSheetCombatStats(c, natComputed, dM) {
 
 // Sheet: the Base Attack cell, with the Power Attack / Combat Expertise
 // declaration stepper when either feat is owned.
-function sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent) {
+function sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent, stats) {
   // v9.12.1 (§270, Adam's re-reading): the stances are penalties to MELEE
   // ATTACK ROLLS — Base Attack is never spent, so the cell always shows the
   // printed value (no effective-BA arithmetic, no lost iteratives). The
@@ -647,7 +652,7 @@ function sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent) {
   // lanes, feat bonuses) reached the drilldown but the cell printed the
   // stored base. The §270 stance doctrine is untouched: PA/CE never enter
   // the bab lane — they remain attack-ROLL penalties, chipped below.
-  const _baTotal = (() => { try { return computeStatBlock(c).bab.total; } catch (e) { return c.bab || 0; } })();
+  const _baTotal = (() => { try { return stats.bab.total; } catch (e) { return c.bab || 0; } })();
   const _baCell = {l:'Base Attack',
      v: (_baTotal>=0?'+':'')+_baTotal,
      k:'bab',
@@ -674,7 +679,7 @@ function sheetDefenseBonusCell(c, _dcl) {
 }
 
 // Sheet: the Reputation cell (full computed total; Renowned Artisan flag).
-function sheetReputationCell(c) {
+function sheetReputationCell(c, stats) {
   // v8.64.0/v8.66.0: Reputation card — full computed total, Artisan flag.
   const _repCell = (() => {
       let raTag = '';
@@ -684,7 +689,7 @@ function sheetReputationCell(c) {
         if (art && ranks >= 15) raTag = `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Renowned Artisan (Expert 15; ruled 2026-10-02: feature text canonical — Renowned 15th / Master 10th, table row is the typo): the equivalent of Renown, but ONLY in matters of ${escapeHTML(art)}. Call the +3 out in real time when the audience cares about the craft — it is NOT in the headline total. Also +1 Purchase DC on your works (apply at the table).">+3 Artisan renown (conditional)</span>`;
       }
       // v9.17.0 (bug report #1): Reputation prints SIGNED like its row-mates.
-      const _repV = (computeStatBlock(c).rep.total);
+      const _repV = (stats.rep.total);
       return {l:'Reputation',v:(_repV>=0?'+':'')+_repV,k:'rep',extraHtml:raTag};
     })();
   return _repCell;
