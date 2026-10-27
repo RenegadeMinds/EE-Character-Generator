@@ -4,7 +4,7 @@
 # =============================================================================
 #
 # WHAT THIS SCRIPT DOES
-#   The catalogs in js/data/ (spells, magic items, weapons, ...) are JSON
+#   The catalogs in js/data/catalogs/ (spells, magic items, weapons, ...) are JSON
 #   tables wrapped in a JavaScript const, each between a pair of marker
 #   comments (JSON:NAME before it, END:NAME after it). Before Phase 2 they
 #   came in two awkward shapes:
@@ -56,7 +56,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DATA_GLOB = "js/data/*.js"
+# The catalogs live in js/data/catalogs/ since the code was regrouped by
+# topic and page (the hand-written tables in js/data/*.js are ordinary JS).
+DATA_GLOB = "js/data/catalogs/*.js"
 
 # A table starts with:   = /*<<JSON:NAME>>*/ <json value>
 MARKER = re.compile(r"= /\*<<JSON:(\w+)>>\*/ ")

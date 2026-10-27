@@ -13,13 +13,13 @@
        css/fonts.css     the @font-face rule (font file: assets/fonts/epics-serif.ttf)
        css/app.css       every other style rule
        assets/img/logo.jpg  the logo
-       js/rules, js/data, js/app   the app itself (68 files), loaded
-                         at the bottom of <body>, in order
+       js/core, js/data, js/rules, js/ui, js/main.js   the app itself (122 files),
+                         loaded at the bottom of <body>
      There is no build step: GitHub Pages serves these files as they are.
      The ?v=... on each script/stylesheet link is the release version. It
      makes browsers fetch fresh copies after an update instead of mixing
      old cached files with new ones. Never edit it by hand: after changing
-     CG_VERSION (js/app/42-player-tools.js) and the subtitle below, run
+     CG_VERSION (js/core/state.js) and the subtitle below, run
      python tools/stamp_version.py
      Opening this file straight from disk (file://) also works, as long as
      the folders sit next to it. See js/README.md for the full map.
@@ -1740,96 +1740,150 @@
 
 
 <!-- ======================================================================
-     THE APP'S JAVASCRIPT: 68 files, loaded IN THIS EXACT ORDER.
+     THE APP'S JAVASCRIPT: 122 files, as plain <script src> tags (not modules),
+     so they all share ONE global scope: a function in any file can call a
+     function in any other file.
 
-     These are plain <script src> tags (not modules), so all the files
-     share ONE global scope, exactly as when they were one big <script>.
-     A function in any file can call a function in any other file. But
-     code that runs immediately at load time (not inside a function)
-     can only use things from files ABOVE it, so the order matters.
-     The NN- number in each file name is its position in this list.
+     js/core     app plumbing: the roster in memory, saving, tab switching,
+                 shared dialogs
+     js/data     game tables (plain data). data/catalogs/ holds the big
+                 catalogs; read a file's header before editing one
+     js/rules    game rules: calculations and character changes
+     js/ui       page code, one folder or file per page
+     js/main.js  start-up: the ONLY code that runs while the page loads
 
-     js/rules  rule tables (races, classes, feats, ...) and the engine
-               that turns a character into numbers
-     js/data   the big game catalogs (spells, magic items, weapons, ...).
-               Most were first built by data-build scripts that are now
-               out of date; read a file's header before editing it.
-     js/app    the pages (Create, Sheet, Skills, Gear, Tracker, ...),
-               dialogs, saving, and start-up (the last file, init.js)
+     Order matters only for core and data (loaded first) and main.js (loaded
+     last). Files in rules/ and ui/ contain declarations only, so their order
+     does not matter. battery/_check_load_order.mjs verifies all of this.
+     See js/README.md for the full map.
      ====================================================================== -->
-<!-- js/rules: rules + engine -->
-<script src="js/rules/01-races-and-base-classes.js?v=9.19.0"></script>
-<script src="js/rules/02-class-features.js?v=9.19.0"></script>
-<script src="js/rules/03-feat-slots-and-caster-progression.js?v=9.19.0"></script>
-<script src="js/rules/04-advanced-classes.js?v=9.19.0"></script>
-<script src="js/rules/05-six-scales-and-scenarios.js?v=9.19.0"></script>
-<script src="js/rules/06-homebrew-forge-armory-monstrous.js?v=9.19.0"></script>
-<script src="js/rules/07-prestige-classes.js?v=9.19.0"></script>
-<script src="js/rules/08-feat-prereqs-and-bonuses.js?v=9.19.0"></script>
-<script src="js/rules/09-item-effects-and-buffs.js?v=9.19.0"></script>
-<script src="js/rules/10-minds-ledger-and-magic-browser.js?v=9.19.0"></script>
-<script src="js/rules/11-cybernetics.js?v=9.19.0"></script>
-<script src="js/rules/12-wealth-and-prices.js?v=9.19.0"></script>
-<script src="js/rules/13-armor-integrity-and-enchanting.js?v=9.19.0"></script>
-<script src="js/rules/14-resistances-speed-dr-size.js?v=9.19.0"></script>
-<script src="js/rules/15-combat-declarations-and-melee.js?v=9.19.0"></script>
-<script src="js/rules/16-worn-and-active-gear.js?v=9.19.0"></script>
-<script src="js/rules/17-per-diem-and-class-choices.js?v=9.19.0"></script>
-<script src="js/rules/18-companions.js?v=9.19.0"></script>
-<script src="js/rules/19-bonus-aggregator-and-stat-block.js?v=9.19.0"></script>
-<script src="js/rules/20-scenario-titles-and-heroic-resources.js?v=9.19.0"></script>
-<script src="js/rules/21-quickdraw.js?v=9.19.0"></script>
-<script src="js/rules/22-career-compass.js?v=9.19.0"></script>
-<script src="js/rules/23-hit-points-xp-skills.js?v=9.19.0"></script>
-<script src="js/rules/24-synergies-class-skills-citations.js?v=9.19.0"></script>
-<script src="js/rules/25-citation-helpers-feats-talents-db.js?v=9.19.0"></script>
-<!-- js/data: game catalogs -->
-<script src="js/data/26-damage-types.js?v=9.19.0"></script>
-<script src="js/data/27-spell-damage.js?v=9.19.0"></script>
-<script src="js/data/28-damage-resolver.js?v=9.19.0"></script>
-<script src="js/data/29-weapons.js?v=9.19.0"></script>
-<script src="js/data/30-armor.js?v=9.19.0"></script>
-<script src="js/data/31-vehicles.js?v=9.19.0"></script>
-<script src="js/data/32-gadgets.js?v=9.19.0"></script>
-<script src="js/data/33-mastercraft.js?v=9.19.0"></script>
-<script src="js/data/34-equipment-items.js?v=9.19.0"></script>
-<script src="js/data/35-item-slots.js?v=9.19.0"></script>
-<script src="js/data/36-magic-items.js?v=9.19.0"></script>
-<script src="js/data/37-spells.js?v=9.19.0"></script>
-<script src="js/data/38-mutations.js?v=9.19.0"></script>
-<script src="js/data/39-mutation-rules.js?v=9.19.0"></script>
-<!-- js/rules: rules + engine -->
-<script src="js/rules/40-occupations-and-weapon-list.js?v=9.19.0"></script>
-<!-- js/app: pages, dialogs, tracker, start-up -->
-<script src="js/app/41-state-storage-navigation.js?v=9.19.0"></script>
-<script src="js/app/42-player-tools.js?v=9.19.0"></script>
-<script src="js/app/43-create-attributes-race-occupation.js?v=9.19.0"></script>
-<script src="js/app/44-create-scenario-gate-and-layout.js?v=9.19.0"></script>
-<script src="js/app/45-create-class-list.js?v=9.19.0"></script>
-<script src="js/app/46-create-preview-and-defense.js?v=9.19.0"></script>
-<script src="js/app/47-save-character.js?v=9.19.0"></script>
-<script src="js/app/48-roster-and-export.js?v=9.19.0"></script>
-<script src="js/app/49-sheet.js?v=9.19.0"></script>
-<script src="js/app/50-skills-page.js?v=9.19.0"></script>
-<script src="js/app/51-gm-exceptions-and-talents-page.js?v=9.19.0"></script>
-<script src="js/app/52-energy-immunity-and-spell-lists.js?v=9.19.0"></script>
-<!-- js/data: game catalogs -->
-<script src="js/data/53-domains.js?v=9.19.0"></script>
-<!-- js/app: pages, dialogs, tracker, start-up -->
-<script src="js/app/54-powers-repertoire.js?v=9.19.0"></script>
-<script src="js/app/55-mutations-engine.js?v=9.19.0"></script>
-<script src="js/app/56-supernatural-attributes-pools-psi-focus.js?v=9.19.0"></script>
-<script src="js/app/57-armor-and-vehicle-integrity.js?v=9.19.0"></script>
-<script src="js/app/58-power-armor.js?v=9.19.0"></script>
-<script src="js/app/59-mecha.js?v=9.19.0"></script>
-<script src="js/app/60-starships.js?v=9.19.0"></script>
-<script src="js/app/61-casting-augments-and-powers-page.js?v=9.19.0"></script>
-<script src="js/app/62-power-suites-feats-page-proficiencies.js?v=9.19.0"></script>
-<script src="js/app/63-modals.js?v=9.19.0"></script>
-<script src="js/app/64-tracker.js?v=9.19.0"></script>
-<script src="js/app/65-tracker-logs-and-damage.js?v=9.19.0"></script>
-<script src="js/app/66-xp-spending-and-level-up.js?v=9.19.0"></script>
-<script src="js/app/67-pdf-export.js?v=9.19.0"></script>
-<script src="js/app/68-init.js?v=9.19.0"></script>
+<!-- js/core: app plumbing (state, saving, navigation, dialogs) -->
+<script src="js/core/state.js?v=9.19.0"></script>
+<script src="js/core/backup.js?v=9.19.0"></script>
+<script src="js/core/navigation.js?v=9.19.0"></script>
+<script src="js/core/modals.js?v=9.19.0"></script>
+<!-- js/data/catalogs: the big game catalogs (spells, magic items, weapons, ...) -->
+<script src="js/data/catalogs/damage-types.js?v=9.19.0"></script>
+<script src="js/data/catalogs/spell-damage.js?v=9.19.0"></script>
+<script src="js/data/catalogs/damage-resolver.js?v=9.19.0"></script>
+<script src="js/data/catalogs/weapons.js?v=9.19.0"></script>
+<script src="js/data/catalogs/armor.js?v=9.19.0"></script>
+<script src="js/data/catalogs/vehicles.js?v=9.19.0"></script>
+<script src="js/data/catalogs/gadgets.js?v=9.19.0"></script>
+<script src="js/data/catalogs/mastercraft.js?v=9.19.0"></script>
+<script src="js/data/catalogs/equipment-items.js?v=9.19.0"></script>
+<script src="js/data/catalogs/item-slots.js?v=9.19.0"></script>
+<script src="js/data/catalogs/magic-items.js?v=9.19.0"></script>
+<script src="js/data/catalogs/spells.js?v=9.19.0"></script>
+<script src="js/data/catalogs/mutations.js?v=9.19.0"></script>
+<script src="js/data/catalogs/mutation-rules.js?v=9.19.0"></script>
+<script src="js/data/catalogs/domains.js?v=9.19.0"></script>
+<!-- js/data: hand-written game tables, in dependency order -->
+<script src="js/data/races-and-attributes.js?v=9.19.0"></script>
+<script src="js/data/classes.js?v=9.19.0"></script>
+<script src="js/data/class-features.js?v=9.19.0"></script>
+<script src="js/data/powers.js?v=9.19.0"></script>
+<script src="js/data/scenario.js?v=9.19.0"></script>
+<script src="js/data/homebrew.js?v=9.19.0"></script>
+<script src="js/data/magic-items.js?v=9.19.0"></script>
+<script src="js/data/conditions-and-minds.js?v=9.19.0"></script>
+<script src="js/data/skills.js?v=9.19.0"></script>
+<script src="js/data/cybernetics.js?v=9.19.0"></script>
+<script src="js/data/equipment.js?v=9.19.0"></script>
+<script src="js/data/combat.js?v=9.19.0"></script>
+<script src="js/data/companions.js?v=9.19.0"></script>
+<script src="js/data/bonuses.js?v=9.19.0"></script>
+<script src="js/data/character.js?v=9.19.0"></script>
+<script src="js/data/citations.js?v=9.19.0"></script>
+<script src="js/data/feats.js?v=9.19.0"></script>
+<script src="js/data/talents.js?v=9.19.0"></script>
+<script src="js/data/mutations.js?v=9.19.0"></script>
+<script src="js/data/vehicles.js?v=9.19.0"></script>
+<!-- js/rules: game rules logic (order does not matter: declarations only) -->
+<script src="js/rules/bonuses.js?v=9.19.0"></script>
+<script src="js/rules/buffs.js?v=9.19.0"></script>
+<script src="js/rules/career-compass.js?v=9.19.0"></script>
+<script src="js/rules/character.js?v=9.19.0"></script>
+<script src="js/rules/citations.js?v=9.19.0"></script>
+<script src="js/rules/class-features.js?v=9.19.0"></script>
+<script src="js/rules/classes.js?v=9.19.0"></script>
+<script src="js/rules/combat.js?v=9.19.0"></script>
+<script src="js/rules/companions.js?v=9.19.0"></script>
+<script src="js/rules/conditions-and-minds.js?v=9.19.0"></script>
+<script src="js/rules/cybernetics.js?v=9.19.0"></script>
+<script src="js/rules/defenses-and-movement.js?v=9.19.0"></script>
+<script src="js/rules/enchanting-and-armor.js?v=9.19.0"></script>
+<script src="js/rules/equipment.js?v=9.19.0"></script>
+<script src="js/rules/feats.js?v=9.19.0"></script>
+<script src="js/rules/gadgets.js?v=9.19.0"></script>
+<script src="js/rules/heroic-and-budgets.js?v=9.19.0"></script>
+<script src="js/rules/hit-points-and-xp.js?v=9.19.0"></script>
+<script src="js/rules/homebrew.js?v=9.19.0"></script>
+<script src="js/rules/magic-items.js?v=9.19.0"></script>
+<script src="js/rules/mutations.js?v=9.19.0"></script>
+<script src="js/rules/occupations.js?v=9.19.0"></script>
+<script src="js/rules/powers.js?v=9.19.0"></script>
+<script src="js/rules/quickdraw.js?v=9.19.0"></script>
+<script src="js/rules/races-and-attributes.js?v=9.19.0"></script>
+<script src="js/rules/scenario.js?v=9.19.0"></script>
+<script src="js/rules/skills.js?v=9.19.0"></script>
+<script src="js/rules/spell-preparation.js?v=9.19.0"></script>
+<script src="js/rules/talents.js?v=9.19.0"></script>
+<script src="js/rules/vehicles.js?v=9.19.0"></script>
+<script src="js/rules/wealth.js?v=9.19.0"></script>
+<!-- js/ui: page code, by page (order does not matter: declarations only) -->
+<script src="js/ui/career-compass.js?v=9.19.0"></script>
+<script src="js/ui/create/attributes-race-occupation.js?v=9.19.0"></script>
+<script src="js/ui/create/classes.js?v=9.19.0"></script>
+<script src="js/ui/create/form-state.js?v=9.19.0"></script>
+<script src="js/ui/create/preview.js?v=9.19.0"></script>
+<script src="js/ui/create/save.js?v=9.19.0"></script>
+<script src="js/ui/create/scenario-and-layout.js?v=9.19.0"></script>
+<script src="js/ui/feats.js?v=9.19.0"></script>
+<script src="js/ui/gear/combat.js?v=9.19.0"></script>
+<script src="js/ui/gear/cybernetics.js?v=9.19.0"></script>
+<script src="js/ui/gear/enchanting.js?v=9.19.0"></script>
+<script src="js/ui/gear/gadgets.js?v=9.19.0"></script>
+<script src="js/ui/gear/inventory.js?v=9.19.0"></script>
+<script src="js/ui/gear/magic-items.js?v=9.19.0"></script>
+<script src="js/ui/gear/wealth.js?v=9.19.0"></script>
+<script src="js/ui/homebrew/forge-and-armory.js?v=9.19.0"></script>
+<script src="js/ui/homebrew/monstrous.js?v=9.19.0"></script>
+<script src="js/ui/level-up.js?v=9.19.0"></script>
+<script src="js/ui/mutations.js?v=9.19.0"></script>
+<script src="js/ui/player-tools/bug-report.js?v=9.19.0"></script>
+<script src="js/ui/player-tools/display-settings.js?v=9.19.0"></script>
+<script src="js/ui/player-tools/unsaved-guard.js?v=9.19.0"></script>
+<script src="js/ui/powers/browse.js?v=9.19.0"></script>
+<script src="js/ui/powers/buffs.js?v=9.19.0"></script>
+<script src="js/ui/powers/casting.js?v=9.19.0"></script>
+<script src="js/ui/powers/preparation.js?v=9.19.0"></script>
+<script src="js/ui/powers/psionic-focus.js?v=9.19.0"></script>
+<script src="js/ui/print.js?v=9.19.0"></script>
+<script src="js/ui/quickdraw.js?v=9.19.0"></script>
+<script src="js/ui/roster.js?v=9.19.0"></script>
+<script src="js/ui/scenario-studio.js?v=9.19.0"></script>
+<script src="js/ui/sheet/class-choices.js?v=9.19.0"></script>
+<script src="js/ui/sheet/companions.js?v=9.19.0"></script>
+<script src="js/ui/sheet/heros-gift.js?v=9.19.0"></script>
+<script src="js/ui/sheet/sheet.js?v=9.19.0"></script>
+<script src="js/ui/skills.js?v=9.19.0"></script>
+<script src="js/ui/talents.js?v=9.19.0"></script>
+<script src="js/ui/tracker/action-log.js?v=9.19.0"></script>
+<script src="js/ui/tracker/action-points.js?v=9.19.0"></script>
+<script src="js/ui/tracker/armor-integrity.js?v=9.19.0"></script>
+<script src="js/ui/tracker/class-abilities.js?v=9.19.0"></script>
+<script src="js/ui/tracker/conditions.js?v=9.19.0"></script>
+<script src="js/ui/tracker/damage.js?v=9.19.0"></script>
+<script src="js/ui/tracker/hit-points.js?v=9.19.0"></script>
+<script src="js/ui/tracker/minds.js?v=9.19.0"></script>
+<script src="js/ui/tracker/tracker.js?v=9.19.0"></script>
+<script src="js/ui/tracker/xp.js?v=9.19.0"></script>
+<script src="js/ui/vehicles/mecha.js?v=9.19.0"></script>
+<script src="js/ui/vehicles/power-armor.js?v=9.19.0"></script>
+<script src="js/ui/vehicles/starships.js?v=9.19.0"></script>
+<script src="js/ui/vehicles/vehicles.js?v=9.19.0"></script>
+<!-- js/main.js: start-up, must be last -->
+<script src="js/main.js?v=9.19.0"></script>
 </body>
 </html>

@@ -12,19 +12,19 @@
 #   expires.
 #
 #   The fix is a version tag on every link:
-#       <script src="js/app/49-sheet.js?v=9.19.0"></script>
+#       <script src="js/ui/sheet/sheet.js?v=9.19.0"></script>
 #   When the version changes, every link changes, so every browser fetches
 #   fresh copies. The server ignores the ?v= part; it only matters to the
 #   browser's cache.
 #
 # WHERE THE VERSION COMES FROM
-#   One place: CG_VERSION in js/app/42-player-tools.js (the number the app
+#   One place: CG_VERSION in js/core/state.js (the number the app
 #   shows in bug reports). This tool copies it onto every <script src> and
 #   stylesheet <link> in index.html, and checks that the subtitle under the
 #   title banner ("... · v9.19.0") shows the same number.
 #
 # THE RELEASE CHECKLIST (what to do when bumping the version)
-#   1. Change CG_VERSION in js/app/42-player-tools.js.
+#   1. Change CG_VERSION in js/core/state.js.
 #   2. Change the version at the end of the subtitle in index.html
 #      (search for "site-subtitle").
 #   3. Run:  python tools/stamp_version.py
@@ -42,7 +42,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-VERSION_FILE = REPO / "js/app/42-player-tools.js"
+VERSION_FILE = REPO / "js/core/state.js"
 INDEX = REPO / "index.html"
 
 VERSION_RE = re.compile(r"^const CG_VERSION = 'v(\d+\.\d+\.\d+)';", re.M)

@@ -61,6 +61,11 @@
 #   links in index.html. So --verify-only passes on the Phase 1 commits
 #   only. Do not re-run the split on the current tree: it would overwrite
 #   every file with the original v9.19.0 text.
+#
+#   Since then the js/ files were also regrouped by topic and page
+#   (js/core, js/data, js/rules, js/ui, js/main.js), so the file names and
+#   NN- numbers below describe the Phase 1 layout, which is now history.
+#   battery/_check_load_order.mjs checks the current layout.
 # =============================================================================
 
 import argparse

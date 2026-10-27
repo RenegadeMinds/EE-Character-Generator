@@ -38,7 +38,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 INDEX = REPO / "index.html"
-VERSION_FILE = REPO / "js/app/42-player-tools.js"
+VERSION_FILE = REPO / "js/core/state.js"
 OUT_DIR = REPO / "dist"
 
 MIME = {".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2",
@@ -51,7 +51,7 @@ def fail(msg):
 
 
 def local(path_with_query):
-    """Repository file for a link like 'js/app/49-sheet.js?v=9.19.0'."""
+    """Repository file for a link like 'js/ui/sheet/sheet.js?v=9.19.0'."""
     p = REPO / path_with_query.split("?")[0]
     if not p.is_file():
         fail(f"index.html links to {path_with_query}, which does not exist")

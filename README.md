@@ -29,11 +29,11 @@ Your characters live in **this browser on this device**. They are never uploaded
 New versions are published here directly — just refresh the page. The version number appears under the title banner.
 
 ## For contributors: how the code is laid out
-Up to v9.19.0 the generator was a single `index.html`. It is now split into ordinary files beside it: `css/` (styles), `assets/` (font and logo), and `js/` (the code, in three folders: `rules`, `data`, `app`). The code itself was not changed. There is still no build step: the site is served exactly as the files sit in this repository.
+Up to v9.19.0 the generator was a single `index.html`. It is now split into ordinary files beside it: `css/` (styles), `assets/` (font and logo), and `js/` (the code: `core` for app plumbing, `data` for game tables, `rules` for game logic, `ui` for page code, and `main.js` for start-up). The split itself changed no code; later clean-ups are described in the git history. There is still no build step: the site is served exactly as the files sit in this repository.
 
 **Start with [`js/README.md`](js/README.md)**: it maps every file, explains the one rule about load order, and explains why the data files are now edited directly (the old data-build scripts are out of date and must not be re-run). To try it locally, run `python -m http.server 8000` in this folder and open http://localhost:8000.
 
-**Releasing a version:** change `CG_VERSION` in `js/app/42-player-tools.js` and the version in the subtitle in `index.html`, then run `python tools/stamp_version.py` so every player's browser fetches the new files. For a single-file copy (offline use, emailing), run `python tools/build_standalone.py`; it writes one self-contained HTML file to `dist/`.
+**Releasing a version:** change `CG_VERSION` in `js/core/state.js` and the version in the subtitle in `index.html`, then run `python tools/stamp_version.py` so every player's browser fetches the new files. For a single-file copy (offline use, emailing), run `python tools/build_standalone.py`; it writes one self-contained HTML file to `dist/`.
 
 ---
 © Gamer's Pair O' Dice. The generator is provided free for personal tabletop use.

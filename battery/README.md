@@ -62,3 +62,11 @@ The generator is no longer one file: `index.html` loads `css/`, `js/` and
   built characters, and every page rendered for each. Use it for any change
   that should change nothing:
   `OLD=path/to/previous/index.html node _probe_split_parity.mjs`
+
+## Load-order check (since the code was regrouped by topic and page)
+**`_check_load_order.mjs`** parses every script `index.html` loads (no browser)
+and proves the layout's one rule: `js/core`, `js/rules` and `js/ui` contain
+declarations only; code that runs at load lives in `js/data` (table fix-ups,
+which may only use tables declared before them) and `js/main.js` (last). It
+also catches any global name declared twice. `npm test` runs it first;
+`npm run check:load-order` runs it alone.

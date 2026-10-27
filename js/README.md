@@ -1,55 +1,73 @@
 # The Character Generator's code: a map
 
-Up to v9.19.0 the whole generator was one 4.8 MB `index.html`. The **Phase 1
-split** (`tools/split_index.py`) cut it into the files described here.
-**No code was changed**: every file is the original text, cut between whole
-statements, with an explanatory comment block on top.
+Up to v9.19.0 the whole generator was one 4.8 MB `index.html`. It was split
+into files (`tools/split_index.py`), and then the code was **regrouped by
+topic and page**, so each function lives with the things it belongs with.
+Functions and tables were moved as whole, unchanged units; the comments above
+each one, including the original version notes, travelled with it.
 
 ## How the pieces fit together
 
 ```
-index.html            the page markup + the tags that load everything below
-js/boot.js            runs first, in <head>: error capture for 🐞 Report, theme + text size
-css/fonts.css         the @font-face rule  →  assets/fonts/epics-serif.ttf
-css/app.css           every other style (three themes, layout, print)
-assets/img/logo.jpg   the Pair o' Dice logo
-js/rules/NN-*.js      rule tables (races, classes, feats, ...) and the engine
-js/data/NN-*.js       the big game catalogs (spells, magic items, weapons, ...)
-js/app/NN-*.js        the pages, dialogs, saving, tracker, PDF, and start-up
+index.html          the page markup + the tags that load everything below
+js/boot.js          runs first, in <head>: error capture for 🐞 Report, theme + text size
+css/                styles (app.css) and the @font-face rule (fonts.css)
+assets/             the font file and the logo
+
+js/core/            app plumbing used everywhere: the roster in memory, saving,
+                    the backup chip, switching tabs, shared dialogs
+js/data/            game tables: plain data, no logic
+js/data/catalogs/   the big catalogs (spells, magic items, weapons, armor, ...),
+                    one record per line
+js/rules/           game rules: calculations and changes to a character record,
+                    one file per topic (combat, powers, feats, ...)
+js/ui/              page code: drawing the page and handling clicks and typing,
+                    one file or folder per page (create/, sheet/, gear/, ...)
+js/main.js          start-up: the ONLY code that runs while the page loads
 ```
 
 There is **no build step**. GitHub Pages serves these files as they are, and
 opening `index.html` straight from disk works too, as long as the folders sit
 beside it.
 
-### The one rule: load order
+### Where does new code go?
 
-`index.html` loads the `js/` files with plain `<script src>` tags, **in
-number order** (the `NN-` prefix is each file's position in that list).
-Plain script tags (not "modules") all share **one global scope**, exactly as
-when the code was a single `<script>`. So:
+| You're adding... | Put it in |
+|---|---|
+| a table of game data (a list of things, a lookup) | `js/data/<topic>.js` |
+| a calculation or a change to a character record | `js/rules/<topic>.js` |
+| something that draws part of a page or handles a click | `js/ui/<page>...` |
+| something that should happen automatically when the page opens | `js/main.js` |
+| something every page needs (saving, tabs, dialogs) | `js/core/` |
 
-- A function in any file can call a function in any other file. By the time
-  anyone clicks anything, every file has loaded.
-- Code that runs **immediately when its file loads** (anything not inside a
-  function, such as building a table from another table) can only use things
-  from files with a **lower number**.
-- `68-init.js` must stay last: it starts the app once everything is loaded.
+If you create a new file, add a `<script src="...">` line for it to
+`index.html` in its group (the groups are labelled there) and give it a header
+like the existing files have.
 
-### Adding a new file
+### The one rule: nothing runs while loading, except in data/ and main.js
 
-1. Put it in the folder that fits (`rules`, `data` or `app`).
-2. Add a `<script src="...">` line to `index.html` in the right place:
-   after anything its load-time code needs, and before `68-init.js`.
-3. Give it a header comment like the existing files have.
+`index.html` loads the files with plain `<script src>` tags (not "modules"),
+so they all share **one global scope**: a function in any file can call a
+function in any other file. Everything has loaded before anyone can click.
 
-Numbers don't have to stay contiguous. If a new file goes between `21-` and
-`22-`, call it `21b-...` rather than renumbering everything.
+The only thing that can go wrong is code that runs **while the page is still
+loading** and uses something from a file that hasn't loaded yet. So:
+
+- `js/core/`, `js/rules/` and `js/ui/` contain **declarations only**:
+  functions, tables, and variables. Nothing in them runs at load time, which
+  is why **the order of those files doesn't matter**.
+- `js/data/` may contain a few table fix-ups that run at load. They may only
+  use tables declared before them.
+- `js/main.js` is loaded **last** and is where start-up happens: restoring
+  the saved roster, scenarios and homebrew, then drawing the first screen.
+
+`node battery/_check_load_order.mjs` checks all of this without running the
+app, including that no name is declared twice. Run it after moving code.
 
 ### Data files that were once generated: the generator is now the source of truth
 
-The files marked **once generated** below were first built by Adam's
-data-build scripts, which live in the private EE-Rulebooks repository
+The catalogs in `js/data/catalogs/` were first built by Adam's data-build
+scripts, which live in the private EE-Rulebooks repository
 (`equipment_substrate/build_inline_all.mjs`, `damage_substrate/`,
 `spells_substrate/`, `vehicles_substrate/`, `magic_items_substrate/`,
 `mutations_substrate/`, `domains_substrate/build_domains.py`).
@@ -73,32 +91,32 @@ they are.** A check against v9.19.0 (October 2026) found:
   that now sits inside the banners. Running it would silently delete all of
   that.
 
-So: **edit the data in these files directly**, and treat the generator as
-the source of truth. The JSON/END marker comments around each table and the
-BEGIN/END banner lines are kept unchanged, so a future script can still
-find the tables. (Since the split, the BEGIN banner is in
-`26-damage-types.js` and the END banner is in `39-mutation-rules.js`, 14
-files apart, so any new tool should work table by table, not by banner.)
+So: **edit the catalogs directly**, and treat the generator as the source of
+truth. The JSON/END marker comments around each table and the BEGIN/END
+banner lines are kept unchanged, so a future script can still find the
+tables. (The BEGIN banner is in `catalogs/damage-types.js` and the END
+banner in `catalogs/mutation-rules.js`, so any new tool should work table by
+table, not by banner.)
 
 ### Finding things
 
-Search the `js/` folder for the name (every file header lists the main
-functions and tables it holds), or use the table below. The original code
-comments, including the version notes ("v8.3.17 ...", "Adam's ruling ...",
-the § numbers), are the change history and were kept as they were.
+Search the `js/` folder for the name: every file header lists the functions
+and tables it holds. Or use the table at the bottom of this page.
 
-## Checking the split (and any future "should change nothing" edit)
+## Checking a change
 
-- `python tools/split_index.py --verify-only --source <original index.html>`
-  glues the pieces back together and checks they are byte-for-byte identical
-  to the original v9.19.0 file (commit `1c1044b`). This applies to the
-  Phase 1 commits only: Phase 2 then re-laid out the data and added version
-  tags on purpose. Its own tools check that no value changed, and the parity
-  probe below covers both phases.
-- `OLD=<original index.html> node battery/_probe_split_parity.mjs` boots the
+- `node battery/_check_load_order.mjs`: the load-order rules above (a few
+  seconds, no browser).
+- `OLD=<previous index.html> node battery/_probe_split_parity.mjs` boots the
   old and new builds side by side in headless Chrome and checks they behave
   identically: every global value, the page markup, five built characters,
-  and every page rendered for each of them.
+  and every page rendered for each of them. Add `CODE_CHANGED=1` when the
+  change edits function bodies on purpose (a refactor), so functions are
+  compared by behaviour rather than source text.
+- `cd battery && npm test` runs the rules oracle and fuzzing battery.
+- `python tools/split_index.py --verify-only --source <original index.html>`
+  re-checks the original Phase 1 split. It applies to the Phase 1 commits
+  only; later changes are covered by the checks above.
 
 ## Running it locally
 
@@ -113,7 +131,7 @@ A local server just matches how the live site behaves.)
 
 ## Releasing a new version
 
-1. Change `CG_VERSION` in `js/app/42-player-tools.js`.
+1. Change `CG_VERSION` in `js/core/state.js`.
 2. Change the version at the end of the subtitle in `index.html` (search
    for `site-subtitle`).
 3. Run `python tools/stamp_version.py`.
@@ -125,14 +143,13 @@ strange breakage. A changed tag makes every browser fetch fresh copies. The
 tool also stops you if the subtitle and `CG_VERSION` disagree.
 `python tools/stamp_version.py --check` only reports.
 
-## The data layout (Phase 2)
+## The catalog layout
 
-Every catalog in `js/data/` has **one record per line**: one spell, one
-weapon, one magic item per line. Changing an entry shows up in Git as a
-one-line change. (Before, the spell list was a single 1.2 MB line and the
-magic items ran to 8,400 lines of single fields.) Keep new entries on one
-line too. `python tools/reformat_data.py` re-lays out any table that has
-drifted, and checks that no value changes. `--check` only reports.
+Every catalog in `js/data/catalogs/` has **one record per line**: one spell,
+one weapon, one magic item per line, so changing an entry shows up in Git as
+a one-line change. Keep new entries on one line too.
+`python tools/reformat_data.py` re-lays out any table that has drifted, and
+checks that no value changes. `--check` only reports.
 
 ## A single-file copy (for offline use or emailing)
 
@@ -144,77 +161,158 @@ edit the real files, then rebuild. To confirm a build behaves like the
 folder version:
 `OLD=index.html NEW=dist/<file> node battery/_probe_split_parity.mjs`.
 
-## Every file, in load order
+## Every file
 
-`js/boot.js` loads first, in `<head>`. Then:
+`js/boot.js` loads first, in `<head>`. Then, in `index.html` order:
 
-| # | File | Lines (incl. header) | Size | Once generated | What's in it |
-|---|---|---|---|---|---|
-| 1 | `js/rules/01-races-and-base-classes.js` | 383 | 31 KB |  | The six attribute names, every playable race (RACES: attribute adjustments, ECL, size, speed, structured racial traits), and the Hero, Ordinary and Basic class tables (HERO_CLASSES, ORDINARY_CLASSES, BASIC_CLASSES) with their per-level BAB, Defense, saves, Reputation and Action Point progressions. |
-| 2 | `js/rules/02-class-features.js` | 928 | 117 KB |  | CLASS_FEATURES: what every class gains at every level (bonus feats, talents, special abilities), the Druid option features, and the helpers that turn those features into bonus-feat counts. |
-| 3 | `js/rules/03-feat-slots-and-caster-progression.js` | 917 | 49 KB |  | How many feats a character gets and from where (the feat-slot breakdown and its restriction filters), which classes cast (CASTER_CLASSES), and the spell/power-point progression tables (CASTER_PROGRESSION, PP costs per power level, pool levels) with computeCasterLevels / computeCasterStats. |
-| 4 | `js/rules/04-advanced-classes.js` | 272 | 12 KB |  | ADVANCED_CLASSES: the advanced-tier class table (prerequisites and per-level progressions). |
-| 5 | `js/rules/05-six-scales-and-scenarios.js` | 371 | 20 KB |  | The Six Scales (arcane, divine, heroic, mutation, psionic, tech; each rated 0-9), the built-in scenario presets, GM-made custom scenarios (stored in the browser), and the Scenario Studio dialog that names and saves them. |
-| 6 | `js/rules/06-homebrew-forge-armory-monstrous.js` | 595 | 37 KB |  | GM homebrew: the Homebrew Forge (custom feats), the Homebrew Armory (custom weapons and armor), and the Monstrous Heritage lane (monster races and classes built from Foe Folio creature types). |
-| 7 | `js/rules/07-prestige-classes.js` | 787 | 40 KB |  | PRESTIGE_CLASSES, plus the class lookup and class-prerequisite checkers (getClassData, checkClassPrereqs, checkAdvancedPrereqs) used by the Create page and level-up. |
-| 8 | `js/rules/08-feat-prereqs-and-bonuses.js` | 584 | 33 KB |  | Feat lookups and prerequisite checking, and the functions that turn owned feats and talents into numeric bonuses (feat bonuses, talent bonuses and effects, derived skill bonuses). |
-| 9 | `js/rules/09-item-effects-and-buffs.js` | 703 | 48 KB |  | Equipped-item effects: magic-item slot rules, firm-wired magic item effects, attribute bakes from talents; then active power effects (buffs and their durations), option-aware augments, and perpetual buffs. |
-| 10 | `js/rules/10-minds-ledger-and-magic-browser.js` | 837 | 90 KB |  | The Mind's Ledger (Insanity & Horror tracking), the magic-item browser and inventory, specific magic arms conversions, and the skill descriptions shown on hover. |
-| 11 | `js/rules/11-cybernetics.js` | 312 | 29 KB |  | Cybernetics (HH pp.332-339): body slots, the CYBERNETICS_DB catalog, install limits, lost/replaced limbs, and purchase DCs. |
-| 12 | `js/rules/12-wealth-and-prices.js` | 644 | 39 KB |  | Money: the Wealth/Purchase DC to dollars ladder, price labels, market fluctuation, buying and upgrading gear, plus weapon finesse exceptions and which toolkits satisfy which skills. |
-| 13 | `js/rules/13-armor-integrity-and-enchanting.js` | 604 | 35 KB |  | T/ACtical armor integrity (hardness by Tech Scale, armor damage), and the Enchant / Imbue builder for magic arms and armor. |
-| 14 | `js/rules/14-resistances-speed-dr-size.js` | 1,014 | 64 KB |  | Speed, energy resistances and immunities, spell resistance, damage reduction, mutant subtypes, super-strength talents and the demolition math, size and damage-die steps, Hybrid races, carrying capacity and movement grants. |
-| 15 | `js/rules/15-combat-declarations-and-melee.js` | 1,082 | 78 KB |  | Combat declarations (trade-offs such as Combat Expertise and focus spikes), weapon specials and riders, and the expanded melee options (Disarm, Trip, Feint, Bull Rush, ...). |
-| 16 | `js/rules/16-worn-and-active-gear.js` | 354 | 21 KB |  | Worn and activated equipment: gear boons, quantities, one-use items, Boost/Bane rolls, and equip parameters. |
-| 17 | `js/rules/17-per-diem-and-class-choices.js` | 1,129 | 69 KB |  | Per-day class abilities (uses, rage, fatigue), level-accrued class choices (favored enemies, terrain mastery, rogue specials, high arcana, ...), companion base stats from the Foe Folio, and Take-10 skill-set designations. |
-| 18 | `js/rules/18-companions.js` | 943 | 78 KB |  | Familiars, animal companions and mounts: species lists, progressions, derived stats, and the companion panels. |
-| 19 | `js/rules/19-bonus-aggregator-and-stat-block.js` | 1,053 | 65 KB |  | The bonus engine: bonus types and stacking rules (GM's Guide pp.22-23), natural armor sources, racial bonuses, the full stat block (computeStatBlock, computeStatsFromClasses), and the conditions reference (CONDITIONS_DATA). |
-| 20 | `js/rules/20-scenario-titles-and-heroic-resources.js` | 843 | 41 KB |  | The scenario title generator, Action Point and Fate Point options, heroic-level capabilities, resource budgets (feats, talents), and which tabs a character is entitled to see. |
-| 21 | `js/rules/21-quickdraw.js` | 1,022 | 60 KB |  | Quickdraw: the one-click character generator, and Quickdraw Bespoke (qdBespokeBuild), the validated build path the test suite also uses to make characters. |
-| 22 | `js/rules/22-career-compass.js` | 876 | 50 KB |  | Career Compass: level-up advice that works backwards from a chosen goal class. |
-| 23 | `js/rules/23-hit-points-xp-skills.js` | 352 | 20 KB |  | Hit points (hero / random / max modes, rolls), the XP table, and the master SKILLS list. |
-| 24 | `js/rules/24-synergies-class-skills-citations.js` | 945 | 69 KB |  | Skill synergies (SYNERGIES_DB), class skill lists, and the book-page CITATIONS table. |
-| 25 | `js/rules/25-citation-helpers-feats-talents-db.js` | 579 | 122 KB |  | Citation helpers (getCitation, citeHTML), the FEATS_DB feat catalog and the TALENTS_DB talent catalog. |
-| 26 | `js/data/26-damage-types.js` | 103 | 18 KB | yes | DAMAGE_TYPES: the canonical damage-type schema (base, derived and exotic descriptors). |
-| 27 | `js/data/27-spell-damage.js` | 181 | 41 KB | yes | SPELL_DAMAGE: damage atoms for every damaging spell and power, and SPELL_DAMAGE_EXCLUDED. |
-| 28 | `js/data/28-damage-resolver.js` | 179 | 9 KB | yes | DamageResolver: pure functions that turn damage atoms into labels, applicable resistances, immunity gates and alignment outcomes. |
-| 29 | `js/data/29-weapons.js` | 161 | 43 KB | yes | WEAPONS_CATALOG: the full weapon catalog. |
-| 30 | `js/data/30-armor.js` | 84 | 10 KB | yes | ARMOR_CATALOG: the full armor and shield catalog. |
-| 31 | `js/data/31-vehicles.js` | 143 | 39 KB | yes | VEHICLES_DB: vehicle stat tables (HH pp.314-315, p.325). |
-| 32 | `js/data/32-gadgets.js` | 100 | 19 KB | yes | GADGETS_CATALOG: gadgets and their effects. |
-| 33 | `js/data/33-mastercraft.js` | 66 | 4 KB | yes | MASTERCRAFT_RULES: mastercraft upgrade rules. |
-| 34 | `js/data/34-equipment-items.js` | 362 | 86 KB | yes | EQUIPMENT_ITEMS: general equipment (adventuring gear, kits, tools). |
-| 35 | `js/data/35-item-slots.js` | 102 | 7 KB | yes | ITEM_SLOTS (magic item slot affinities), followed by the hand-written SLOT_GROUPS body-slot table and slotGroupIdOf. |
-| 36 | `js/data/36-magic-items.js` | 799 | 514 KB | yes | MAGIC_ITEMS_DB: the enchanted and imbued item catalog (GMG Ch.V pp.212-373). |
-| 37 | `js/data/37-spells.js` | 808 | 1,163 KB | yes | SPELLS_DB: every spell and power (HH Ch.IX), full text. |
-| 38 | `js/data/38-mutations.js` | 116 | 45 KB | yes | MUTATIONS_DB: mutation advantages, drawbacks and the attribute chain. |
-| 39 | `js/data/39-mutation-rules.js` | 74 | 6 KB | yes | MUTATION_RULES: the Mutation Point rules. |
-| 40 | `js/rules/40-occupations-and-weapon-list.js` | 205 | 26 KB |  | OCCUPATIONS_DB (starting occupations: skills, bonus feats, wealth) and WEAPONS, the short weapon list used by parameterized feats such as Weapon Focus. |
-| 41 | `js/app/41-state-storage-navigation.js` | 263 | 15 KB |  | App state and saving: safe localStorage access, the Backup Guardian (the backup chip and its freshness colours), loading the roster (chars), the create-form state, the small utilities (attribute modifiers, save(), toast) and showPage(), which switches tabs. |
-| 42 | `js/app/42-player-tools.js` | 353 | 18 KB |  | The version number (CG_VERSION), the unsaved-changes guard, the Report-a-bug dialog, and the Display settings (theme and text size). |
-| 43 | `js/app/43-create-attributes-race-occupation.js` | 760 | 41 KB |  | Create page: attribute generation (4d6, point buy, manual), the attribute budget, racial adjustments, race info, and starting occupations. |
-| 44 | `js/app/44-create-scenario-gate-and-layout.js` | 726 | 35 KB |  | Create page: the Six Scales lock gate (lock, sandbox, unlock), the collapsible section layout and mini-nav, scenario presets and Six Scales changes. |
-| 45 | `js/app/45-create-class-list.js` | 525 | 30 KB |  | Create page: the multi-class list (adding and removing classes and levels), class sub-options (wizard schools, psion disciplines, domains), and Scale-0 variants. |
-| 46 | `js/app/46-create-preview-and-defense.js` | 583 | 30 KB |  | Create page: the class preview and derived stats, attribute bumps every 4th level, the HP mode controls, and the T/ACtical combat numbers (AC display, parry, dodge). |
-| 47 | `js/app/47-save-character.js` | 1,120 | 63 KB |  | Saving a character: legacy-record migration, schema versioning, typed 1st-level feat slots, the Hero's Gift checks, and saveCharacter itself. |
-| 48 | `js/app/48-roster-and-export.js` | 209 | 11 KB |  | The Roster page, and roster export/import (the 'courier' files that are the players' only real backup). |
-| 49 | `js/app/49-sheet.js` | 1,326 | 106 KB |  | The Character Sheet page (renderSheet) and the stat-breakdown drilldown that opens when a number is clicked. |
-| 50 | `js/app/50-skills-page.js` | 1,023 | 53 KB |  | The Skills page: class skills, skill families, ranks, synergy tooltips and spending skill points. |
-| 51 | `js/app/51-gm-exceptions-and-talents-page.js` | 650 | 33 KB |  | GM exceptions (rule overrides granted at the table) and the Talents page with its talent browser. |
-| 52 | `js/app/52-energy-immunity-and-spell-lists.js` | 234 | 15 KB |  | Energy-immunity talent picks, and the spell/power list tokens, schools and variant names used by the Powers/Spells pages. |
-| 53 | `js/data/53-domains.js` | 149 | 38 KB | yes | DOMAINS_DB (the 27 Cleric/Paladin/Saint domains, HH pp.444-451) and DOMAIN_ALIASES. |
-| 54 | `js/app/54-powers-repertoire.js` | 504 | 26 KB |  | A character's spell/power repertoire: caster pools, entitlement to the Spells and Powers tabs, and the powers budget. |
-| 55 | `js/app/55-mutations-engine.js` | 795 | 51 KB |  | Mutations: the Mutation Point economy, super-power purchases with banked MP, and mutation mechanical effects. |
-| 56 | `js/app/56-supernatural-attributes-pools-psi-focus.js` | 927 | 59 KB |  | Supernatural attributes, super talents, the Mutations page browser, blended power-point pools, metamagic preparation, and psionic focus. |
-| 57 | `js/app/57-armor-and-vehicle-integrity.js` | 329 | 25 KB |  | The Tracker's armor-integrity panel, and vehicles: integrity, piloting, joint owners, hits and repairs. |
-| 58 | `js/app/58-power-armor.js` | 520 | 44 KB |  | Power armor and Second Skin: loadouts, systems, slot damage. |
-| 59 | `js/app/59-mecha.js` | 347 | 38 KB |  | Mecha: superstructures, armor types, weapons, and the mecha builder. |
-| 60 | `js/app/60-starships.js` | 896 | 105 KB |  | Starships: size classes, subtypes, engines, armor, weapons, mounts and arcs, defenses, sensors, and the ship cards. |
-| 61 | `js/app/61-casting-augments-and-powers-page.js` | 696 | 52 KB |  | Casting: augmentation and metamagic at cast time, the Mental Pinnacle picks, casting a power, and the Powers/Spells page (renderPowers). |
-| 62 | `js/app/62-power-suites-feats-page-proficiencies.js` | 1,271 | 93 KB |  | Super-power suites by theme, the Feats page (renderFeats and the feat list), and the class/race weapon proficiencies and granted-feat tables. |
-| 63 | `js/app/63-modals.js` | 425 | 22 KB |  | The generic confirm and choice dialogs that replace the browser's confirm() and prompt(). |
-| 64 | `js/app/64-tracker.js` | 868 | 66 KB |  | The Tracker page: HP and power-point bars, HP mode, Action Points, talent action cards, bardic music, conditions, and the Hero's Gift panel. |
-| 65 | `js/app/65-tracker-logs-and-damage.js` | 717 | 40 KB |  | Tracker: the AP/FP audit log, massive damage, nonlethal damage, AP/FP spend and restore dialogs, and the action log panel. |
-| 66 | `js/app/66-xp-spending-and-level-up.js` | 816 | 43 KB |  | Spending XP (mastercrafting), and the level-up flow. |
-| 67 | `js/app/67-pdf-export.js` | 645 | 48 KB |  | Print / PDF export of the character sheet (printSheet). |
-| 68 | `js/app/68-init.js` | 65 | 3 KB |  | Start-up. |
+### App core
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/core/state.js` | 107 | 6 KB | `_storageOK`, `chars`, `TS13_VEHICLE_MOVES`, `curId`, `editId`, `pbMode` … +9 |
+| `js/core/backup.js` | 82 | 5 KB | `backupMeta`, `backupMetaSet`, `backupNoteSave`, `backupNoteExport`, `renderBackupChip` |
+| `js/core/navigation.js` | 306 | 17 KB | `NAV_TAB_VISIBILITY togglePageTut`, `toggleGearTut`, `outstandingSelections`, `renderNavTabs`, `toast`, `toastAction` … +2 |
+| `js/core/modals.js` | 132 | 6 KB | `_textModalResolve`, `_confirmModalResolve`, `_choiceModalCb`, `_choiceModalAllOptions`, `_choiceModalFreeText textModal`, `resolveTextModal` … +8 |
+
+### Game catalogs
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/data/catalogs/damage-types.js` | 98 | 17 KB | `DAMAGE_TYPES` |
+| `js/data/catalogs/spell-damage.js` | 177 | 41 KB | `SPELL_DAMAGE`, `SPELL_DAMAGE_EXCLUDED` |
+| `js/data/catalogs/damage-resolver.js` | 175 | 9 KB | `FIVE`, `PHYSICAL`, `ENERGY_TECH_VARIANT`, `DERIVED_PARENT`, `ALIGN_LABEL` |
+| `js/data/catalogs/weapons.js` | 157 | 43 KB | `WEAPONS_CATALOG` |
+| `js/data/catalogs/armor.js` | 80 | 10 KB | `ARMOR_CATALOG` |
+| `js/data/catalogs/vehicles.js` | 139 | 39 KB | `VEHICLES_DB` |
+| `js/data/catalogs/gadgets.js` | 96 | 19 KB | `GADGETS_CATALOG` |
+| `js/data/catalogs/mastercraft.js` | 62 | 4 KB | `MASTERCRAFT_RULES` |
+| `js/data/catalogs/equipment-items.js` | 358 | 85 KB | `EQUIPMENT_ITEMS` |
+| `js/data/catalogs/item-slots.js` | 98 | 7 KB | `ITEM_SLOTS`, `SLOT_GROUPS` |
+| `js/data/catalogs/magic-items.js` | 795 | 514 KB | `MAGIC_ITEMS_DB` |
+| `js/data/catalogs/spells.js` | 804 | 1,162 KB | `SPELLS_DB` |
+| `js/data/catalogs/mutations.js` | 112 | 44 KB | `MUTATIONS_DB` |
+| `js/data/catalogs/mutation-rules.js` | 70 | 6 KB | `MUTATION_RULES` |
+| `js/data/catalogs/domains.js` | 144 | 38 KB | `DOMAINS_DB`, `DOMAIN_ALIASES` |
+
+### Game tables
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/data/races-and-attributes.js` | 228 | 21 KB | `ATTR_NAMES`, `RACES`, `TALENT_ATTR_BAKES`, `RACE_BASE_SPEED`, `SIZE_LADDER`, `DIE_STEP_UP` … +4 |
+| `js/data/classes.js` | 1,033 | 54 KB | `HERO_CLASSES`, `ORDINARY_CLASSES`, `BASIC_CLASSES`, `CLASS_ABILITIES`, `ADVANCED_CLASSES`, `PRESTIGE_CLASSES` … +7 |
+| `js/data/class-features.js` | 946 | 128 KB | `CLASS_FEATURES`, `DRUID_OPTION_FEATURES`, `RANGER_FE_TYPES`, `TERRAIN_MASTERY_DATA`, `ROGUE_SPECIAL_ABILITIES`, `CLASS_CHOICE_DEFS` … +4 |
+| `js/data/powers.js` | 693 | 67 KB | `CASTER_CLASSES`, `CASTER_PROGRESSION`, `PP_COST_BY_POWER_LEVEL`, `POOL_EFF_LEVEL`, `POWER_EFFECTS`, `AUGMENT_OPTIONS` … +15 |
+| `js/data/scenario.js` | 226 | 12 KB | `SIX_LEVELS`, `SCENARIO_PRESETS`, `PRESET_LEGACY`, `SCEN_AXES`, `SCENARIO_AXIS_VOCAB` |
+| `js/data/homebrew.js` | 64 | 4 KB | `HBG_SUBSTANCES`, `MONSTROUS_CLASSES`, `MONSTER_TYPE_PROG` |
+| `js/data/magic-items.js` | 156 | 13 KB | `MAGIC_SLOT_TYPE`, `MAGIC_SLOT_KEYWORDS`, `MAGIC_ITEM_EFFECTS`, `MAGIC_TYPE_LABELS`, `MAGIC_PROPERTY_TYPES`, `SPECIFIC_ARMS_CONVERSIONS` |
+| `js/data/conditions-and-minds.js` | 352 | 25 KB | `MIND_TIERS`, `MIND_SIZE_ROWS`, `CONDITION_TIER_STYLE`, `CONDITIONS_DATA`, `COMMON_CONDITIONS` |
+| `js/data/skills.js` | 485 | 81 KB | `SKILL_DESCS`, `SKILLS`, `TOOLKIT_DEPENDENT_SKILLS`, `INSTRUMENT_PERFORMS`, `SYNERGIES_DB`, `HC_SKILLS` … +4 |
+| `js/data/cybernetics.js` | 80 | 13 KB | `CYBER_SLOTS`, `CYBERNETICS_DB` |
+| `js/data/equipment.js` | 294 | 19 KB | `WEALTH_DC_DOLLARS`, `PRICE_FLUX_NOTE`, `ENERGY_DAMAGE_TYPES`, `WEAPON_FINESSE_NAMED_EXCEPTIONS`, `TOOLKIT_SATISFIERS`, `ARMOR_HARDNESS_BY_TS` … +8 |
+| `js/data/combat.js` | 190 | 14 KB | `ENERGY_TYPES`, `STRONG_SUPER_TALENTS`, `STRONG_PASSIVE_RIDERS`, `MANGLER_LADDER`, `CARRY_TABLE_HH`, `MOVEMENT_GRANTS` … +3 |
+| `js/data/companions.js` | 523 | 19 KB | `COMPANION_BASE_STATS`, `FAMILIAR_SPECIES`, `ANIMAL_COMPANION_SPECIES`, `MOUNT_SPECIES`, `FAMILIAR_PERKS`, `ANIMAL_COMPANION_PROG` … +1 |
+| `js/data/bonuses.js` | 126 | 7 KB | `BONUS_TYPES`, `STACKING_RULES` |
+| `js/data/character.js` | 239 | 26 KB | `AP_OPTIONS`, `HAP_OPTIONS`, `FP_OPTIONS_UNIVERSAL`, `FP_OPTIONS_BY_HERO_CLASS`, `HEROIC_LEVEL_NAMES`, `HEROIC_LEVEL_AP_PER_ROUND` … +5 |
+| `js/data/citations.js` | 728 | 32 KB | `CITATIONS` |
+| `js/data/feats.js` | 371 | 67 KB | `FEATS_DB`, `FIRST_LEVEL_SLOT_KINDS`, `HERITAGE_ELIGIBLE_KINDS`, `SLOT_PREFERENCE_ORDER` |
+| `js/data/talents.js` | 153 | 53 KB | `TALENTS_DB` |
+| `js/data/mutations.js` | 168 | 13 KB | `UNSTABLE_MP`, `SUPER_RUNGS`, `MUTATION_EFFECTS`, `SU_ATTR_LADDER` |
+| `js/data/vehicles.js` | 906 | 119 KB | `SIZE_FULL`, `MECHA_SIZE_STATS`, `POWER_ARMOR_DB`, `MECHA_SYSTEMS`, `SECOND_SKIN_TABLE`, `SECOND_SKIN_MENUS` … +21 |
+
+### Game rules
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/rules/bonuses.js` | 450 | 26 KB | `aggregateBonuses`, `buildClassBonuses`, `computeNaturalAC`, `computeStatBlock`, `verifyParity` |
+| `js/rules/buffs.js` | 150 | 7 KB | `buffDurationText`, `perpetualBuffs`, `_buffEffectSources`, `activeBuffBonuses`, `activeBuffAttrDeltas`, `clearActiveBuffs` |
+| `js/rules/career-compass.js` | 324 | 18 KB | `classPrereqCheckOf`, `_compassTierOf`, `_compassAnnotate`, `careerCompassState`, `classSkillListHas`, `careerNextStep` … +1 |
+| `js/rules/character.js` | 133 | 7 KB | `isLegacyCharacter`, `scanHerosGiftRetconCompliance`, `reconcileHerosGiftFold` |
+| `js/rules/citations.js` | 68 | 3 KB | `citationDomainCounts`, `getCitation`, `formatCitation`, `citeHTML` |
+| `js/rules/class-features.js` | 696 | 46 KB | `getActiveClassFeatures`, `evalBonusFeatFormula`, `computeBonusFeatsFromClassFeatures`, `applyClassFeatureEffects`, `berserkerLvl`, `bloodlusterLvl` … +22 |
+| `js/rules/classes.js` | 492 | 27 KB | `getClassData`, `checkClassPrereqsFromArray`, `checkClassPrereqs`, `checkAdvancedPrereqs`, `classStatAt`, `chaModClamped` … +7 |
+| `js/rules/combat.js` | 955 | 66 KB | `computeGrapple`, `ownsFeatN`, `combatDecl`, `bestDefenseCap`, `combatDeclCaps`, `psiFocusPathOf` … +8 |
+| `js/rules/companions.js` | 122 | 6 KB | `companionMasterLevels`, `progRow`, `companionDerived`, `syncOwnedAnimals`, `buildCompanionSkillPerks` |
+| `js/rules/conditions-and-minds.js` | 138 | 7 KB | `mindOf`, `mindTier`, `mindLevelRow`, `mindPackage`, `mindDiceText`, `mindRoll1` … +1 |
+| `js/rules/cybernetics.js` | 158 | 9 KB | `getCyber`, `cyberDef`, `hasLostArm`, `hasCyberArm`, `offHandAvailable`, `cyberMax` … +5 |
+| `js/rules/defenses-and-movement.js` | 895 | 56 KB | `parryingHeldBonus`, `computeResistances`, `computeSR`, `computeDR`, `reconcileMutantSubtype`, `buildMutantSubtypeLanes` … +15 |
+| `js/rules/enchanting-and-armor.js` | 191 | 10 KB | `shieldSizeCategory`, `armorItemIntegrity`, `enchantTsCap`, `enchantAbilityDefs`, `enchantInfoOf`, `enchantDisplayName` … +3 |
+| `js/rules/equipment.js` | 756 | 41 KB | `getCharItems`, `getCatalogueEntry`, `isRangedWeapon`, `isFinesseEligible`, `finesseShieldACP`, `buildItemBonuses` … +30 |
+| `js/rules/feats.js` | 751 | 39 KB | `getFeatSlotBreakdown`, `getRestrictionFilter`, `getRestrictionFamily`, `getOpenClassBonusSlots`, `getFeatData`, `checkFeatPrereqs` … +10 |
+| `js/rules/gadgets.js` | 109 | 5 KB | `maxMastercraftBonus`, `gadgetSlotCount`, `mastercraftKindFor`, `eligibleGadgets`, `hasGadget`, `weaponAttachments` … +2 |
+| `js/rules/heroic-and-budgets.js` | 481 | 24 KB | `getAPDice`, `characterHasAPClass`, `effectiveHeroicLevelForAP`, `getHeroicCapabilities`, `computeResourceState`, `getFeatBudget` … +8 |
+| `js/rules/hit-points-and-xp.js` | 356 | 18 KB | `reconcileTalentHp`, `reconcileClassHp`, `rollHitDieForMode`, `generateHpRolls`, `reconcileMissingHP`, `computeMaxHPFromRolls` … +11 |
+| `js/rules/homebrew.js` | 93 | 5 KB | `homebrewFeats`, `homebrewGear`, `monstrousStore hbStoreSave`, `hbByName`, `hbAdjSummary`, `hbgStoreSave` … +5 |
+| `js/rules/magic-items.js` | 113 | 5 KB | `magicItemDefaultSlot`, `magicItemEffectValue`, `buildMagicItemBonuses`, `magicPriceLabel`, `magicItemDesc` |
+| `js/rules/mutations.js` | 319 | 17 KB | `getCharMutations`, `getMPState`, `getSuperPPState`, `spendSuperPP`, `superBuySpec`, `suiteDiscountFor` … +6 |
+| `js/rules/occupations.js` | 132 | 6 KB | `reconcileOccupationBonusFeats`, `buildOccupationBonuses`, `getOccupationData` |
+| `js/rules/powers.js` | 928 | 47 KB | `computeCasterLevels`, `computeCasterStats`, `_emptyPoolStats`, `powerHoverText`, `spellSchool`, `isPsionicSpell` … +17 |
+| `js/rules/quickdraw.js` | 790 | 47 KB | `qdStores`, `qdEntry`, `qdCap`, `qdKeyAttr`, `qdLegalStarts`, `qdScoreStart` … +14 |
+| `js/rules/races-and-attributes.js` | 304 | 15 KB | `attrItemBonuses`, `reconcileTalentAttrBakes`, `suBakedPerAttr`, `effAttrs`, `effAm`, `hybridInfo` … +16 |
+| `js/rules/scenario.js` | 252 | 12 KB | `customScenarios normalizePresetName`, `saveCustomScenarios`, `customScenarioByName`, `scenarioScalesOf`, `scenarioSummaryStr`, `scenarioTechScale` … +6 |
+| `js/rules/skills.js` | 505 | 25 KB | `buildDerivedSkillBonuses`, `computeSkillMiscBonuses`, `displaySkillName`, `skillHoverText`, `baseExAttrMod`, `computeSkillSetSpecs` … +9 |
+| `js/rules/spell-preparation.js` | 343 | 16 KB | `blendedPoolSetFor`, `_poolPPRaw`, `getPoolPPState`, `_drainPoolLedgers`, `spendPoolPP`, `powerCastCost` … +15 |
+| `js/rules/talents.js` | 374 | 21 KB | `buildTalentBonuses`, `computeTalentEffects`, `checkTalentPrereqs` |
+| `js/rules/vehicles.js` | 228 | 12 KB | `vehicleIntegrity`, `pilotedVehicle`, `vehicleOperatorCheck`, `vehicleStatStripText`, `equippedPowerArmor`, `paLoadout` … +19 |
+| `js/rules/wealth.js` | 145 | 7 KB | `dollarsForDC`, `dcForDollars`, `fmtCoin`, `priceLabel`, `marketAdjustedDC`, `itemEffectivePDC` … +5 |
+
+### Page code
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/ui/career-compass.js` | 132 | 8 KB | `_compassExpanded toggleCompass`, `setCareerGoal`, `onCareerGoalSelect`, `setCareerGoalFromLevelUp`, `renderCareerCompass` |
+| `js/ui/create/attributes-race-occupation.js` | 612 | 33 KB | `occupationsUnlocked`, `formOccupationPicks`, `formOccupationPicksFor renderAttrGrid`, `onAC`, `getAttrs`, `rollAttributes` … +18 |
+| `js/ui/create/classes.js` | 444 | 25 KB | `formClasses`, `formSubOptions renderClassSubOptions`, `onSubOptChange`, `onScale0Pick`, `onSubOptDomain`, `renderClassList` … +10 |
+| `js/ui/create/form-state.js` | 68 | 3 KB | `formBudget`, `editSavedSixLevels`, `pendingSixLevelChange`, `formHpMode`, `formHpRolls`, `formAttrBumps` |
+| `js/ui/create/preview.js` | 301 | 14 KB | `updateClassPreview`, `renderAllPrereqChecks`, `applyAttrBumps`, `renderAttrBumpsPanel`, `onAttrBumpChange`, `getFormHpMode` … +6 |
+| `js/ui/create/save.js` | 864 | 51 KB | `_firstSaveConfirmed saveCharacter`, `cloneCurrentChar`, `editCurrentChar`, `deleteCurrentChar`, `clearForm` |
+| `js/ui/create/scenario-and-layout.js` | 683 | 32 KB | `gateState`, `_GATE_DOWNSTREAM_PANELS`, `CREATE_SECTIONS applyGateState`, `lockSixLevels`, `enterSandboxMode`, `unlockSixLevels` … +25 |
+| `js/ui/feats.js` | 918 | 51 KB | `gmExceptionsExpanded`, `_activeBrowserSlot toggleGMExceptionsExpanded`, `clearGMException`, `renderGMExceptions`, `setFeatParamAt`, `renderFeats` … +13 |
+| `js/ui/gear/combat.js` | 138 | 8 KB | `bdDeclAdjust`, `declWhichModal`, `baDeclAdjust`, `weaponSpikeUse`, `toggleMeleeOpts`, `toggleNullified` … +1 |
+| `js/ui/gear/cybernetics.js` | 114 | 9 KB | `toggleGearCyber`, `renderCybernetics`, `addCyberFromSel`, `removeCyber` |
+| `js/ui/gear/enchanting.js` | 165 | 10 KB | `_enchantState openEnchantBuilder`, `closeEnchantModal`, `enchantSetEnh`, `enchantSetImbued`, `enchantToggleAbility`, `renderEnchantModal` … +2 |
+| `js/ui/gear/gadgets.js` | 188 | 11 KB | `_gadgetOpen mountAccessory`, `toggleComputerUpgrade`, `setItemMastercraft`, `addGadgetToItem`, `removeGadgetFromItem`, `toggleGadgetCtl` … +2 |
+| `js/ui/gear/inventory.js` | 837 | 68 KB | `_itemOpen armorStatStrip`, `weaponStatStrip`, `toggleGearActive`, `gearQty`, `useGearItem`, `boostBaneRoll` … +15 |
+| `js/ui/gear/magic-items.js` | 237 | 17 KB | `_magicBrowseOpen`, `_magicBrowseList`, `_magicExpanded toggleMagicBrowse`, `toggleMagicDetail`, `renderMagicBrowse`, `addMagicFromBrowse` … +2 |
+| `js/ui/gear/wealth.js` | 246 | 16 KB | `_priceCheckTs`, `_wealthChartOpen priceSpan`, `chargeUpgradeDifference`, `rollStartingWealth`, `adjustFunds`, `setPriceCheckTs` … +5 |
+| `js/ui/homebrew/forge-and-armory.js` | 376 | 22 KB | `_hbPendingGrant hbOpen`, `hbClose`, `hbgOpen`, `hbgClose`, `hbgTypeChange`, `hbgDtypeChange` … +18 |
+| `js/ui/homebrew/monstrous.js` | 126 | 8 KB | `importCreatureSeed` |
+| `js/ui/level-up.js` | 735 | 37 KB | `_pendingLevelUp checkLevelUp`, `lvlupCancel`, `lvlupRenderClassChoice`, `lvlupOnClassChoice`, `lvlupRenderNewClassForm`, `lvlupOnNewClassTier` … +11 |
+| `js/ui/mutations.js` | 447 | 33 KB | `_muBrowseList`, `_muExpanded`, `_muBrowseOpen restSuperPPClick`, `buySuperPower`, `toggleMuBrowse`, `renderMutationEffects` … +11 |
+| `js/ui/player-tools/bug-report.js` | 202 | 10 KB | `BUG_REPORT_EMAIL`, `BUG_STORE_KEY _bugLoad`, `_bugStore`, `_bugContext`, `_bugCtxText`, `_bugText` … +17 |
+| `js/ui/player-tools/display-settings.js` | 50 | 3 KB | `_renderDisplayMenu`, `openDisplaySettings`, `closeDisplaySettings`, `setDisplayPref` |
+| `js/ui/player-tools/unsaved-guard.js` | 95 | 4 KB | `_createDirty`, `_skBaseline`, `_cgSuppressUnload`, `_unsavedResolve _skMarkClean`, `_skLiveRanks`, `skillsDirty` … +6 |
+| `js/ui/powers/browse.js` | 521 | 38 KB | `_pwBrowseList`, `_pwMode`, `_pwBrowseOpen`, `_pwExpandedBrowse`, `_pwExpandedKnown`, `_pwThemeSets togglePwBrowse` … +9 |
+| `js/ui/powers/buffs.js` | 152 | 10 KB | `toggleBuffSuper`, `applyWiredBuff`, `dismissBuffAt`, `renderActiveBuffs` |
+| `js/ui/powers/casting.js` | 402 | 28 KB | `openCastOptions`, `chooseMentalPinnacle`, `castPowerAt`, `renderCastResult`, `dismissCastResult` |
+| `js/ui/powers/preparation.js` | 513 | 31 KB | `_pendingInstant`, `_prepCtrs adjustPP`, `restPP`, `snapshotPowerTextareas`, `instantGateOK`, `prepPickAndAdd` … +8 |
+| `js/ui/powers/psionic-focus.js` | 59 | 4 KB | `gainPsiFocus`, `expendPsiFocus`, `psiFocusChipHTML` |
+| `js/ui/print.js` | 641 | 46 KB | `printSheet` |
+| `js/ui/quickdraw.js` | 232 | 12 KB | `qdAttrModeToggle`, `qdMaAdj`, `qdManualAttrs`, `qdBespokeRun`, `openQuickdraw`, `qdOccHint` … +8 |
+| `js/ui/roster.js` | 161 | 8 KB | `reconcileOrphanSubOptions`, `exportRoster`, `exportRosterDownload`, `exportCurrentHero`, `importRosterFile`, `renderRoster` … +1 |
+| `js/ui/scenario-studio.js` | 208 | 11 KB | `_lastScenSel`, `_scenCtx`, `_scenarioTitleOverride`, `_scenarioGateAcknowledged populateScenarioSelects`, `openScenarioStudio`, `closeScenarioStudio` … +7 |
+| `js/ui/sheet/class-choices.js` | 83 | 6 KB | `setClassChoice`, `renderClassChoices` |
+| `js/ui/sheet/companions.js` | 94 | 7 KB | `addCompanion`, `removeCompanion`, `renameCompanion`, `renderCompanions`, `setRangerCombatStyle` |
+| `js/ui/sheet/heros-gift.js` | 125 | 7 KB | `renderHerosGiftPanel`, `assignHerosGiftAsFeat`, `assignHerosGiftAsTalent` |
+| `js/ui/sheet/sheet.js` | 1,356 | 106 KB | `renderSourcedValueProvenance`, `showStatBreakdown`, `closeDrilldown`, `applyRacialNatAC`, `dismissNatACBanner`, `renderSheet` … +1 |
+| `js/ui/skills.js` | 509 | 28 KB | `skillFilter`, `skillFamilyCollapsed`, `skillFamilyToggled addSkillSetPick`, `removeSkillSetPick`, `setSkillFilter`, `toggleSkillFamily` … +10 |
+| `js/ui/talents.js` | 661 | 33 KB | `addTalentToChar`, `removeTalentFromChar`, `renderTalents`, `_populateTalentTreeFilter`, `openTalentBrowser`, `closeTalentBrowser` … +8 |
+| `js/ui/tracker/action-log.js` | 204 | 10 KB | `renderLog`, `logAct`, `logActionEvent`, `editActionLogNote`, `clearActionLog`, `renderActionLog` … +3 |
+| `js/ui/tracker/action-points.js` | 399 | 20 KB | `renderAPBar`, `toggleAPOpt`, `adjustAP`, `adjustAPSilent`, `resetAP`, `spendFatePoint` … +10 |
+| `js/ui/tracker/armor-integrity.js` | 125 | 9 KB | `renderArmorIntegrity`, `armorIncomingHit`, `armorRepair` |
+| `js/ui/tracker/class-abilities.js` | 398 | 36 KB | `toggleEuphoric`, `adjustAbilityUse`, `renewAbility`, `toggleRage`, `clearFatigue`, `fullyRested` … +8 |
+| `js/ui/tracker/conditions.js` | 177 | 11 KB | `renderConds`, `populateConditionDropdown`, `renderSheetConditionBanner`, `addCond`, `rmCond`, `clearConds` |
+| `js/ui/tracker/damage.js` | 171 | 11 KB | `_mdtPending mdtPrompt`, `mdtRender`, `mdtClose`, `mdtResolve`, `nlCheck`, `renderNLLine` … +4 |
+| `js/ui/tracker/hit-points.js` | 194 | 10 KB | `renderHPBar`, `toggleHpModePanel`, `renderSheetHpModePanel`, `changeSheetHpMode`, `rerollSheetHp`, `applyHpModeChangeToChar` … +1 |
+| `js/ui/tracker/minds.js` | 280 | 24 KB | `mindSet`, `mindPerToggle`, `mindPer`, `mindOutcome`, `mindLastDismiss`, `mindFacedCycle` … +8 |
+| `js/ui/tracker/tracker.js` | 36 | 2 KB | `renderTracker` |
+| `js/ui/tracker/xp.js` | 86 | 5 KB | `renderXPBar`, `awardXP`, `spendXP` |
+| `js/ui/vehicles/mecha.js` | 132 | 13 KB | `openMechaBuilder`, `renderMechaCards` |
+| `js/ui/vehicles/power-armor.js` | 284 | 23 KB | `paCycleSlotState`, `paAddLoadoutLine`, `paRemoveLoadoutLine`, `renderPowerArmorCards`, `setSecondSkinLevel`, `toggleSecondSkin` … +2 |
+| `js/ui/vehicles/starships.js` | 243 | 21 KB | `shipMountChip`, `shipLinkChip`, `shipBatteryChip`, `openStarshipBuilder`, `shipIncomingHit`, `shipRepair` … +1 |
+| `js/ui/vehicles/vehicles.js` | 166 | 12 KB | `togglePiloted`, `setJointOwners`, `vehicleIncomingHit`, `vehicleRepair`, `renderVehicleInventory`, `renderVehicles` |
+
+### Start-up
+
+| File | Lines | Size | Holds |
+|---|---|---|---|
+| `js/main.js` | 154 | 8 KB | `restore saved data`, `first render` |

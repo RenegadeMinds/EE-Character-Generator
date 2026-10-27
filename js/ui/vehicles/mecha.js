@@ -1,0 +1,132 @@
+// =============================================================================
+// js/ui/vehicles/mecha.js
+// VEHICLES / MECHA — PAGE CODE
+// =============================================================================
+//
+// WHAT'S IN HERE
+//   Page code: drawing this part of the page and handling the player's
+//   clicks and typing. Vehicles page: the mecha builder and mecha cards.
+//
+// KEY NAMES (so you can search for them)
+//   functions (2): openMechaBuilder, renderMechaCards
+//
+// WHERE IT CAME FROM
+//   Gathered from js/app/59-mecha.js when the code was regrouped by topic
+//   and page. Each function and table moved whole and unchanged, with the
+//   comments above it, including the original version notes.
+//
+// LOAD ORDER
+//   Declarations only: nothing in js/rules/ or js/ui/ runs while the page
+//   loads, so the order of those files does not matter. js/main.js, loaded
+//   last, starts everything.
+// =============================================================================
+
+// The custom-build flow: size → superstructure → armor type → name, priced
+// from the FF pp.630-631 tables, then the standard purchase/provenance door.
+async function openMechaBuilder() {
+  const c = chars.find(x => x.id === curId); if (!c) { toast('Select a hero first.'); return; }
+  const size = await new Promise(res => openChoiceModal('Custom mecha — frame size (sets base Str/Dex/HP/speed/slots)',
+    Object.keys(MECHA_SIZE_STATS).map(s => { const z = MECHA_SIZE_STATS[s]; return `${s} — Str ${z.str}, ${z.hp} HP, ${z.speed} ft, ${z.slots} slots (${z.paSlots} as PA)`; }), res));
+  if (!size) return;
+  const szName = size.split(' — ')[0];
+  const ss = await new Promise(res => openChoiceModal('Superstructure (sets hardness + frame base DC — FF p.630)',
+    Object.keys(MECHA_SUPERSTRUCTURES).map(n => { const s = MECHA_SUPERSTRUCTURES[n]; return `${n} (TS ${s.ts}) — Hardness ${s.hardness}, base DC ${s.dc[szName]}`; }), res));
+  if (!ss) return;
+  const ssName = ss.split(' (')[0];
+  const ar = await new Promise(res => openChoiceModal('Armor type (equip AC / penalty / speed — FF p.631)',
+    Object.keys(MECHA_ARMOR_TYPES).map(n => { const a = MECHA_ARMOR_TYPES[n]; return `${n} (TS ${a.ts}) — +${a.equipAC} AC, ${a.penalty == null ? 'GM' : a.penalty} penalty${a.speedMod ? `, ${a.speedMod} ft` : ''}, ${a.restriction}`; }), res));
+  if (!ar) return;
+  const arName = ar.split(' (')[0];
+  const nm = await textModal('Name the design', 'e.g. "Ares Custom Mk I". The stat card derives live from the frame tables.', '');
+  if (nm === null) return;
+  const custom = { name: (nm || `Custom ${szName} Mecha`).trim(), size: szName, superstructure: ssName, armorType: arName };
+  const probe = mechaDefOf({ catalogue: 'mecha', custom });
+  const techScale = scenarioTechScale(c);
+  let provenance = null;
+  {
+    const priceUnits = dollarsForDC(marketAdjustedDC(probe.purchaseDC, probe.ts, techScale));
+    provenance = await promptProvenance(c, custom.name, priceUnits);
+    if (provenance === null) return;
+  }
+  if (!c.items) c.items = [];
+  // customName carries the design name into every generic display path
+  // (enchantDisplayName, logs, toasts) — ref stays the '__custom__' marker.
+  const item = { id: 'item_' + Math.random().toString(36).slice(2, 10), catalogue: 'mecha', ref: '__custom__', customName: custom.name, custom, slot: 'carried', equipped: false, mastercraft: null, gadgets: [] };
+  if (provenance) item.provenance = provenance;
+  c.items.push(item);
+  logAct(`🏗 Custom mecha commissioned: ${custom.name} (${szName} ${ssName} frame, ${arName} armor — base purchase DC ${probe.purchaseDC}). Weapons & systems install on the Vehicles tab (Craft checks & build times per FF Ch.III).`);
+  save(); renderGear(); renderVehicles(); renderNavTabs(c);
+  toast(`${custom.name} commissioned — outfit it on the 🕹 Vehicles tab.`);
+}
+// The mecha operations card.
+function renderMechaCards(c) {
+  const items = getCharItems(c).filter(i => i.catalogue === 'mecha');
+  if (!items.length) return '';
+  const owns = (n) => (c.feats || []).some(f => (f.name || f.n) === n);
+  const hasOp = owns('Mecha Operation'), hasWp = owns('Mecha Weapon Proficiency');
+  return items.map(it => {
+    const def = mechaDefOf(it); if (!def) return '';
+    const g = vehicleIntegrity(it);
+    const name = it.custom ? it.custom.name : (it.customName || it.ref);
+    const sz = MECHA_SIZE_STATS[def.size] || {};
+    const touch = mechaTouchAC(def);
+    const pct = Math.max(0, Math.min(100, Math.round(g.hp / g.maxHP * 100)));
+    const barColor = g.destroyed ? '#555' : g.broken ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
+    const pilotDexM = am(Math.min(effAttrs(c)[1], def.dexMax));
+    const ranks = getLiveSkillRanks(c, 'Pilot');
+    const opPen = hasOp ? 0 : -4;
+    const pilotChk = ranks + pilotDexM + opPen;
+    const critConfirm = touch + Math.ceil(g.hardness / 2) + (hasOp ? (c.def || 0) : 0) + paShieldBonus(it);
+    const strM = am(def.str);
+    const loadout = paLoadout(it).map((l, idx) => {
+      const sIcon = l.state === 'destroyed' ? '☠' : l.state === 'damaged' ? '⚑' : '●';
+      const sColor = l.state === 'destroyed' ? '#999' : l.state === 'damaged' ? 'var(--red-text)' : '#6dba88';
+      const sys = MECHA_SYSTEMS.find(s => l.gear.startsWith(s.name.replace(/ \(\+2\)$/, '')));
+      const wep = MECHA_WEAPONS.find(w => l.gear.startsWith(w.name.split(' (')[0]) || l.gear.includes(w.name));
+      let tip = '';
+      if (wep) {
+        const dmg = wep.dmg || (wep.dmgBySize ? `${wep.dmgBySize[def.size] || '?'} + Str mod (${def.size} wielder)` : '');
+        tip = `${dmg}${wep.dmgType ? ' ' + wep.dmgType : ''}${wep.crit ? ' · crit ' + wep.crit : ''}${wep.range ? ' · ' + wep.range : ''}${wep.area ? ' · ' + wep.area : ''}${wep.rof ? ' · RoF ' + wep.rof : ''}${wep.mag ? ' · mag ' + wep.mag : ''}${wep.save ? ' · ' + wep.save : ''}${wep.special ? '\n' + wep.special : ''}\nSlots: ${wep.slots} · DC ${wep.dc} · ${wep.restriction}${hasWp ? '' : '\n⚠ Without Mecha Weapon Proficiency: −4 attacks, no firearm feats.'}`;
+      } else if (sys) tip = `${sys.effect} (Slots: ${sys.slots} · DC ${sys.dc})`;
+      return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:1px 0;">
+        <button class="btn btn-sm" style="font-size:9px;padding:0 4px;color:${sColor};" title="Cycle: ok → damaged (1 hr, Repair DC 20; slot DC 25) → destroyed (replace; slot rebuild 12 hrs, Craft DC 30) → ok" onclick="paCycleSlotState('${it.id}',${idx})">${sIcon}</button>
+        <span style="color:var(--g55);min-width:98px;">${escapeHTML(l.slot)}</span>
+        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}${wep ? 'color:#d4865a;' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}</span>
+        ${l.fixed ? '' : `<button class="btn btn-sm" style="font-size:9px;padding:0 4px;" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
+      </div>`;
+    }).join('');
+    return `<div class="panel" style="margin-bottom:.8rem;border-color:rgba(212,140,70,.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+        <div style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--gold);">${it.piloted ? '🕹 ' : ''}🦿 ${escapeHTML(name)} <span style="font-size:10px;color:var(--g50);">${def.size} TS ${def.ts}${def.quad ? ' Quadrupedal' : ''} Mecha · ${escapeHTML(def.superstructure)} / ${escapeHTML(def.armorType)}</span></div>
+        <div style="white-space:nowrap;">
+          <button class="btn btn-sm" style="font-size:10px;${it.piloted ? 'border-color:rgba(120,175,205,.6);color:#78afcd;' : ''}" onclick="togglePiloted('${it.id}')">${it.piloted ? '🕹 Dismount' : '🕹 Pilot'}</button>
+          <button class="btn btn-sm" style="font-size:10px;" onclick="vehicleIncomingHit('${it.id}')">⚔ Hit</button>
+          <button class="btn btn-sm" style="font-size:10px;" onclick="vehicleRepair('${it.id}')">🔧 Repair</button>
+          <button class="btn btn-sm" style="font-size:10px;" onclick="setJointOwners('${it.id}')">✎ Owners</button>
+        </div>
+      </div>
+      ${def.note ? `<div style="font-size:10px;color:var(--g50);margin-top:3px;">${escapeHTML(def.note)}</div>` : ''}
+      <div style="font-size:11px;color:var(--parch);margin-top:5px;">
+        <b>Str ${def.str}</b> (${strM >= 0 ? '+' : ''}${strM} — the mecha's, FF p.618) · <b>Dex (Max) ${def.dexMax}</b> (your effective: ${Math.min(effAttrs(c)[1], def.dexMax)}) ·
+        speed <b>${def.speed} ft</b> <span style="opacity:.6;cursor:help;" title="Vehicular/mecha scale: 1 hex = 50 ft (personal scale 5 ft; stellar 250 ft — Adam's three combat scales).">(${Math.floor((def.speed || 0) / 50)} hx @50′)</span>${def.fly ? ` · fly ${escapeHTML(def.fly)}` : ''} · space/reach ${sz.spaceReach || (def.size === 'Medium' ? '5/5' : def.size === 'Large' ? '10/10' : def.size === 'Huge' ? '15/10' : def.size === 'Gargantuan' ? '20/15' : '30/15')} ft ·
+        <span style="cursor:help;" title="Touch ${touch} (10 ${sz.sizeMod ? (sz.sizeMod > 0 ? '+' : '') + sz.sizeMod + ' size' : ''}); total adds equip AC ${def.equipAC}${paShieldBonus(it) ? ' + shield ' + paShieldBonus(it) : ''}. Crits confirm vs ${critConfirm} (touch + ½ hardness${hasOp ? ' + your Defense Bonus' : ' — NO Defense Bonus without Mecha Operation'}${paShieldBonus(it) ? ' + shield' : ''}) — FF p.616.">T/AC <b>${touch}/${touch + def.equipAC + paShieldBonus(it)}</b>${def.printedTAC && def.printedTAC !== `${touch}/${touch + def.equipAC + paShieldBonus(it)}` ? ` <span style="opacity:var(--o55);color:var(--dim);">(book: ${def.printedTAC})</span>` : ''} · crit ≥ ${critConfirm}</span> ·
+        <span style="cursor:help;" title="Slam: your BAB + mecha Str mod${sz.sizeMod ? ` ${sz.sizeMod > 0 ? '+' : ''}${sz.sizeMod} size` : ''}${hasOp ? '' : ' −4 (no Mecha Operation)'}; armor penalty ${def.armorPenalty} applies to Balance/Climb/Escape Artist/Hide/Jump/Move Silently/Tumble while piloting.">slam <b>${def.slam}${strM ? ` ${strM > 0 ? '+' : ''}${strM}` : ''}</b> (atk ${(c.bab || 0) + strM + (sz.sizeMod || 0) + opPen >= 0 ? '+' : ''}${(c.bab || 0) + strM + (sz.sizeMod || 0) + opPen})</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:11.5px;">
+        <span style="cursor:help;" title="${escapeHTML(def.superstructure + ' superstructure — hardness applies to every hull hit; crew is hit only via crit-table results (FF p.616).')}">Hull <b style="color:${barColor};">${g.hp}</b>/${g.maxHP} · Hardness <b>${g.hardness}</b></span>
+        <div class="bar-wrap" style="flex:1;height:6px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+        <span style="cursor:help;color:#d4b870;font-size:10px;" title="Mecha Critical Hits (FF p.616): d20 — 1-3 dmg+crew dazed · 4-7 equipment damaged · 8-9 crit+crew dazed · 10 equipment destroyed · 11-12 crit+prone · 13 CREW HIT · 14-16 crit+slot damaged · 17-18 crit+slot destroyed · 19-20 severe ×5. Mark results on the loadout.">🎲 crit table ⓘ</span>
+      </div>
+      ${g.destroyed ? '<div style="color:#999;font-size:10.5px;margin-top:3px;">☠ DESTROYED — salvage only (HH p.181).</div>' : g.broken ? '<div style="color:var(--red-text);font-size:10.5px;margin-top:3px;">🛑 DISABLED — 0 HP; repair 1 hr / DC 20 / 2d6 HP (workshop).</div>' : ''}
+      <div style="font-size:11px;color:var(--g70);margin-top:5px;">
+        Your Pilot check aboard: <b style="color:var(--gold);">${pilotChk >= 0 ? '+' : ''}${pilotChk}</b> <span style="opacity:var(--o60);color:var(--dim);">(${ranks} ranks ${pilotDexM >= 0 ? '+' : ''}${pilotDexM} Dex [capped]${opPen ? ' − 4 no Mecha Operation' : ''})</span>
+        · ${hasOp ? '<span style="color:#6dba88;">✓ Mecha Operation</span>' : '<span style="color:var(--red-text);" title="−4 on Balance/Climb/Drive/Escape Artist/Hide/Move Silently/Pilot/Tumble aboard; no Defense Bonus to full AC; no run or charge.">✗ Mecha Operation</span>'}
+        · ${hasWp ? '<span style="color:#6dba88;">✓ Mecha Weapon Proficiency</span>' : '<span style="color:var(--red-text);" title="−4 on attacks with mecha weapons; firearm feats (Double Tap, Strafe…) unusable on them.">✗ Mecha Weapon Prof</span>'}
+      </div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g55);margin-top:7px;">Equipment Slots (${sz.slots ?? '?'} total — cockpit fixed) <button class="btn btn-sm" style="font-size:9px;padding:0 5px;margin-left:6px;" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
+      ${loadout}
+      <div style="font-size:10px;color:var(--g45);margin-top:3px;">Registered owners: ${it.jointOwners ? escapeHTML(it.jointOwners) : `${escapeHTML(c.name)} (sole)`}</div>
+    </div>`;
+  }).join('');
+}
+
