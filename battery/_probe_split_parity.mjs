@@ -270,6 +270,29 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
     same(`${s.name}: weapon summaries`, await A.page.evaluate(weaponSums), await B.page.evaluate(weaponSums));
     same(`${s.name}: Edit -> Save`, await A.page.evaluate(editSave), await B.page.evaluate(editSave));
   }
+  // A brand-new character saved through the Create page form (the path
+  // qdBespokeBuild and Edit -> Save don't take): sandbox gate, a race, two
+  // classes, the first-save confirmation, then saveCharacter().
+  const formSave = async () => {
+    window.confirmModal = async () => true;
+    try {
+      showPage('create'); clearForm();
+      document.getElementById('c-name').value = 'Form Hero';
+      const raceSel = document.getElementById('c-race'); raceSel.value = 'Dwarf'; raceSel.dispatchEvent(new Event('change'));
+      enterSandboxMode();
+      formClasses.push({ tier: 'basic', name: 'Fighter', level: 2, first: true }, { tier: 'basic', name: 'Expert', level: 1, first: false });
+      renderClassList(); updateClassPreview();
+      _firstSaveConfirmed = true;
+      await saveCharacter();
+      return JSON.stringify(chars[chars.length - 1]);
+    } catch (e) { return 'THREW ' + e; }
+  };
+  same('New character via the Create form', await A.page.evaluate(formSave), await B.page.evaluate(formSave));
+  for (const pg of ['sheet', 'gear', 'tracker']) {
+    await A.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
+    await B.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
+    same(`Form Hero / ${pg}`, await markup(A.page), await markup(B.page));
+  }
   mark('RICH-CHARACTERS-IDENTICAL', richFails === 0 && richBuilt > 0, `${richChecks} comparisons across ${richBuilt} decorated characters (pages, print sheet, weapon summaries, Edit -> Save)`);
 }
 // 4b. Globals again, after all that activity.

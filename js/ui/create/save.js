@@ -72,53 +72,12 @@ async function saveCharacter(){
   if(formClasses.length===0){
     if(!(await confirmModal('No classes have been added. Save anyway as a "no class" character?')))return;
   }
-  // Soft-warn: collect all unmet prereqs across every Advanced + Prestige entry.
-  let warnings=[];
-  let skills={},feats=[];
-  let prevExceptions=[]; // GM exceptions previously recorded on this character (preserved across edits)
-  if(editId){const ex=chars.find(c=>c.id===editId);if(ex){skills=ex.skills||{};feats=ex.feats||[];prevExceptions=ex.gmExceptions||[];}}
-  const ctx={
-    attrs:effAttrs,  // v8.2.3: effective attrs (base + bumps) for prereq checks
-    allegiance:document.getElementById('c-allegiance')?.value||'',
-    align:document.getElementById('c-align')?.value||'',
-  };
-  // Collect prereq-fail records for all class entries so we can both
-  // warn the user AND persist them as GM exceptions if they choose to override.
-  // v8.3.23: extended to Hero and Basic tiers so attrMin violations (Hero
-  // class without 13 in key attr; certain Basic classes without 10) get
-  // surfaced at save time too.
-  const pendingExceptions = []; // {type, target, missing:[...]}
-  for(const e of formClasses){
-    const otherEntries=formClasses.filter(x=>x!==e);
-    const r=checkClassPrereqsFromArray(e.name, otherEntries, skills, feats, sixLevels, ctx);
-    if(!r.met){
-      const tierLabel={hero:'Hero',ordinary:'Ordinary',basic:'Basic',advanced:'Advanced',prestige:'Prestige'}[e.tier]||e.tier;
-      warnings.push(`${e.name} (${tierLabel}):\n  • `+r.missing.join('\n  • '));
-      pendingExceptions.push({type:'class', target:`${e.name} (${tierLabel})`, missing:r.missing.slice(), grantedAt:new Date().toLocaleDateString()});
-    }
-  }
+  const { warnings, pendingExceptions, prevExceptions } = saveCheckClassPrereqs(effAttrs, sixLevels);
   if(warnings.length){
     const ok=await confirmModal(`Prerequisites not yet met:\n\n${warnings.join('\n\n')}\n\nSave anyway (will be recorded as GM exception)?`);
     if(!ok)return;
   }
-  // Detect Starting Occupation change on an existing character (GM override).
-  // Only logs if the user actually unlocked the lock AND changed a value.
-  if (editId && occupationsUnlocked) {
-    const occEl = document.getElementById('c-occ');
-    const occ2El = document.getElementById('c-occ2');
-    const origOcc = occEl.dataset.original;
-    const origOcc2 = occ2El.dataset.original;
-    if (origOcc !== undefined && (occEl.value !== origOcc || occ2El.value !== origOcc2)) {
-      const fromText = origOcc2 ? `${origOcc} + ${origOcc2}` : origOcc;
-      const toText = occ2El.value ? `${occEl.value} + ${occ2El.value}` : occEl.value;
-      pendingExceptions.push({
-        type:'occupation',
-        target:'Starting Occupation override',
-        missing:[`Changed from "${fromText}" to "${toText}" (Starting Occupation is normally fixed at character creation)`],
-        grantedAt:new Date().toLocaleDateString(),
-      });
-    }
-  }
+  saveDetectOccupationOverride(pendingExceptions);
   // v8.3.19: pass heroic level (zeroes AP at H0) and existing fatePoints
   // (preserved across edits — Fate Point expenditures are permanent).
   // v8.3.32: route through effectiveHeroicLevelForAP so a purely-Ordinary
@@ -167,6 +126,109 @@ async function saveCharacter(){
     secondary: { skills: (formOccupationPicks.secondary?.skills||[]).slice(),
                  bonusFeat: formOccupationPicks.secondary?.bonusFeat || null },
   };
+  const { v840_schemaVer, v840_heroesGiftChoice, v840_firstLevelSlots, v840_retconOld, v840_retconNew, v840_didRetcon } = saveSchemaFields(race, classesCopy, occupations);
+  const char = buildCharacterRecord({ name, race, sixLevels, effAttrs, baseAttrs, s, maxHP, ecl, classesCopy, heroEntry, basicEntry, advEntry, presEntry, occ1, occupations, occupationPicks, v840_schemaVer, v840_heroesGiftChoice, v840_firstLevelSlots, _raceEclForm, prevExceptions, pendingExceptions, naturalACForm });
+  if(editId){
+    const idx=chars.findIndex(c=>c.id===editId);
+    if(idx>=0){
+      mergeEditedCharacter(char, idx, v840_didRetcon, v840_retconOld, v840_retconNew);
+    } else {
+      // v8.2.2 defensive: editId was set, but the referenced character is
+      // gone (deleted from roster mid-edit, or stale state from a prior
+      // session). Push as new instead of silently dropping the save.
+      console.warn('[saveCharacter] editId='+editId+' set but character not found; treating as new creation.');
+      chars.push(char);
+    }
+    editId=null;
+  }
+  else chars.push(char);
+  // v8.2.1: reconcile occupation bonus feats with c.feats. Any prior feat
+  // tagged with origin:'occupation:*' is removed; the currently-picked bonus
+  // feats (if any) are then added back with fresh origin tags. This handles
+  // first creation, subsequent edits that change the bonus feat pick, and
+  // changes to the underlying occupation itself.
+  reconcileOccupationBonusFeats(char);
+  // v8.5.4: with runtime fields merged (feats, mutations, MP grants all
+  // visible to getMPState), settle any ML thresholds and refresh the
+  // ECL-keyed XP fields per GMG p.38.
+  refreshEclXp(char);
+  // v8 parity check — compare the new bonus aggregator against the proven v7 path.
+  // If they diverge, log to console (but don't block the save). This is our regression
+  // tripwire: in development any drift becomes immediately visible without breaking
+  // existing functionality.
+  try {
+    const parity=verifyParity(char);
+    if(!parity.match){
+      console.warn('[v8 parity drift] Character "'+char.name+'" has computed-stat divergence between v7 and v8 engines:', parity.diffs);
+    }
+  } catch(err) {
+    console.warn('[v8 parity check error]', err);
+  }
+  curId=char.id;save();renderRoster();clearForm();toast('Saved: '+name);
+  // v8.3.21: refresh nav-tab visibility for the saved character.
+  renderNavTabs(char);
+  showPage('sheet');
+}
+
+// Save: checks every class entry's prerequisites against the form. Returns
+// the warning texts, the would-be GM exceptions, and the exceptions
+// already recorded on the character being edited.
+function saveCheckClassPrereqs(effAttrs, sixLevels) {
+  // Soft-warn: collect all unmet prereqs across every Advanced + Prestige entry.
+  let warnings=[];
+  let skills={},feats=[];
+  let prevExceptions=[]; // GM exceptions previously recorded on this character (preserved across edits)
+  if(editId){const ex=chars.find(c=>c.id===editId);if(ex){skills=ex.skills||{};feats=ex.feats||[];prevExceptions=ex.gmExceptions||[];}}
+  const ctx={
+    attrs:effAttrs,  // v8.2.3: effective attrs (base + bumps) for prereq checks
+    allegiance:document.getElementById('c-allegiance')?.value||'',
+    align:document.getElementById('c-align')?.value||'',
+  };
+  // Collect prereq-fail records for all class entries so we can both
+  // warn the user AND persist them as GM exceptions if they choose to override.
+  // v8.3.23: extended to Hero and Basic tiers so attrMin violations (Hero
+  // class without 13 in key attr; certain Basic classes without 10) get
+  // surfaced at save time too.
+  const pendingExceptions = []; // {type, target, missing:[...]}
+  for(const e of formClasses){
+    const otherEntries=formClasses.filter(x=>x!==e);
+    const r=checkClassPrereqsFromArray(e.name, otherEntries, skills, feats, sixLevels, ctx);
+    if(!r.met){
+      const tierLabel={hero:'Hero',ordinary:'Ordinary',basic:'Basic',advanced:'Advanced',prestige:'Prestige'}[e.tier]||e.tier;
+      warnings.push(`${e.name} (${tierLabel}):\n  • `+r.missing.join('\n  • '));
+      pendingExceptions.push({type:'class', target:`${e.name} (${tierLabel})`, missing:r.missing.slice(), grantedAt:new Date().toLocaleDateString()});
+    }
+  }
+  return { warnings, pendingExceptions, prevExceptions };
+}
+
+// Save: records a GM exception when an existing character's Starting
+// Occupation was unlocked and changed.
+function saveDetectOccupationOverride(pendingExceptions) {
+  // Detect Starting Occupation change on an existing character (GM override).
+  // Only logs if the user actually unlocked the lock AND changed a value.
+  if (editId && occupationsUnlocked) {
+    const occEl = document.getElementById('c-occ');
+    const occ2El = document.getElementById('c-occ2');
+    const origOcc = occEl.dataset.original;
+    const origOcc2 = occ2El.dataset.original;
+    if (origOcc !== undefined && (occEl.value !== origOcc || occ2El.value !== origOcc2)) {
+      const fromText = origOcc2 ? `${origOcc} + ${origOcc2}` : origOcc;
+      const toText = occ2El.value ? `${occEl.value} + ${occ2El.value}` : occEl.value;
+      pendingExceptions.push({
+        type:'occupation',
+        target:'Starting Occupation override',
+        missing:[`Changed from "${fromText}" to "${toText}" (Starting Occupation is normally fixed at character creation)`],
+        grantedAt:new Date().toLocaleDateString(),
+      });
+    }
+  }
+}
+
+// Save: the save-format fields (schemaVer, heroesGiftChoice, typed
+// 1st-level slots) for a new, edited or legacy character, including an
+// explicit Hero's Gift retcon.
+function saveSchemaFields(race, classesCopy, occupations) {
   // v8.4.0: derive schemaVer, heroesGiftChoice, firstLevelSlots.
   //
   // Three cases for legacy/v8.4.0 status:
@@ -242,6 +304,13 @@ async function saveCharacter(){
       }
     }
   }
+  return { v840_schemaVer, v840_heroesGiftChoice, v840_firstLevelSlots, v840_retconOld, v840_retconNew, v840_didRetcon };
+}
+
+// Save: assembles the character record from the form and the values
+// saveCharacter computed (f).
+function buildCharacterRecord(f) {
+  const { name, race, sixLevels, effAttrs, baseAttrs, s, maxHP, ecl, classesCopy, heroEntry, basicEntry, advEntry, presEntry, occ1, occupations, occupationPicks, v840_schemaVer, v840_heroesGiftChoice, v840_firstLevelSlots, _raceEclForm, prevExceptions, pendingExceptions, naturalACForm } = f;
   // v8.30.1 (Adam's Heinrix report): sub-options persist ONLY when their
   // owning class is still on the character. A backtracked class pick (Saint
   // chosen with 4 domains, then deleted for Charismatic Hero) left the picker
@@ -375,171 +444,139 @@ async function saveCharacter(){
     })(),
     skills:{},feats:[],conditions:[],log:[],created:new Date().toLocaleDateString(),
   };
-  if(editId){
-    const idx=chars.findIndex(c=>c.id===editId);
-    if(idx>=0){
-      // Normal edit-save: merge runtime state from prior record and replace.
-      char.currentHP=chars[idx].currentHP;
-      char.xp=chars[idx].xp;
-      char.skills=chars[idx].skills||{};
-      char.feats=chars[idx].feats||[];
-      char.log=chars[idx].log||[];
-      char.conditions=chars[idx].conditions||[];
-      // v8.5.4 FIX: the v8.5.2/v8.5.3 subsystems (gear, powers repertoire,
-      // mutations/MP economy, per-pool PP tallies, the sheet's powers-known
-      // notes) were added without extending this merge list — an Edit-save
-      // silently WIPED all of them. Preserve every runtime subsystem field
-      // the assembly above doesn't rebuild:
-      for (const k of ['items','powers','mutations','mpGrants','superMutantTier',
-                       'superPPCurrent','ppCurrent','powersKnownList','mlXpCompensatedTo',
-                       'preparedSlots','preparedToday','nullified','wealthScore','wealthBreakdown','funds','rangerCombatStyle',
-                       'abilityUses','raging','fatigued','euphoric','classChoices','classAttrApplied','companions','rkcmDamaged',
-                       'skillSets',  // v8.66.0: Take-10 designations survive edit-saves // conditions handled above
-                       // v9.9.1 (§260): the v8.90+/v9.2 subsystems had re-walked into the
-                       // v8.5.4 wipe trap — an edit-save silently dropped every implant
-                       // and active gear Boon. (cybNacHpApplied deliberately NOT
-                       // preserved — the reconciler re-bakes onto the fresh maxHP.)
-                       'cybernetics','activeEffects',
-                       // v9.9.2 (§261, 2026-10-09): the SYSTEMATIC AUDIT — after the trap
-                       // bit twice (v8.5.4, §260), every `c.<field> =` site in the file
-                       // was enumerated and classified. These thirteen runtime fields had
-                       // accumulated since v8.3.x–v9.x with no preservation line; an
-                       // edit-save wiped each one. The Mind's Ledger (c.mind), ability
-                       // damage (c.attrDmg), the nonlethal tally, declared combat stances,
-                       // psionic/battle focus, the Techsmith mastercraft reserve, the MDT
-                       // adjustment, Mental Pinnacle picks, Second Skin, the career goal,
-                       // the HP-auto-assign flag and the NAC-banner dismissal all live
-                       // ONLY on the saved record — nothing re-derives them.
-                       // (conDmgHpApplied deliberately NOT preserved — ledger convention;
-                       // reconcileConDamageHP below re-debits onto the fresh maxHP.
-                       // actionLog, fatePoints and talents need no line here — the
-                       // assembly literal above pre-merges them from the prior record.
-                       // ap/apMax deliberately restamped fresh: the AP pool replenishes,
-                       // and fatePoints preservation already carries the permanent spend.)
-                       'attrDmg','nlDmg','battleFocused','psiFocused','combatDecl',
-                       'mdtAdj','mcReserve','careerGoal','mentalPinnacle','mind',
-                       'secondSkin','hpAutoAssigned','_natACDismissed']) {
-        // (talentHpApplied deliberately NOT preserved — reconcileTalentHp
-        // re-applies onto the assembly's fresh maxHP, like mutNacHpApplied.)
-        if (chars[idx][k] !== undefined) char[k] = chars[idx][k];
-      }
-      // v8.6.1 FIX (Adam's Rhad retcon report, 2026-09-01): the edit form
-      // populates the attribute inputs from c.attrsBase (pure pre-bump
-      // point-buy values — mutation bakes live only in c.attrs), so the
-      // assembly above rebuilt char.attrs WITHOUT the baked attribute-
-      // mutation deltas — while the preserved mutation records still carry
-      // their attrApplied flags, so the idempotent reconciler (correctly)
-      // declined to re-bake. Net effect: every edit-save silently dropped
-      // the ±attr bakes (Rhad's Dex 24 → 16 with the +4/+4 tags still
-      // showing). Re-apply every attrApplied delta onto the fresh array —
-      // generic over the ±4 chain AND Ability Decay's −2 (which the
-      // reconciler never re-applies; it was baked at add time). Gated on the
-      // pre-edit record having attrsBase: a legacy character's form was
-      // populated from c.attrs (bakes INCLUDED), so re-applying there would
-      // double-count.
-      if (chars[idx].attrsBase && chars[idx].attrsBase.length === 6 && Array.isArray(char.attrs)) {
-        for (const m of (char.mutations || [])) {
-          if (m.attrApplied && ATTR_KEY_IDX[m.attr] !== undefined) {
-            char.attrs[ATTR_KEY_IDX[m.attr]] += m.attrApplied;
-          }
-        }
-        // v8.8.0: talent attr bakes (Titanic Strength) re-apply the same way.
-        for (const te of (char.talents || [])) {
-          if (te.attrApplied && ATTR_KEY_IDX[te.attrKey] !== undefined) {
-            char.attrs[ATTR_KEY_IDX[te.attrKey]] += te.attrApplied;
-          }
-        }
-        // v8.8.3: class-feature attr bakes (Mental Acuity, Profound
-        // Realization, Self-Control/Mastery, True Sainthood) — the ledger is
-        // zeroed so reconcileClassAttrBakes (inside reconcileGrantedFeats
-        // below) re-applies the full expected set onto the fresh attrs.
-        char.classAttrApplied = [0, 0, 0, 0, 0, 0];
-      }
-      // v8.6.0: mutNacHpApplied is deliberately NOT preserved — the assembly
-      // just recomputed maxHP from the form (without mutation NAC HP), so the
-      // reconciler re-applies the ×5-HP bake onto the fresh value here.
-      reconcileAttributeMutations(char);
-      reconcileGrantedFeats(char);  // v8.6.1: class-entry feat grants (Monk CMA/DMA) sync with the edited class array
-      reconcileTalentHp(char);  // v8.8.0: Robust HP re-applies onto the fresh maxHP (talentHpApplied not preserved — same convention as mutNacHpApplied)
-      reconcileMutantSubtype(char);  // v8.67.0: Unnatural Prowess/Resilience re-apply onto the fresh bab/def/maxHP (mutSubApplied not preserved — same convention)
-      // v9.9.2 (§261): attrDmg is now preserved above, but its HP ledger
-      // (conDmgHpApplied) follows the not-preserved convention — and its
-      // reconciler otherwise runs only on damage/heal events, which left the
-      // rebuilt maxHP un-debited until the next hit. Re-debit here, like the
-      // other ledgers. The preserved currentHP already carries the debit from
-      // the live damage event, so only maxHP needs it back: snapshot current
-      // around the call (the ledger was wiped, so the reconciler would debit
-      // BOTH and double-charge current); the v8.12.3 clamp below still rules.
-      {
-        const _curSnap = char.currentHP;
-        reconcileConDamageHP(char);
-        if (typeof _curSnap === 'number' && isFinite(_curSnap)) char.currentHP = _curSnap;
-      }
-      // v8.12.3 (Adam's Rhad retcon report): a class retcon can legitimately
-      // SHRINK the recomputed maxHP (a d10 level traded for a d6 one) while
-      // currentHP is preserved verbatim above — leaving impossibilities like
-      // 98/94 on the Tracker. Current hit points never exceed the new max.
-      if (typeof char.currentHP === 'number' && typeof char.maxHP === 'number' && char.currentHP > char.maxHP) char.currentHP = char.maxHP;
-      chars[idx]=char;
-      // v8.4.0: if this save retconned Hero's Gift, run the compliance scan
-      // against the committed character (which has the new heroesGiftChoice
-      // and updated firstLevelSlots) and record the GM exception.
-      if (v840_didRetcon) {
-        const oldLabel = v840_retconOld === 'feat' ? 'Feat'
-                       : v840_retconOld === 'talent' ? 'Talent'
-                       : 'Unassigned';
-        const newLabel = v840_retconNew === 'feat' ? 'Feat'
-                       : v840_retconNew === 'talent' ? 'Talent'
-                       : 'Unassigned';
-        const breaks = scanHerosGiftRetconCompliance(char);
-        if (!char.gmExceptions) char.gmExceptions = [];
-        const target = `Class (Hero's Gift Retcon): ${oldLabel} → ${newLabel}`;
-        const missing = breaks.length > 0
-          ? breaks
-          : ['No prereq breaks detected by the compliance scan. The retcon is informational; the GM may still wish to review character build for soft inconsistencies the engine cannot detect.'];
-        char.gmExceptions.push({
-          type: 'heroes-gift-retcon',
-          target,
-          missing,
-          grantedAt: new Date().toLocaleDateString(),
-        });
-      }
-    } else {
-      // v8.2.2 defensive: editId was set, but the referenced character is
-      // gone (deleted from roster mid-edit, or stale state from a prior
-      // session). Push as new instead of silently dropping the save.
-      console.warn('[saveCharacter] editId='+editId+' set but character not found; treating as new creation.');
-      chars.push(char);
-    }
-    editId=null;
+  return char;
+}
+
+// Save (editing an existing character): carries over every runtime field the
+// form does not rebuild, re-applies the baked bonuses onto the fresh
+// numbers, replaces chars[idx], and records a Hero's Gift retcon.
+function mergeEditedCharacter(char, idx, v840_didRetcon, v840_retconOld, v840_retconNew) {
+  // Normal edit-save: merge runtime state from prior record and replace.
+  char.currentHP=chars[idx].currentHP;
+  char.xp=chars[idx].xp;
+  char.skills=chars[idx].skills||{};
+  char.feats=chars[idx].feats||[];
+  char.log=chars[idx].log||[];
+  char.conditions=chars[idx].conditions||[];
+  // v8.5.4 FIX: the v8.5.2/v8.5.3 subsystems (gear, powers repertoire,
+  // mutations/MP economy, per-pool PP tallies, the sheet's powers-known
+  // notes) were added without extending this merge list — an Edit-save
+  // silently WIPED all of them. Preserve every runtime subsystem field
+  // the assembly above doesn't rebuild:
+  for (const k of ['items','powers','mutations','mpGrants','superMutantTier',
+                   'superPPCurrent','ppCurrent','powersKnownList','mlXpCompensatedTo',
+                   'preparedSlots','preparedToday','nullified','wealthScore','wealthBreakdown','funds','rangerCombatStyle',
+                   'abilityUses','raging','fatigued','euphoric','classChoices','classAttrApplied','companions','rkcmDamaged',
+                   'skillSets',  // v8.66.0: Take-10 designations survive edit-saves // conditions handled above
+                   // v9.9.1 (§260): the v8.90+/v9.2 subsystems had re-walked into the
+                   // v8.5.4 wipe trap — an edit-save silently dropped every implant
+                   // and active gear Boon. (cybNacHpApplied deliberately NOT
+                   // preserved — the reconciler re-bakes onto the fresh maxHP.)
+                   'cybernetics','activeEffects',
+                   // v9.9.2 (§261, 2026-10-09): the SYSTEMATIC AUDIT — after the trap
+                   // bit twice (v8.5.4, §260), every `c.<field> =` site in the file
+                   // was enumerated and classified. These thirteen runtime fields had
+                   // accumulated since v8.3.x–v9.x with no preservation line; an
+                   // edit-save wiped each one. The Mind's Ledger (c.mind), ability
+                   // damage (c.attrDmg), the nonlethal tally, declared combat stances,
+                   // psionic/battle focus, the Techsmith mastercraft reserve, the MDT
+                   // adjustment, Mental Pinnacle picks, Second Skin, the career goal,
+                   // the HP-auto-assign flag and the NAC-banner dismissal all live
+                   // ONLY on the saved record — nothing re-derives them.
+                   // (conDmgHpApplied deliberately NOT preserved — ledger convention;
+                   // reconcileConDamageHP below re-debits onto the fresh maxHP.
+                   // actionLog, fatePoints and talents need no line here — the
+                   // assembly literal above pre-merges them from the prior record.
+                   // ap/apMax deliberately restamped fresh: the AP pool replenishes,
+                   // and fatePoints preservation already carries the permanent spend.)
+                   'attrDmg','nlDmg','battleFocused','psiFocused','combatDecl',
+                   'mdtAdj','mcReserve','careerGoal','mentalPinnacle','mind',
+                   'secondSkin','hpAutoAssigned','_natACDismissed']) {
+    // (talentHpApplied deliberately NOT preserved — reconcileTalentHp
+    // re-applies onto the assembly's fresh maxHP, like mutNacHpApplied.)
+    if (chars[idx][k] !== undefined) char[k] = chars[idx][k];
   }
-  else chars.push(char);
-  // v8.2.1: reconcile occupation bonus feats with c.feats. Any prior feat
-  // tagged with origin:'occupation:*' is removed; the currently-picked bonus
-  // feats (if any) are then added back with fresh origin tags. This handles
-  // first creation, subsequent edits that change the bonus feat pick, and
-  // changes to the underlying occupation itself.
-  reconcileOccupationBonusFeats(char);
-  // v8.5.4: with runtime fields merged (feats, mutations, MP grants all
-  // visible to getMPState), settle any ML thresholds and refresh the
-  // ECL-keyed XP fields per GMG p.38.
-  refreshEclXp(char);
-  // v8 parity check — compare the new bonus aggregator against the proven v7 path.
-  // If they diverge, log to console (but don't block the save). This is our regression
-  // tripwire: in development any drift becomes immediately visible without breaking
-  // existing functionality.
-  try {
-    const parity=verifyParity(char);
-    if(!parity.match){
-      console.warn('[v8 parity drift] Character "'+char.name+'" has computed-stat divergence between v7 and v8 engines:', parity.diffs);
+  // v8.6.1 FIX (Adam's Rhad retcon report, 2026-09-01): the edit form
+  // populates the attribute inputs from c.attrsBase (pure pre-bump
+  // point-buy values — mutation bakes live only in c.attrs), so the
+  // assembly above rebuilt char.attrs WITHOUT the baked attribute-
+  // mutation deltas — while the preserved mutation records still carry
+  // their attrApplied flags, so the idempotent reconciler (correctly)
+  // declined to re-bake. Net effect: every edit-save silently dropped
+  // the ±attr bakes (Rhad's Dex 24 → 16 with the +4/+4 tags still
+  // showing). Re-apply every attrApplied delta onto the fresh array —
+  // generic over the ±4 chain AND Ability Decay's −2 (which the
+  // reconciler never re-applies; it was baked at add time). Gated on the
+  // pre-edit record having attrsBase: a legacy character's form was
+  // populated from c.attrs (bakes INCLUDED), so re-applying there would
+  // double-count.
+  if (chars[idx].attrsBase && chars[idx].attrsBase.length === 6 && Array.isArray(char.attrs)) {
+    for (const m of (char.mutations || [])) {
+      if (m.attrApplied && ATTR_KEY_IDX[m.attr] !== undefined) {
+        char.attrs[ATTR_KEY_IDX[m.attr]] += m.attrApplied;
+      }
     }
-  } catch(err) {
-    console.warn('[v8 parity check error]', err);
+    // v8.8.0: talent attr bakes (Titanic Strength) re-apply the same way.
+    for (const te of (char.talents || [])) {
+      if (te.attrApplied && ATTR_KEY_IDX[te.attrKey] !== undefined) {
+        char.attrs[ATTR_KEY_IDX[te.attrKey]] += te.attrApplied;
+      }
+    }
+    // v8.8.3: class-feature attr bakes (Mental Acuity, Profound
+    // Realization, Self-Control/Mastery, True Sainthood) — the ledger is
+    // zeroed so reconcileClassAttrBakes (inside reconcileGrantedFeats
+    // below) re-applies the full expected set onto the fresh attrs.
+    char.classAttrApplied = [0, 0, 0, 0, 0, 0];
   }
-  curId=char.id;save();renderRoster();clearForm();toast('Saved: '+name);
-  // v8.3.21: refresh nav-tab visibility for the saved character.
-  renderNavTabs(char);
-  showPage('sheet');
+  // v8.6.0: mutNacHpApplied is deliberately NOT preserved — the assembly
+  // just recomputed maxHP from the form (without mutation NAC HP), so the
+  // reconciler re-applies the ×5-HP bake onto the fresh value here.
+  reconcileAttributeMutations(char);
+  reconcileGrantedFeats(char);  // v8.6.1: class-entry feat grants (Monk CMA/DMA) sync with the edited class array
+  reconcileTalentHp(char);  // v8.8.0: Robust HP re-applies onto the fresh maxHP (talentHpApplied not preserved — same convention as mutNacHpApplied)
+  reconcileMutantSubtype(char);  // v8.67.0: Unnatural Prowess/Resilience re-apply onto the fresh bab/def/maxHP (mutSubApplied not preserved — same convention)
+  // v9.9.2 (§261): attrDmg is now preserved above, but its HP ledger
+  // (conDmgHpApplied) follows the not-preserved convention — and its
+  // reconciler otherwise runs only on damage/heal events, which left the
+  // rebuilt maxHP un-debited until the next hit. Re-debit here, like the
+  // other ledgers. The preserved currentHP already carries the debit from
+  // the live damage event, so only maxHP needs it back: snapshot current
+  // around the call (the ledger was wiped, so the reconciler would debit
+  // BOTH and double-charge current); the v8.12.3 clamp below still rules.
+  {
+    const _curSnap = char.currentHP;
+    reconcileConDamageHP(char);
+    if (typeof _curSnap === 'number' && isFinite(_curSnap)) char.currentHP = _curSnap;
+  }
+  // v8.12.3 (Adam's Rhad retcon report): a class retcon can legitimately
+  // SHRINK the recomputed maxHP (a d10 level traded for a d6 one) while
+  // currentHP is preserved verbatim above — leaving impossibilities like
+  // 98/94 on the Tracker. Current hit points never exceed the new max.
+  if (typeof char.currentHP === 'number' && typeof char.maxHP === 'number' && char.currentHP > char.maxHP) char.currentHP = char.maxHP;
+  chars[idx]=char;
+  // v8.4.0: if this save retconned Hero's Gift, run the compliance scan
+  // against the committed character (which has the new heroesGiftChoice
+  // and updated firstLevelSlots) and record the GM exception.
+  if (v840_didRetcon) {
+    const oldLabel = v840_retconOld === 'feat' ? 'Feat'
+                   : v840_retconOld === 'talent' ? 'Talent'
+                   : 'Unassigned';
+    const newLabel = v840_retconNew === 'feat' ? 'Feat'
+                   : v840_retconNew === 'talent' ? 'Talent'
+                   : 'Unassigned';
+    const breaks = scanHerosGiftRetconCompliance(char);
+    if (!char.gmExceptions) char.gmExceptions = [];
+    const target = `Class (Hero's Gift Retcon): ${oldLabel} → ${newLabel}`;
+    const missing = breaks.length > 0
+      ? breaks
+      : ['No prereq breaks detected by the compliance scan. The retcon is informational; the GM may still wish to review character build for soft inconsistencies the engine cannot detect.'];
+    char.gmExceptions.push({
+      type: 'heroes-gift-retcon',
+      target,
+      missing,
+      grantedAt: new Date().toLocaleDateString(),
+    });
+  }
 }
 // v8.28.0 (Adam): character cloning. Creates a full working copy of the
 // selected character — for exploring build options without risking the
