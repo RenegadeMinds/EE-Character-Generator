@@ -24,7 +24,7 @@
 //      (qdBespokeBuild), then every page rendered for each of them: Sheet,
 //      Skills, Feats, Gear, Powers, Spells, Mutations, Talents, Vehicles,
 //      Tracker, Roster. Each page's markup must match.
-//   4c. Nine "rich" characters (gear, magic items, super powers, talents,
+//   4c. Eleven "rich" characters (gear, magic items, super powers, talents,
 //      Dwarf / Elf / Halfling / Hybrid races, rage / nullified / fatigued
 //      states): every page, the print sheet, the equipped-weapon summaries
 //      and an Edit -> Save round trip must match too.
@@ -193,7 +193,7 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
 // the equipped-weapon summaries, and an Edit -> Save round trip.
 {
   const RICH = [
-    { spec: { steps: [{ name: 'Strong Hero', levels: 3 }, { name: 'Fighter', levels: 4 }], race: 'Human', name: 'Rich Bruiser' }, extras: { talents: ['Mangler'], flags: { raging: false } } },
+    { spec: { steps: [{ name: 'Strong Hero', levels: 3 }, { name: 'Fighter', levels: 4 }], race: 'Human', name: 'Rich Bruiser' }, extras: { talents: ['Mangler'], flags: { raging: false }, enchant: true, weaponFocus: true } },
     { spec: { steps: [{ name: 'Rogue', levels: 5 }], race: 'Dwarf', name: 'Rich Dwarf Rogue' }, extras: { flags: { fatigued: true } } },
     { spec: { steps: [{ name: 'Sorcerer', levels: 6 }], race: 'Elf', name: 'Rich Elf Sorcerer' }, extras: {} },
     { spec: { steps: [{ name: 'Fast Hero', levels: 4 }, { name: 'Soldier', levels: 3 }], race: 'Human', name: 'Rich Super' }, extras: { powers: [{ name: 'Stoneskin', pool: 'super', mp: 10 }], flags: { nullified: true } } },
@@ -201,6 +201,8 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
     { spec: { steps: [{ name: 'Wilder', levels: 5 }], race: 'Human', name: 'Rich Wilder' }, extras: { flags: { euphoric: true } } },
     { spec: { steps: [{ name: 'Berserker', levels: 4 }], race: 'Human', name: 'Rich Berserker' }, extras: { flags: { raging: true } } },
     { spec: { steps: [{ name: 'Monk', levels: 5 }], race: 'Human', name: 'Rich Monk' }, extras: {} },
+    { spec: { steps: [{ name: 'Monk', levels: 6 }], race: 'Human', name: 'Rich Unarmed Monk' }, extras: { noGear: true } },
+    { spec: { steps: [{ name: 'Fighter', levels: 4 }], race: 'Human', name: 'Rich Clawed Fighter' }, extras: { noGear: true, natural: true } },
     { spec: { steps: [{ name: 'Bard', levels: 4 }], race: 'Halfling', name: 'Rich Bard' }, extras: {} },
   ];
   const decorate = async ([spec, extras]) => {
@@ -217,12 +219,20 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
       const ts = 5;
       const melee = WEAPONS_CATALOG.filter(w => (w.tl || 0) <= ts && w.kind !== 'ranged').slice(0, 2);
       const ranged = WEAPONS_CATALOG.filter(w => (w.tl || 0) <= ts && w.kind === 'ranged').slice(0, 1);
+      if (!extras.noGear) {
       for (const w of melee) await addItemToChar('weapon', w.name, 'main_hand', { skipPurchase: true });
       for (const w of ranged) await addItemToChar('weapon', w.name, 'off_hand', { skipPurchase: true });
       const armor = ARMOR_CATALOG.find(a => a.type !== 'shield' && (a.tl || 0) <= ts);
       if (armor) await addItemToChar('armor', armor.name, 'armor', { skipPurchase: true });
       const ring = MAGIC_ITEMS_DB.find(m => /^Ring of Protection/.test(m.name));
       if (ring) await addItemToChar('magic', ring.name, magicItemDefaultSlot(ring), { skipPurchase: true });
+      }
+      // An enchanted (+2 Flaming) and mastercrafted first weapon, Weapon Focus in it.
+      const w0 = (c.items || []).find(i => i.catalogue === 'weapon');
+      if (extras.enchant && w0) { w0.enchant = { enh: 2, abilities: ['Flaming'] }; w0.mastercraft = { bonus: 1, target: 'damage' }; }
+      if (extras.weaponFocus && w0) c.feats = (c.feats || []).concat([{ name: 'Weapon Focus', param: w0.ref }]);
+      // A mutation that grants a natural weapon (claws, bite, ...).
+      if (extras.natural) { const nm = Object.keys(MUTATION_EFFECTS).find(n => (MUTATION_EFFECTS[n].natural || []).some(s => /: S \dd\d+ \/ M/.test(s))); if (nm) c.mutations = (c.mutations || []).concat([{ name: nm, kind: 'advantage' }]); }
       if (extras.powers) c.powers = (c.powers || []).concat(extras.powers);
       if (extras.talents) for (const t of extras.talents) { try { addTalentToChar(c, t); } catch (e) {} }
       if (extras.flags) Object.assign(c, extras.flags);
