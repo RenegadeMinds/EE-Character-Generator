@@ -14,10 +14,11 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { auditPage, makeHero } from './_audit_contrast.mjs';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(process.env.CG_FILE || resolve(__dir, '../index.html'));
-const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+const server = createServer(appRequestHandler(html, process.env.CG_FILE || resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
 await new Promise(r => server.listen(8792, '127.0.0.1', r));
 const ORIGIN = 'http://127.0.0.1:8792';
 

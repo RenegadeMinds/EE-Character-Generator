@@ -11,19 +11,22 @@ import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(process.env.CG_FILE || resolve(__dir, '../index.html'), 'utf8');
-const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+const server = createServer(appRequestHandler(html, process.env.CG_FILE || resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
 await new Promise(r => server.listen(8796, '127.0.0.1', r));
 
 const results = [];
 const mark = (id, pass, note = '') => { results.push({ id, pass }); console.log(`${pass ? '  ✓' : '  ✗ FAIL'} ${id}${note ? ' — ' + note : ''}`); };
 
 // 1) Source level: the audited literal families are gone as text colours.
-mark('SOURCE-NO-VIOLET-LITERAL', !/color:#c499d4/.test(html), (html.match(/color:#c499d4/g) || []).length + ' remain');
-mark('SOURCE-NO-PB90-LITERAL', !/rgba\(120,175,205,\.9\)/.test(html), '');
-mark('SOURCE-NO-TV90-LITERAL', !/rgba\(196,153,212,\.9\)/.test(html), '');
+// (Phase 1 split: search index.html plus every css/js file it loads.)
+const appSource = readAppSource(process.env.CG_FILE || resolve(__dir, '../index.html'));
+mark('SOURCE-NO-VIOLET-LITERAL', !/color:#c499d4/.test(appSource), (appSource.match(/color:#c499d4/g) || []).length + ' remain');
+mark('SOURCE-NO-PB90-LITERAL', !/rgba\(120,175,205,\.9\)/.test(appSource), '');
+mark('SOURCE-NO-TV90-LITERAL', !/rgba\(196,153,212,\.9\)/.test(appSource), '');
 
 const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
 const page = await browser.newPage();

@@ -14,17 +14,20 @@ import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(process.env.CG_FILE || resolve(__dir, '../index.html'), 'utf8');
-const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+const server = createServer(appRequestHandler(html, process.env.CG_FILE || resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
 await new Promise(r => server.listen(8797, '127.0.0.1', r));
 
 const results = [];
 const mark = (id, pass, note = '') => { results.push({ id, pass }); console.log(`${pass ? '  ✓' : '  ✗ FAIL'} ${id}${note ? ' — ' + note : ''}`); };
 
-// #1 at the source level.
-mark('SOURCE-NO-DEF10', !html.includes('(Def 10)') && !/effective Defense (of )?10/.test(html.replace(/effective Defense of 10" — book letter/, '')), '');
+// #1 at the source level. (Phase 1 split: the code is no longer inside
+// index.html, so search index.html plus every css/js file it loads.)
+const appSource = readAppSource(process.env.CG_FILE || resolve(__dir, '../index.html'));
+mark('SOURCE-NO-DEF10', !appSource.includes('(Def 10)') && !/effective Defense (of )?10/.test(appSource.replace(/effective Defense of 10" — book letter/, '')), '');
 
 const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
 const page = await browser.newPage();

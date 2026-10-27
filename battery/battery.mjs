@@ -11,6 +11,7 @@ import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import { appRequestHandler } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const args = new Map();
@@ -20,13 +21,11 @@ const SEED = Number(args.get('seed') ?? 1);
 const TARGET = resolve(__dir, args.get('file') ?? '../index.html');
 const PORT = 8777;
 
-// ---- tiny static server (the app is a single file; file:// storage is flaky) ----
+// ---- tiny static server (file:// storage is flaky) ----
+// Since the Phase 1 split the page loads css/, js/ and assets/ files from
+// beside index.html; _serve.mjs serves those from the --file's own folder.
 const html = readFileSync(TARGET);
-const server = createServer((req, res) => {
-  if (req.url === '/' || req.url.startsWith('/index.html')) { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); }
-  else if (req.url.startsWith('/favicon')) { res.writeHead(204); res.end(); }
-  else { res.writeHead(404); res.end(); }
-});
+const server = createServer(appRequestHandler(html, TARGET));
 await new Promise(r => server.listen(PORT, '127.0.0.1', r));
 
 const oracle = JSON.parse(readFileSync(resolve(__dir, 'oracle.json'), 'utf8'));

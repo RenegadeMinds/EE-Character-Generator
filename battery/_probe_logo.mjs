@@ -7,10 +7,11 @@ import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(process.env.CG_FILE || resolve(__dir, '../index.html'));
-const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+const server = createServer(appRequestHandler(html, process.env.CG_FILE || resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
 await new Promise(r => server.listen(8794, '127.0.0.1', r));
 
 const results = [];
@@ -31,10 +32,15 @@ await t('BOOKENDS-PRESENT', () => {
   return (!!l && !!r && l.classList.contains('site-logo') && r.classList.contains('site-logo'))
     || { l: !!l, r: !!r };
 });
+// Both bookends show the SAME image. Before the Phase 1 split that image was
+// an inline base64 blob; since then it is the file assets/img/logo.jpg. Either
+// form passes, as long as the right logo copies the left one's src and the
+// image actually loaded.
 await t('ONE-BLOB-SHARED', () => {
   const l = document.getElementById('site-logo'), r = document.getElementById('site-logo-r');
-  return (l.src.startsWith('data:image/jpeg;base64,') && r.src === l.src && l.src.length > 10000)
-    || { lPrefix: l.src.slice(0, 30), same: r.src === l.src, len: l.src.length };
+  const form = (l.src.startsWith('data:image/jpeg;base64,') && l.src.length > 10000) || /\/assets\/img\/logo\.jpg$/.test(l.src);
+  return (form && r.src === l.src && l.complete && l.naturalWidth > 0)
+    || { lPrefix: l.src.slice(0, 40), same: r.src === l.src, loaded: l.complete && l.naturalWidth > 0 };
 });
 await t('RIGHT-BOOKEND-DECORATIVE', () => {
   const r = document.getElementById('site-logo-r');

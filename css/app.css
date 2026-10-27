@@ -1,0 +1,392 @@
+/* ==========================================================================
+   css/app.css
+   EVERY STYLE RULE EXCEPT THE FONT
+   ==========================================================================
+
+   WHAT'S IN HERE
+     The colour tokens for the three themes (Parchment, the default;
+     Classic; High Contrast), page layout, every component, the
+     text-size steps, and the print styles. Themes switch by setting
+     data-theme on <html> (js/boot.js does that before first paint).
+
+   WHERE IT CAME FROM
+     Lines 75-449 of the single-file index.html at v9.19.0
+     (commit 1c1044b), moved here unchanged by
+     tools/split_index.py.
+   ========================================================================== */
+/* ---- verbatim from index.html v9.19.0, lines 75-449; unchanged below this line ---- */
+:root{--parch:#f5eed8;--parch-dk:#e8dbb8;--parch-deep:#d4c490;--ink:#1a1408;--ink-mid:#3d2f0e;--ink-lt:#6b5320;--gold:#c8971e;--bronze:#a0722a;--red:#8b1a1a;--panel:#2a1f0a;--panel-lt:#3d2e10;--shadow:rgba(26,20,8,.5);--state-surplus:#8ab87a;--state-exact:#7ba8c4;--state-warning:#d4b870;--state-error:#d47070}
+/* ===== v9.17.0 (§277): THREE THEMES, ONE SET OF TOKENS ==================
+   Every text colour that failed WCAG 2.2 AA in the shipped palette is now a
+   custom property named after its ORIGINAL value (--g55 = the old
+   rgba(200,151,30,.55), --tv70 = rgba(196,153,212,.7), --o60 = an inline
+   opacity:.6 text dim, …), so each theme is just a value set:
+   · PARCHMENT (default, :root) — the dun-and-gold look with only the failing
+     inks lifted to the smallest solid that clears 4.5:1 on the dun panels.
+     Translucent gold can't pass on a dark ground (even full gold is 5.6:1),
+     so the quiet golds become a solid tan (#bba273) and the louder ones a
+     solid soft gold (#c9a65a): the hierarchy rides saturation, not alpha.
+   · CLASSIC (data-theme="classic") — v9.15.2's palette EXACTLY, for anyone
+     who prefers the original (probe-verified against the tagged v9.15.2).
+   · HIGH CONTRAST (data-theme="hc") — AAA 7:1; near-black ground. Auto under
+     prefers-contrast:more unless the player picked a theme.
+   ======================================================================== */
+:root{--bronze:#c49a4e;--state-error:#e09090;--red-text:#e09090;--red-dmg:#e09090;
+--gold-mute:#bba273;--gold-soft:#c9a65a;--dim:#bba273;
+--g30:#bba273;--g35:#bba273;--g38:#bba273;--g40:#bba273;--g45:#bba273;--g50:#bba273;--g55:#bba273;--g60:#bba273;--g65:#bba273;
+--g70:#c9a65a;--g75:#c9a65a;--g78:#c9a65a;--g80:#c9a65a;--g85:#c9a65a;--g90:#c9a65a;
+--tb65:#78afcd;--tb75:#78afcd;--tb85:#78afcd;--tg70:#78c88c;--tg80:#78c88c;--tg85:#78c88c;--tk80:#7daadc;--tk85:#7daadc;--tl80:#96b4dc;
+--tc80:#9cc3da;--tc85:#9cc3da;--ts45:#a0bed7;--ts50:#a0bed7;--ts60:#a0bed7;--ts65:#a0bed7;--ts75:#a0bed7;--ts80:#a0bed7;--tp55:#b58fd4;
+--tv70:#c499d4;--tv75:#c499d4;--tv80:#c499d4;--tv85:#c499d4;--tt80:#c8b48c;--tt85:#c8b48c;--tx65:#c8c8a0;--tx70:#c8c8a0;--tx75:#c8c8a0;--tx80:#c8c8a0;--tx85:#c8c8a0;
+/* v9.18.1 (census F1): the inline-literal stragglers tokenized — :root keeps
+   today's values EXACTLY (classic inherits them), only the hc block brightens.
+   --vio = the §276-solidified literal #c499d4; --tv90/--pb90 = the .9-alpha
+   violet/pool-blue inline families; --fp-dmg/--fp-heal = the Fate Point pair. */
+--vio:#c499d4;--tv90:var(--tv90);--pb90:var(--pb90);--fp-dmg:#e08080;--fp-heal:#7daadc;
+--tw60:#c8c8d7;--tw75:#c8c8d7;--tw80:#c8c8d7;--to85:#d49a70;--ty85:#dccd8a;--tq85:#f5eed8;
+--o40:1;--o50:1;--o55:1;--o60:1;--o65:1;
+--field-border:rgba(200,151,30,.65);--modal-bg:#2a1f0a;--btn-pri-bg:rgba(200,151,30,.12);--btn-pri-hover-bg:rgba(200,151,30,.26);--btn-pri-hover-fg:#e0b23a;
+--cite-op:1;--cite-gg:#d09a4e;--cite-ff:#b0a898;--char-av-bg:rgba(200,151,30,.05);--lock-bg:rgba(200,151,30,.1);--filter-on-bg:rgba(200,151,30,.12)}
+html[data-theme="classic"]{--bronze:#a0722a;--state-error:#d47070;--red-text:#d47070;--red-dmg:#cf6060;--dim:currentColor;
+--g30:rgba(200,151,30,.3);--g35:rgba(200,151,30,.35);--g38:rgba(200,151,30,.38);--g40:rgba(200,151,30,.4);--g45:rgba(200,151,30,.45);--g50:rgba(200,151,30,.5);--g55:rgba(200,151,30,.55);--g60:rgba(200,151,30,.6);--g65:rgba(200,151,30,.65);
+--g70:rgba(200,151,30,.7);--g75:rgba(200,151,30,.75);--g78:rgba(200,151,30,.78);--g80:rgba(200,151,30,.8);--g85:rgba(200,151,30,.85);--g90:rgba(200,151,30,.9);
+--tb65:rgba(120,175,205,.65);--tb75:rgba(120,175,205,.75);--tb85:rgba(120,175,205,.85);--tg70:rgba(120,200,140,.7);--tg80:rgba(120,200,140,.8);--tg85:rgba(120,200,140,.85);--tk80:rgba(125,170,220,.8);--tk85:rgba(125,170,220,.85);--tl80:rgba(150,180,220,.8);
+--tc80:rgba(156,195,218,.8);--tc85:rgba(156,195,218,.85);--ts45:rgba(160,190,215,.45);--ts50:rgba(160,190,215,.5);--ts60:rgba(160,190,215,.6);--ts65:rgba(160,190,215,.65);--ts75:rgba(160,190,215,.75);--ts80:rgba(160,190,215,.8);--tp55:rgba(181,143,212,.55);
+--tv70:rgba(196,153,212,.7);--tv75:rgba(196,153,212,.75);--tv80:rgba(196,153,212,.8);--tv85:rgba(196,153,212,.85);--tt80:rgba(200,180,140,.8);--tt85:rgba(200,180,140,.85);--tx65:rgba(200,200,160,.65);--tx70:rgba(200,200,160,.7);--tx75:rgba(200,200,160,.75);--tx80:rgba(200,200,160,.8);--tx85:rgba(200,200,160,.85);
+--tw60:rgba(200,200,215,.6);--tw75:rgba(200,200,215,.75);--tw80:rgba(200,200,215,.8);--to85:rgba(212,154,112,.85);--ty85:rgba(220,205,138,.85);--tq85:rgba(245,238,216,.85);
+--o40:.4;--o50:.5;--o55:.55;--o60:.6;--o65:.65;
+--field-border:rgba(200,151,30,.3);--btn-pri-bg:rgba(200,151,30,.18);--btn-pri-hover-bg:rgba(200,151,30,.32);--btn-pri-hover-fg:var(--gold);
+--cite-op:.85;--cite-gg:#b8843a;--cite-ff:#9b9385;--char-av-bg:rgba(200,151,30,.1);--lock-bg:rgba(200,151,30,.18);--filter-on-bg:rgba(200,151,30,.18)}
+html[data-theme="hc"]{--parch:#fffaf0;--parch-deep:#f0e6c8;--gold:#ffd060;--bronze:#f0c878;--panel:#0b0803;--panel-lt:#1a140a;--state-warning:#ffe08a;--state-error:#ffb0b0;--red-text:#ffb0b0;--red-dmg:#ffb0b0;
+--gold-mute:#ece0c4;--gold-soft:#ffdc8a;--dim:#ece0c4;--modal-bg:#0b0803;--field-border:#ffd060;--btn-pri-bg:#2a1f05;--btn-pri-hover-bg:#3a2b08;--btn-pri-hover-fg:#ffe08a;
+--g30:#ece0c4;--g35:#ece0c4;--g38:#ece0c4;--g40:#ece0c4;--g45:#ece0c4;--g50:#ece0c4;--g55:#ece0c4;--g60:#ece0c4;--g65:#ece0c4;
+--g70:#ffdc8a;--g75:#ffdc8a;--g78:#ffdc8a;--g80:#ffdc8a;--g85:#ffdc8a;--g90:#ffdc8a;--cite-gg:#ffe6a8;--cite-ff:#ffe6a8;
+--tv70:#d4b0e0;--tv75:#d4b0e0;--tv80:#d4b0e0;--tv85:#d4b0e0;--vio:#d4b0e0;--tv90:#d4b0e0;--pb90:#96c1e1;--fp-dmg:#ffb0b0;--fp-heal:#a8ccf0}
+html[data-theme="hc"] .panel{background:#120d05}
+html[data-theme="hc"] .site-subtitle,html[data-theme="hc"] .log-entry{opacity:1 !important}
+html[data-theme="hc"] .cite{color:#ffe6a8 !important}
+html[data-theme="hc"] #six-levels-status-pill,html[data-theme="hc"] #backup-chip{color:#ffffff !important}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+html[data-textsize="lg"] body{zoom:1.15}
+html[data-textsize="xl"] body{zoom:1.3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Epics Serif','Crimson Pro',Georgia,serif;background:var(--panel);color:var(--parch);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(200,151,30,.03) 40px,rgba(200,151,30,.03) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(200,151,30,.02) 40px,rgba(200,151,30,.02) 41px);pointer-events:none;z-index:0}
+.site-header{text-align:center;padding:2rem 1rem 1.5rem;border-bottom:1px solid rgba(200,151,30,.3);background:linear-gradient(180deg,rgba(200,151,30,.08) 0%,transparent 100%)}
+.site-header::after{content:'⚔ ✦ ⚔';display:block;font-size:16px;color:var(--gold);opacity:.6;margin-top:.4rem;letter-spacing:12px}
+.site-title{font-family:'Epics Serif','Cinzel',serif;font-size:clamp(26px,5vw,48px);font-weight:700;color:var(--gold);text-shadow:0 0 30px rgba(200,151,30,.4),0 2px 4px rgba(0,0,0,.8);letter-spacing:.12em}
+.site-subtitle{font-family:'Epics Serif','Cinzel',serif;font-size:clamp(10px,1.4vw,13px);font-weight:400;color:var(--parch-deep);letter-spacing:.25em;text-transform:uppercase;margin-top:.2rem;opacity:.8}
+/* v9.16.0 (§276, a low-vision player's report): the banner WRAPS (WCAG 2.2
+   SC 1.4.10 Reflow) — at 400% zoom (~320 CSS px) every tab stays on screen
+   in extra rows instead of scrolling off the right edge. On narrow or short
+   viewports the multi-row bar stops being sticky so it never eats the
+   reading area. Layout, not palette: applies in every theme. */
+.tabs{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;padding:0 .5rem;border-bottom:1px solid rgba(200,151,30,.25);background:var(--panel);position:sticky;top:0;z-index:100}
+.tab-btn{font-family:'Epics Serif','Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:13px 16px;background:transparent;border:none;color:var(--bronze);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--gold)}.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-tools{display:flex;align-items:center;gap:4px;padding:0 4px}
+.nav-tool{font-family:'Epics Serif','Cinzel',serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;background:transparent;border:1px solid var(--field-border);border-radius:3px;color:var(--gold-soft);cursor:pointer;white-space:nowrap}
+.nav-tool:hover{color:var(--gold);border-color:var(--gold)}
+@media (max-width:700px),(max-height:520px){.tabs{position:static}.tab-btn{padding:10px 9px;letter-spacing:.06em}}
+.app-body{padding:1.5rem 1rem 4rem;max-width:1120px;margin:0 auto;position:relative;z-index:1}
+.page{display:none}.page.active{display:block}
+.sec-head{font-family:'Epics Serif','Cinzel',serif;font-size:16px;font-weight:600;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.85rem;padding-bottom:.4rem;border-bottom:1px solid rgba(200,151,30,.3);display:flex;align-items:center;gap:8px}
+.sec-head::before{content:'◆';font-size:9px;color:var(--bronze)}
+.sec-head.sm{font-size:12px;margin-bottom:.65rem}
+.panel{background:rgba(255,255,255,.03);border:1px solid rgba(200,151,30,.2);border-radius:4px;padding:1.25rem;margin-bottom:1.25rem}
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.25rem}
+label{display:block;font-family:'Epics Serif','Cinzel',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--bronze);margin-bottom:5px}
+input[type=text],input[type=number],select,textarea{width:100%;background:rgba(26,20,8,.6);border:1px solid var(--field-border);border-radius:3px;color:var(--parch);font-family:'Epics Serif','Crimson Pro',serif;font-size:15px;padding:7px 10px;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+select{cursor:pointer}select option{background:var(--modal-bg)}
+/* v8.40.1 (Adam's report): the global number-input padding (7px 10px) plus
+   the browser's spinner arrows left ZERO visible content width in the
+   Quickdraw modal's 34px Six-Scale mini boxes — values were set but the
+   digit rendered in a clipped sliver behind the spinners. Compact padding,
+   centered digits, and enough width to coexist with the spinners. */
+#qd-modal input[type=number]{padding:4px 4px;text-align:center;width:46px;}
+#qd-modal input[type=text],#qd-modal select{padding:5px 8px;font-size:13px;}
+textarea{resize:vertical;min-height:72px;line-height:1.5}
+.fr{margin-bottom:.9rem}.fr:last-child{margin-bottom:0}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.9rem}
+@media(max-width:600px){.fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}}
+/* ATTR */
+.attr-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:.9rem}
+@media(max-width:600px){.attr-grid{grid-template-columns:repeat(3,1fr)}}
+.minds-under-mental{width:calc(50% - 3.5px);margin-left:auto;margin-top:-2px;margin-bottom:.8rem}
+@media(max-width:600px){.minds-under-mental{width:100%}}
+/* v8.77.0 (Adam): the Rage control under the physical trio — the Mind's
+   Ledger's left-hand mirror (STR sits leftmost in the attr grid). */
+.rage-under-physical{width:calc(50% - 3.5px);margin-right:auto;margin-top:-2px;margin-bottom:.8rem}
+@media(max-width:600px){.rage-under-physical{width:100%}}
+.attr-box{background:rgba(26,20,8,.7);border:1px solid rgba(200,151,30,.3);border-radius:4px;text-align:center;padding:9px 5px;transition:border-color .2s}
+.attr-box:hover{border-color:var(--gold)}
+.attr-nm{font-family:'Epics Serif','Cinzel',serif;font-size:9px;letter-spacing:.1em;color:var(--bronze);display:block;margin-bottom:3px}
+.attr-inp{width:54px;font-family:'Epics Serif','Cinzel',serif;font-size:21px;font-weight:600;text-align:center;background:transparent;border:none;border-bottom:1px solid rgba(200,151,30,.4);color:var(--parch);outline:none;padding:1px 0;border-radius:0}
+.attr-mod{font-family:'Epics Serif','Crimson Pro',serif;font-size:13px;color:var(--gold);display:block;margin-top:3px}
+/* BUTTONS */
+.btn{font-family:'Epics Serif','Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;border-radius:2px;transition:all .2s}
+.btn:hover{background:rgba(200,151,30,.15)}
+.btn-pri{background:var(--btn-pri-bg);border-color:var(--gold)}
+.btn-pri:hover{background:var(--btn-pri-hover-bg);color:var(--btn-pri-hover-fg)}
+.btn-danger{border-color:var(--red);color:var(--red-text)}.btn-danger:hover{background:rgba(139,26,26,.15)}
+.btn-sm{padding:5px 13px;font-size:10px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:.9rem}
+/* STATS */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:7px;margin-bottom:.9rem}
+.stat-cell{background:rgba(26,20,8,.6);border:1px solid rgba(200,151,30,.2);border-radius:3px;text-align:center;padding:9px 6px}
+.stat-cell.drillable{cursor:pointer;transition:border-color .15s, background .15s}
+.stat-cell.drillable:hover{border-color:var(--g55);background:rgba(26,20,8,.85)}
+.stat-cell.drillable::after{content:'⌕';display:block;font-size:9px;color:var(--g35);margin-top:2px}
+.sc-lbl{font-family:'Epics Serif','Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--bronze);display:block;margin-bottom:3px}
+.sc-val{font-family:'Epics Serif','Cinzel',serif;font-size:16px;font-weight:600;color:var(--parch)}
+/* DRILLDOWN MODAL — shows the bonus breakdown for a stat */
+.drilldown-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:5vh 1rem;overflow-y:auto}
+.drilldown-bg.open{display:flex}
+.drilldown-panel{background:var(--panel);border:1px solid var(--gold);border-radius:4px;max-width:560px;width:100%;padding:1.5rem;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.drilldown-head{font-family:'Epics Serif','Cinzel',serif;color:var(--gold);font-size:13px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(200,151,30,.3);padding-bottom:.6rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:baseline}
+.drilldown-total{font-size:24px;color:var(--parch);font-weight:700}
+.drilldown-section{margin-top:1rem}
+.drilldown-section-title{font-family:'Epics Serif','Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--bronze);margin-bottom:.4rem}
+.drilldown-row{display:grid;grid-template-columns:auto 1fr auto;gap:.6rem;padding:5px 8px;border-radius:2px;font-size:13px;align-items:baseline}
+.drilldown-row.applied{background:rgba(50,140,80,.08);border-left:2px solid rgba(109,186,136,.5)}
+.drilldown-row.superseded{background:rgba(139,26,26,.06);border-left:2px solid rgba(212,112,112,.4);opacity:.65}
+.drilldown-row.inactive{background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);opacity:.7}
+.drilldown-val{font-family:'Epics Serif','Cinzel',serif;font-weight:600;color:var(--parch);min-width:32px;text-align:right}
+.drilldown-src{color:var(--tq85)}
+.drilldown-type{font-size:10px;color:var(--g55);font-style:italic}
+.drilldown-cond{font-size:10px;color:var(--g50);margin-left:6px}
+.drilldown-close{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:2px;font-family:'Epics Serif','Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;margin-top:1rem}
+.drilldown-close:hover{background:rgba(200,151,30,.15)}
+/* HP/AP/XP BARS */
+.bar-wrap{background:rgba(26,20,8,.8);border:1px solid rgba(200,151,30,.2);border-radius:99px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .3s,background-color .3s}
+.bar-gold{background:linear-gradient(90deg,var(--bronze),var(--gold))}
+.bar-green{background:#4caf70}.bar-amber{background:#c8971e}.bar-red{background:#c0392b}
+.bar-purple{background:linear-gradient(90deg,#534ab7,#8b7fe8)}
+/* XP tracker */
+.xp-track{background:rgba(26,20,8,.6);border:1px solid rgba(200,151,30,.2);border-radius:3px;padding:12px 14px;margin-bottom:.9rem}
+.xp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.xp-lvl{font-family:'Epics Serif','Cinzel',serif;font-size:20px;font-weight:600;color:var(--gold)}
+.xp-txt{font-family:'Epics Serif','Cinzel',serif;font-size:9px;color:var(--g55);text-align:right;margin-top:4px}
+/* CHAR LIST */
+.char-list{list-style:none}
+.char-item{display:flex;align-items:center;gap:11px;padding:11px 14px;border:1px solid rgba(200,151,30,.15);border-radius:3px;margin-bottom:7px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
+.char-item:hover{border-color:var(--g40);background:rgba(200,151,30,.05)}
+.char-item.sel{border-color:var(--gold);background:rgba(200,151,30,.09)}
+.char-av{width:42px;height:42px;border-radius:50%;background:var(--char-av-bg);border:1px solid rgba(200,151,30,.3);display:flex;align-items:center;justify-content:center;font-family:'Epics Serif','Cinzel',serif;font-size:14px;font-weight:600;color:var(--gold);flex-shrink:0}
+.char-info{flex:1}
+.char-nm{font-family:'Epics Serif','Cinzel',serif;font-size:14px;font-weight:600;color:var(--parch)}
+.char-meta{font-family:'Epics Serif','Crimson Pro',serif;font-size:12px;color:var(--g60);margin-top:2px}
+.char-badge{font-family:'Epics Serif','Cinzel',serif;font-size:10px;padding:3px 9px;border:1px solid rgba(200,151,30,.3);border-radius:2px;color:var(--gold);white-space:nowrap}
+/* TAGS */
+.tag{display:inline-block;font-family:'Epics Serif','Cinzel',serif;font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;margin-right:4px;margin-bottom:3px}
+.tg{background:rgba(200,151,30,.14);color:var(--gold);border:1px solid rgba(200,151,30,.28)}
+.tr{background:rgba(139,26,26,.14);color:var(--red-text);border:1px solid rgba(139,26,26,.28)}
+.tb{background:rgba(50,100,180,.1);color:#7ba8e0;border:1px solid rgba(50,100,180,.22)}
+.te{background:rgba(50,140,80,.1);color:#6dba88;border:1px solid rgba(50,140,80,.22)}
+/* CLASS ENTRIES (the multi-class roster on the create form) */
+.cls-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:.5rem;align-items:center;padding:.45rem .6rem;background:rgba(0,0,0,.18);border:1px solid rgba(200,151,30,.2);border-radius:3px}
+.cls-row.first{border-color:var(--g50);background:rgba(200,151,30,.06)}
+.cls-tier-badge{font-family:'Epics Serif','Cinzel',serif;font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;border:1px solid;min-width:62px;text-align:center}
+.cls-tier-hero{color:var(--red-text);border-color:rgba(139,26,26,.4);background:rgba(139,26,26,.1)}
+.cls-tier-ordinary{color:var(--vio);border-color:rgba(140,90,160,.4);background:rgba(140,90,160,.08)}
+.cls-tier-basic{color:var(--gold);border-color:var(--g35);background:rgba(200,151,30,.08)}
+.cls-tier-advanced{color:#6dba88;border-color:rgba(50,140,80,.4);background:rgba(50,140,80,.1)}
+.cls-tier-prestige{color:#7ba8e0;border-color:rgba(50,100,180,.4);background:rgba(50,100,180,.1)}
+.cls-name{font-family:'Epics Serif','Cinzel',serif;font-size:13px;color:var(--parch)}
+.cls-lvl-inp{width:50px !important;text-align:center;font-size:13px !important;padding:3px 5px !important}
+.cls-first-lbl{font-size:10px;color:var(--g50);font-family:'Epics Serif','Cinzel',serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+/* v8.5.4: class sub-option blocks (Cleric domains/Druid, Saint domains, Psion discipline, Wizard school) */
+.sub-opt-block{padding:.55rem .7rem;background:rgba(0,0,0,.18);border:1px solid rgba(200,151,30,.2);border-left:2px solid var(--gold);border-radius:3px}
+.sub-opt-head{font-family:'Epics Serif','Cinzel',serif;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--g75);margin-bottom:.4rem}
+.cls-first-lbl input{margin:0}
+.cls-rm-btn{background:transparent;border:1px solid rgba(139,26,26,.35);color:var(--red-text);font-size:14px;padding:2px 8px;border-radius:2px;cursor:pointer}
+.cls-rm-btn:hover{background:rgba(139,26,26,.15)}
+/* SKILLS TABLE */
+.sk-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.sk-tbl thead th{font-family:'Epics Serif','Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--bronze);padding:5px 7px;border-bottom:1px solid rgba(200,151,30,.22);text-align:left}
+.sk-tbl thead th:not(:first-child){text-align:center}
+.sk-tbl tbody tr{border-bottom:1px solid rgba(200,151,30,.07)}
+.sk-tbl tbody tr:hover{background:rgba(200,151,30,.04)}
+.sk-tbl td{padding:4px 7px;color:var(--parch)}
+.sk-tbl td:not(:first-child){text-align:center}
+.sk-cls{font-family:'Epics Serif','Cinzel',serif;font-size:8px;padding:1px 4px;border:1px solid rgba(200,151,30,.3);border-radius:2px;color:var(--gold);margin-left:5px}
+.sk-rank-inp{width:44px !important;text-align:center;background:rgba(26,20,8,.6) !important;font-size:13px !important;padding:2px 5px !important;border-radius:2px !important}
+.sk-total{font-family:'Epics Serif','Cinzel',serif;font-weight:600;color:var(--gold)}
+.sk-sub{font-size:11px;color:var(--g55);font-style:italic;margin-left:8px}
+/* v8.1.10: Citation superscripts — color-keyed by source book.
+   HH = gold (parchment leather), GG = bronze (deeper, instructional), FF = slate (bestiary).
+   Approximate-page citations get a subtle dotted underline.
+   Hover for full citation text. */
+.cite{display:inline-block;font-family:'Epics Serif','Cinzel',serif;font-size:9px;vertical-align:super;line-height:1;margin-left:3px;padding:1px 3px;border-radius:2px;font-weight:600;letter-spacing:.04em;cursor:help;opacity:var(--cite-op);transition:opacity .15s}
+.cite:hover{opacity:1}
+.cite-HH{color:#d4a942;background:rgba(212,169,66,.1);border:1px solid rgba(212,169,66,.25)}
+.cite-GG{color:var(--cite-gg);background:rgba(184,132,58,.1);border:1px solid rgba(184,132,58,.25)}
+.cite-FF{color:var(--cite-ff);background:rgba(155,147,133,.1);border:1px solid rgba(155,147,133,.25)}
+.cite-approx{border-style:dashed}
+/* v8.71.0 (the Groomed Sheet): race-block drop-downs — native <details>
+   wearing the app's ▸/▾ collapse idiom. Collapsed by default. */
+details.hy-det{margin-top:3px;font-size:12px}
+details.hy-det>summary{cursor:pointer;color:var(--g75);font-size:11.5px;list-style:none;user-select:none}
+details.hy-det>summary::-webkit-details-marker{display:none}
+details.hy-det>summary::before{content:'▸ '}
+details.hy-det[open]>summary::before{content:'▾ '}
+/* v8.78.0 (Adam's Rhad report): class-collapsible headers — with several
+   classes expanded, plain summaries drowned in their own bodies. These wear
+   the house header idiom (Cinzel, bronze left rule, parchment-gold wash) so
+   the class titles read as demarcation bars and collapse targets at a
+   glance; the open state brightens the rule and the wash. */
+details.cls-det{margin-top:6px;font-size:12px}
+details.cls-det>summary{cursor:pointer;list-style:none;user-select:none;display:block;padding:4px 9px;background:rgba(200,151,30,.07);border:1px solid rgba(200,151,30,.22);border-left:3px solid var(--bronze);border-radius:0 3px 3px 0;font-family:'Epics Serif','Cinzel',serif;letter-spacing:.04em}
+details.cls-det>summary::-webkit-details-marker{display:none}
+details.cls-det>summary::before{content:'▸ ';color:var(--bronze);font-size:10px}
+details.cls-det[open]>summary::before{content:'▾ ';color:var(--gold);font-size:10px}
+details.cls-det[open]>summary{background:rgba(200,151,30,.13);border-left-color:var(--gold)}
+details.cls-det>summary:hover{background:rgba(200,151,30,.16)}
+/* v8.84.0 (Adam's noise report): the RACE banner — the cls-det idiom in full
+   gold. The Ability Adj / ECL Mod technicalese and the racial granted-ability
+   notes fold behind it; the 🧬 Mutant subtype row persists OUTSIDE it. */
+details.race-det{margin-top:2px;margin-bottom:4px;font-size:12px}
+details.race-det>summary{cursor:pointer;list-style:none;user-select:none;display:block;padding:4px 9px;background:rgba(200,151,30,.10);border:1px solid rgba(200,151,30,.3);border-left:3px solid var(--gold);border-radius:0 3px 3px 0;font-family:'Epics Serif','Cinzel',serif;letter-spacing:.04em}
+details.race-det>summary::-webkit-details-marker{display:none}
+details.race-det>summary::before{content:'▸ ';color:var(--gold);font-size:10px}
+details.race-det[open]>summary::before{content:'▾ ';color:var(--gold);font-size:10px}
+details.race-det[open]>summary{background:rgba(200,151,30,.16)}
+details.race-det>summary:hover{background:rgba(200,151,30,.19)}
+/* FEATS TABLE */
+.feat-entry{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:6px 8px;border-bottom:1px solid rgba(200,151,30,.08)}
+.feat-entry:hover{background:rgba(200,151,30,.03)}
+.feat-nm{font-family:'Epics Serif','Cinzel',serif;font-size:12px;color:var(--parch)}
+.feat-type{font-family:'Epics Serif','Cinzel',serif;font-size:8px;padding:2px 6px;border-radius:2px;white-space:nowrap}
+.ft-gen{background:rgba(200,151,30,.1);color:var(--gold);border:1px solid rgba(200,151,30,.25)}
+.ft-exp{background:rgba(50,100,180,.1);color:#7ba8e0;border:1px solid rgba(50,100,180,.22)}
+.ft-ftr{background:rgba(139,26,26,.1);color:var(--red-text);border:1px solid rgba(139,26,26,.22)}
+.ft-mag{background:rgba(120,80,180,.1);color:#b09ae0;border:1px solid rgba(120,80,180,.22)}
+.ft-pow{background:rgba(50,140,180,.1);color:#70b8d4;border:1px solid rgba(50,140,180,.22)}
+.feat-desc{font-size:12px;color:var(--tx70);margin-top:2px;line-height:1.4}
+.feat-pre{font-size:11px;color:var(--g50);margin-top:1px}
+/* CLASS DRILLDOWN */
+.class-drill-btn{font-family:'Epics Serif','Cinzel',serif;font-size:9px;padding:2px 8px;border:1px solid rgba(200,151,30,.3);background:transparent;color:var(--bronze);cursor:pointer;border-radius:2px;margin-left:8px;vertical-align:middle}
+.class-drill-btn:hover{border-color:var(--gold);color:var(--gold)}
+.drill-panel{background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.2);border-radius:3px;padding:1rem;margin-top:.5rem;display:none}
+.drill-panel.open{display:block}
+.lvl-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:.5rem}
+.lvl-tbl th{font-family:'Epics Serif','Cinzel',serif;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--bronze);padding:4px 6px;border-bottom:1px solid rgba(200,151,30,.2);text-align:center}
+.lvl-tbl td{padding:3px 6px;text-align:center;color:var(--parch);border-bottom:1px solid rgba(200,151,30,.06)}
+.lvl-tbl tr.cur-lvl td{background:rgba(200,151,30,.12);color:var(--gold);font-weight:600}
+/* LOG */
+.log-entry{padding:7px 11px;border-left:2px solid rgba(200,151,30,.3);margin-bottom:7px;font-size:14px;color:var(--parch);opacity:.85}
+.log-time{font-size:10px;color:var(--g50);font-family:'Epics Serif','Cinzel',serif;margin-bottom:1px}
+/* EMPTY */
+.empty{text-align:center;padding:3.5rem 2rem;color:var(--g40)}
+.empty-ico{font-size:44px;margin-bottom:.85rem}
+.empty-txt{font-family:'Epics Serif','Cinzel',serif;font-size:13px;letter-spacing:.08em}
+/* HP tracker */
+.hp-track{background:rgba(26,20,8,.6);border:1px solid rgba(200,151,30,.2);border-radius:3px;padding:11px 14px;margin-bottom:.9rem}
+.hp-nums{font-family:'Epics Serif','Cinzel',serif;font-size:22px;font-weight:600;color:var(--gold)}
+.ilbtn{font-family:'Epics Serif','Cinzel',serif;font-size:10px;padding:5px 11px;border:1px solid rgba(200,151,30,.35);background:transparent;color:var(--bronze);cursor:pointer;border-radius:2px;white-space:nowrap}
+.ilbtn:hover{border-color:var(--gold);color:var(--gold)}
+.ilbtn.heal{border-color:rgba(50,180,80,.4);color:#4caf70}.ilbtn.heal:hover{border-color:#4caf70}
+.ilbtn.dmg{border-color:rgba(180,50,50,.4);color:var(--red-dmg)}.ilbtn.dmg:hover{border-color:var(--red-dmg)}
+/* CONDITIONS */
+.cond-tag{display:inline-flex;align-items:center;gap:5px;font-family:'Epics Serif','Cinzel',serif;font-size:9px;padding:3px 8px;border-radius:2px;margin:0 3px 3px 0;background:rgba(139,26,26,.15);color:var(--red-text);border:1px solid rgba(139,26,26,.28)}
+.cond-rm{cursor:pointer;opacity:.7;font-size:10px}.cond-rm:hover{opacity:1}
+/* ORNAMENT */
+.ornament{text-align:center;color:var(--g30);font-size:12px;letter-spacing:12px;margin:1.2rem 0}
+/* TOAST */
+.toast{position:fixed;bottom:1.8rem;right:1.8rem;background:rgba(42,31,10,.98);border:1px solid var(--gold);border-radius:3px;padding:10px 18px;font-family:'Epics Serif','Cinzel',serif;font-size:12px;color:var(--gold);letter-spacing:.06em;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+/* SHEET LAYOUT */
+.sheet-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:1.4rem}
+@media(max-width:780px){.sheet-layout{grid-template-columns:1fr}}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--modal-bg);border:1px solid var(--gold);border-radius:4px;padding:1.5rem;max-width:700px;width:90%;max-height:85vh;overflow-y:auto}
+.modal-title{font-family:'Epics Serif','Cinzel',serif;font-size:16px;font-weight:600;color:var(--gold);margin-bottom:1rem}
+/* ====== PRINT STYLES ====== */
+@media print {
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+  body{background:#fff !important;color:#000 !important;font-family:Georgia,serif}
+  body::before{display:none}
+  .site-header,.tabs,.app-body,.toast,.modal-bg{display:none !important}
+  #print-sheet{display:block !important}
+  @page{size:letter;margin:.4in .45in}
+}
+#print-sheet{display:none}
+/* ---- PRINT SHEET ---- */
+#print-sheet{font-family:Georgia,serif;color:#111;font-size:10pt;line-height:1.3}
+#print-sheet *{box-sizing:border-box}
+.ps-header{display:grid;grid-template-columns:2fr 1.2fr 1.2fr;gap:8px;border:2px solid #333;padding:8px 10px;margin-bottom:6px;background:#f8f5ee}
+.ps-header-main{grid-column:1/-1;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #666;padding-bottom:4px;margin-bottom:6px}
+.ps-char-name{font-family:'Cinzel',Georgia,serif;font-size:18pt;font-weight:700;color:#1a1408;flex:1}
+.ps-game{font-family:'Cinzel',Georgia,serif;font-size:9pt;color:#6b5320;letter-spacing:.08em}
+.ps-field{margin-bottom:4px}
+.ps-lbl{font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#6b5320;display:block}
+.ps-val{font-size:10pt;border-bottom:1px solid #aaa;min-height:16px;padding-bottom:1px;display:block;font-weight:600}
+.ps-body{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ps-col{}
+.ps-sec{border:1px solid #888;margin-bottom:6px}
+.ps-sec-head{background:#2a1f0a;color:#c8971e;font-family:'Cinzel',Georgia,serif;font-size:8pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px}
+.ps-sec-body{padding:6px 8px}
+.ps-attrs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.ps-attr-box{border:1px solid #888;text-align:center;padding:4px 3px}
+.ps-attr-nm{font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;color:#6b5320;display:block}
+.ps-attr-score{font-family:'Cinzel',Georgia,serif;font-size:18pt;font-weight:700;line-height:1.1;display:block}
+.ps-attr-mod{font-size:9pt;font-weight:600;color:#3d2f0e;display:block}
+.ps-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.ps-stat{border:1px solid #888;text-align:center;padding:3px}
+.ps-stat-lbl{font-family:'Cinzel',Georgia,serif;font-size:6.5pt;text-transform:uppercase;color:#6b5320;display:block}
+.ps-stat-val{font-size:12pt;font-weight:700;display:block}
+.ps-saves{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.ps-save{border:1px solid #888;padding:4px 6px}
+.ps-save-nm{font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;color:#6b5320}
+.ps-save-val{font-size:12pt;font-weight:700;float:right}
+.ps-save-detail{font-size:7pt;color:#666;clear:both}
+.ps-skill-tbl{width:100%;border-collapse:collapse;font-size:8pt}
+.ps-skill-tbl th{font-family:'Cinzel',Georgia,serif;font-size:6.5pt;text-transform:uppercase;color:#6b5320;padding:2px 4px;border-bottom:1px solid #888;text-align:left}
+.ps-skill-tbl th:not(:first-child){text-align:center}
+.ps-skill-tbl td{padding:1.5px 4px;border-bottom:1px solid #ddd}
+.ps-skill-tbl td.tot{font-weight:700;text-align:center}
+.ps-skill-tbl td.cls{text-align:center}
+.ps-skill-tbl td.attr{text-align:center;font-size:7.5pt;color:#555}
+.ps-skill-tbl .cs{background:#f0ebe0}
+.ps-feat-list{list-style:none}
+.ps-feat-list li{font-size:8.5pt;padding:2px 0;border-bottom:1px solid #eee}
+.ps-feat-list li .ft{font-weight:700}
+.ps-feat-list li .ftype{font-size:7pt;color:#6b5320;font-style:italic}
+.ps-notes{font-size:9pt;line-height:1.5;min-height:80px;white-space:pre-wrap}
+.ps-xp-bar{height:6px;background:#ddd;border:1px solid #888;border-radius:3px;overflow:hidden;margin-top:3px}
+.ps-xp-fill{height:100%;background:#a0722a}
+.ps-classes{font-size:9pt;line-height:1.7}
+.ps-class-row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:2px 0}
+.ps-class-nm{font-weight:700}
+.ps-class-det{font-size:8pt;color:#555}
+.ps-full-width{grid-column:1/-1}
+/* v8.5.4 ergo C2: create-flow accordion. Collapsed panels show only their
+   section header (with an inline summary); headers are click-to-toggle. */
+#page-create .panel>.sec-head.sm{cursor:pointer;user-select:none;}
+#page-create .panel.c-collapsed>*:not(.sec-head){display:none!important;}
+#page-create .panel.c-collapsed{padding-bottom:.45rem;}
+.c-chev{margin-left:8px;opacity:.5;font-size:10px;}
+.c-summary{font-family:'Epics Serif','Crimson Pro',serif;font-size:11px;font-weight:normal;text-transform:none;letter-spacing:0;font-style:italic;color:var(--g65);margin-left:10px;}
+#create-mini-nav{position:sticky;top:0;z-index:20;display:flex;gap:6px;align-items:center;padding:6px 10px;margin-bottom:.6rem;background:rgba(26,20,10,.96);border:1px solid rgba(200,151,30,.25);border-radius:3px;backdrop-filter:blur(2px);}
+#create-mini-nav button{background:rgba(200,151,30,.08);color:var(--g80);border:1px solid rgba(200,151,30,.3);border-radius:3px;padding:3px 9px;font-family:'Epics Serif','Cinzel',serif;font-size:10px;letter-spacing:.06em;cursor:pointer;}
+#create-mini-nav button:hover{background:rgba(200,151,30,.18);color:var(--gold);}
+/* v8.32.0 (Adam): outstanding-selection attention dot on nav tabs — a quiet
+   amber raise-of-the-hand when a page holds unspent picks (skill points,
+   talent/feat slots, spells/powers known, Hero's Gift, unchosen feat params).
+   Tooltip on the button itemizes what's outstanding. */
+.tab-btn.nav-attn::after{content:'●';color:#d4b870;font-size:8px;margin-left:5px;vertical-align:super;text-shadow:0 0 4px rgba(212,184,112,.6);}
+/* v9.18.0 THE PAIR O' DICE MASTHEAD (Adam, 2026-10-17): the original
+   hand-drawn logo as twin gold-framed plaques bookending the masthead, and as
+   the printed sheet's letterhead. The ONE base64 blob lives on #site-logo;
+   the right bookend and the print template borrow it from the DOM. */
+.site-brand{display:flex;align-items:center;justify-content:center;gap:22px}
+.site-brand>div{text-align:center}
+.site-logo{height:78px;border-radius:9px;border:1px solid rgba(200,151,30,.55);box-shadow:0 2px 12px rgba(0,0,0,.55)}
+.ps-logo{height:48px;align-self:center;border-radius:4px}
+@media (max-width:560px){.site-logo{height:56px}}

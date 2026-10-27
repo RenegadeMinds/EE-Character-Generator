@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 export async function auditPage(page, { aaa = false } = {}) {
   return page.evaluate((aaa) => {
@@ -85,7 +86,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   const __dir = dirname(fileURLToPath(import.meta.url));
   const html = readFileSync(process.env.CG_FILE || resolve(__dir, '../index.html'));
   const hc = process.argv.includes('--theme=hc');
-  const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+  const server = createServer(appRequestHandler(html, process.env.CG_FILE || resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
   await new Promise(r => server.listen(8791, '127.0.0.1', r));
   const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
   const page = await browser.newPage();

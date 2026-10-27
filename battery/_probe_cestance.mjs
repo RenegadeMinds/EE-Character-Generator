@@ -7,10 +7,11 @@ import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(resolve(__dir, '../index.html'));
-const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
+const server = createServer(appRequestHandler(html, resolve(__dir, '../index.html')));  // Phase 1 split: also serves css/, js/, assets/
 await new Promise(r => server.listen(8790, '127.0.0.1', r));
 
 const results = [];
@@ -79,7 +80,8 @@ await t('INDEPENDENT-CAPS', async () => {
 
 // Node-side static check: the BA card headline is printed bab, not _effBA.
 {
-  const src = readFileSync(resolve(__dir, '../index.html'), 'utf8');
+  // Phase 1 split: the code lives in js/ files now; search all of it.
+  const src = readAppSource(resolve(__dir, '../index.html'));
   const i = src.indexOf("const _baCell = {l:'Base Attack'");
   const cell = src.slice(i, i + 400);
   mark('BA-CELL-TEMPLATE-NEVER-EFFECTIVE', i > 0 && /v: \(c\.bab>=0\?'\+':''\)\+c\.bab,/.test(cell) && !cell.includes('_effBA'), i > 0 ? '' : 'anchor missing');

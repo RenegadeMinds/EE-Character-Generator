@@ -1,1 +1,8 @@
 index.html -text
+# Phase 1 split (v9.19.0): keep the split-out files exactly as
+# tools/split_index.py wrote them (LF line endings), the same treatment
+# index.html has always had. Its --verify-only check compares them byte for
+# byte with the original, so Git must not rewrite their line endings.
+js/** -text
+css/** -text
+assets/** binary

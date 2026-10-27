@@ -2,3 +2,5 @@ node_modules/
 battery/*.json.log
 battery/fuzz*.json
 battery/report*.json
+# Python bytecode cache (tools/ holds Python scripts since the Phase 1 split)
+__pycache__/

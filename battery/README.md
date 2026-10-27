@@ -44,3 +44,21 @@ report says `★ now engine-visible — retire from the allowlist`.
 Proof: run against v8.98.0, it flags Feat Implant, Psi Implant, Mindscreen
 Implant and Targeting Optics — exactly the four v8.99.0 wired after Rhad's
 playtest. It would have caught the bug before the table did.
+
+## After the Phase 1 split (v9.19.0)
+The generator is no longer one file: `index.html` loads `css/`, `js/` and
+`assets/` files from beside it (see `../js/README.md`). Two consequences here:
+
+- **`_serve.mjs`** holds the tiny web server every probe uses. It serves the
+  page at `/` and every other file from the page's own folder. The old
+  one-liner servers answered *every* request with index.html, which would
+  hand the browser HTML where it asked for JavaScript. Probes that search
+  the source text use `readAppSource()`, which returns index.html plus every
+  css/js file it loads, so those searches still see all the code.
+  `--file` / `CG_FILE` still work: point them at a build's `index.html` and
+  its folders are served alongside it.
+- **`_probe_split_parity.mjs`** proves two builds behave identically. It boots
+  both side by side and compares every global value, the page markup, five
+  built characters, and every page rendered for each. Use it for any change
+  that should change nothing:
+  `OLD=path/to/previous/index.html node _probe_split_parity.mjs`

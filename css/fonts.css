@@ -1,0 +1,29 @@
+/* ==========================================================================
+   css/fonts.css
+   THE 'Epics Serif' FONT
+   ==========================================================================
+
+   WHAT'S IN HERE
+     One @font-face rule. The font file used to be embedded right
+     here as about 89 KB of base64 text; it is now a real file,
+     assets/fonts/epics-serif.ttf. The path below is relative to this
+     css/ folder, hence the '../'.
+
+   WHERE IT CAME FROM
+     Lines 61-72 of the single-file index.html at v9.19.0
+     (commit 1c1044b). The only change: the base64 data: URL
+     became the file path. The font bytes are identical.
+   ========================================================================== */
+/* ---- verbatim from index.html v9.19.0, lines 61-72; only the font url() differs ---- */
+/* === EMBEDDED FONT ===
+   Lora variable (weight axis 400-700), Latin subset, base64-inlined.
+   Self-hosted so the page renders identically offline.
+   Licensed under SIL Open Font License v1.1 (https://scripts.sil.org/OFL).
+   Used as the substitute for both Cinzel and Crimson Pro from prior versions. */
+@font-face {
+  font-family: 'Epics Serif';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url('../assets/fonts/epics-serif.ttf') format('truetype');
+}
