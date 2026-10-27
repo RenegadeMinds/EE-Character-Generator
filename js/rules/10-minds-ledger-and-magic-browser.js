@@ -289,7 +289,7 @@ function mindDailyRecovery(cArg, quiet) {
     if (!quiet) logAct('🧠 Mental damage fully healed — the mind is whole (the swoon valve re-arms).');
   }
   if (!quiet) logAct(`🌙 A day of recovery: mental damage now Int ${m.mdmg[0]} / Wis ${m.mdmg[1]} / Cha ${m.mdmg[2]}.`);
-  save(); if (typeof renderSheet === 'function' && c.id === curId) renderSheet();
+  save(); if (c.id === curId) renderSheet();
 }
 function mindBout() {
   const c = chars.find(x => x.id === curId); if (!c) return;
@@ -529,7 +529,7 @@ function magicItemDesc(m) {
   const lg = /^(Lesser|Greater) (.+)$/.exec(base);
   if (lg) candidates.push(`${lg[2]}, ${lg[1]}`);
   let sp = null;
-  if (typeof SPELLS_DB !== 'undefined') {
+  {
     for (const cand of candidates) {
       sp = SPELLS_DB.find(s => s.name === cand) || SPELLS_DB.find(s => s.name.toLowerCase() === cand.toLowerCase());
       if (sp) break;
@@ -565,7 +565,7 @@ function renderMagicBrowse() {
     const isProp = MAGIC_PROPERTY_TYPES.has(m.type);
     // v9.10.1 (§264): the dropdown text — own d, or spell-derived for
     // potions/wands. A row with nothing to say loses the hand cursor.
-    const desc = (typeof magicItemDesc === 'function') ? magicItemDesc(m) : (m.d || '');
+    const desc = magicItemDesc(m);
     const addBtn = isProp
       ? `<span style="font-size:9px;color:var(--g50);">property — apply via ✨ Enchant on a weapon/armor row (Gear inventory)</span>`
       : `<button class="btn btn-sm btn-pri" style="font-size:10px;" onclick="addMagicFromBrowse(${i})">+ Add${m.type === 'artifact' ? ' (GM)' : ''}</button>`;
@@ -691,8 +691,8 @@ async function addMagicFromBrowse(i) {
       const ls = (sp.levels || []).filter(l => m.vehicle.kind === 'power' ? PSI_CLS.has(l.cls) : !PSI_CLS.has(l.cls));
       return ls.length ? Math.min(...ls.map(l => l.lvl)) : null;
     };
-    let names = (typeof SPELLS_DB !== 'undefined') ? SPELLS_DB.filter(sp => famLvl(sp) === m.vehicle.lvl).map(sp => sp.name) : [];
-    if (!names.length && typeof SPELLS_DB !== 'undefined') names = SPELLS_DB.filter(sp => (sp.levels || []).some(l => l.lvl === m.vehicle.lvl)).map(sp => sp.name);
+    let names = SPELLS_DB.filter(sp => famLvl(sp) === m.vehicle.lvl).map(sp => sp.name);
+    if (!names.length) names = SPELLS_DB.filter(sp => (sp.levels || []).some(l => l.lvl === m.vehicle.lvl)).map(sp => sp.name);
     names = [...new Set(names)].sort();
     if (!names.length) { toast(`No ${m.vehicle.kind}s of that level found in the catalogue.`); return; }
     const pick = await new Promise(res => openChoiceModal(
@@ -831,7 +831,7 @@ function skillHoverText(c, sk) {
   const base = ALIAS[sk.n] || sk.n.replace(/\s*\(.*$/, '');
   const e = SKILL_DESCS[sk.n] || SKILL_DESCS[base];
   if (!e) return '';
-  const nm = (typeof displaySkillName === 'function') ? displaySkillName(c, sk.n) : sk.n;
+  const nm = displaySkillName(c, sk.n);
   return nm + ' (' + e.q + ')\n\n' + e.d;
 }
 

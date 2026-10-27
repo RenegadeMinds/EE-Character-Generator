@@ -238,7 +238,7 @@ function updateHybridForm() {
   }
   }
   applyRaceAdjustments('Hybrid');
-  if (typeof updateDerived === 'function') updateDerived();
+  updateDerived();
 }
 function updateRaceInfo(){
   const raceName = document.getElementById('c-race').value;
@@ -468,7 +468,7 @@ let formOccupationPicks = {primary:{skills:[], bonusFeat:null}, secondary:{skill
 let formOccupationPicksFor = {primary:null, secondary:null};
 
 function getOccupationData(name){
-  if (!name || typeof OCCUPATIONS_DB === 'undefined') return null;
+  if (!name) return null;
   return OCCUPATIONS_DB.find(o => o.n === name) || null;
 }
 
@@ -585,7 +585,7 @@ function renderOccupationPicker(slot){
   // them but allow selection. In 'awaiting' (shouldn't happen since panels
   // are disabled), treat like sandbox.
   const sl = getSixLevels();
-  const enforceGate = (typeof gateState !== 'undefined' && gateState === 'locked');
+  const enforceGate = (gateState === 'locked');
   rows.push(`<div style="font-size:11px;color:var(--g70);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;">Choose ${skillCount} skill${skillCount===1?'':'s'} from the list <span style="color:var(--g45);font-size:10px;text-transform:none;letter-spacing:0;">(if already a class skill via another route, +1 competence bonus instead)</span></div>`);
   // v8.5.4: live class-overlap annotation. With Occupation ahead of Classes
   // in the flow (Adam's chronological ordering), the picker marks options

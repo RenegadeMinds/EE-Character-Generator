@@ -272,7 +272,7 @@ function toggleItemEquipped(itemId) {
     // v8.91.0 (task 3): a cybernetic Prosthetic Arm REPLACES the lost arm
     // (HH p.332 Replacements + the drawback's own Special line) — the off
     // hand and two-handed weapons return with it.
-    if (slotDef.category === 'held' && typeof offHandAvailable === 'function' && !offHandAvailable(c)) {
+    if (slotDef.category === 'held' && !offHandAvailable(c)) {
       const defLA = it.catalogue === 'weapon' ? getCatalogueEntry('weapon', it.ref) : null;
       if (defLA && weaponHands(defLA) === 2) { toast(`${it.ref} needs two hands — Lost Arm (drawback). Install a cybernetic Prosthetic Arm (🦾 Cybernetics) to restore the arm; GM may allow improvised bracing.`); return; }
       if (it.slot === 'off_hand') { toast('Off Hand unavailable — Lost Arm (drawback). Install a cybernetic Prosthetic Arm (🦾 Cybernetics) to restore it.'); return; }
@@ -318,7 +318,7 @@ async function setItemMastercraft(itemId, bonus, target) {
   // DC DIFFERENCE through the paid-or-gift prompt; cancel backs out.
   const defU = getCatalogueEntry(it.catalogue, it.ref);
   const prevMc = it.mastercraft ? { ...it.mastercraft } : null;
-  const oldDC = (defU && typeof itemEffectivePDC === 'function') ? itemEffectivePDC(it, defU).dc : 0;
+  const oldDC = (defU) ? itemEffectivePDC(it, defU).dc : 0;
   if (bonus <= 0) {
     it.mastercraft = null;
   } else {
@@ -327,7 +327,7 @@ async function setItemMastercraft(itemId, bonus, target) {
     const resolvedTarget = (rule && rule.choose_one) ? (target || (it.mastercraft && it.mastercraft.target) || rule.choose_one[0]) : (rule ? 'defense' : null);
     it.mastercraft = { bonus, target: resolvedTarget };
   }
-  if (defU && typeof chargeUpgradeDifference === 'function') {
+  if (defU) {
     const newDC = itemEffectivePDC(it, defU).dc;
     if (!(await chargeUpgradeDifference(c, it, oldDC, newDC, `Mastercraft +${bonus}`))) {
       it.mastercraft = prevMc; renderGear(); return; // backed out — nothing saved
@@ -341,7 +341,7 @@ async function setItemMastercraft(itemId, bonus, target) {
   // grade costs the new DC; upgrading an owned piece is a Craft project
   // (XP + Craft DC per the tier) or a GM-priced trade-in.
   const defMc = getCatalogueEntry(it.catalogue, it.ref);
-  if (defMc && typeof itemEffectivePDC === 'function') {
+  if (defMc) {
     const e2 = itemEffectivePDC(it, defMc);
     if (e2.parts.length) toast(`${it.ref}: effective Purchase DC ${e2.dc} (${e2.parts.join('; ')}).`);
   }
@@ -383,9 +383,9 @@ async function addGadgetToItem(itemId, gadgetName) {
     // other upgrade (the integrated weapon itself is still bought
     // separately at modified cost — GM adjudicates, per the book).
     const defAW = getCatalogueEntry(it.catalogue, it.ref);
-    const oldDCaw = (defAW && typeof itemEffectivePDC === 'function') ? itemEffectivePDC(it, defAW).dc : 0;
+    const oldDCaw = (defAW) ? itemEffectivePDC(it, defAW).dc : 0;
     it.gadgets.push({ ref: gadgetName, altWeapon: altName, detachable: mount.startsWith('Detachable') });
-    if (defAW && typeof chargeUpgradeDifference === 'function') {
+    if (defAW) {
       const newDCaw = itemEffectivePDC(it, defAW).dc;
       if (!(await chargeUpgradeDifference(c, it, oldDCaw, newDCaw, 'Alternate Weapon mount'))) { it.gadgets.pop(); renderGear(); return; }
     }
@@ -396,16 +396,16 @@ async function addGadgetToItem(itemId, gadgetName) {
   // v8.93.1 (Adam's clarification): the gadget's Purchase DC modifier
   // CHARGES the difference — paid-or-gift prompt; cancel backs out.
   const defG = getCatalogueEntry(it.catalogue, it.ref);
-  const oldDCg = (defG && typeof itemEffectivePDC === 'function') ? itemEffectivePDC(it, defG).dc : 0;
+  const oldDCg = (defG) ? itemEffectivePDC(it, defG).dc : 0;
   it.gadgets.push({ ref: gadgetName });
-  if (defG && typeof chargeUpgradeDifference === 'function') {
+  if (defG) {
     const newDCg = itemEffectivePDC(it, defG).dc;
     if (!(await chargeUpgradeDifference(c, it, oldDCg, newDCg, gadgetName))) {
       it.gadgets.pop(); renderGear(); return; // backed out — nothing saved
     }
   }
   save(); renderGear(); renderSheet(); renderSkills();
-  if (defG && typeof itemEffectivePDC === 'function') {
+  if (defG) {
     const eG = itemEffectivePDC(it, defG);
     if (eG.parts.length) toast(`${gadgetName} attached — ${it.ref}: effective Purchase DC ${eG.dc} (${eG.parts.join('; ')}).`);
   }
@@ -434,7 +434,7 @@ function toggleSheetMagicSlots() {
 const _gadgetOpen = new Set();
 function toggleGadgetCtl(itemId) {
   if (_gadgetOpen.has(itemId)) _gadgetOpen.delete(itemId); else _gadgetOpen.add(itemId);
-  if (typeof renderGear === 'function') renderGear();
+  renderGear();
 }
 // v9.6.0 (§255, Adam): the customization controls (Enchant / Mastercraft)
 // and the provenance + Purchase DC line collapse INTO the item name — the
@@ -443,7 +443,7 @@ function toggleGadgetCtl(itemId) {
 const _itemOpen = new Set();
 function toggleItemCtl(itemId) {
   if (_itemOpen.has(itemId)) _itemOpen.delete(itemId); else _itemOpen.add(itemId);
-  if (typeof renderGear === 'function') renderGear();
+  renderGear();
 }
 // v8.56.0 (playtest issue #3d): the body-slot rows, buildable for the Gear
 // dashboard (interactive) OR the Sheet's read-only reference copy.
@@ -657,7 +657,7 @@ function renderInventoryList(items, techScale, catalogue) {
     // Purchase DC open the collapsible; the Enchant / Mastercraft controls
     // live inside it. Enchantments get their own chip line, like Gadgets.
     const rowOpen = _itemOpen.has(it.id);
-    const priceHtml = (() => { const pts = (_priceCheckTs != null) ? _priceCheckTs : techScale; if (enchInfo) return priceSpan(dcForDollars(enchInfo.cost * 100), pts); const eff = (typeof itemEffectivePDC === 'function') ? itemEffectivePDC(it, def) : { dc: parseInt(def.dc, 10) || def.purchase_dc || 0, parts: [] }; return priceSpan(eff.dc, pts, (def.tl != null ? def.tl : def.tech_scale) || 0, eff.parts.length ? `Effective Purchase DC ${eff.dc} = base ${eff.base} + ${eff.parts.join(' + ')}.` : ''); })();
+    const priceHtml = (() => { const pts = (_priceCheckTs != null) ? _priceCheckTs : techScale; if (enchInfo) return priceSpan(dcForDollars(enchInfo.cost * 100), pts); const eff = itemEffectivePDC(it, def); return priceSpan(eff.dc, pts, (def.tl != null ? def.tl : def.tech_scale) || 0, eff.parts.length ? `Effective Purchase DC ${eff.dc} = base ${eff.base} + ${eff.parts.join(' + ')}.` : ''); })();
     const provHtml = it.provenance
       ? `<span style="font-size:10px;cursor:help;" title="${it.provenance === 'purchased' ? 'Purchased — paid from funds' : 'Acquired — loot, gift, or GM grant'}">${it.provenance === 'purchased' ? '💰 Purchased' : '🎁 Acquired'}</span>`
       : '<span style="font-size:10px;opacity:.45;">provenance unrecorded</span>';
@@ -701,7 +701,7 @@ function renderGear() {
     // visibly — until a cybernetic Prosthetic Arm replaces the arm (HH p.332
     // Replacements; the drawback's own Special line). The equip guard in
     // toggleItemEquipped already blocked it; now the slot SAYS so.
-    if (slotDef.id === 'off_hand' && typeof offHandAvailable === 'function' && !offHandAvailable(c)) {
+    if (slotDef.id === 'off_hand' && !offHandAvailable(c)) {
       return `<tr><td style="font-family:'Epics Serif','Cinzel',serif;color:var(--g45);">${slotDef.label}</td><td><span style="color:#e08080;font-size:11px;" title="Lost Arm (drawback): one arm is gone — no off hand, no two-handed weapons, −2 on Climb, Swim, and grapple checks. Install a cybernetic Prosthetic Arm (🦾 Cybernetics, below) to restore it.">✕ unavailable — Lost Arm (install a cybernetic arm to restore)</span></td></tr>`;
     }
     const equippedItems = c.items.filter(i => i.slot === slotDef.id && i.equipped);
@@ -736,7 +736,7 @@ function renderGear() {
   document.getElementById('gear-equipped-rows').innerHTML = rows.join('');
 
   // v8.91.0: 🦾 Cybernetics shelf (implant body slots, HH pp.332-339).
-  if (typeof renderCybernetics === 'function') renderCybernetics(c);
+  renderCybernetics(c);
 
   // v8.6.0: the body-slot dashboard is LIVE — equipped magic items render in
   // their slots (chips + an equip picker for unequipped same-slot items),
@@ -841,7 +841,7 @@ function renderGear() {
   if (mhInvEl) {
     const mItems = getCharItems(c).filter(i => i.catalogue === 'mecha');
     mhInvEl.innerHTML = mItems.length ? mItems.map(it => {
-      const def = (typeof mechaDefOf === 'function') ? mechaDefOf(it) : null; if (!def) return '';
+      const def = mechaDefOf(it); if (!def) return '';
       const g = vehicleIntegrity(it);
       const nm = it.custom ? it.custom.name : (it.customName || it.ref);
       const state = g.destroyed ? ' <span style="color:#999;font-size:10px;">☠ DESTROYED</span>' : g.broken ? ' <span style="color:var(--red-text);font-size:10px;">🛑 DISABLED</span>' : (it.piloted ? ' <span style="color:#78afcd;font-size:10px;">🕹 piloted</span>' : '');
@@ -862,7 +862,7 @@ function renderGear() {
   if (shInvEl) {
     const sItems = getCharItems(c).filter(i => i.catalogue === 'starship');
     shInvEl.innerHTML = sItems.length ? sItems.map(it => {
-      const def = (typeof shipDefOf === 'function') ? shipDefOf(it) : null; if (!def) return '';
+      const def = shipDefOf(it); if (!def) return '';
       const secs = shipSections(it);
       const worst = secs.filter(s => s.disabled).map(s => s.section);
       return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
@@ -877,7 +877,7 @@ function renderGear() {
       </div>`;
     }).join('') : `<div style="opacity:var(--o50);color:var(--dim);font-size:11px;padding:6px 0;">No vessels registered.</div>`;
   }
-  if (typeof renderNavTabs === 'function') renderNavTabs(c);  // a purchase can summon the Vehicles tab
+  renderNavTabs(c);  // a purchase can summon the Vehicles tab
 
   // v8.6.1 (Adam): "TL" was a vestige of the pre-Scales conversion — the tl
   // field IS the Tech Scale gate (compared against sixLevels.tech everywhere),
@@ -931,11 +931,11 @@ function renderGear() {
     e => `<option value="${escapeHTML(e.name)}"${optTip(e.purchase_dc || 0, e.tech_scale || 0, [e.category, e.effect ? e.effect.text : ''].filter(Boolean).join(' — '))}>${escapeHTML(e.name)}${e.effect && (e.effect.kind === 'bonus') ? ' ✦' : (e.effect && e.effect.kind === 'kit' ? ' ⚒' : '')}${optPrice(e.purchase_dc || 0, e.tech_scale || 0)}</option>`);
   // v8.13.x Segment A: the vehicles shelf — restriction rating rides the tooltip.
   const vSel = document.getElementById('gear-add-vehicle-sel');
-  if (vSel && typeof VEHICLES_DB !== 'undefined') vSel.innerHTML = PICKER_PLACEHOLDER + tsGroupedOptions(VEHICLES_DB, v => v.ts,
+  if (vSel) vSel.innerHTML = PICKER_PLACEHOLDER + tsGroupedOptions(VEHICLES_DB, v => v.ts,
     v => `<option value="${escapeHTML(v.name)}"${optTip(v.purchase_dc || 0, v.ts || 0, `${v.category} · ${v.skill} skill · ${v.maneuver_class} (${v.maneuver_mod >= 0 ? '+' : ''}${v.maneuver_mod}) · Restriction: ${v.restriction} (+${v.restriction_mod} black-market DC)`)}>${escapeHTML(v.name)}${optPrice(v.purchase_dc || 0, v.ts || 0)}</option>`);
   // v8.17.0 Segment C: the sample-mecha shelf.
   const mSel = document.getElementById('gear-add-mecha-sel');
-  if (mSel && typeof MECHA_UNITS !== 'undefined') {
+  if (mSel) {
     const arr = Object.keys(MECHA_UNITS).map(n => Object.assign({ name: n }, MECHA_UNITS[n]));
     mSel.innerHTML = PICKER_PLACEHOLDER + tsGroupedOptions(arr, m => m.ts,
       m => `<option value="${escapeHTML(m.name)}"${optTip(m.purchaseDC || 0, m.ts || 0, `${m.size} · ${m.superstructure} frame (Hardness ${m.hardness}) · ${m.armorType} armor +${m.equipAC} · Str ${m.str} / Dex ${m.dexMax} · ${m.hp} HP · Mil (+3) when armed`)}>${escapeHTML(m.name)}${optPrice(m.purchaseDC || 0, m.ts || 0)}</option>`);

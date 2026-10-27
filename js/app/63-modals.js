@@ -233,10 +233,10 @@ function promptForFeatParam(feat, callback){
     // discipline, any class's list — of level up to ONE BELOW the highest
     // the character can manifest.
     const ekc = chars.find(x => x.id === curId);
-    const pi = ekc && (typeof getCasterPoolsInfo === 'function') ? getCasterPoolsInfo(ekc).psionic : null;
+    const pi = ekc ? getCasterPoolsInfo(ekc).psionic : null;
     const capLvl = Math.max(1, ((pi && pi.maxPowerLvl) || 2) - 1);
     options = SPELLS_DB
-      .filter(s => (typeof isPsionicSpell !== 'function') || isPsionicSpell(s))
+      .filter(s => isPsionicSpell(s))
       .map(s => { const ls = (s.levels || []).map(l => l.lvl).filter(n => typeof n === 'number'); return { n: s.name, lvl: ls.length ? Math.min(...ls) : 1 }; })
       .filter(x => x.lvl <= capLvl)
       .sort((a, b) => a.lvl - b.lvl || a.n.localeCompare(b.n))
@@ -396,8 +396,8 @@ async function addFeatToChar(name, param){
   // tab (deriving live) already showed the new Mutant Level.
   refreshEclXp(c);
   // v8.13.0: an Expanded Knowledge pick lands in the repertoire immediately.
-  if (typeof reconcileExpandedKnowledgePowers === 'function' && reconcileExpandedKnowledgePowers(c)) {
-    if (typeof renderPowers === 'function') renderPowers();
+  if (reconcileExpandedKnowledgePowers(c)) {
+    renderPowers();
     toast(`${param} added to powers known (Expanded Knowledge — bonus power, no slot spent).`);
   }
   // Capture slot label before clearing so the toast can show it

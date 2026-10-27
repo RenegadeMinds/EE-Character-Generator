@@ -564,7 +564,7 @@ function checkClassPrereqsFromArray(className, existingClasses, charSkills, char
   // Super-manifester "power access": the mutant tier's spell-level cap
   // (Minor 3 / Moderate 5 / Major 9, MUTATION_RULES).
   const superAccessLvl = () => {
-    if (!_fullChar || typeof getMPState !== 'function') return 0;
+    if (!_fullChar) return 0;
     const st = getMPState(_fullChar);
     return (st.isSuperMutant && st.tier && st.tier.spell_levels) ? st.tier.spell_levels[1] : 0;
   };
@@ -607,7 +607,7 @@ function checkClassPrereqsFromArray(className, existingClasses, charSkills, char
         // the Rogue SA pick + Fast Hero talents, v8.64.0) — CLASS_ABILITIES
         // never listed it. Consult the unified source when a saved
         // character threads through.
-        if (!optMet && opt.name === 'Evasion' && _fullChar && typeof evasionTier === 'function') {
+        if (!optMet && opt.name === 'Evasion' && _fullChar) {
           optMet = !!evasionTier(_fullChar);
         }
       } else if (opt.type === 'tierLevel') {
@@ -669,7 +669,7 @@ function checkClassPrereqsFromArray(className, existingClasses, charSkills, char
         // Degrades to GM-verify when no character threads through ctx.char
         // (the creation form — talents can't exist there anyway).
         const tl = _fullChar ? (_fullChar.talents || []) : null;
-        const tdOf = (nm) => (typeof TALENTS_DB !== 'undefined') ? TALENTS_DB.find(x => x.n === nm) : null;
+        const tdOf = (nm) => TALENTS_DB.find(x => x.n === nm);
         let tMatch = () => false;
         if (opt.name || opt.namePrefix) {
           optDesc = opt.desc || `${opt.name || opt.namePrefix}${opt.param ? ` (${opt.param})` : ''} talent`;
@@ -698,7 +698,7 @@ function checkClassPrereqsFromArray(className, existingClasses, charSkills, char
         // Named spell/power in the character's repertoire (variant display
         // names resolve to their parent entry).
         optDesc = opt.desc || `knows ${opt.name}`;
-        const vn = (typeof VARIANT_NAMES !== 'undefined') ? VARIANT_NAMES[opt.name] : null;
+        const vn = (VARIANT_NAMES[opt.name]);
         optMet = charPowers().some(p => p.name === opt.name || p.applies === opt.name || (vn && p.name === vn.parent));
       } else if (opt.type === 'powerRepertoire') {
         // Repertoire-shape check: {count?, minLvl?, schools? (school_raw
@@ -745,7 +745,7 @@ function checkClassPrereqsFromArray(className, existingClasses, charSkills, char
         optMet = n >= opt.count;
       } else if (opt.type === 'mpTotal') {
         optDesc = opt.desc || `${opt.min}+ Mutation Points`;
-        optMet = !!_fullChar && typeof getMPState === 'function' && getMPState(_fullChar).totalEarned >= opt.min;
+        optMet = !!_fullChar && getMPState(_fullChar).totalEarned >= opt.min;
       } else if (opt.type === 'classLevel') {
         // Mirrors the feat engine's handler (needed class-side since v8.5.4
         // for Crusader's spontaneous-Domain check).

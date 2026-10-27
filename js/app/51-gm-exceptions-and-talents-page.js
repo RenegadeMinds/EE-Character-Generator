@@ -587,7 +587,7 @@ async function addTalentFromBrowser(name) {
   // qualification badge (checkTalentPrereqs) still reports missing MP.
   if (!talentConsumesSlot(name)) {
     const tD = TALENTS_DB.find(x => x.n === name);
-    const mpSt = (typeof getMPState === 'function') ? getMPState(c) : null;
+    const mpSt = getMPState(c);
     const cost = (tD && tD.mp_cost) || 0;
     if (mpSt && cost > mpSt.balance) {
       if (!(await confirmModal(`${name} costs ${cost} MP but only ${mpSt.balance} MP is banked.\n\nAcquire anyway as a GM-approved exception? (The ledger will show the overdraft.)`))) return;

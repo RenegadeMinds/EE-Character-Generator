@@ -75,7 +75,7 @@ function getFeatSlotBreakdown(c) {
   // v8.11.1 Segment B: menu picks that ARE feat slots (Archmage Arcane
   // Mastery, Metamind Bonus Power Feat, Ecclesiarch Magic Feat, Loremaster
   // Weapon trick / Applicable knowledge) surface as class-bonus slots.
-  if (c.classChoices && typeof classChoiceVal === 'function') {
+  if (c.classChoices) {
     const menuSlots = [];
     for (const k in c.classChoices) {
       const v = String(c.classChoices[k] || '');
@@ -93,7 +93,7 @@ function getFeatSlotBreakdown(c) {
   }
   // v8.11.1: "talent instead of feat" conversions consume bonus-feat capacity
   // (mirrors getTalentBudget's flexUsed math — one-directional, no cycle).
-  if (typeof heroTalentFlex === 'function') {
+  {
     const flex = heroTalentFlex(c);
     if (flex.flexMax > 0) {
       const arrF = migrateLegacyClasses(c);
@@ -105,7 +105,7 @@ function getFeatSlotBreakdown(c) {
       if ((c.mutations || []).some(m => m.name === 'Multi-Talented')) baseOwed += 1;
       if (arrF.some(e => e.tier === 'hero') && !isLegacyCharacter(c) && c.heroesGiftChoice === 'talent') baseOwed += 1;
       // v8.21.1: super-tier talents consume no slots — mirror getTalentBudget.
-      const slotPickedF = (c.talents || []).filter(t => (typeof talentConsumesSlot === 'function') ? talentConsumesSlot(t.name) : true).length;
+      const slotPickedF = (c.talents || []).filter(t => talentConsumesSlot(t.name)).length;
       const flexUsed = Math.max(0, Math.min(flex.flexMax, slotPickedF - baseOwed));
       if (flexUsed > 0) classBonus.push({ className: 'Anti-Hero/Super', featureName: 'Talent conversions', formula: 'flex', restriction: null, count: -flexUsed, label: `Slots converted to talents (−${flexUsed})` });
     }
@@ -563,7 +563,7 @@ function computeCasterStats(char) {
     }
     // v8.6.0 firm-wire: casting attributes use the EFFECTIVE score (equipped
     // item enhancements included, derived live) — DCs and bonus PP follow.
-    const _effA = (typeof effAttrs === 'function') ? effAttrs(char) : (char.attrs || [10,10,10,10,10,10]);
+    const _effA = effAttrs(char);
     // v9.15.2 (§275 F8): attrAlt = either-or casting attribute (Paladin's
     // "Wisdom or Charisma, whichever is better", HH p.90) — take the better
     // score; usedAttr carries the winner into the pool and contributor rows.
@@ -794,7 +794,7 @@ function computeCasterStats(char) {
     pool.ppBase += 2;
     const prog = (!subsumed && chosenBase) ? CASTER_PROGRESSION[chosenBase] : null;
     if (prog) {
-      const attrScore = ((typeof effAttrs === 'function') ? effAttrs(char) : (char.attrs || [10,10,10,10,10,10]))[attrIdx[prog.attr]] || 10;
+      const attrScore = (effAttrs(char))[attrIdx[prog.attr]] || 10;
       const attrMod = Math.floor((attrScore - 10) / 2);
       const cmpl = prog.maxPowerLvl[0] || 0;  // Bard L1 = 0: cantrips only, faithful to the table
       pool.maxPowerLvl = Math.max(pool.maxPowerLvl, cmpl);
@@ -877,7 +877,7 @@ function computeCasterStats(char) {
   // class banks the reserve at the table — note-level, like the book).
   {
     // v8.68.0: a Hybrid inherits BOTH parents' Naturally-Psionic bonus PP.
-    const _hyPP = (typeof hybridInfo === 'function') ? hybridInfo(char) : null;
+    const _hyPP = hybridInfo(char);
     const _rpp = _hyPP ? ((_hyPP.A.bonusPP || 0) + (_hyPP.B.bonusPP || 0)) : ((RACES[char.race] || {}).bonusPP || 0);
     if (_rpp && out.psionic && out.psionic.contributors.length) {
       out.psionic.ppBase += _rpp;
@@ -898,7 +898,7 @@ function computeCasterStats(char) {
     // v8.11.1 Segment B: Spell Power / Mental Potency menu picks raise the
     // pool's effective caster/manifester level (level-dependent variables
     // and caster-level checks).
-    if (typeof menuClBonus === 'function' && p.contributors.length) {
+    if (p.contributors.length) {
       const clb = menuClBonus(char, poolName);
       if (clb) p.cl += clb;
     }

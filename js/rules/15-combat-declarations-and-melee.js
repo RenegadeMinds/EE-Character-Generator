@@ -73,7 +73,7 @@ function combatDecl(c) {
 // Survivor level ("the penalty cannot be greater than their Survivor class
 // Defense Bonus — so +3 at 5th level", HH p.137). 0 below Survivor 5.
 function bestDefenseCap(c) {
-  const lvl = (typeof _cfLvlOf === 'function') ? _cfLvlOf(c, 'Survivor') : 0;
+  const lvl = _cfLvlOf(c, 'Survivor');
   if (lvl < 5) return 0;
   const e = migrateLegacyClasses(c).find(x => x.name === 'Survivor');
   const cls = e && getClassEntry(e);
@@ -92,7 +92,7 @@ function bdDeclAdjust(dir) {
     d.bd += 1;
   }
   c.combatDecl = Object.assign(c.combatDecl || {}, { bd: d.bd });
-  if (typeof logAct === 'function') logAct(`🛡→⚔ Best Defense declared: −${d.bd} Defense for +${d.bd} on melee attack rolls (free action to adjust; holds until re-declared).`);
+  logAct(`🛡→⚔ Best Defense declared: −${d.bd} Defense for +${d.bd} on melee attack rolls (free action to adjust; holds until re-declared).`);
   save(); renderSheet(); renderGear();
 }
 function combatDeclCaps(c) {
@@ -133,17 +133,17 @@ async function baDeclAdjust(dir) {
     if (to === 'pa') d.pa += 1; else d.ce += 1;
   }
   c.combatDecl = d;
-  if (typeof logAct === 'function') logAct(`⚔ Stance declared: −${d.pa + d.ce} on melee attack rolls (Power Attack ${d.pa} → +${d.pa} melee damage · Combat Expertise ${d.ce} → +${d.ce} Defense Bonus). Base Attack untouched — printed iteratives stand. Holds until re-declared.`);
+  logAct(`⚔ Stance declared: −${d.pa + d.ce} on melee attack rolls (Power Attack ${d.pa} → +${d.pa} melee damage · Combat Expertise ${d.ce} → +${d.ce} Defense Bonus). Base Attack untouched — printed iteratives stand. Holds until re-declared.`);
   // v9.17.0 (bug report #1, the Xander case): a declared stance moves MELEE
   // attack lines only — a player whose equipped weapon is ranged watches the
   // pistol's numbers, sees nothing change, and reports a bug. Say where to look.
   if ((d.pa + d.ce) > 0) {
     const _melee = (c.items || []).some(it => {
       if (it.catalogue !== 'weapon' || !it.equipped) return false;
-      const wd = (typeof getCatalogueEntry === 'function') ? getCatalogueEntry('weapon', it.ref) : null;
+      const wd = getCatalogueEntry('weapon', it.ref);
       return wd && !isRangedWeapon(wd);
     });
-    if (!_melee && typeof toast === 'function') toast('⚔ Stance declared — the penalty applies to MELEE attack rolls only. No melee weapon equipped: see the Unarmed strike row (⚒ Gear) for the live numbers.');
+    if (!_melee) toast('⚔ Stance declared — the penalty applies to MELEE attack rolls only. No melee weapon equipped: see the Unarmed strike row (⚒ Gear) for the live numbers.');
   }
   save(); renderSheet();
 }
@@ -153,8 +153,8 @@ function psiFocusPathOf(c) {
   const psiCapable = !!(cs.psionic && cs.psionic.contributors.length);
   // NOTE: eml floors at 1 for everyone — the honest super-mutant test is the
   // state's own isSuperMutant flag (or the Supernatural Mutation feat).
-  const superCapable = (typeof getMPState === 'function' && getMPState(c).isSuperMutant === true)
-    || (typeof hasFeatNamed === 'function' && hasFeatNamed(c, 'Supernatural Mutation'));
+  const superCapable = (getMPState(c).isSuperMutant === true)
+    || (hasFeatNamed(c, 'Supernatural Mutation'));
   return { psiCapable, superCapable };
 }
 // One spike descriptor per qualifying row kind, or null.
@@ -166,7 +166,7 @@ function weaponSpikeInfo(c, rowKind, attackBonus) {
   const dice = greater ? '4d6' : '2d6';
   const dispFeat = greater ? 'Greater ' + feat : feat;
   const { psiCapable, superCapable } = psiFocusPathOf(c);
-  const locked = (typeof psiFocusLocked === 'function') && psiFocusLocked(c);
+  const locked = psiFocusLocked(c);
   let path = null, state = '';
   if (c.psiFocused && !locked) { path = 'held'; state = 'focus held — ready'; }
   else if (rowKind === 'ranged' && !psiCapable) { path = null; state = 'innate powers only (mutants — Greater Power Shot, Special)'; }
@@ -183,17 +183,17 @@ function weaponSpikeInfo(c, rowKind, attackBonus) {
 async function weaponSpikeUse(feat, dice, path) {
   const c = chars.find(x => x.id === curId); if (!c) return;
   if (path === 'held') {
-    if (typeof psiFocusLocked === 'function' && psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin.'); return; }
+    if (psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin.'); return; }
     if (!c.psiFocused) { toast('○ Not psionically focused — gain focus first.'); return; }
     c.psiFocused = false;
-    if (typeof logActionEvent === 'function') logActionEvent(c, 'psi-focus', 0, 'Focus expended', `${feat}: +${dice} damage on this attack — declared before the roll; spent even on a miss.`);
+    logActionEvent(c, 'psi-focus', 0, 'Focus expended', `${feat}: +${dice} damage on this attack — declared before the roll; spent even on a miss.`);
   } else if (path === 'momentary') {
     if (!(await confirmModal(`${feat} via momentary Super-Power focus:\n\nThis costs your MOVE ACTION this round — the momentary focus lasts only until your very next action, which must be this attack (HH p.354).\n\nThe +${dice} rides that single attack and is spent even on a miss. Declare it?`))) return;
-    if (typeof logActionEvent === 'function') logActionEvent(c, 'psi-focus', 0, 'Momentary focus', `Move action: momentary Super-Power focus — ${feat} +${dice} on this attack (spent even on a miss).`);
+    logActionEvent(c, 'psi-focus', 0, 'Momentary focus', `Move action: momentary Super-Power focus — ${feat} +${dice} on this attack (spent even on a miss).`);
   } else return;
   toast(`⚡ ${feat}: +${dice} damage on this one attack — spent even on a miss.`);
   save();
-  if (typeof renderGear === 'function') renderGear();
+  renderGear();
 }
 
 // ============================================================================
@@ -264,13 +264,13 @@ function weaponSpecialRiders(name) {
 function meleeOptsOn() { return storeGet('dxd20v2_ui_meleeOpts') === '1'; }
 function toggleMeleeOpts() {
   storeSet('dxd20v2_ui_meleeOpts', meleeOptsOn() ? '0' : '1');
-  if (typeof renderGear === 'function') renderGear();
+  renderGear();
 }
 function quickSkillTotal(c, name, attrIdx) {
   try {
-    const ranks = (typeof getLiveSkillRanks === 'function') ? (getLiveSkillRanks(c, name) || 0) : 0;
+    const ranks = (getLiveSkillRanks(c, name) || 0);
     let misc = 0;
-    if (typeof computeSkillMiscBonuses === 'function') {
+    {
       const m = computeSkillMiscBonuses(c)[name];
       misc = (typeof m === 'number') ? m : ((m && m.total) || 0);
     }
@@ -388,7 +388,7 @@ function combatRiders(c, kind) {
     if (owns('Supernatural Strike')) r.push(['Supernatural Strike', 'You may threaten criticals even against targets normally immune to them.']);
     // v8.65.0 (Adam's go): Elemental Weapon — at-will rider on melee weapon
     // rows (variant detail on the 🔥 Elemental Arsenal panel).
-    if (kind === 'melee' && (typeof _cfLvlOf === 'function') && _cfLvlOf(c, 'Elementalist') >= 3) {
+    if (kind === 'melee' && _cfLvlOf(c, 'Elementalist') >= 3) {
       const _vnW = ((((c.classChoices || {})['ele_var_1']) || '').match(/^(Ambrian|Kryonian|Vesuvian|Vitrolian)/) || [])[1];
       r.push(['Elemental Weapon', `Move action (Su, at will): engulf this melee weapon with your element — ${_vnW === 'Vitrolian' ? '+5 Hardness, +10 HP, and a magical +1 to hit' : `+2d6 ${({ Ambrian: 'electricity', Kryonian: 'cold', Vesuvian: 'fire' })[_vnW] || 'element'} on each successful hit`}. The weapon is unharmed. GMG pp.166-167.`]);
     }
@@ -526,12 +526,12 @@ function computeEquippedWeaponSummaries(c) {
     if (_fsACP < 0) mods.push({ label: 'Shield armor check penalty (Weapon Finesse, HH p.255 — applies while finessing with a shield carried)', value: _fsACP });
     // v8.16.0 Races pass: size modifier to attack rolls (+1 Small, −1 Large).
     {
-      const szm = (typeof raceACSizeMod === 'function') ? raceACSizeMod(c) : 0;
+      const szm = raceACSizeMod(c);
       if (szm) { attackBonus += szm; mods.push({ label: `Size (${SIZE_LADDER[raceSizeIndex(c)]})`, value: szm }); }
     }
     // v8.8.3: Euphoriac (Ex) — morale on ALL attack and damage rolls while up.
     {
-      const eb = (c.euphoric && typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+      const eb = (c.euphoric) ? euphoriacBonus(c) : 0;
       if (eb) { attackBonus += eb; mods.push({ label: `Euphoriac morale (post-surge)`, value: eb }); dmgParts.push({ label: 'Euphoriac morale (post-surge)', value: eb }); }
     }
     // v8.6.1: non-proficient ARMOR/shields drag on every attack roll — the
@@ -684,14 +684,14 @@ function computeEquippedWeaponSummaries(c) {
     // v8.92.0 (Adam's completeness ruling): cybernetic negative levels —
     // −1 per excess attachment on ALL attack rolls (HH p.333), melee and
     // ranged alike (attack ROLLS, never Base Attack — the RO doctrine).
-    const _cybNLw = (typeof cyberExcess === 'function') ? cyberExcess(c) : 0;
+    const _cybNLw = cyberExcess(c);
     if (_cybNLw) {
       attackBonus -= _cybNLw;
       mods.push({ label: `Negative level${_cybNLw > 1 ? 's' : ''} ×${_cybNLw} (cybernetic overload — HH p.333)`, value: -_cybNLw });
     }
     // v8.99.0: Targeting Optics (cybernetic, HH p.338) — +1 on all RANGED
     // attack rolls via the projected reticle.
-    if (isRangedWeapon(def) && typeof getCyber === 'function' && getCyber(c).some(r => r.n === 'Targeting Optics')) {
+    if (isRangedWeapon(def) && getCyber(c).some(r => r.n === 'Targeting Optics')) {
       attackBonus += 1;
       mods.push({ label: 'Targeting Optics (cybernetic — HH p.338)', value: 1 });
     }
@@ -889,14 +889,14 @@ function computeEquippedWeaponSummaries(c) {
         let atkN = (c.bab || 0) + abilN;
         const modsN = [{ label: 'Base Attack Bonus', value: c.bab || 0 }, { label: finN ? 'Dex modifier (Weapon Finesse — natural attacks count as light)' : 'Str modifier', value: abilN }];
         if (finN) { const aN = finesseShieldACP(c); if (aN < 0) { atkN += aN; modsN.push({ label: 'Shield armor check penalty (Weapon Finesse, HH p.255)', value: aN }); } }
-        { const szmN = (typeof raceACSizeMod === 'function') ? raceACSizeMod(c) : 0;
+        { const szmN = raceACSizeMod(c);
           if (szmN) { atkN += szmN; modsN.push({ label: `Size (${SIZE_LADDER[raceSizeIndex(c)]})`, value: szmN }); } }
         const apN = nonProficientArmorPenalty(c);
         if (apN.total < 0) { atkN += apN.total; for (const p of apN.parts) modsN.push({ label: `${p.name} (not proficient — armor check penalty)`, value: p.acp }); }
         const dmgPartsN = [];
         if (strMN) dmgPartsN.push({ label: 'Str modifier', value: strMN });
         if (meleeDmgBonus > 0) dmgPartsN.push({ label: `Melee Smash talents${_hasSuperSmash ? ' (Super-Smash)' : ''}`, value: meleeDmgBonus });
-        const ebN = (c.euphoric && typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+        const ebN = (c.euphoric) ? euphoriacBonus(c) : 0;
         if (ebN) { atkN += ebN; modsN.push({ label: 'Euphoriac morale (post-surge)', value: ebN }); dmgPartsN.push({ label: 'Euphoriac morale (post-surge)', value: ebN }); }
         // v8.59.0: declared stances — natural weapons are melee and EXEMPT
         // from the light-weapon exclusion (HH p.235: full PA bonus applies).
@@ -965,7 +965,7 @@ function computeEquippedWeaponSummaries(c) {
     if (wfP('Weapon Specialization')) dmgParts.push({ label: 'Weapon Specialization', value: 2 });
     if (wfP('Greater Weapon Specialization')) dmgParts.push({ label: 'Greater Weapon Specialization', value: 2 });
     if (meleeDmgBonus > 0) dmgParts.push({ label: `Melee Smash talents${_hasSuperSmash ? ' (Super-Smash)' : ''}`, value: meleeDmgBonus });
-    const ebU = (c.euphoric && typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+    const ebU = (c.euphoric) ? euphoriacBonus(c) : 0;
     if (ebU) { attackBonus += ebU; mods.push({ label: 'Euphoriac morale (post-surge)', value: ebU }); dmgParts.push({ label: 'Euphoriac morale (post-surge)', value: ebU }); }
     // v8.59.0: declared stances — the unarmed strike is melee and EXEMPT
     // from the light-weapon exclusion (HH p.235: full PA bonus applies).
@@ -998,7 +998,7 @@ function computeEquippedWeaponSummaries(c) {
     // attack form as an unarmed alt mode (GMG p.165; full math on the
     // 🔥 Elemental Arsenal panel).
     {
-      const _eleL = (typeof _cfLvlOf === 'function') ? _cfLvlOf(c, 'Elementalist') : 0;
+      const _eleL = _cfLvlOf(c, 'Elementalist');
       if (_eleL >= 1) {
         const _vn = ((((c.classChoices || {})['ele_var_1']) || '').match(/^(Ambrian|Kryonian|Vesuvian|Vitrolian)/) || [])[1];
         const _em = { Ambrian: 'electricity', Kryonian: 'cold', Vesuvian: 'fire' }[_vn];
@@ -1059,7 +1059,7 @@ function computeEquippedWeaponSummaries(c) {
   // aggregation first (two insight sources don't stack), then each applied
   // entry lands in the mods/dmgBreakdown lists with its caveat label.
   try {
-    const aeWB = (typeof activeBuffBonuses === 'function') ? activeBuffBonuses(c) : {};
+    const aeWB = activeBuffBonuses(c);
     const atkApplied = (aeWB.attack && aeWB.attack.length) ? aggregateBonuses(aeWB.attack) : null;
     const dmgApplied = (aeWB.damage && aeWB.damage.length) ? aggregateBonuses(aeWB.damage) : null;
     if ((atkApplied && atkApplied.total) || (dmgApplied && dmgApplied.total)) {

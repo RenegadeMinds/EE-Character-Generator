@@ -103,7 +103,7 @@ function reconcileMissingHP(c) {
   if (badMax) {
     const classArr = migrateLegacyClasses(c);
     const conM = am((c.attrs || [10,10,10,10,10,10])[2]);
-    const nac = (typeof computeNaturalAC === 'function') ? (computeNaturalAC(c).total || 0) : (c.naturalAC || 0);
+    const nac = (computeNaturalAC(c).total || 0);
     c.maxHP = Math.max(1, computeMaxHPFromClasses_LEGACY(classArr, conM) + nac * 5);
     c.hpAutoAssigned = { atDate: new Date().toLocaleDateString(), how: 'average Hit Dice + Con/level + natural AC ×5' };
   }

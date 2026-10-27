@@ -75,7 +75,7 @@ function computeResistances(c) {
   // — the best-wins / immunity-supersedes engine handles the rest.
   // v8.68.0: Hybrids carry BOTH parents' resistances & immunities (the
   // best-wins / immunity-supersedes engine reconciles overlaps).
-  const _hy = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hy = hybridInfo(c);
   const _rrList = _hy ? [[_hy.A, _hy.a + ' racial (Hybrid)'], [_hy.B, _hy.b + ' racial (Hybrid)']] : [[RACES[(c && c.race)] || {}, `${c.race} racial`]];
   for (const [_rr, _rrSrc] of _rrList) {
     for (const t in (_rr.resist || {})) better(t, _rr.resist[t], _rrSrc);
@@ -113,7 +113,7 @@ function computeResistances(c) {
     if (e.k === 'resist' && e.energy) better(e.energy, e.v, `${a.name} (active)`);
     if (e.k === 'immune') immune[e.what] = immune[e.what] || `${a.name} (active)`;
   }
-  for (const it of ((typeof wornGearOf === 'function') ? wornGearOf(c) : [])) for (const x of (gearDef(it).worn.immune || [])) immune[x] = immune[x] || `${it.ref} (worn)`;
+  for (const it of (wornGearOf(c))) for (const x of (gearDef(it).worn.immune || [])) immune[x] = immune[x] || `${it.ref} (worn)`;
   // Enchanted armor/shield resistance abilities on equipped pieces.
   const ABILITY_VALS = { '': 10, ', Improved': 20, ', Greater': 30 };
   for (const it of getCharItems(c)) {
@@ -148,7 +148,7 @@ function computeResistances(c) {
     if (_lvl('Heavy') >= 5) immune['fear'] = immune['fear'] || 'Dreadnaught (Heavy — cybernetic resolve; also ignores critical hits)';
     if (_lvl('Assassin') >= 9) immune['poison'] = immune['poison'] || 'Poison Immunity (Assassin — fully inured; Ex)';
     const eleL2 = _lvl('Elementalist');
-    const eleV2 = (typeof classChoiceVal === 'function') ? classChoiceVal(c, 'ele_var_1') : null;
+    const eleV2 = classChoiceVal(c, 'ele_var_1');
     if (eleL2 >= 2 && eleV2) {
       const elType = { 'Ambrian (air/electricity)': 'electricity', 'Kryonian (water/cold)': 'cold', 'Vesuvian (fire/fire)': 'fire', 'Vitrolian (earth/acid)': 'acid' }[eleV2];
       if (elType) {
@@ -181,7 +181,7 @@ function computeSR(c) {
   // v8.16.0 Races pass: racial SR (Drow 11+level, Azer 13+level, Hound
   // Archon 16+level, Ogre Mage flat 19) — best-wins like every SR source.
   // v8.68.0: Hybrids carry both parents' SR — best-wins resolves.
-  const _hySR = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hySR = hybridInfo(c);
   for (const [_rsr, _srSrc] of (_hySR ? [[_hySR.A.sr, _hySR.a], [_hySR.B.sr, _hySR.b]] : [[(RACES[c.race] || {}).sr, c.race]])) {
     if (_rsr) {
       const v = _rsr.base + (_rsr.perLevel ? (c.totalLvl || 1) : 0);
@@ -256,7 +256,7 @@ function buildClassFeatureSaveBonuses(c) {
   if (lvlOf('Planestrider') >= 8) out.init.push({ type: BONUS_TYPES.CLASS, source: 'classFeature:SenseOfTime', value: 2, label: 'Sense of Time +2 (Planestrider — insight)' });
   // Elementalist Affinity: +4 conditional vs the chosen element's types.
   const eleL = lvlOf('Elementalist');
-  const eleVar = (typeof classChoiceVal === 'function') ? classChoiceVal(c, 'ele_var_1') : null;
+  const eleVar = classChoiceVal(c, 'ele_var_1');
   if (eleL >= 1 && eleVar) {
     const types = { 'Ambrian (air/electricity)': 'electricity/ionic', 'Kryonian (water/cold)': 'cold/sonic', 'Vesuvian (fire/fire)': 'fire/heat', 'Vitrolian (earth/acid)': 'acid/disintegration' }[eleVar];
     for (const k of ['fort', 'ref', 'will']) out[k].push({ type: BONUS_TYPES.CLASS, source: 'classFeature:EleAffinity:' + k, value: 4, label: `Elemental Affinity (${eleVar.split(' ')[0]})`, condition: `vs ${types} spells and effects` });
@@ -286,7 +286,7 @@ function buildClassFeatureSaveBonuses(c) {
   // active while the familiar is within 1 mile — noted in the label).
   for (const comp of (c.companions || [])) {
     if (comp.kind !== 'familiar') continue;
-    const p = (typeof FAMILIAR_PERKS !== 'undefined') && FAMILIAR_PERKS[comp.species];
+    const p = FAMILIAR_PERKS[comp.species];
     if (p && p.save) out[p.save].push({ type: BONUS_TYPES.UNTYPED || 'untyped', source: 'companion:' + comp.id, value: p.v, label: `${comp.species} familiar — while within 1 mile` });
   }
   // v8.8.3: Fighter Battle-Hardened — +1 per instance to the PICKED save.
@@ -300,13 +300,13 @@ function buildClassFeatureSaveBonuses(c) {
   }
   // v8.8.3: Euphoriac's morale bonus to ALL saves while euphoric (Ex).
   if (c.euphoric) {
-    const eb = (typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+    const eb = euphoriacBonus(c);
     if (eb) for (const k of ['fort', 'ref', 'will']) out[k].push({ type: BONUS_TYPES.CLASS, source: 'classFeature:Euphoriac:' + k, value: eb, label: `Euphoriac +${eb} morale (Wilder — post-surge)` });
   }
   // v8.8.2: Rage's morale Will bonus while the toggle is active (Ex), plus
   // the Indomitable Intent conditional at Berserker 14+.
   if (c.raging) {
-    const rt = (typeof rageTier === 'function') ? rageTier(c) : null;
+    const rt = rageTier(c);
     if (rt) {
       out.will.push({ type: BONUS_TYPES.CLASS, source: 'classFeature:RageWill', value: rt.will, label: `${rt.name} (+${rt.will} morale Will)` });
       if (lvlOf('Berserker') >= 14) out.will.push({ type: BONUS_TYPES.CLASS, source: 'classFeature:IndomitableIntent', value: 4, label: 'Indomitable Intent', condition: 'vs enchantment spells, while raging (stacks with the Rage morale bonus)' });
@@ -384,7 +384,7 @@ function computeDR(c) {
   // hybrid form…) — typed instances, best-per-attack; never part of the
   // class-level x/− pool (FF p.523).
   // v8.68.0: Hybrids carry both parents' DR instances (best-applicable rules).
-  const _hyDR = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hyDR = hybridInfo(c);
   for (const [_rdr, _drSrc] of (_hyDR ? [[_hyDR.A.dr, _hyDR.a], [_hyDR.B.dr, _hyDR.b]] : [[(RACES[c.race] || {}).dr, c.race]])) {
     if (_rdr) entries.push({ value: _rdr.value, bypass: _rdr.bypass, source: `${_drSrc} racial`, conditional: _rdr.conditional || undefined });
   }
@@ -392,11 +392,11 @@ function computeDR(c) {
   // k:'dr' entries of transient casts and perpetual Buffs (suppressed /
   // superseded perpetuals already filtered by _buffEffectSources). Live
   // instances, best-applicable per FF p.523; NPF suppresses the lot.
-  if (typeof _buffEffectSources === 'function') {
+  {
     for (const a of _buffEffectSources(c).filter(x => !c.nullified || x.gear)) {   // v9.2.0: gear DR stands in an NPF
       for (const e of (a.effects || [])) {
         if (e.k !== 'dr') continue;
-        const spec = (typeof POWER_EFFECTS !== 'undefined') ? POWER_EFFECTS[a.name] : null;
+        const spec = (POWER_EFFECTS[a.name]);
         entries.push({ value: e.v, bypass: e.bypass || '—',
           source: `${a.name} ${a.perpetual ? '(◉ perpetual Buff)' : (a.gear ? '(⚡ active gear — item x/−)' : '(✨ active power)')}`,
           note: (spec && spec.note) || undefined });
@@ -414,7 +414,7 @@ function computeDR(c) {
   if ((c.mutations || []).some(m => m.name === 'Skeletal Reinforcement')) entries.push({ value: 3, bypass: 'bludgeoning', source: 'Skeletal Reinforcement' });
   // v8.91.0: Fortified Skeleton (cybernetic implant, HH p.337) — DR 4/—.
   // An implant instance: does not stack with the class pool (FF p.523).
-  if (typeof getCyber === 'function' && getCyber(c).some(r => r.n === 'Fortified Skeleton')) entries.push({ value: 4, bypass: '—', source: 'Fortified Skeleton (cybernetic)', note: 'implant x/− — does not stack with the class pool (FF p.523); best applicable applies' });
+  if (getCyber(c).some(r => r.n === 'Fortified Skeleton')) entries.push({ value: 4, bypass: '—', source: 'Fortified Skeleton (cybernetic)', note: 'implant x/− — does not stack with the class pool (FF p.523); best applicable applies' });
   if ((c.feats || []).some(f => (f.name || f.n) === 'Mental Resistance')) entries.push({ value: 3, bypass: '—', source: 'Mental Resistance feat', note: 'MENTAL — vs attribute damage only (not part of the physical pool)' });
   for (const it of getCharItems(c)) {
     if (!it.equipped) continue;
@@ -441,7 +441,7 @@ const RACE_BASE_SPEED = { 'Dwarf': 20, 'Gnome': 20, 'Halfling': 20 };
 // buildMutantSubtypeLanes below.
 function reconcileMutantSubtype(c) {
   if (!c) return false;
-  const ml = (typeof getMPState === 'function') ? (getMPState(c).mutantLevel || 0) : 0;
+  const ml = (getMPState(c).mutantLevel || 0);
   const conM = am((((c.attrs) || [10, 10, 10, 10, 10, 10])[2]) || 10);
   const exp = { bab: Math.floor(ml / 2), def: Math.floor(ml / 3), hp: ml * (5 + conM) };
   const app = c.mutSubApplied || { bab: 0, def: 0, hp: 0 };
@@ -461,7 +461,7 @@ function reconcileMutantSubtype(c) {
 // (entries) and verifyParity (symmetric subtraction). The bab/def entries
 // mirror the baked values so card and drilldown agree.
 function buildMutantSubtypeLanes(c) {
-  const ml = (typeof getMPState === 'function') ? (getMPState(c).mutantLevel || 0) : 0;
+  const ml = (getMPState(c).mutantLevel || 0);
   if (ml <= 0) return { bab: [], def: [], fort: [], ref: [], will: [] };
   const half = Math.floor(ml / 2), third = Math.floor(ml / 3);
   const prow = (v) => ({ type: 'racial', source: 'mutant:unnaturalProwess', value: v, label: `Unnatural Prowess (Mutant +${ml}, Ex — HH p.29)` });
@@ -623,7 +623,7 @@ function raceACSizeMod(c) {
 // size (AC/attack mods, Hide, reach display) stays the size parent's.
 function effectiveSizeIndex(c) {
   const steps = c.nullified ? 0 : strongSuperTalentsOwned(c).length;
-  const pb = (typeof hasHalfAgain === 'function' && hasHalfAgain(c)) ? 1 : 0;
+  const pb = (hasHalfAgain(c)) ? 1 : 0;
   return Math.min(SIZE_LADDER.length - 1, raceSizeIndex(c) + steps + pb);
 }
 // HH p.261 Table: Carrying Capacity — [light max, medium max, heavy max] lb
@@ -656,15 +656,15 @@ function computeCarryCapacity(c) {
   // one size larger for CARRYING CAPACITY — ×2, the Large bipeds' rate
   // (HH p.263). Racial Ex: stands through a Null Power Field. "He's a
   // workhorse."
-  if (typeof hasHalfAgain === 'function' && hasHalfAgain(c)) { triplet = triplet.map(v => v * 2); parts.push('×2 Half-Again (Powerful Build — carries as one size larger)'); }
+  if (hasHalfAgain(c)) { triplet = triplet.map(v => v * 2); parts.push('×2 Half-Again (Powerful Build — carries as one size larger)'); }
   const owned = c.nullified ? [] : strongSuperTalentsOwned(c);
   // v9.2.0: worn carrying gear (Backpack +1, Mesh vest +2 equipment to Str
   // for carrying only; best applies) — never for the super-strong (Adam).
   const _carryGear = wornGearOf(c).map(it => ({ v: gearDef(it).worn.carry || 0, n: it.ref })).filter(x => x.v).sort((a, b) => b.v - a.v)[0];
   if (_carryGear) {
-    const _su = (typeof suBakedPerAttr === 'function') ? (suBakedPerAttr(c) || [])[0] : 0;
+    const _su = ((suBakedPerAttr(c) || [])[0]);
     if (owned.length || (_su && !c.nullified)) parts.push(`${_carryGear.n}: no effect — Supernatural Strength / Strong super-talent`);
-    else { const t2 = carryTriplet(str + _carryGear.v); const k = raceSizeIndex(c) === 3 ? 0.75 : 1; const h = (typeof hasHalfAgain === 'function' && hasHalfAgain(c)) ? 2 : 1; triplet = t2.map(v => v * k * h); parts.push(`${_carryGear.n} worn: carries as Str ${str + _carryGear.v} (+${_carryGear.v} equipment)`); }
+    else { const t2 = carryTriplet(str + _carryGear.v); const k = raceSizeIndex(c) === 3 ? 0.75 : 1; const h = (hasHalfAgain(c)) ? 2 : 1; triplet = t2.map(v => v * k * h); parts.push(`${_carryGear.n} worn: carries as Str ${str + _carryGear.v} (+${_carryGear.v} equipment)`); }
   }
   if (owned.length) {
     const mult = Math.pow(4, owned.length);
@@ -691,7 +691,7 @@ function computeGrapple(c) {
   const parts = [`BAB ${c.bab || 0}`, `Str ${strM >= 0 ? '+' : ''}${strM}`];
   if (sizeMod) parts.push(`size (${SIZE_LADDER[sizeIdx]}) ${sizeMod > 0 ? '+' : ''}${sizeMod}`);
   // v8.42.0: transient wired buffs (Grip of Iron) — typed aggregation.
-  const aeG = (typeof activeBuffBonuses === 'function') ? (activeBuffBonuses(c).grapple || []) : [];
+  const aeG = (activeBuffBonuses(c).grapple || []);
   if (aeG.length) {
     const agg = aggregateBonuses(aeG);
     if (agg.total) { total += agg.total; parts.push(`active powers +${agg.total}`); }
@@ -701,7 +701,7 @@ function computeGrapple(c) {
   // check is like a melee attack roll" (the v8.63.1 Reckless Offense
   // precedent), so the penalty reaches the Grapple AS a roll penalty. Same
   // number as before, correct provenance: the BA component stays printed.
-  const _dG = (typeof combatDecl === 'function') ? combatDecl(c) : { pa: 0, ce: 0, ro: false };
+  const _dG = combatDecl(c);
   if (_dG.pa + _dG.ce > 0) {
     total -= (_dG.pa + _dG.ce);
     parts.push(`declared stance penalty on melee attack rolls (PA ${_dG.pa} · CE ${_dG.ce}; grapple checks ride them — the RO precedent) −${_dG.pa + _dG.ce}`);
@@ -723,14 +723,14 @@ function computeGrapple(c) {
   }
   // v8.91.0 (task 3): Lost Arm's own −2 on grapple checks (HH drawback text)
   // was never baked — now it is, and a cybernetic Prosthetic Arm lifts it.
-  if (typeof hasLostArm === 'function' && hasLostArm(c) && !(typeof hasCyberArm === 'function' && hasCyberArm(c))) {
+  if (hasLostArm(c) && !(hasCyberArm(c))) {
     total -= 2;
     parts.push('Lost Arm −2 (install a cybernetic arm to lift)');
   }
   // v8.92.0: cybernetic negative levels ride Grapple too — a grapple check
   // is like a melee attack roll (the RO doctrine), and HH p.333 hits all
   // attack rolls.
-  const _cybNLg = (typeof cyberExcess === 'function') ? cyberExcess(c) : 0;
+  const _cybNLg = cyberExcess(c);
   if (_cybNLg) {
     total -= _cybNLg;
     parts.push(`negative levels −${_cybNLg} (cybernetic overload)`);
@@ -778,7 +778,7 @@ function computeSpeeds(c) {
   // v8.68.0: a Hybrid's size parent governs movement too (HH p.30 — size is
   // selected "by which the character's movement modes and movement rate are
   // also determined").
-  const race = (typeof raceKeyForSize === 'function') ? (raceKeyForSize(c) || '') : (c.race || '');
+  const race = (raceKeyForSize(c) || '');
   const rdef = RACES[race] || {};
   const notes = rdef.notes || '';
   // v8.16.0 Races pass: the structured speed field governs (Centaur 50′,
@@ -800,7 +800,7 @@ function computeSpeeds(c) {
   {
     const bsk = migrateLegacyClasses(c).filter(e => e.name === 'Berserker').reduce((s, e) => s + (e.level || 0), 0);
     if (bsk >= 1) {
-      const cat = (typeof wearingArmorCategory === 'function') ? wearingArmorCategory(c) : null;
+      const cat = wearingArmorCategory(c);
       if (!cat || cat === 'light' || cat === 'medium') { walk += 10; parts.push('+10′ Fast Movement (Berserker — no heavy armor; also requires no heavy load, see Carry)'); }
       else parts.push('Fast Movement suppressed (heavy armor)');
     }
@@ -852,7 +852,7 @@ function computeSpeeds(c) {
   // v8.21.0 Segment A: Speed of Thought goes LIVE off the tracked focus state
   // — +10′ insight while psionically focused and out of heavy armor.
   if (ownsFt('Speed of Thought')) {
-    const cat = (typeof wearingArmorCategory === 'function') ? wearingArmorCategory(c) : null;
+    const cat = wearingArmorCategory(c);
     if (c.psiFocused && cat !== 'heavy') { walk += 10; parts.push('+10′ insight (Speed of Thought — psionically focused)'); }
     else parts.push(`Speed of Thought inactive (${cat === 'heavy' ? 'heavy armor' : 'not focused'}) — +10′ insight while focused & out of heavy armor`);
   }
@@ -947,7 +947,7 @@ function armorStatStrip(def, it) {
   // v8.13.0 (Adam's T/ACtical armor pass): hardness + HP on the strip, with
   // broken/destroyed state — the Tracker's Armor Integrity panel is the
   // interactive side; this is the reference line.
-  if (it && typeof armorItemIntegrity === 'function') {
+  if (it) {
     const g = armorItemIntegrity(it);
     if (g) bits.push(`Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed ? ' ☠ DESTROYED' : g.broken ? ' ⚑ BROKEN (no AC)' : ''}${g.alwaysIntercede ? ' ◈ always intercedes' : ''}`);
   }

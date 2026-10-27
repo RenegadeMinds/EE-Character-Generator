@@ -49,7 +49,7 @@
 const SU_ATTR_LADDER = ['Extraordinary [Attribute]', 'Supernatural [Attribute] I', 'Supernatural [Attribute] II', 'Supernatural [Attribute] III', 'Supernatural [Attribute] IV'];
 function renderSuAttrPanel(c) {
   const el = document.getElementById('pw-su-attrs'); if (!el) return;
-  const st = (typeof getMPState === 'function') ? getMPState(c) : null;
+  const st = getMPState(c);
   if (!st || !st.isSuperMutant || _pwMode !== 'powers') { el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = '';
   const cum = [2, 5, 9, 14, 20];
@@ -88,7 +88,7 @@ function renderSuAttrPanel(c) {
 // bakes, the single talent ledger: all unchanged consumers.
 function renderSuperTalentPanel(c) {
   const el = document.getElementById('pw-su-talents'); if (!el) return;
-  const st = (typeof getMPState === 'function') ? getMPState(c) : null;
+  const st = getMPState(c);
   if (!st || !st.isSuperMutant || _pwMode !== 'powers') { el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = '';
   if (typeof window._suTalOpen === 'undefined') window._suTalOpen = false;
@@ -158,7 +158,7 @@ async function buySuAttrStep(attrKey) {
   refreshEclXp(c);
   reconcileGrantedFeats(c);
   const baked = reconcileAttributeMutations(c);
-  save(); renderPowers(); if (typeof renderMutations === 'function') renderMutations(); renderSheet();
+  save(); renderPowers(); renderMutations(); renderSheet();
   toast(`Gained ${mut.name} (${attrKey}) — −${mut.mp} MP${baked ? `, +4 ${attrKey} applied (now ${c.attrs[ATTR_KEY_IDX[attrKey]]})` : ''}. Recorded on the 🧬 Mutations tab.`);
 }
 function renderMutationsBrowse() {
@@ -242,7 +242,7 @@ function _poolPPRaw(c, poolName) {
   // v8.11.1 Segment B: High Arcana / Mental Mastery permanent expenditures
   // shrink the pool for good (live from the picks — clearing a pick via the
   // GM ✕ refunds it).
-  const perm = (typeof permanentPPSpent === 'function') ? permanentPPSpent(c, poolName) : 0;
+  const perm = permanentPPSpent(c, poolName);
   if (perm) { max = Math.max(0, max - perm); current = Math.min(current, max); }
   return { current, max, permanentSpent: perm };
 }
@@ -582,7 +582,7 @@ function prepAugFx(spell, extra, augPicks) {
   const aug = parseAugmentSpec(spell);
   if (!aug) return null;
   const augFx = { extra, text: aug.text, dice: null, dcAdd: 0, label: aug.diceLabel, optBits: null };
-  const defs = (typeof AUGMENT_OPTIONS !== 'undefined' && AUGMENT_OPTIONS[spell.name]) || null;
+  const defs = (AUGMENT_OPTIONS[spell.name]) || null;
   if (defs && augPicks) {
     augFx.optBits = [];
     for (const o of defs) {
@@ -662,7 +662,7 @@ async function doPrepare(c, pc, e, free) {
       if (pn === pc.poolName || deficit <= 0) continue;
       deficit -= _drainPoolLedgers(c, pn, deficit);
     }
-    if (typeof logAct === 'function') logAct(`⚭ Blended Technique: ${blendCovered} PP of that preparation drawn from the linked pool.`);
+    logAct(`⚭ Blended Technique: ${blendCovered} PP of that preparation drawn from the linked pool.`);
   }
   // NOTE: unprepare refunds to this contributor's own ledger, capped at its
   // budget — blend-drawn PP past the cap is not re-routed (rest restores all).
@@ -674,7 +674,7 @@ async function doPrepare(c, pc, e, free) {
   if (existing) existing.qty = (existing.qty || 0) + 1;
   else list.push({ name: e.spell.name, dispName, lvl: decl.hl || e.lvl, baseLvl: e.lvl, cost: free ? e.cost : cost, qty: 1, cast: 0, free: !!free,
     declKey, metas: decl.chosen.map(m => m.name), hl: decl.hl || 0, aug: decl.extra || 0, augPicks: decl.augPicks || null });
-  if (typeof logAct === 'function') logAct(`Prepared ${dispName}${free ? ' (free specialty slot)' : ` (${cost} PP${declared ? ', Magic-feat/augment costs paid at memorization' : ''})`} — ${pc.ctr.class} ${pc.ctr.level}`);
+  logAct(`Prepared ${dispName}${free ? ' (free specialty slot)' : ` (${cost} PP${declared ? ', Magic-feat/augment costs paid at memorization' : ''})`} — ${pc.ctr.class} ${pc.ctr.level}`);
   save(); renderPowers();
 }
 
@@ -718,12 +718,12 @@ function finishPrepCast(c, pc, rec, spell, element) {
   const after = getPoolPPState(c, pc.poolName);
   renderCastResult({ name: displayName, baseName: spell.name, pool: pc.poolName, lvl: rec.lvl, baseLvl: rec.baseLvl ?? rec.lvl, cost: 0, spent: 0, after, atom, saveDC, dcBonus, spell, buff: false, prepaid: true,
     metasApplied, augFx, heightened: (rec.hl || 0) > 0 });
-  if (typeof logAct === 'function') logAct(`Cast prepared ${displayName}${quickened ? ' — SWIFT action (Quickened, paid at memorization)' : ''} (${pc.ctr.class} ${pc.ctr.level}) → ${rec.qty - rec.cast} of ${rec.qty} left`);
+  logAct(`Cast prepared ${displayName}${quickened ? ' — SWIFT action (Quickened, paid at memorization)' : ''} (${pc.ctr.class} ${pc.ctr.level}) → ${rec.qty - rec.cast} of ${rec.qty} left`);
   // v8.60.1 (Adam's Animal Affinity report): PREPARED casts wire curated
   // buffs too. v8.63.0: the flagged rules question (augment at release?) is
   // ANSWERED by the B3 ruling — augment PP is paid at memorization and rides
   // the record, so the wired buff now computes from the declared spend.
-  if (typeof applyWiredBuff === 'function') applyWiredBuff(c, spell.name, pc.poolName, rec.aug || 0, rec.augPicks || null);
+  applyWiredBuff(c, spell.name, pc.poolName, rec.aug || 0, rec.augPicks || null);
   save(); renderPowers();
 }
 
@@ -783,9 +783,9 @@ function convertPreparedAt(pi, idx) {
     const dcBonus = schoolDcBonus(c, pick.ts);
     const saveDC = (pick.ts.save && !/none/i.test(pick.ts.save)) ? 10 + pick.k + attrMod + dcBonus : null;
     renderCastResult({ name: pick.label, baseName: pick.ts.name, pool: pc.poolName, lvl: pick.k, cost: 0, spent: 0, after: getPoolPPState(c, pc.poolName), atom: pick.ts.damage || null, saveDC, dcBonus, spell: pick.ts, buff: false, prepaid: true });
-    if (typeof logAct === 'function') logAct(`Converted prepared ${rec.dispName || rec.name} → ${pick.label} (${pc.ctr.class} ${pc.ctr.level})`);
+    logAct(`Converted prepared ${rec.dispName || rec.name} → ${pick.label} (${pc.ctr.class} ${pc.ctr.level})`);
     // v8.60.1: conversion targets wire too (none curated today — future-proof).
-    if (typeof applyWiredBuff === 'function') applyWiredBuff(c, pick.ts.name, pc.poolName, 0, null);
+    applyWiredBuff(c, pick.ts.name, pc.poolName, 0, null);
     save(); renderPowers();
   });
 }
@@ -815,7 +815,7 @@ function isPsiFocusCapable(c) {
   return powerFeats.size > 0;
 }
 function psiFocusLocked(c) {
-  const sk = (typeof activeSecondSkin === 'function') ? activeSecondSkin(c) : null;
+  const sk = activeSecondSkin(c);
   return !!(sk && !sk.destroyed);
 }
 function gainPsiFocus() {
@@ -825,7 +825,7 @@ function gainPsiFocus() {
   const medit = (c.feats || []).some(f => f.name === 'Psionic Meditation');
   c.psiFocused = true;
   logActionEvent(c, 'psi-focus', 0, 'Focus gained', `Psionic focus gained (${medit ? 'move action — Psionic Meditation' : 'full-round action'}; Concentration DC 20, see the skill for taking the action defensively).`);
-  save(); if (typeof renderPPRecovery === 'function') renderPPRecovery(c); renderPowers(); renderSheet();
+  save(); renderPPRecovery(c); renderPowers(); renderSheet();
   toast(`● Psionically focused (${medit ? 'move action' : 'full-round action'}, Concentration DC 20).`);
 }
 function expendPsiFocus(why) {
@@ -834,7 +834,7 @@ function expendPsiFocus(why) {
   if (!c.psiFocused) { toast('Not currently focused — gaining focus is a full-round action (move with Psionic Meditation).'); return; }
   c.psiFocused = false;
   logActionEvent(c, 'psi-focus', 0, 'Focus expended', `Psionic focus expended${why ? ` — ${why}` : ''}.`);
-  save(); if (typeof renderPPRecovery === 'function') renderPPRecovery(c); renderPowers(); renderSheet();
+  save(); renderPPRecovery(c); renderPowers(); renderSheet();
   toast('○ Focus expended.');
 }
 // The Tracker/Powers chip: state + gain/expend controls (Warmind Battle Focus
@@ -870,7 +870,7 @@ function fullyRested() {
   // Per-WEEK abilities (Remove Disease, Quivering Palm) keep their count —
   // renew those individually via the GM ↻. 8 hours' rest clears fatigue.
   if (c.abilityUses) {
-    const weekly = new Set((typeof computePerDiemAbilities === 'function' ? computePerDiemAbilities(c) : []).filter(s => s.weekly).map(s => s.key));
+    const weekly = new Set((computePerDiemAbilities(c)).filter(s => s.weekly).map(s => s.key));
     for (const k of Object.keys(c.abilityUses)) if (!weekly.has(k)) c.abilityUses[k] = 0;
   }
   if (c.fatigued) { c.fatigued = false; if (c.conditions) c.conditions = c.conditions.filter(x => x !== 'Fatigued'); }
@@ -878,7 +878,7 @@ function fullyRested() {
   // v8.21.0: a rested psionic character trivially re-gathers their focus
   // (one quiet full-round action) — start the day focused, unless the
   // Second Skin still holds it.
-  if (typeof isPsiFocusCapable === 'function' && isPsiFocusCapable(c) && !psiFocusLocked(c) && !c.psiFocused) {
+  if (isPsiFocusCapable(c) && !psiFocusLocked(c) && !c.psiFocused) {
     c.psiFocused = true;
     logActionEvent(c, 'psi-focus', 0, 'Focus gained', 'Psionic focus regained with the new day (Fully Rested).');
   }
@@ -887,17 +887,17 @@ function fullyRested() {
   // course of the evening. Destroyed armor is past what nanites can fix.
   const selfRepaired = [];
   for (const it of getCharItems(c)) {
-    const g = (typeof armorItemIntegrity === 'function') ? armorItemIntegrity(it) : null;
+    const g = armorItemIntegrity(it);
     if (g && g.selfRepairing && !g.destroyed && g.damage > 0) {
       it.armorDamage = 0;
-      selfRepaired.push((typeof enchantDisplayName === 'function') ? enchantDisplayName(it) : it.ref);
+      selfRepaired.push(enchantDisplayName(it));
     }
   }
-  if (typeof logAct === 'function') logAct('Fully Rested — new day: all PP pools refilled, prepared spells re-memorized, daily class-ability uses restored (weekly abilities untouched), fatigue cleared.' + (selfRepaired.length ? ` Self-Repairing armor fully restored overnight: ${selfRepaired.join(', ')}.` : ''));
+  logAct('Fully Rested — new day: all PP pools refilled, prepared spells re-memorized, daily class-ability uses restored (weekly abilities untouched), fatigue cleared.' + (selfRepaired.length ? ` Self-Repairing armor fully restored overnight: ${selfRepaired.join(', ')}.` : ''));
   save(); renderPowers();
-  if (typeof renderPPRecovery === 'function') renderPPRecovery(c);  // Tracker panel (C4)
-  if (typeof renderPerDiem === 'function') renderPerDiem(c);
-  if (typeof renderArmorIntegrity === 'function') renderArmorIntegrity(c);
+  renderPPRecovery(c);  // Tracker panel (C4)
+  renderPerDiem(c);
+  renderArmorIntegrity(c);
   renderSheet();
   toast('Fully rested — new day. PP + daily ability uses restored.' + (selfRepaired.length ? ' Self-Repairing armor restored.' : ''));
 }
@@ -907,7 +907,7 @@ function fullyRested() {
 function renderPerDiem(c) {
   const host = document.getElementById('tr-perdiem');
   if (!host) return;
-  const specs = (typeof computePerDiemAbilities === 'function') ? computePerDiemAbilities(c) : [];
+  const specs = computePerDiemAbilities(c);
   if (!specs.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
   host.style.display = '';
   host.innerHTML = `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);margin-bottom:4px;">Class Abilities <span style="color:var(--g45);font-size:9px;text-transform:none;letter-spacing:0;">· ☀ Fully Rested restores daily; ↻ = GM renew (single ability)</span></div>`

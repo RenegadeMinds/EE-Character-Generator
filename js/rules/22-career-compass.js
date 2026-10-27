@@ -61,12 +61,12 @@ function classPrereqCheckOf(c, className) {
 }
 
 function _compassTierOf(name) {
-  if (typeof ADVANCED_CLASSES !== 'undefined' && ADVANCED_CLASSES[name]) return 'advanced';
-  if (typeof PRESTIGE_CLASSES !== 'undefined' && PRESTIGE_CLASSES[name]) return 'prestige';
-  if (typeof HERO_CLASSES !== 'undefined' && HERO_CLASSES[name]) return 'hero';
-  if (typeof BASIC_CLASSES !== 'undefined' && BASIC_CLASSES[name]) return 'basic';
-  if (typeof ORDINARY_CLASSES !== 'undefined' && ORDINARY_CLASSES[name]) return 'ordinary';
-  if (typeof MONSTROUS_CLASSES !== 'undefined' && MONSTROUS_CLASSES[name]) return 'monstrous'; // v9.15.0 §273
+  if (ADVANCED_CLASSES[name]) return 'advanced';
+  if (PRESTIGE_CLASSES[name]) return 'prestige';
+  if (HERO_CLASSES[name]) return 'hero';
+  if (BASIC_CLASSES[name]) return 'basic';
+  if (ORDINARY_CLASSES[name]) return 'ordinary';
+  if (MONSTROUS_CLASSES[name]) return 'monstrous'; // v9.15.0 §273
   return null;
 }
 
@@ -95,7 +95,7 @@ function _compassAnnotate(c, o, totalLvl, stats) {
       const now = skills[opt.name] || 0;
       a.prog = `${now}/${opt.min} ranks`;
       a.earliest = Math.max(2, opt.min - 3);
-      const cs = (typeof isClassSkill === 'function') ? isClassSkill(opt.name, c) : true;
+      const cs = isClassSkill(opt.name, c);
       a.advice = `max ranks = level+4, met before the level-up` + (cs ? '' : ` — cross-class for your current classes (half rate, half cap)`);
     } else if (t === 'skillFamily') {
       let best = 0;
@@ -162,7 +162,7 @@ function _compassAnnotate(c, o, totalLvl, stats) {
       a.earliest = now >= opt.lvl ? totalLvl : totalLvl + Math.max(1, 2 * (opt.lvl - now) - 1) + 1;
       a.advice = 'advance a casting/manifesting class (rough best case)';
     } else if (t === 'classAbility') {
-      const grants = (typeof CLASS_ABILITIES !== 'undefined' && CLASS_ABILITIES[opt.name]) || [];
+      const grants = (CLASS_ABILITIES[opt.name]) || [];
       a.advice = grants.length ? ('granted by: ' + grants.map(g => `${g.name} ${g.minLvl}`).join(' or ')) : 'see the granting class entry';
     } else if (t === 'knowsPower') {
       a.advice = 'add the named spell/power to your repertoire at a level-up';
@@ -260,7 +260,7 @@ function careerNextStep(c, state) {
     }
   }
   const stores = [];
-  if (typeof ORDINARY_CLASSES !== 'undefined') stores.push(['ordinary', ORDINARY_CLASSES]);
+  stores.push(['ordinary', ORDINARY_CLASSES]);
   stores.push(['hero', HERO_CLASSES], ['basic', BASIC_CLASSES], ['advanced', ADVANCED_CLASSES], ['prestige', PRESTIGE_CLASSES]);
   const lvlOf = (n) => { const e = migrateLegacyClasses(c).find(x => x.name === n); return e ? (e.level || 0) : 0; };
   const results = [];
@@ -273,7 +273,7 @@ function careerNextStep(c, state) {
       if (!chk.met) continue;  // can't take a level you don't qualify for
       const def = store[K];
       let score = 0; const reasons = [];
-      const csk = (typeof CLASS_SKILLS !== 'undefined' && CLASS_SKILLS[K]) || [];
+      const csk = (CLASS_SKILLS[K]) || [];
       const skHits = [...skillGaps].filter(s => classSkillListHas(csk, s));
       const famHits = [...famGaps].filter(fam => SKILLS.some(sk => sk.family === fam && classSkillListHas(csk, sk.n)));
       if (skHits.length || famHits.length) {
@@ -293,7 +293,7 @@ function careerNextStep(c, state) {
         if (slope >= 0.95) { score += 2; reasons.push('full Base Attack progression'); }
         else if (slope >= 0.7) { score += 1; reasons.push('¾ Base Attack progression'); }
       }
-      const cc = (typeof CASTER_CLASSES !== 'undefined') && CASTER_CLASSES[K];
+      const cc = CASTER_CLASSES[K];
       // v8.56.0 (playtest issue #2): FULL casters outrank partial ones — a
       // Paladin "advances divine casting" but can never reach the 7th-level
       // spells an Ecclesiarch goal demands; the old flat +2 let sp/level
@@ -535,7 +535,7 @@ function outstandingSelections(c) {
     const slotNames = ['primary', 'secondary'];
     occList.forEach((occName, i) => {
       if (!occName || i > 1) return;
-      const od = (typeof getOccupationData === 'function') ? getOccupationData(occName) : null;
+      const od = getOccupationData(occName);
       if (!od) return;
       const picks = (c.occupationPicks && c.occupationPicks[slotNames[i]]) || {skills: [], bonusFeat: null};
       const want = od.skill_count || 0;
@@ -679,7 +679,7 @@ function checkTalentPrereqs(talentName, c) {
       flexAttrKey = HERO_CLASSES[t.hero_class].attr || null;
       const _ai = {STR:0, DEX:1, CON:2, INT:3, WIS:4, CHA:5}[flexAttrKey];
       if (_ai !== undefined && c) {
-        const _scores = (typeof effAttrs === 'function') ? effAttrs(c) : (c.attrs || [10,10,10,10,10,10]);
+        const _scores = effAttrs(c);
         flexAttrOk = ((_scores && _scores[_ai]) || 10) >= 13;
       }
     }
@@ -699,7 +699,7 @@ function checkTalentPrereqs(talentName, c) {
   // asks whether the BANKED balance covers this talent's cost. Also requires
   // the Supernatural Mutation feat (super-talents are supernatural abilities).
   if (t.tier === 'Super-Talent' || t.tier === 'Apex Super-Talent') {
-    const mpState = (typeof getMPState === 'function') ? getMPState(c) : null;
+    const mpState = getMPState(c);
     if (!mpState || !mpState.isSuperMutant) {
       missing.push(`Requires the Supernatural Mutation feat (super-talents are supernatural abilities)`);
     } else if ((t.mp_cost || 0) > mpState.balance) {
@@ -758,7 +758,7 @@ function checkTalentPrereqs(talentName, c) {
           // v8.5.3 Mutations pass — Layer 3 live: check the computed MP
           // ledger's banked balance (was: dormant c.mp scalar that nothing
           // ever set, passing silently pre-Layer 3).
-          const mpSt = (typeof getMPState === 'function') ? getMPState(c) : null;
+          const mpSt = getMPState(c);
           if (mpSt && mpSt.balance >= (opt.amount || 0)) { groupPassed = true; break; }
           groupMissingReasons.push(`${opt.amount || 0} MP (banked: ${mpSt ? mpSt.balance : 0})`);
         } else if (opt.type === 'langCount') {
@@ -856,7 +856,7 @@ function removeTalentFromChar(c, talentName, param) {
   if (talentName === 'Energy Immunity') {
     const granted = c.talents.filter(t => t.grantedBy === 'Energy Immunity');
     for (const g of granted) c.talents.splice(c.talents.indexOf(g), 1);
-    if (granted.length && typeof toast === 'function') toast(`Also removed ${granted.map(g => g.name).join(', ')} — granted by Energy Immunity.`);
+    if (granted.length) toast(`Also removed ${granted.map(g => g.name).join(', ')} — granted by Energy Immunity.`);
   }
   reconcileTalentHp(c);  // v8.8.0: Robust's baked HP leaves with the talent
   return true;

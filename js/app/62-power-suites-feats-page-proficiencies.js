@@ -108,7 +108,7 @@ let _pwThemeSets = null;
 function _powerThemeSets() {
   if (_pwThemeSets) return _pwThemeSets;
   _pwThemeSets = {};
-  const vn = (typeof VARIANT_NAMES !== 'undefined') ? VARIANT_NAMES : {};
+  const vn = VARIANT_NAMES;
   for (const th in POWER_THEMES) {
     const s = new Set();
     for (const n of POWER_THEMES[th]) { s.add(n); if (vn[n] && vn[n].parent) s.add(vn[n].parent); }
@@ -163,7 +163,7 @@ function renderPowersBrowse() {
   // purchases aren't list-routes, so nothing ever counted as available. On
   // the Powers side, an entry the character could BUY as a super-power now
   // passes the availability filter (and the label says so).
-  const _mpStB = (_pwMode === 'powers' && typeof getMPState === 'function') ? getMPState(c) : null;
+  const _mpStB = (_pwMode === 'powers') ? getMPState(c) : null;
   const superCapable = !!(_mpStB && _mpStB.isSuperMutant);
   // v8.79.0 (Adam's Rhad shopping report): the TIER gates (level band +
   // per-power MP cap, HH p.422 — keyed on TOTAL MP earned, not banked)
@@ -252,7 +252,7 @@ function renderPowersBrowse() {
       ${open ? `<div style="font-size:11px;opacity:.75;margin-top:4px;line-height:1.5;">${spellStatLine(s)}</div><div style="font-size:11.5px;margin-top:5px;line-height:1.55;color:var(--parch);">${escapeHTML(s.d)}</div>${(() => { const ths = _themesOfPower(s.name); if (!ths.length) return '';
         // v8.75.0: progress-aware suite tags for super-capable characters —
         // ◈−1 when the discount is live, (n/2) while building toward it.
-        const _superCap = (typeof getMPState === 'function') && getMPState(c).isSuperMutant;
+        const _superCap = getMPState(c).isSuperMutant;
         const sets = _powerThemeSets();
         const ownedSup = (c.powers || []).filter(p => p.pool === 'super').map(p => p.name);
         const bits = ths.map(th => {
@@ -510,8 +510,8 @@ function removeFeat(i){
   c.feats.splice(i,1);
   // v8.13.0: removing an Expanded Knowledge instance withdraws its bonus
   // power known (player-learned copies are untouched by the reconciler).
-  if (typeof reconcileExpandedKnowledgePowers === 'function' && reconcileExpandedKnowledgePowers(c)) {
-    if (typeof renderPowers === 'function') renderPowers();
+  if (reconcileExpandedKnowledgePowers(c)) {
+    renderPowers();
   }
   // v8.5.2 fix: removeFeat was the only feat-mutation path that didn't call
   // renderFeats() — it only re-rendered the list, leaving the budget header
@@ -958,7 +958,7 @@ function charProficiencyGrants(c, classArrOverride) {
     }
   }
   // v8.68.0: Hybrids union both parents' racial weapon proficiencies.
-  const _hyWP = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hyWP = hybridInfo(c);
   for (const rk of (_hyWP ? [_hyWP.a, _hyWP.b] : [(c && c.race) || ''])) {
     for (const w of (RACE_WEAPON_PROFICIENCIES[rk] || [])) {
       if (!g.weapons.has(_normWeaponName(w))) g.weaponsDisp.push(w + ` (racial${_hyWP ? ' — ' + rk : ''})`);
@@ -1040,7 +1040,7 @@ function reconcileGrantedFeats(c) {
     }
   }
   // Choice-parameterized grants (gated on the granting level still held).
-  if (typeof classChoiceVal === 'function') {
+  {
     const lvlG = (n) => classArr.filter(e => e.name === n).reduce((s, e) => s + (e.level || 0), 0);
     const dec = classChoiceVal(c, 'ari_dec_1'), ref = classChoiceVal(c, 'ari_ref_3');
     if (dec && lvlG('Aristocrat') >= 1) expected.push({ name: 'Skill Focus', param: dec, by: 'Aristocrat 1 (Decorum)' });
@@ -1079,7 +1079,7 @@ function reconcileGrantedFeats(c) {
   }
   // v8.16.0 Races pass: racial bonus feats (Merfolk's Alertness).
   // v8.68.0: Hybrids inherit both parents' racial feat grants (union).
-  { const _hyGF = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  { const _hyGF = hybridInfo(c);
     for (const rk of (_hyGF ? [_hyGF.a, _hyGF.b] : [c.race])) {
       for (const n of ((RACES[rk] || {}).grantsFeats || [])) if (!expected.some(e => e.name === n)) expected.push({ name: n, by: rk + ' (racial)' });
     } }
@@ -1112,7 +1112,7 @@ function reconcileGrantedFeats(c) {
   // naming a feat not in FEATS_DB is skipped (mecha/starship-era feats).
   for (const k in expByKey) {
     const want = expByKey[k];
-    if (typeof getFeatData === 'function' && !getFeatData(want[0].name)) continue;
+    if (!getFeatData(want[0].name)) continue;
     const haveAny = c.feats.filter(f => keyOf(f.name || f.n, f.param) === k).length;
     for (let i = haveAny; i < want.length; i++) {
       const w = want[i];
@@ -1122,13 +1122,13 @@ function reconcileGrantedFeats(c) {
     }
   }
   // v8.8.3: class attribute bakes ride the same reconcile moments.
-  if (typeof reconcileClassAttrBakes === 'function' && reconcileClassAttrBakes(c)) changed = true;
+  if (reconcileClassAttrBakes(c)) changed = true;
   // v8.9.1: class-feature HP bakes (Bodyguard Toughness) likewise.
-  if (typeof reconcileClassHp === 'function' && reconcileClassHp(c)) changed = true;
+  if (reconcileClassHp(c)) changed = true;
   // v8.11.1 Segment B: Splice Gene Therapy MP grants.
-  if (typeof reconcileSpliceMP === 'function' && reconcileSpliceMP(c)) changed = true;
+  if (reconcileSpliceMP(c)) changed = true;
   // v8.13.0: Expanded Knowledge bonus powers known (Adam's Rhad report).
-  if (typeof reconcileExpandedKnowledgePowers === 'function' && reconcileExpandedKnowledgePowers(c)) changed = true;
+  if (reconcileExpandedKnowledgePowers(c)) changed = true;
   return changed;
 }
 
@@ -1223,7 +1223,7 @@ function equippedACPPieces(c) {
 }
 function buildArmorCheckPenaltyBonuses(c) {
   const out = {};
-  const strDex = (typeof SKILLS !== 'undefined' ? SKILLS : []).filter(sk => sk.k === 'STR' || sk.k === 'DEX').map(sk => sk.n);
+  const strDex = SKILLS.filter(sk => sk.k === 'STR' || sk.k === 'DEX').map(sk => sk.n);
   for (const p of equippedACPPieces(c)) {
     const targets = p.proficient ? ACP_SKILLS : strDex;
     const label = `${p.name} armor check penalty${p.eased.length ? ' (eased: ' + p.eased.join(', ') + ')' : ''}${p.proficient ? '' : ' — NON-PROFICIENT: all Str/Dex checks'}`;

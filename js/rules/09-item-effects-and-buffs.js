@@ -69,8 +69,8 @@ function getCatalogueEntry(catalogue, ref) {
         || null;  // v8.6.0
   }
   if (catalogue === 'vehicle') return VEHICLES_DB.find(v => v.name === ref) || null;   // v8.13.x Segment A
-  if (catalogue === 'mecha') return (typeof MECHA_UNITS !== 'undefined' && MECHA_UNITS[ref]) || null;  // v8.17.0 Segment C
-  if (catalogue === 'starship') return (typeof STARSHIP_SUBTYPES !== 'undefined' && STARSHIP_SUBTYPES[ref]) || null;  // v8.18.0 Segment D
+  if (catalogue === 'mecha') return (MECHA_UNITS[ref]) || null;  // v8.17.0 Segment C
+  if (catalogue === 'starship') return (STARSHIP_SUBTYPES[ref]) || null;  // v8.18.0 Segment D
   return null;
 }
 
@@ -224,9 +224,9 @@ function euphoriacBonus(c) {
   const wl = wilderLvl(c);
   if (wl <= 0) return 0;
   // v8.10.1: Bloodluster instances count as Wilder levels; Perfect Storm +1.
-  const lvl = wl + ((typeof bloodlusterInstances === 'function') ? bloodlusterInstances(c) : 0);
+  const lvl = wl + (bloodlusterInstances(c));
   const base = lvl >= 20 ? 3 : (lvl >= 12 ? 2 : (lvl >= 4 ? 1 : 0));
-  return base + ((typeof bloodlusterLvl === 'function' && bloodlusterLvl(c) >= 10) ? 1 : 0);
+  return base + ((bloodlusterLvl(c) >= 10) ? 1 : 0);
 }
 function toggleEuphoric() {
   const c = chars.find(x => x.id === curId); if (!c) return;
@@ -246,7 +246,7 @@ function effAttrs(c) {
   // Body, the size pair…) — typed against the item door inside the helper;
   // NPF-suppressed there too. Every effAttrs consumer (attack Str, skills,
   // caster DCs, sheet boxes) inherits, exactly like the item door.
-  if (typeof activeBuffAttrDeltas === 'function') {
+  {
     const _bd = activeBuffAttrDeltas(c);
     for (let i = 0; i < 6; i++) out[i] += _bd[i];
   }
@@ -255,15 +255,14 @@ function effAttrs(c) {
   // v8.10.1: the Heavy's RKCM implant — +4 EQUIPMENT Dexterity (tech, not
   // Su: unaffected by ⊘ Nullified; lost while the RKCM is damaged — GM
   // toggles via c.rkcmDamaged).
-  if (c && !c.rkcmDamaged && typeof migrateLegacyClasses === 'function'
-      && migrateLegacyClasses(c).some(e => e.name === 'Heavy' && (e.level || 0) >= 1)) out[1] += 4;
+  if (c && !c.rkcmDamaged && migrateLegacyClasses(c).some(e => e.name === 'Heavy' && (e.level || 0) >= 1)) out[1] += 4;
   // v8.14.x Segment B (Adam's ruling; FF p.618): equipped power armor —
   // Str (Min) is a FLOOR ("the wearer uses the armor's Strength or their
   // own, whichever is greater"), Dex (Max) a CEILING ("whichever is lower").
   // Firm-wired: flows to melee, Carry, Jump, Reflex, AC, Initiative, skills.
   // Tech, not Su — unaffected by ⊘ Nullified. The Land Warrior's HH-era
   // idiom is +2 EQUIPMENT Str instead of a floor.
-  if (c && typeof equippedPowerArmor === 'function' && typeof POWER_ARMOR_DB !== 'undefined') {
+  if (c) {
     const _paIt = equippedPowerArmor(c);
     if (_paIt) {
       const _pa = POWER_ARMOR_DB[_paIt.ref];
@@ -419,7 +418,7 @@ const AUGMENT_OPTIONS = {
 // level at cast time, plus any purchased rounds. Falls back to the raw text.
 function buffDurationText(spell, pool, c, extraRounds) {
   const raw = ((spell && spell.duration) || '').split('(')[0].trim();
-  const cl = (typeof computeCasterLevels === 'function') ? (computeCasterLevels(c)[pool] || 0) : 0;
+  const cl = (computeCasterLevels(c)[pool] || 0);
   const xr = extraRounds || 0;
   let m;
   if ((m = raw.match(/^(\d+)\s*rounds?\/level/i))) return `${parseInt(m[1], 10) * cl + xr} rounds`;
@@ -471,16 +470,16 @@ function perpetualBuffs(c) {
   const out = [];
   if (!c) return out;
   const transient = new Set((Array.isArray(c.activeEffects) ? c.activeEffects : []).map(a => a.name));
-  const powers = (typeof getCharPowers === 'function') ? getCharPowers(c) : ((c.powers) || []);
+  const powers = getCharPowers(c);
   for (const p of powers) {
     if (p.pool !== 'super') continue;
-    const sp = (typeof SPELLS_DB !== 'undefined') ? SPELLS_DB.find(s => s.name === p.name) : null;
+    const sp = SPELLS_DB.find(s => s.name === p.name);
     const mpn = sp ? (sp.mp_note || '') : '';
     const tagged = /(^|[;|])\s*Buff\b/i.test(mpn);
     const partial = /includes .+ as Buff/i.test(mpn);
     if (!tagged && !partial) continue;
     if (tagged && !p.buff) p.buff = true;   // self-heal the pre-v8.85.0 stamp
-    const spec = (!partial && typeof POWER_EFFECTS !== 'undefined') ? (POWER_EFFECTS[p.name] || null) : null;
+    const spec = (!partial) ? (POWER_EFFECTS[p.name] || null) : null;
     const effects = (spec && Array.isArray(spec.eff) && !spec.attrChoice) ? spec.eff.map(e => ({...e})) : [];
     out.push({ name: p.name, rung: p.rung || null, partial: !!partial,
       suppressed: !!p.buffOff, superseded: transient.has(p.name), effects,
@@ -494,7 +493,7 @@ function toggleBuffSuper(name) {
   const p = (c.powers || []).find(x => x.pool === 'super' && x.name === name);
   if (!p) return;
   p.buffOff = !p.buffOff;
-  if (typeof logAct === 'function') logAct(`◉ ${name} ${p.buffOff ? 'voluntarily suppressed (⏻)' : 'reactivated — no PP, the power is always manifested'}.`);
+  logAct(`◉ ${name} ${p.buffOff ? 'voluntarily suppressed (⏻)' : 'reactivated — no PP, the power is always manifested'}.`);
   save(); renderSheet();
 }
 // The combined effect-source list both consumers iterate: the transient
@@ -548,7 +547,7 @@ function activeBuffAttrDeltas(c) {
   if (!c) return delta;
   const srcs = _buffEffectSources(c).filter(a => !c.nullified || a.gear);   // v8.85.0: + the perpetual lane; v9.2.0: gear passes the NPF gate
   if (!srcs.length) return delta;
-  const itemBest = (typeof attrItemBonuses === 'function') ? attrItemBonuses(c).best : [0, 0, 0, 0, 0, 0];
+  const itemBest = attrItemBonuses(c).best;
   const IDX = {STR:0, DEX:1, CON:2, INT:3, WIS:4, CHA:5};
   for (let i = 0; i < 6; i++) {
     const byType = {};
@@ -598,7 +597,7 @@ function applyWiredBuff(c, spellName, pool, extraPP, augPicks) {
           appliedAt: new Date().toLocaleString(), augSpent: extraPP || 0 });
         toast(`✨ ${spellName} wired: +4 enhancement to ${chosen.join(', ')} — active until rest or ✕.`);
         save();
-        if (typeof renderActiveBuffs === 'function') renderActiveBuffs(c);
+        renderActiveBuffs(c);
       });
     };
     askNext();
@@ -606,7 +605,7 @@ function applyWiredBuff(c, spellName, pool, extraPP, augPicks) {
   }
   let inc = 0, extraRounds = 0, durOverride = null;
   const pickBits = [];
-  const optDefs = (typeof AUGMENT_OPTIONS !== 'undefined' && AUGMENT_OPTIONS[spellName]) || null;
+  const optDefs = (AUGMENT_OPTIONS[spellName]) || null;
   if (optDefs && augPicks) {
     // exact declared split — no estimation.
     for (const o of optDefs) {
@@ -652,8 +651,8 @@ function clearActiveBuffs(c, why) {
   const n = ending.length; if (!n) return 0;
   const names = ending.map(a => a.name).join(', ');
   c.activeEffects = keep;
-  for (const a of ending) if (a.bane && typeof boostBaneRoll === 'function') boostBaneRoll(c);
-  if (typeof logAct === 'function' && c.id === curId) logAct(`✨ Active power effects ended (${why}): ${names}.${(typeof perpetualBuffs === 'function' && perpetualBuffs(c).some(pb => !pb.suppressed)) ? ' ◉ Perpetual Buffs stand — constitution, not casting.' : ''}`);
+  for (const a of ending) if (a.bane) boostBaneRoll(c);
+  if (c.id === curId) logAct(`✨ Active power effects ended (${why}): ${names}.${(perpetualBuffs(c).some(pb => !pb.suppressed)) ? ' ◉ Perpetual Buffs stand — constitution, not casting.' : ''}`);
   return n;
 }
 function dismissBuffAt(i) {
@@ -669,8 +668,8 @@ function renderActiveBuffs(c) {
   const slot = document.getElementById('sh-buffs');
   if (!slot) return;
   const list = (c && c.activeEffects) || [];
-  const perps = (typeof perpetualBuffs === 'function') ? perpetualBuffs(c) : [];
-  const worn = (typeof wornGearOf === 'function') ? wornGearOf(c) : [];
+  const perps = perpetualBuffs(c);
+  const worn = wornGearOf(c);
   if (!list.length && !perps.length && !worn.length) { slot.innerHTML = ''; slot.style.display = 'none'; return; }
   slot.style.display = 'block';
   const fmt = (e) => {

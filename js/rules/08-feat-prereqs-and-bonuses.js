@@ -510,7 +510,7 @@ function computeTalentEffects(char) {
   // hardness channels ("instead of the Ignore Hardness modifiers") —
   // computeHardnessIgnore is the single source; the additive rows fire only
   // in base mode (or under NPF, when the Su instances fall).
-  const hi = (typeof computeHardnessIgnore === 'function') ? computeHardnessIgnore(char) : null;
+  const hi = computeHardnessIgnore(char);
   if (hi && hi.mode === 'mangler') {
     effects.push({stat:'Ignore Hardness', text:`${hi.ignore} points`, from: hi.from + (hi.instances > 1 ? ' — DOUBLE EFFECT (parity ruling 2026-10-03)' : '')});
     effects.push({stat:'Break DC Reduction', text:`−${hi.breakDC}`, from: hi.from});
@@ -558,7 +558,7 @@ function buildDerivedSkillBonuses(c) {
     // v8.16.0 Races pass: size modifier to Hide (+4 Small, −4 Large — d20
     // ±4 per step; the Strong super-talent size riders deliberately do NOT
     // shrink Hide, per the HH p.263 rider list: dice/grapple/Jump only).
-    const szIdx = (typeof raceSizeIndex === 'function') ? raceSizeIndex(c) : 4;
+    const szIdx = raceSizeIndex(c);
     if (szIdx !== 4) out['skill:Hide'] = (out['skill:Hide'] || []).concat([{ type: 'size', value: (4 - szIdx) * 4, label: `size (${SIZE_LADDER[szIdx]})` }]);
   } catch (e) {}
   return out;
@@ -566,7 +566,7 @@ function buildDerivedSkillBonuses(c) {
 
 function computeSkillMiscBonuses(c) {
   const merged = {};
-  for (const src of [buildFeatBonuses(c), buildOccupationBonuses(c), buildTalentBonuses(c), buildItemBonuses(c), buildScale0VariantBonuses(c), buildMutationBonuses(c), buildMagicItemBonuses(c), buildDerivedSkillBonuses(c), buildRacialBonuses(c.race) /* v8.16.0 Races pass: skill: targets */, (typeof buildClassChoiceBonuses === 'function' ? buildClassChoiceBonuses(c) : {}), (typeof buildCompanionSkillPerks === 'function' ? buildCompanionSkillPerks(c) : {}), (typeof buildAdvancedClassSkillBonuses === 'function' ? buildAdvancedClassSkillBonuses(c) : {}), (typeof buildPowerArmorSkillBonuses === 'function' ? buildPowerArmorSkillBonuses(c) : {}), (typeof activeBuffBonuses === 'function' ? activeBuffBonuses(c) : {}) /* v8.42.0: transient wired buffs */, (typeof buildCyberneticsBonuses === 'function' ? buildCyberneticsBonuses(c) : {}) /* v8.91.0: implants */, (typeof buildArmorCheckPenaltyBonuses === 'function' ? buildArmorCheckPenaltyBonuses(c) : {}) /* v8.93.0: ACP reaches the skill table */]) {
+  for (const src of [buildFeatBonuses(c), buildOccupationBonuses(c), buildTalentBonuses(c), buildItemBonuses(c), buildScale0VariantBonuses(c), buildMutationBonuses(c), buildMagicItemBonuses(c), buildDerivedSkillBonuses(c), buildRacialBonuses(c.race) /* v8.16.0 Races pass: skill: targets */, (buildClassChoiceBonuses(c)), (buildCompanionSkillPerks(c)), (buildAdvancedClassSkillBonuses(c)), (buildPowerArmorSkillBonuses(c)), (activeBuffBonuses(c)) /* v8.42.0: transient wired buffs */, (buildCyberneticsBonuses(c)) /* v8.91.0: implants */, (buildArmorCheckPenaltyBonuses(c)) /* v8.93.0: ACP reaches the skill table */]) {
     for (const key in src) {
       if (!key.startsWith('skill:')) continue;
       (merged[key] = merged[key] || []).push(...src[key]);

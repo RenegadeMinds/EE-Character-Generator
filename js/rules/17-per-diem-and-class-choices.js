@@ -158,14 +158,14 @@ function adjustAbilityUse(key, delta) {
     if (!confirm(`${spec.name}: all ${spec.max} ${spec.kind === 'pool' ? 'points' : 'uses'} are spent. Record another anyway (GM exception)?`)) return;
   }
   c.abilityUses[key] = next;
-  save(); if (typeof renderPerDiem === 'function') renderPerDiem(c);
+  save(); renderPerDiem(c);
 }
 function renewAbility(key) {
   const c = chars.find(x => x.id === curId); if (!c || !c.abilityUses) return;
   const spec = computePerDiemAbilities(c).find(s => s.key === key);
   c.abilityUses[key] = 0;
   logAct(`↻ ${spec ? spec.name : key} renewed (GM override — partial rejuvenation).`);
-  save(); if (typeof renderPerDiem === 'function') renderPerDiem(c);
+  save(); renderPerDiem(c);
 }
 
 // ---- RAGE state machine (Adam: full toggle with baked modifiers) ----------
@@ -186,7 +186,7 @@ function toggleRage() {
     c.raging = false;
     // Tireless @17, or Bloodluster Perfect Storm @10 (no fatigue even from
     // a Greater Rage; a lesser Bloodluster may still try Concentration DC 20).
-    const tireless = berserkerLvl(c) >= 17 || (typeof bloodlusterLvl === 'function' && bloodlusterLvl(c) >= 10);
+    const tireless = berserkerLvl(c) >= 17 || (bloodlusterLvl(c) >= 10);
     if (!tireless) {
       c.fatigued = true;
       if (!c.conditions) c.conditions = [];
@@ -197,7 +197,7 @@ function toggleRage() {
     }
   }
   save(); renderSheet(); renderGear(); renderSkills();
-  if (typeof renderTracker === 'function' && curId) { const p = document.getElementById('tr-content'); if (p && p.style.display !== 'none') renderTracker(); }
+  if (curId) { const p = document.getElementById('tr-content'); if (p && p.style.display !== 'none') renderTracker(); }
 }
 function clearFatigue() {
   const c = chars.find(x => x.id === curId); if (!c) return;
@@ -957,8 +957,8 @@ function setClassChoice(key, value) {
   const c = chars.find(x => x.id === curId); if (!c) return;
   if (!c.classChoices) c.classChoices = {};
   if (value) c.classChoices[key] = value; else delete c.classChoices[key];
-  if (typeof reconcileClassAttrBakes === 'function') reconcileClassAttrBakes(c);
-  if (typeof reconcileGrantedFeats === 'function') reconcileGrantedFeats(c);
+  reconcileClassAttrBakes(c);
+  reconcileGrantedFeats(c);
   save(); renderSheet(); renderSkills(); renderGear();
 }
 // The Sheet's 🎓 Class Choices panel.
@@ -968,7 +968,7 @@ function renderClassChoices(c) {
   const specs = computeClassChoiceSpecs(c);
   // v8.66.0: the skill-set designations can exist without picker specs —
   // the empty-panel gate must consider both.
-  const _ssAny = (typeof computeSkillSetSpecs === 'function') && computeSkillSetSpecs(c).length > 0;
+  const _ssAny = computeSkillSetSpecs(c).length > 0;
   if (!specs.length && !_ssAny) { host.style.display = 'none'; host.innerHTML = ''; return; }
   host.style.display = '';
   const pending = specs.filter(s => !s.chosen).length;
@@ -986,7 +986,7 @@ function renderClassChoices(c) {
   const feRow = feList.length ? `<div style="font-size:11px;margin-top:4px;color:var(--g80);">🎯 <b>Favored Enemies:</b> ${feList.map(f => `${escapeHTML(f.type)} +${f.bonus}`).join(', ')} <span style="opacity:var(--o60);color:var(--dim);">(damage &amp; Bluff/Listen/Sense Motive/Spot/Survival vs the type — apply at the table)</span></div>` : '';
   // v8.66.0 (Adam's design): Take-10 skill-set designations — collapsible
   // one-liners, ⚑-amber while open slots remain, red while over capacity.
-  const ssSpecs = (typeof computeSkillSetSpecs === 'function') ? computeSkillSetSpecs(c) : [];
+  const ssSpecs = computeSkillSetSpecs(c);
   let ssRows = '', ssPending = 0;
   if (ssSpecs.length) {
     if (!window._ssOpen) window._ssOpen = {};
@@ -1023,7 +1023,7 @@ function renderClassChoices(c) {
 // A base-score drop leaves the set over capacity — flagged red, GM
 // adjudicates which designations lapse (no auto-delete).
 function baseExAttrMod(c, i) {
-  const su = (typeof suBakedPerAttr === 'function') ? (suBakedPerAttr(c) || [0, 0, 0, 0, 0, 0]) : [0, 0, 0, 0, 0, 0];
+  const su = (suBakedPerAttr(c) || [0, 0, 0, 0, 0, 0]);
   return am((((c.attrs) || [10, 10, 10, 10, 10, 10])[i] || 10) - (su[i] || 0));
 }
 function computeSkillSetSpecs(c) {
@@ -1057,14 +1057,14 @@ function addSkillSetPick(key, val) {
   if (!c.skillSets[key].includes(val)) c.skillSets[key].push(val);
   if (!window._ssOpen) window._ssOpen = {};
   window._ssOpen[key] = true;
-  if (typeof logAct === 'function') logAct(`🎓 ${key === 'shutItOut' ? 'Shut It Out' : 'Skill Mastery'}: ${val} designated (Take 10 even under duress).`);
+  logAct(`🎓 ${key === 'shutItOut' ? 'Shut It Out' : 'Skill Mastery'}: ${val} designated (Take 10 even under duress).`);
   save(); renderClassChoices(c);
 }
 function removeSkillSetPick(key, idx) {
   const c = chars.find(x => x.id === curId); if (!c) return;
   const arr = (c.skillSets || {})[key]; if (!arr || idx < 0 || idx >= arr.length) return;
   const gone = arr.splice(idx, 1)[0];
-  if (typeof logAct === 'function') logAct(`🎓 ${key === 'shutItOut' ? 'Shut It Out' : 'Skill Mastery'}: ${gone} designation removed (GM retcon).`);
+  logAct(`🎓 ${key === 'shutItOut' ? 'Shut It Out' : 'Skill Mastery'}: ${gone} designation removed (GM retcon).`);
   save(); renderClassChoices(c);
 }
 

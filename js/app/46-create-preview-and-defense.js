@@ -49,7 +49,7 @@ function updateClassPreview(){
   }
   const totalLvl=formClasses.reduce((s,e)=>s+(e.level||0),0);
   const _eclRace=document.getElementById('c-race').value;
-  const eclMod=_eclRace==='Hybrid'?((typeof _formHybridRlm==='function')?_formHybridRlm():0):(RACES[_eclRace]?.ecl||0);  // v8.68.0: Hybrid-aware
+  const eclMod=_eclRace==='Hybrid'?(_formHybridRlm()):(RACES[_eclRace]?.ecl||0);  // v8.68.0: Hybrid-aware
   html+=`<span style="color:var(--g50);">Total Level: ${totalLvl} &nbsp;|&nbsp; ECL: ${totalLvl+eclMod}</span>`;
   prev.innerHTML=html;
   renderAllPrereqChecks();
@@ -337,13 +337,13 @@ function computeACDisplay(c, opts){
   // Touch and everything built on it; Morphic Metal Alloy raises the cap.
   // v8.12.2 (Adam's Rhad catch): EFFECTIVE Dex (equipped-item enhancements,
   // fatigue), matching computeStatBlock's firm-wire convention — was raw.
-  let dexM = (typeof effAttrs === 'function') ? am(effAttrs(c)[1]) : am(c.attrs[1]);
+  let dexM = am(effAttrs(c)[1]);
   const _mdxCap = armorMaxDexCap(c);
   const _dexCapped = (_mdxCap != null && dexM > _mdxCap);
   if (_dexCapped) dexM = _mdxCap;
   // v8.16.0 Races pass: size derives from the race (+1 Small, −1 Large);
   // an explicit c.sizeMod (GM) overrides.
-  const size = (c.sizeMod != null) ? c.sizeMod : ((typeof raceACSizeMod === 'function') ? raceACSizeMod(c) : 0);
+  const size = (c.sizeMod != null) ? c.sizeMod : (raceACSizeMod(c));
   const def = c.def || 0;
   // v8.5.2: equipped armor/shield item (incl. mastercraft) takes precedence
   // over the manual c.armorAC/c.shieldAC fields; those remain the fallback
@@ -363,14 +363,14 @@ function computeACDisplay(c, opts){
   applyClassFeatureEffects(c);
   const touchAcBonus = c._touchAcBonus || 0;
   // v8.8.2: Rage's −2 AC (Ex, all tiers) while the toggle is active.
-  const ragePen = (c.raging && typeof rageTier === 'function' && rageTier(c)) ? -2 : 0;
+  const ragePen = (c.raging && rageTier(c)) ? -2 : 0;
   // v8.76.0 (Adam's Hellfire report — the AC cell ignored declared stances):
   // this parallel composer never read combatDecl, so CE's dodge bonus, RO's
   // −4, AND Best Defense's def spend (a latent v8.65.0 gap — the lanes
   // carried it but this display reads raw c.def) all missed the T/AC
   // tiers. All three are touch-legal: CE is a dodge bonus (HH p.207), RO
   // is a flat AC penalty, BD spends the Defense Bonus that feeds touch.
-  const _dclA = (typeof combatDecl === 'function') ? combatDecl(c) : { pa: 0, ce: 0, ro: false, bd: 0 };
+  const _dclA = combatDecl(c);
   const declCE = _dclA.ce || 0, declRO = _dclA.ro ? -4 : 0, declBD = -(_dclA.bd || 0);
   const declAC = declCE + declRO + declBD;
   // v8.12.2 (Adam's Rhad catch — Ring of Protection +2 missing from T/AC):
@@ -383,9 +383,9 @@ function computeACDisplay(c, opts){
   let miscAC = 0; const miscParts = [];
   try {
     const pool = [
-      ...(((typeof buildMagicItemBonuses === 'function') && buildMagicItemBonuses(c).ac) || []),
-      ...(((typeof buildFeatBonuses === 'function') && buildFeatBonuses(c).ac) || []),
-      ...(((typeof buildRacialBonuses === 'function') && buildRacialBonuses(c.race).ac) || []),
+      ...((buildMagicItemBonuses(c).ac) || []),
+      ...((buildFeatBonuses(c).ac) || []),
+      ...((buildRacialBonuses(c.race).ac) || []),
       // v9.19.0 (old-boys report #2 — Mental Barrier's deflection missing
       // from the AC headline): the activeEffects lane, the SAME channel
       // computeStatBlock's ac lane reads (v8.42.0's aeBon). §278's disease,
@@ -393,7 +393,7 @@ function computeACDisplay(c, opts){
       // read it. Deflection and friends are touch-legal; gated entries
       // carry .condition and fall to the filter below; NPF suppression is
       // inside activeBuffBonuses itself.
-      ...(((typeof activeBuffBonuses === 'function') && activeBuffBonuses(c).ac) || []),
+      ...((activeBuffBonuses(c).ac) || []),
     ].filter(b => !b.condition && !['armor', 'shield', 'natural'].includes(b.type));
     if (pool.length) {
       const agg = aggregateBonuses(pool);
@@ -415,8 +415,8 @@ function computeACDisplay(c, opts){
     const gsBits = [];
     for (const it2 of getCharItems(c)) {
       if (it2.catalogue !== 'armor' || !it2.equipped) continue;
-      const g = (typeof armorItemIntegrity === 'function') ? armorItemIntegrity(it2) : null;
-      if (g) gsBits.push(`${(typeof enchantDisplayName === 'function') ? enchantDisplayName(it2) : it2.ref} — Hardness ${g.hardness}, HP ${g.hp}/${g.maxHP}${g.destroyed ? ' ☠ destroyed' : g.broken ? ' ⚑ broken' : ''}`);
+      const g = armorItemIntegrity(it2);
+      if (g) gsBits.push(`${enchantDisplayName(it2)} — Hardness ${g.hardness}, HP ${g.hp}/${g.maxHP}${g.destroyed ? ' ☠ destroyed' : g.broken ? ' ⚑ broken' : ''}`);
     }
     if (gsBits.length && total > touch) tacNote = ` · results ${touch}–${total - 1} strike the armor (hardness applies, split on the Tracker): ${gsBits.join('; ')}`;
   } catch (e) {}
@@ -471,7 +471,7 @@ function computeParryBonus(c, opts){
   // v8.65.0: Best Defense SPENDS Defense Bonus — def-fed stats move (PA's
   // mirror, Adam's ruling: "right down to the attendant Defense Bonus
   // modifier").
-  const _bd = (typeof combatDecl === 'function') ? (combatDecl(c).bd || 0) : 0;
+  const _bd = (combatDecl(c).bd || 0);
   // v9.12.1 (§270, Adam's re-reading 2026-10-10, superseding v8.98.0): PA
   // and CE are penalties to MELEE ATTACK ROLLS while engaged — Base Attack
   // is never spent (both feat BODIES, HH pp.207/235; the summary table's
@@ -481,7 +481,7 @@ function computeParryBonus(c, opts){
   // WITHDRAWN. What DOES reach the Parry: CE's Defense bonus — "affects
   // the character's AC (both touch and total), dodge modifier, and PARRY
   // modifier" (HH p.207) — so CE nets +N Parry with no arithmetic contortions.
-  const _dP = (typeof combatDecl === 'function') ? combatDecl(c) : { pa: 0, ce: 0, ro: false, bd: 0 };
+  const _dP = combatDecl(c);
   const _ceP = _dP.ce || 0;
   const _roP = _dP.ro ? 4 : 0;
   const parts = [
@@ -493,7 +493,7 @@ function computeParryBonus(c, opts){
   // v9.7.0 (§257): the Parrying imbued weapon ability — +1 insight to the
   // parry modifier (and touch AC + Reflex via the item-bonus lanes)
   // whenever the wielder holds the weapon, even flat-footed (GMG).
-  const _pw = (typeof parryingHeldBonus === 'function') ? parryingHeldBonus(c) : 0;
+  const _pw = parryingHeldBonus(c);
   if (_pw) parts.push({label:'Parrying weapon (insight — held, even flat-footed)', value:_pw});
   if (_ceP) parts.push({label:'Combat Expertise (declared — the Defense bonus reaches the Parry, HH p.207)', value:_ceP});
   if (_bd) parts.push({label:'Best Defense (declared)', value:-_bd});
@@ -529,7 +529,7 @@ function computeDodgeBonus(c){
   // negative levels…). HH p.372: "Dodge attempt = 1d20 + Reflex save
   // modifier + Defense bonus + dodge AC bonus(es)" — the SAVE CELL's own
   // total is the single truth.
-  const refTotal = (typeof computeStatBlock === 'function' && computeStatBlock(c).ref)
+  const refTotal = (computeStatBlock(c).ref)
     ? computeStatBlock(c).ref.total
     : (c.ref || 0) + dexM;
   // Dodge bonuses from feats: aggregate via the existing bonus pipeline.
@@ -551,7 +551,7 @@ function computeDodgeBonus(c){
   }
   // v8.65.0: Best Defense spends Defense Bonus — the dodge roll's Def
   // component drops with it (PA's mirror).
-  const _bd = (typeof combatDecl === 'function') ? (combatDecl(c).bd || 0) : 0;
+  const _bd = (combatDecl(c).bd || 0);
   const parts = [
     {label:'Ref', value:refTotal},
     {label:'Def', value:def},
@@ -561,8 +561,8 @@ function computeDodgeBonus(c){
   // v8.76.0 (Adam's Hellfire report): the declared CE/RO tags on the Dodge
   // card now carry real math — CE joins the dodge-bonus pool this function
   // already aggregates; RO's recklessness costs the roll its −4.
-  const _ceD = (typeof combatDecl === 'function') ? (combatDecl(c).ce || 0) : 0;
-  const _roD = (typeof combatDecl === 'function') ? (combatDecl(c).ro ? 4 : 0) : 0;
+  const _ceD = (combatDecl(c).ce || 0);
+  const _roD = (combatDecl(c).ro ? 4 : 0);
   if (_ceD) parts.push({label:'Combat Expertise (declared)', value:_ceD});
   if (_roD) parts.push({label:'Reckless Offense (declared)', value:-_roD});
   // v8.97.0 (Adam's flag request): the declaration-speed ladder, HH p.372 —

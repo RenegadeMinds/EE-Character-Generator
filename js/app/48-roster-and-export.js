@@ -69,7 +69,7 @@ function reconcileHerosGiftFold(c){
   if (!c.firstLevelSlots.some(s => s.kind === 'herosGift')) c.firstLevelSlots.push({kind:'herosGift', filled:null, filledParam:null});
   const slot = c.firstLevelSlots.find(s => s.kind === 'herosGift');
   if (slot && slot.filled === null) { slot.filled = cand.name || cand.n; slot.filledParam = cand.param || null; }
-  if (typeof logAct === 'function' && c.id === curId) logAct(`🎁 Hero's Gift recognized: ${cand.name || cand.n} counts as the Hero's Gift feat — the books balance.`);
+  if (c.id === curId) logAct(`🎁 Hero's Gift recognized: ${cand.name || cand.n} counts as the Hero's Gift feat — the books balance.`);
   return true;
 }
 function reconcileOrphanSubOptions(c){
@@ -132,7 +132,7 @@ function exportRosterDownload(json, fname) {
   a.href = URL.createObjectURL(blob);
   a.download = fname;
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  if (typeof backupNoteExport === 'function') backupNoteExport();
+  backupNoteExport();
   toast(`⬇ Exported ${chars.length} hero${chars.length === 1 ? '' : 'es'} — the file imports on any browser's roster.`);
 }
 function exportCurrentHero() {
@@ -170,7 +170,7 @@ function importRosterFile(inp) {
   reader.readAsText(file);
 }
 function renderRoster(){
-  if (typeof renderBackupChip === 'function') renderBackupChip();  // v8.58.0
+  renderBackupChip();  // v8.58.0
   const el=document.getElementById('roster-list');
   if(!chars.length){el.innerHTML=`<div class="empty"><div class="empty-ico">⚔</div><div class="empty-txt">No heroes yet — forge your first character</div></div>`;return;}
   // v8.6.0 C5: self-heal any record with missing HP before rendering.

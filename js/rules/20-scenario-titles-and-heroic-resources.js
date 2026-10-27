@@ -598,7 +598,7 @@ function getFeatBudget(c) {
   const occNamesForBudget = c.occupations || (c.occ ? [c.occ] : []);
   for (const occName of occNamesForBudget) {
     if (!occName) continue;
-    const occData = (typeof getOccupationData === 'function') ? getOccupationData(occName) : null;
+    const occData = getOccupationData(occName);
     if (occData && occData.bonus_feat_options && occData.bonus_feat_options.length) {
       sources.push({label: `${occName} bonus feat`, count: 1, source: `occ:${occName}`});
     }
@@ -606,9 +606,9 @@ function getFeatBudget(c) {
   const levelBonus = Math.floor((c.totalLvl||0)/3);
   if (levelBonus > 0) sources.push({label:`Lvl ${c.totalLvl} bonus (L3+, every 3 lvls)`, count:levelBonus, source:'lvl-bonus'});
   // Class-feature bonus feats (Fighter's bonus feat track, etc.)
-  if (typeof computeBonusFeatsFromClassFeatures === 'function') {
+  {
     const classFeatureBonusFeats = computeBonusFeatsFromClassFeatures(c);
-    if (classFeatureBonusFeats > 0 && typeof getActiveClassFeatures === 'function') {
+    if (classFeatureBonusFeats > 0) {
       const cfFeatures = getActiveClassFeatures(c).filter(f => f.effect && f.effect.type === 'bonusFeats');
       for (const f of cfFeatures) {
         const cnt = evalBonusFeatFormula(f.effect.formula, f.classLvl || 0);
@@ -775,7 +775,7 @@ function getTalentBudget(c) {
   const slotPicked = (c.talents || []).filter(t => talentConsumesSlot(t.name) && !t.grantedBy).length;
   const superOwned = (c.talents || []).length - slotPicked;
   let flexUsed = 0, flexMax = 0;
-  if (typeof heroTalentFlex === 'function') {
+  {
     const flex = heroTalentFlex(c);
     bonusGrants += flex.base;
     flexMax = flex.flexMax;
@@ -835,7 +835,7 @@ function characterIsEntitledToVehicles(c) {
   if (!c) return false;
   // v8.14.x Segment B: the Second Skin feat parks its ectoplasmic exosuit in
   // the motor pool too.
-  if (typeof hasFeatNamed === 'function' && hasFeatNamed(c, 'Second Skin')) return true;
+  if (hasFeatNamed(c, 'Second Skin')) return true;
   return getCharItems(c).some(it =>
     it.catalogue === 'vehicle' || it.catalogue === 'mecha' || it.catalogue === 'starship'
     || (it.catalogue === 'armor' && (getCatalogueEntry('armor', it.ref) || {}).type === 'power'));

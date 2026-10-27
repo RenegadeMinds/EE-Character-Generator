@@ -84,7 +84,7 @@ function backupNoteExport() {
 function renderBackupChip() {
   try {
     let chip = document.getElementById('backup-chip');
-    if (typeof chars === 'undefined' || !chars.length) { if (chip) chip.style.display = 'none'; return; }
+    if (!chars.length) { if (chip) chip.style.display = 'none'; return; }
     const m = backupMeta();
     const days = m.lastExport ? (Date.now() - m.lastExport) / 86400000 : Infinity;
     const never = !m.lastExport;
@@ -186,12 +186,12 @@ const save = ()=>{
   // instead of throwing out of whatever flow called save().
   if (!storeSet('dxd20v2_chars', JSON.stringify(chars))) storageBannerCheck();
   // v8.58.0 Backup Guardian: count this change toward the freshness chip.
-  try { if (typeof backupNoteSave === 'function') backupNoteSave(); } catch (e) {}
+  try { backupNoteSave(); } catch (e) {}
   // v8.32.0: refresh the nav attention dots on every persist — budgets can
   // change from any page (spend a skill point, take a talent, pick a spell).
   try {
-    const c = (typeof curId !== 'undefined' && curId) ? chars.find(x => x.id === curId) : null;
-    if (c && typeof renderNavTabs === 'function') renderNavTabs(c);
+    const c = (curId) ? chars.find(x => x.id === curId) : null;
+    if (c) renderNavTabs(c);
   } catch (e) {}
 };
 const genId = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2);

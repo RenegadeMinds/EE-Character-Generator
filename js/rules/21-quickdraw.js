@@ -87,13 +87,13 @@ function qdLegalStarts(sixLevels) {
 function qdScoreStart(cand, needs) {
   const def = qdEntry(cand.name).def;
   let score = 0;
-  const csk = (typeof CLASS_SKILLS !== 'undefined' && CLASS_SKILLS[cand.name]) || [];
+  const csk = (CLASS_SKILLS[cand.name]) || [];
   score += needs.skills.filter(s => csk.includes(s)).length * 2 + (def.sp || 0) / 10;
   if (needs.bab > 0 && Array.isArray(def.bab) && def.bab.length) {
     const slope = (def.bab[Math.min(3, def.bab.length - 1)] || 0) / Math.min(4, def.bab.length);
     score += slope >= 0.95 ? 2 : slope >= 0.7 ? 1 : 0;
   }
-  const cc = (typeof CASTER_CLASSES !== 'undefined') && CASTER_CLASSES[cand.name];
+  const cc = CASTER_CLASSES[cand.name];
   if (cc && cc.pool && needs.pools.has(cc.pool)) score += 4;  // caster gates dominate
   if (needs.classNames.has(cand.name)) score += 5;
   if (needs.tiers.has(cand.tier)) score += 1.5;
@@ -319,7 +319,7 @@ function qdAllocateAttrs(needs, keyAttr, bumpsAvail) {
 function qdKeyAttrsFor(classNames, lastDef) {
   const out = [];
   for (const nm of (classNames || [])) {
-    if (typeof CASTER_PROGRESSION !== 'undefined' && CASTER_PROGRESSION[nm]) {
+    if (CASTER_PROGRESSION[nm]) {
       const e = qdEntry(nm);
       if (e) { const k = qdKeyAttr(e.def); if (!out.includes(k)) out.push(k); }
     }
@@ -441,7 +441,7 @@ function qdBuildAttempt(spec, res, startName, goalE, isEntryFree) {
     if (!startE) return {ok: false, reason: `unknown starting class "${startName}"`};
     if (disabled.has(startName)) return {ok: false, reason: `${startName} is unavailable under this scenario's Six Scales`};
     if (res.pools.size) {
-      const cc = (typeof CASTER_CLASSES !== 'undefined') && CASTER_CLASSES[startName];
+      const cc = CASTER_CLASSES[startName];
       if (!cc || !res.pools.has(cc.pool)) return {ok: false, reason: `${spec.goal} needs a ${[...res.pools].join('/')} caster ladder — ${startName} can't supply it (try AUTO)`};
     }
     // starting-class attrMin joins the needs — on a LOCAL copy, so one
@@ -473,7 +473,7 @@ function qdBuildAttempt(spec, res, startName, goalE, isEntryFree) {
       id, name: nm, race: spec.race || 'Human', sex: '', align: res.align || 'Neutral',
       hybrid: (spec.race === 'Hybrid' && spec.hybrid && !spec.hybrid.invalid) ? {...spec.hybrid} : null,  // v8.68.2
       allegiance: res.allegiance || '', occupations: [], xp: 0, hpMode: 'hero',
-      schemaVer: (typeof CURRENT_SCHEMA_VER !== 'undefined') ? CURRENT_SCHEMA_VER : 1,
+      schemaVer: CURRENT_SCHEMA_VER,
       attrs: alloc.attrs.slice(), attrBumps: alloc.bumps.slice(),
       sixLevels: {...spec.sixLevels}, scenarioPreset: spec.presetName || 'Custom',
       classes: classes.map(c => ({...c})),
@@ -598,7 +598,7 @@ function qdBuildAttempt(spec, res, startName, goalE, isEntryFree) {
       }
     }
     c.maxHP = Math.max(1, hp); c.currentHP = c.maxHP; c.hp = c.maxHP;
-    c.xp = (typeof xpThreshold === 'function') ? xpThreshold(N) : 0;
+    c.xp = xpThreshold(N);
     // v8.40.3 (Adam's Dutch dashboard report): the Sheet's combat dashboard
     // reads STORED derived stats (c.bab/def/saves/rep, c.ap/apMax) that the
     // save and level-up flows stamp via computeStatsFromClasses — a directly
@@ -617,7 +617,7 @@ function qdBuildAttempt(spec, res, startName, goalE, isEntryFree) {
     c.basicClass = basicEntry ? basicEntry.name : ''; c.basicLvl = basicEntry ? basicEntry.level : 0;
     c.advClass = advEntry ? advEntry.name : ''; c.advLvl = advEntry ? advEntry.level : 0;
     c.presClass = presEntry ? presEntry.name : ''; c.presLvl = presEntry ? presEntry.level : 0;
-    try { if (typeof reconcileGrantedFeats === 'function') reconcileGrantedFeats(c); } catch (e) {}
+    try { reconcileGrantedFeats(c); } catch (e) {}
     // GM-gated prereqs: recorded honestly as exceptions, exactly like a
     // manual entry past the warning.
     if (res.gmNotes.length) {
@@ -631,7 +631,7 @@ function qdBuildAttempt(spec, res, startName, goalE, isEntryFree) {
     if (res.choices.length) c.log.push({time: stamp, text: `⚡ Auto-resolved (swap freely): ${res.choices.join(' · ')}`});
     if (bridgeAllocNote) c.log.push({time: stamp, text: `⚡ ${bridgeAllocNote}.`});
     if (alloc.bumps.length) c.log.push({time: stamp, text: `⚡ Level bumps (${alloc.bumps.length}) assigned: ${alloc.bumps.join(', ')} — use-it-or-lose-it, so none were left on the table.`});
-    if (typeof refreshEclXp === 'function') refreshEclXp(c);
+    refreshEclXp(c);
     // Final validation with the real gates — the build must stand on its own.
     const finalCheck = classPrereqCheckOf({...c, classes: ladder.filter(e => e.name !== spec.goal)}, spec.goal);
     const residual = (finalCheck.missing || []).filter(m => !res.gmNotes.some(gn => m.includes(gn)) && !m.includes('(GM-verify)'));
@@ -716,7 +716,7 @@ function qdBespokeBuild(spec) {
       id, name: nm, race: spec.race || 'Human', sex: '', align: 'Neutral',
       hybrid: (spec.race === 'Hybrid' && spec.hybrid && !spec.hybrid.invalid) ? {...spec.hybrid} : null,  // v8.68.2
       allegiance: '', occupations: [], xp: 0, hpMode: 'hero',
-      schemaVer: (typeof CURRENT_SCHEMA_VER !== 'undefined') ? CURRENT_SCHEMA_VER : 1,
+      schemaVer: CURRENT_SCHEMA_VER,
       attrs: alloc.attrs.slice(), attrBumps: alloc.bumps.slice(),
       sixLevels: {...spec.sixLevels}, scenarioPreset: spec.presetName || 'Custom',
       classes: classes.map(c => ({...c})),
@@ -776,7 +776,7 @@ function qdBespokeBuild(spec) {
       for (let i = 0; i < e.level; i++) { li++; hp += (li === 1 ? hd : Math.floor((Math.floor(hd / 2) + 1 + hd) / 2)) + conM; }
     }
     c.maxHP = Math.max(1, hp); c.currentHP = c.maxHP; c.hp = c.maxHP;
-    c.xp = (typeof xpThreshold === 'function') ? xpThreshold(N) : 0;
+    c.xp = xpThreshold(N);
     const s = computeStatsFromClasses(steps);
     c.bab = s.bab; c.def = s.def; c.fort = s.fort; c.ref = s.ref; c.will = s.will; c.rep = s.rep;
     c.apMax = s.ap; c.ap = c.apMax;
@@ -785,7 +785,7 @@ function qdBespokeBuild(spec) {
     c.basicClass = by('basic') ? by('basic').name : ''; c.basicLvl = by('basic') ? by('basic').level : 0;
     c.advClass = by('advanced') ? by('advanced').name : ''; c.advLvl = by('advanced') ? by('advanced').level : 0;
     c.presClass = by('prestige') ? by('prestige').name : ''; c.presLvl = by('prestige') ? by('prestige').level : 0;
-    try { if (typeof reconcileGrantedFeats === 'function') reconcileGrantedFeats(c); } catch (e) {}
+    try { reconcileGrantedFeats(c); } catch (e) {}
     // v8.53.0: build-time occupation (optional). Sets the occupation only —
     // the perk picks stay owed; the ledger's picks-unchosen note takes over.
     if (spec.occupation) c.occupations = [spec.occupation];
@@ -798,7 +798,7 @@ function qdBespokeBuild(spec) {
     if (merged.choices.length) c.log.push({time: stamp, text: `⚡ Auto-resolved (swap freely): ${merged.choices.join(' · ')}`});
     if (owedPowerGates.length) c.log.push({time: stamp, text: `⚡ OWED to qualify (fill via Psionic Powers/Spells tab): ${owedPowerGates.join(' · ')} — these repertoire gates ride on the powers you pick; the class stands admitted on the ladder's math.`});
     if (alloc.bumps.length) c.log.push({time: stamp, text: `⚡ Level bumps (${alloc.bumps.length}) assigned: ${alloc.bumps.join(', ')}.`});
-    if (typeof refreshEclXp === 'function') refreshEclXp(c);
+    refreshEclXp(c);
     return {ok: true, char: c, summary: ladderTxt};
   } catch (err) {
     return {ok: false, reason: 'Bespoke build error: ' + (err && err.message || err)};
@@ -819,14 +819,14 @@ function qdBespokeRun() {
     hybrid: _bspHyb,
     name: ((document.getElementById('qd-stem') || {}).value || '').trim() || 'Bespoke Hero',
     occupation: (document.getElementById('qd-occ') || {}).value || '',
-    manualAttrs: (typeof qdManualAttrs === 'function') ? qdManualAttrs() : null,  // v8.95.0: dice-roller lane
+    manualAttrs: qdManualAttrs(),  // v8.95.0: dice-roller lane
   };
   const r = qdBespokeBuild(spec);
   if (!r.ok) { toast('⚡ Bespoke refused: ' + r.reason); return; }
   chars.push(r.char); curId = r.char.id;
   save();
-  if (typeof closeQuickdraw === 'function') closeQuickdraw();
-  showPage('sheet'); if (typeof renderSheet === 'function') renderSheet(); if (typeof renderRoster === 'function') renderRoster();
+  closeQuickdraw();
+  showPage('sheet'); renderSheet(); renderRoster();
   toast(`⚡ Bespoke built: ${r.char.name} — ${r.summary}. The amber dots hold everything still to choose.`);
 }
 

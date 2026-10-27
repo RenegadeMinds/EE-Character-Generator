@@ -311,7 +311,7 @@ function attrDmgDailyRecovery(cArg, quiet) {
   c.attrDmg = c.attrDmg.map(v => Math.max(0, (v || 0) - 1));
   if (!quiet) logAct(`🌙 An evening of rest: attribute damage now ${['Str','Dex','Con','Int','Wis','Cha'].map((n, i) => c.attrDmg[i] ? n + ' ' + c.attrDmg[i] : null).filter(Boolean).join(' · ') || 'fully healed'}.`);
   reconcileConDamageHP(c);  // v8.50.1: recovered Con restores HP per RAW
-  save(); if (typeof renderSheet === 'function' && c.id === curId) renderSheet();
+  save(); if (c.id === curId) renderSheet();
 }
 function renderAttrDmg(c) {
   const el = document.getElementById('tr-attr-dmg');
@@ -353,8 +353,8 @@ function adjustHP(t){
   else if(t==='full'){
     c.currentHP=c.maxHP;
     if (c.nlDmg) { c.nlDmg = 0; logAct('Nonlethal tally cleared by the full rest.'); }
-    if (typeof mindDailyRecovery === 'function') mindDailyRecovery(c);  // a rest = a day of mental healing
-    if (typeof attrDmgDailyRecovery === 'function') attrDmgDailyRecovery(c);  // …and an evening for attribute damage
+    mindDailyRecovery(c);  // a rest = a day of mental healing
+    attrDmgDailyRecovery(c);  // …and an evening for attribute damage
     // v8.3.27: full rest also refreshes AP. The AP refresh is a silent
     // ap-reset entry — automatic, not player-discretionary, so it doesn't
     // prompt for a note. (Player intuition: a full rest is rules-driven and

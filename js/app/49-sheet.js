@@ -276,17 +276,17 @@ function renderSheet(){
   // v8.99.0 self-heal (Adam's Rhad confirmation): implant-granted feats
   // materialize on Sheet render too — a character opened straight to the
   // Sheet gets their Feat Implant feats without visiting Gear first.
-  if (typeof syncCyberFeats === 'function') syncCyberFeats(c);
+  syncCyberFeats(c);
   // v8.12.4 self-heal (Adam's Rhad ECL-13 report): the stored c.ecl/xpNext
   // can go stale when an ML threshold is crossed by a path that skips the
   // full edit-save (or drop when MP sources are removed). refreshEclXp is
   // idempotent — the XP-compensation ratchet inside grants nothing twice —
   // so re-stamp on every Sheet render; matches the reconcileMissingHP
   // render-hook pattern.
-  if (typeof refreshEclXp === 'function') { const _preEcl = c.ecl; refreshEclXp(c); if (c.ecl !== _preEcl) save(); }
+  { const _preEcl = c.ecl; refreshEclXp(c); if (c.ecl !== _preEcl) save(); }
   // v8.67.0 (Mutant sync): Unnatural Prowess/Resilience bakes reconcile on
   // every Sheet render (idempotent — same hook pattern as reconcileMissingHP).
-  if (typeof reconcileMutantSubtype === 'function' && reconcileMutantSubtype(c)) save();
+  if (reconcileMutantSubtype(c)) save();
   // v8.40.3 self-heal (Adam's Dutch dashboard report): records assembled
   // without the stored derived stats (v8.40.0–v8.40.2 Quickdraw skeletons)
   // rendered "Base Attack: undefined" and AP 0/0. c.bab === undefined is
@@ -312,7 +312,7 @@ function renderSheet(){
       c.totalLvl = s.totalLvl;
       // v8.67.0: the stamp rebuilt bab/def from class tables — zero the
       // Unnatural Prowess ledger halves so the reconciler re-applies.
-      if (c.mutSubApplied) { c.mutSubApplied.bab = 0; c.mutSubApplied.def = 0; if (typeof reconcileMutantSubtype === 'function') reconcileMutantSubtype(c); }
+      if (c.mutSubApplied) { c.mutSubApplied.bab = 0; c.mutSubApplied.def = 0; reconcileMutantSubtype(c); }
       if (c.currentHP === undefined && c.maxHP !== undefined) c.currentHP = c.maxHP;
       save();
     } catch (e) { /* heal is best-effort — never block the Sheet */ }
@@ -412,7 +412,7 @@ function renderSheet(){
     // since v8.43.0 (effAttrs feeds attacks, skills, DCs, grapple), but the
     // ability boxes only ever showed the item door, so a wired Animal
     // Affinity was invisible exactly where the player looks first.
-    const buffD = (typeof activeBuffAttrDeltas === 'function') ? (activeBuffAttrDeltas(c)[i] || 0) : 0;
+    const buffD = (activeBuffAttrDeltas(c)[i] || 0);
     const effV = c.attrs[i] + iB + buffD;
     const itemTag = iB > 0
       ? `<div style="font-family:'Epics Serif','Crimson Pro',serif;font-size:9px;color:var(--tb85);font-style:italic;margin-top:2px;cursor:help;" title="${escapeHTML(itemAttrB.from[i] || '')} — enhancement bonus while equipped (firm-wired: saves, skills, DCs, and attacks use the effective score; stored max HP does not follow item CON — RAW treats those hit points as temporary).">+${iB} equipped</div>`
@@ -493,7 +493,7 @@ function renderSheet(){
   // v8.12.2 (Adam): Grapple promoted from the Carry-line footnote to a
   // first-class combat cell alongside BAB/Defense — it's a headline combat
   // modifier, not encumbrance trivia.
-  const grap = (typeof computeGrapple === 'function') ? computeGrapple(c) : null;
+  const grap = computeGrapple(c);
   // v8.59.0 (Adam's trade-off challenge): the Base Attack card grows the
   // declared-stance stepper when Power Attack / Combat Expertise is owned.
   // ▼ trades a point of BA into a modifier (prompting which, when both feats
@@ -512,9 +512,9 @@ function renderSheet(){
   const _roTag = _dcl.ro ? `<span style="display:block;font-size:9px;color:var(--red-text);" title="Reckless Offense declared — −4 AC until your next turn for +2 on melee attack rolls, Grapple included (HH p.239; a grapple check is like a melee attack roll). Base Attack and the iterative ladder untouched (Adam's ruling). Lasts until re-declared.">−4 RO (declared)</span>` : '';
   // v8.64.0 (Phase 2 sift): Uncanny Dodge tag (class features + Fast Hero
   // talents through uncannyDodgeTier) and the Sharpshooter cover advisory.
-  const _ud = (typeof uncannyDodgeTier === 'function') ? uncannyDodgeTier(c) : null;
+  const _ud = uncannyDodgeTier(c);
   const _udTag = _ud ? `<span style="display:block;font-size:9px;color:#9cc3da;font-style:italic;" title="${_ud.tier >= 2 ? 'Improved Uncanny Dodge: you keep your Dex bonus to AC while flat-footed or struck by an invisible attacker, AND you cannot be flanked (a Rogue needs 4+ more Rogue levels to sneak-attack you via flanking).' : 'Uncanny Dodge: you keep your Dex bonus to AC while flat-footed or struck by an invisible attacker.'} Sources: ${_ud.srcs.join(', ')}. Uncanny Dodge from a second class upgrades to Improved automatically.">${_ud.tier >= 2 ? 'Imp. Uncanny Dodge' : 'Uncanny Dodge'}</span>` : '';
-  const _dpTag = (typeof _cfLvlOf === 'function' && _cfLvlOf(c, 'Sharpshooter') >= 4) ? `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Defensive Positioning (Sharpshooter 4): when in ANY cover, your cover bonus to Defense and Reflex saves is +2 higher than normal.">+2 cover (conditional)</span>` : '';
+  const _dpTag = (_cfLvlOf(c, 'Sharpshooter') >= 4) ? `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Defensive Positioning (Sharpshooter 4): when in ANY cover, your cover bonus to Defense and Reflex saves is +2 higher than normal.">+2 cover (conditional)</span>` : '';
   // v8.88.2 (Adam's priority re-order, 2026-10-03): the cells rank by their
   // relative importance at the table — Row 1: Max HP, AC, Initiative, Action
   // Points; Row 2: Base Attack, Grapple, Speed, Reputation; Row 3: Defense
@@ -524,7 +524,7 @@ function renderSheet(){
   const spdVal = `${spd.walk}′${spd.modes.map(m => ` / ${m.type} ${m.speed}′`).join('')}`;
   // v8.8.0 (Adam's Talents sweep): the Initiative CELL shows the full
   // computed total (Improved Initiative, talent init bonuses).
-  const initTotal = (typeof computeStatBlock === 'function' && computeStatBlock(c).init) ? computeStatBlock(c).init.total : dM;
+  const initTotal = (computeStatBlock(c).init) ? computeStatBlock(c).init.total : dM;
   // v9.12.1 (§270, Adam's re-reading): the stances are penalties to MELEE
   // ATTACK ROLLS — Base Attack is never spent, so the cell always shows the
   // printed value (no effective-BA arithmetic, no lost iteratives). The
@@ -544,7 +544,7 @@ function renderSheet(){
   // v8.65.0 (Adam's go): Best Defense stepper — the BA-card idiom mirrored
   // (Survivor 5+ only; free action to adjust, holds until re-declared).
   const _defCell = (() => {
-      const _bdCap = (typeof bestDefenseCap === 'function') ? bestDefenseCap(c) : 0;
+      const _bdCap = bestDefenseCap(c);
       const _bdN = _dcl.bd || 0;
       const _effDef = (c.def || 0) - _bdN;
       return {l:'Defense Bonus',
@@ -556,13 +556,13 @@ function renderSheet(){
   // v8.64.0/v8.66.0: Reputation card — full computed total, Artisan flag.
   const _repCell = (() => {
       let raTag = '';
-      if (typeof _cfLvlOf === 'function' && _cfLvlOf(c, 'Expert') >= 15) {
+      if (_cfLvlOf(c, 'Expert') >= 15) {
         const art = (c.classChoices || {})['exp_art_5'];
         const ranks = art ? ((c.skills || {})[art] || 0) : 0;
         if (art && ranks >= 15) raTag = `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Renowned Artisan (Expert 15; ruled 2026-10-02: feature text canonical — Renowned 15th / Master 10th, table row is the typo): the equivalent of Renown, but ONLY in matters of ${escapeHTML(art)}. Call the +3 out in real time when the audience cares about the craft — it is NOT in the headline total. Also +1 Purchase DC on your works (apply at the table).">+3 Artisan renown (conditional)</span>`;
       }
       // v9.17.0 (bug report #1): Reputation prints SIGNED like its row-mates.
-      const _repV = (typeof computeStatBlock==='function'?computeStatBlock(c).rep.total:(c.rep||0));
+      const _repV = (computeStatBlock(c).rep.total);
       return {l:'Reputation',v:(_repV>=0?'+':'')+_repV,k:'rep',extraHtml:raTag};
     })();
   const statCells = [
@@ -589,13 +589,13 @@ function renderSheet(){
   if (natHardness > 0) statCells.push({l:'Nat. Hardness', v:natHardness, k:'natHardness', tooltip:natTooltip});
   // v8.8.2 (Adam's Basic-class pass): Spell Resistance — a caster must beat
   // this on 1d20 + caster/manifester level. Best-wins, never stacks.
-  const _sr = (typeof computeSR === 'function') ? computeSR(c) : null;
+  const _sr = computeSR(c);
   if (_sr) statCells.push({l:'SR', v:_sr.total, tooltip:`Spell Resistance ${_sr.total} — a spell/power affects this character only if the caster wins a caster level check (1d20 + CL) ≥ ${_sr.total}.\n${_sr.note}`});
   // v8.86.0 (Adam's Son-of-the-Sun report): DR joins the Combat Statistics
   // chart the way SR does — headline = the best UNCONDITIONAL instance,
   // tooltip itemizes every instance (conditional ones flagged); the Resist
   // strip below keeps the full per-line display. Appears only when DR exists.
-  const _drCell = (typeof computeDR === 'function') ? computeDR(c) : [];
+  const _drCell = computeDR(c);
   const _drLive = _drCell.filter(d => !d.conditional);
   if (_drLive.length) {
     // v8.86.1 (Adam's Stoneskin-vs-Nigh-Invulnerable catch): at equal value,
@@ -653,7 +653,7 @@ function renderSheet(){
         // UNDERNEATH Carrying Capacity, not trailing it — a block-level
         // second row nested inside the Carry bit, so the inline ·-joined
         // strip never grows stray separators around a line break.
-        const _hiD = (typeof computeHardnessIgnore === 'function') ? computeHardnessIgnore(c) : null;
+        const _hiD = computeHardnessIgnore(c);
         let _demoRow = '';
         if (_hiD && _hiD.mode === 'mangler') {
           _demoRow = `<span style="display:block;margin-top:2px;"><b style="color:#d4865a;">💥 Demolition:</b> <span style="cursor:help;" title="${escapeHTML(`${_hiD.from}${_hiD.instances > 1 ? ' — Titanic Strength acts as a second instance of Mangler (hardness & break-DC only; the ×4/+1 riders are already counted per talent). Ruled 2026-10-03.' : ''} Keyed to the ${['','Ignore Hardness','Improved Ignore Hardness','Advanced Ignore Hardness'][_hiD.tier]} tier. Su — falls under a Null Power Field (the Ex tree values stand back up).`)}">ignore ${_hiD.ignore} hardness · break DC −${_hiD.breakDC}${_hiD.instances > 1 ? ' <span style="font-size:10px;color:var(--vio);">×2 (Titanic echo)</span>' : ''}</span></span>`;
@@ -663,25 +663,25 @@ function renderSheet(){
         bits.push(`<b style="color:var(--g85);">Carry:</b> <span style="cursor:help;" title="${escapeHTML(cc.parts.join('\n') + '\n' + lift + '\nMedium load: max Dex +3, −3 check penalty, reduced speed. Heavy load: max Dex +1, −6, run ×3 (HH p.261–262). Tons are short tons (2,000 lb), rounded down.')}">light ≤${fmtCarry(cc.light)} · med ≤${fmtCarry(cc.medium)} · heavy ≤${fmtCarry(cc.heavy)}</span>${_demoRow}`);
         // v8.13.x Segment A (Adam's active-loadout ruling): the piloted
         // vehicle joins the combat dashboard.
-        const pv = (typeof pilotedVehicle === 'function') ? pilotedVehicle(c) : null;
+        const pv = pilotedVehicle(c);
         if (pv && pv.catalogue === 'mecha') {
           // v8.17.0 Segment C: the piloted MECHA line.
           const mg = vehicleIntegrity(pv); const md = mg.def;
           const mTouch = mechaTouchAC(md);
           const mName = pv.custom ? pv.custom.name : (pv.customName || pv.ref);
-          bits.push(`<b style="color:#d4865a;">🦿 Piloting:</b> <span style="cursor:help;" title="${escapeHTML(`${md.size} mecha — its Str ${md.str} drives melee, your Dex caps at ${md.dexMax}, your BAB drives attacks. Every hull hit applies hardness ${mg.hardness}; crew is reached only through crit-table results. Full card on the 🕹 Vehicles tab.`)}">${escapeHTML(mName)} — T/AC ${mTouch}/${mTouch + md.equipAC + (typeof paShieldBonus === 'function' ? paShieldBonus(pv) : 0)} · Hard ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} · speed ${md.speed} ft${md.fly ? ' · fly' : ''}</span>`);
+          bits.push(`<b style="color:#d4865a;">🦿 Piloting:</b> <span style="cursor:help;" title="${escapeHTML(`${md.size} mecha — its Str ${md.str} drives melee, your Dex caps at ${md.dexMax}, your BAB drives attacks. Every hull hit applies hardness ${mg.hardness}; crew is reached only through crit-table results. Full card on the 🕹 Vehicles tab.`)}">${escapeHTML(mName)} — T/AC ${mTouch}/${mTouch + md.equipAC + (paShieldBonus(pv))} · Hard ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} · speed ${md.speed} ft${md.fly ? ' · fly' : ''}</span>`);
         } else if (pv) {
           const vg = vehicleIntegrity(pv); const vd = vg.def;
           const vchk = vehicleOperatorCheck(c, vd);
           bits.push(`<b style="color:#78afcd;">🕹 Piloting:</b> <span style="cursor:help;" title="${escapeHTML(`${vd.name} — ${vd.maneuver_class} maneuver (${vd.maneuver_mod >= 0 ? '+' : ''}${vd.maneuver_mod} to ${vd.skill}${vchk.initPenalty ? ', ' + vchk.initPenalty + ' Initiative' : ''}). Vehicle T/AC excludes your modifiers; hits in its band strike the hull (hardness ${vg.hardness}). Manage on the 🕹 Vehicles tab.`)}">${escapeHTML(enchantDisplayName(pv))} — T/AC ${vd.touch_ac}/${vd.total_ac} · Hard ${vg.hardness} · HP ${vg.hp}/${vg.maxHP} · ${vd.skill} ${vchk.withManeuver >= 0 ? '+' : ''}${vchk.withManeuver} · speed ${vd.top_speed} (${vd.chase_speed})</span>`);
         }
         // v8.14.x Segment B: the worn power armor / active Second Skin lines.
-        const paW = (typeof equippedPowerArmor === 'function') ? equippedPowerArmor(c) : null;
+        const paW = equippedPowerArmor(c);
         if (paW) {
           const paG = armorItemIntegrity(paW); const paD = POWER_ARMOR_DB[paW.ref];
           bits.push(`<b style="color:#78afcd;">🤖 Power Armor:</b> <span style="cursor:help;" title="${escapeHTML(`${paD.size} TS ${paD.ts} power armor — a mecha your size (FF Ch.III). ${paD.strMin ? `Str floors at ${paD.strMin}; ` : paD.equipStrMod ? `+${paD.equipStrMod} equipment Str; ` : ''}${paD.dexMax ? `Dex caps at ${paD.dexMax}. ` : ''}Always intercedes: every hit applies hardness ${paG.hardness}; full AC confirms crits only. Loadout on the 🕹 Vehicles tab.`)}">${escapeHTML(enchantDisplayName(paW))} — Hard ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin ? ` · Str≥${paD.strMin}` : ''}${paD.dexMax ? ` · Dex≤${paD.dexMax}` : ''}${paD.fly ? ` · fly ${escapeHTML(paD.fly)}` : ''}</span>`);
         }
-        const skW = (typeof activeSecondSkin === 'function') ? activeSecondSkin(c) : null;
+        const skW = activeSecondSkin(c);
         if (skW && !skW.destroyed) {
           bits.push(`<b style="color:var(--vio);">🧿 Second Skin:</b> <span style="cursor:help;" title="${escapeHTML(`Level ${skW.row.lvl} ectoplasmic sheath (HH p.241): every hit strikes the skin first (hardness ${skW.row.hardness}), excess carries over to you. AC +${skW.row.ac} as armor. You count as armed (slam ${skW.row.slam}). Psionic focus locked; no worn armor. Manage on the 🕹 Vehicles tab.`)}">lvl ${skW.row.lvl} — AC +${skW.row.ac} · Hard ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr ? ` · DR ${skW.row.dr}` : ''}</span>`);
         }
@@ -707,7 +707,7 @@ function renderSheet(){
       const hasSu = suAttrs.some(v => v) || (c.talents || []).some(t => TALENTS_DB.find(x => x.n === (t.name || t.n) && /Super-Talent/.test(x.tier || ''))) || (c.powers || []).some(p => p.pool === 'super');
       // v8.8.2: the toggle strip now hosts Rage alongside Nullified, plus the
       // active-state banners (⊘ nullified / 🔥 raging / 😮‍💨 fatigued).
-      const rt = (typeof rageTier === 'function') ? rageTier(c) : null;
+      const rt = rageTier(c);
       const chunks = [];
       if (c.nullified) {
         chunks.push(`<div style="padding:6px 10px;background:rgba(212,112,112,.12);border:1px solid rgba(212,112,112,.5);border-radius:3px;font-size:12px;">
@@ -729,7 +729,7 @@ function renderSheet(){
               <button class="btn btn-sm" style="font-size:10px;margin-left:8px;" onclick="clearFatigue()">Recover</button></div>`);
       }
       // v8.8.3: Euphoriac banner (Ex — works while nullified).
-      const euB = (typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+      const euB = euphoriacBonus(c);
       if (euB && c.euphoric) {
         chunks.push(`<div style="padding:5px 10px;background:rgba(120,175,205,.1);border:1px solid rgba(120,175,205,.5);border-radius:3px;font-size:11.5px;">
               <b style="color:#78afcd;">⚡ EUPHORIC</b> — +${euB} morale on attack rolls, damage rolls, and saving throws (baked). Lasts (wild-surge intensity) rounds; not gained if neuralgia struck.
@@ -759,8 +759,8 @@ function renderSheet(){
       }
     }
     // v8.8.3: the 🎓 Class Choices panel + 🐾 Companions.
-    if (typeof renderClassChoices === 'function') renderClassChoices(c);
-    if (typeof renderCompanions === 'function') renderCompanions(c);
+    renderClassChoices(c);
+    renderCompanions(c);
   }
   // v8.6.0 (Adam's formatting report): the save cells' calc text sat flush
   // against the value ("+1base 0 + ..."); the calc now sits on its own line
@@ -782,7 +782,7 @@ function renderSheet(){
     // with the Explorer/Survivor second-source escalation.
     let evTag = '';
     if (s.k === 'ref') {
-      const ev = (typeof evasionTier === 'function') ? evasionTier(c) : null;
+      const ev = evasionTier(c);
       if (ev) evTag = `<span style="display:block;font-size:9px;color:#9cc3da;font-style:italic;margin-top:2px;cursor:help;" title="${ev.tier >= 2 ? 'Improved Evasion: a successful Reflex save against a half-damage effect means NO damage — and a failed save means only half.' : 'Evasion: a successful Reflex save against a half-damage effect (fireball, explosions…) means NO damage instead of half. Light or no armor only.'} Sources: ${ev.srcs.join(', ')}.">${ev.tier >= 2 ? 'Improved Evasion' : 'Evasion'}</span>`;
     }
     // v9.2.2 (Adam's Ultra Immune System ruling): CONDITIONAL save bonuses
@@ -812,7 +812,7 @@ function renderSheet(){
       // (fmtAtk is scoped inside the Gear renderer — local twin here.)
       const fA = (n) => `${n >= 0 ? '+' : ''}${n}`;
       try {
-        const sums = (typeof computeEquippedWeaponSummaries === 'function') ? computeEquippedWeaponSummaries(c) : [];
+        const sums = computeEquippedWeaponSummaries(c);
         if (sums.length) {
           bits.push('<table class="sk-tbl" style="margin-bottom:.4rem;"><thead><tr><th>Weapon</th><th title="Bracketed sequence = the Full Attack action (one extra swing per 5 Base Attack, cumulative −5).">Attack (Full Atk)</th><th>Damage</th><th>Type</th></tr></thead><tbody>');
           for (const s of sums) {
@@ -837,8 +837,8 @@ function renderSheet(){
           for (const it of armorItems) {
             const def = getCatalogueEntry('armor', it.ref);
             if (!def) continue;
-            const strip = (typeof armorStatStrip === 'function') ? armorStatStrip(def, it) : '';
-            const nm = (typeof enchantDisplayName === 'function') ? enchantDisplayName(it) : it.ref;
+            const strip = armorStatStrip(def, it);
+            const nm = enchantDisplayName(it);
             const isShield = def.type === 'shield';
             bits.push(`<div style="font-size:11.5px;"><b style="color:var(--gold);">${isShield ? '🛡' : '🪖'} ${escapeHTML(nm)}</b> <span style="font-size:10px;opacity:.8;">${escapeHTML(strip)}</span></div>`);
           }
@@ -873,7 +873,7 @@ function renderSheet(){
   // The framework exposition demotes to a hover pop-up on the title; the
   // technicalese (net adjustments, RLM, size & movement) and each parent's
   // racial abilities fold into collapsed-by-default .hy-det rows.
-  const _hyS = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hyS = hybridInfo(c);
   const radj = _hyS
     ? (ATTR_NAMES.map((n, i) => { const v = ((_hyS.A.adj||{})[n]||0) + ((_hyS.B.adj||{})[n]||0); return v ? `${v>0?'+':''}${v} ${n}` : ''; }).filter(Boolean).join(', ') || 'None')
     : (Object.entries(race.adj||{}).map(([k,v])=>(v>0?'+':'')+v+' '+k).join(', ')||'None');
@@ -882,17 +882,17 @@ function renderSheet(){
   // headline itself ("Human Mutant", "Hybrid (Human / Dwarf) Mutant") and
   // gains a 🧬 drop-down among the racial rows. Below the template line
   // (Slightly Different, sub-10 dabblers): nothing — different, not Mutants.
-  const _mpS = (typeof getMPState === 'function') ? getMPState(c) : null;
+  const _mpS = getMPState(c);
   const _mutTempl = !!(_mpS && _mpS.isMutantTemplated);
   const _mutSuffix = _mutTempl ? ' Mutant' : '';
   let featuresHtml;
   if (_hyS) {
     const hyBlurb = 'The child of two Humanoid parent races, blended with the GM’s approval. A Hybrid inherits ALL the racial abilities of both parents, while size and movement follow ONE chosen parent. Racial Level Modifier = parent A’s + parent B’s + 1 — the classic Half-Elf is 0 + 0 + 1 = +1. GM-tailored builds may trade away specific abilities for a GM-adjusted RLM. (HH pp.29–30)';
-    const _szIdx = (typeof raceSizeIndex === 'function') ? raceSizeIndex(c) : 4;
+    const _szIdx = raceSizeIndex(c);
     const _szName = _szIdx === 3 ? 'Small' : _szIdx === 5 ? 'Large' : 'Medium';
     const _szDef = RACES[_hyS.sizeFrom] || {};
     const _walk = _szDef.speed != null ? _szDef.speed
-      : (typeof RACE_BASE_SPEED !== 'undefined' && RACE_BASE_SPEED[_hyS.sizeFrom] != null) ? RACE_BASE_SPEED[_hyS.sizeFrom]
+      : (RACE_BASE_SPEED[_hyS.sizeFrom] != null) ? RACE_BASE_SPEED[_hyS.sizeFrom]
       : (_szIdx === 3 ? 20 : 30);
     const _modes = (_szDef.modes || []).map(m => `${m.type} ${m.speed}′${m.note ? ' (' + m.note + ')' : ''}`).join(' · ');
     // v8.84.0 (Adam's noise report — Rhad's "Human Mutant" display still
@@ -918,7 +918,7 @@ function renderSheet(){
   if (_mutTempl) {
     const ml = _mpS.mutantLevel, conM = am(((c.attrs) || [10,10,10,10,10,10])[2]);
     const clsLabel = `${_mpS.tier.tier} ${_mpS.isSuperMutant ? 'Super-Mutant' : 'Mutant'}`;
-    const spp = _mpS.isSuperMutant && (typeof getSuperPPState === 'function') ? getSuperPPState(c) : null;
+    const spp = _mpS.isSuperMutant ? getSuperPPState(c) : null;
     const nextMP = (ml + 1) * 10;
     const nextTier = MUTATION_RULES.super_mutant_tiers[Math.min(3, ml + 1)];
     const promoLine = ml >= 3
@@ -962,7 +962,7 @@ function renderSheet(){
     } else {
       occHtml += '</div>';
       occs.forEach((o, oi) => {
-        const od = (typeof getOccupationData === 'function') ? getOccupationData(o) : null;
+        const od = getOccupationData(o);
         const picks = (c.occupationPicks || {})[oi === 0 ? 'primary' : 'secondary'] || {};
         const pickedSkills = (picks.skills || []).filter(Boolean);
         const pickedFeat = picks.feat || null;
@@ -982,7 +982,7 @@ function renderSheet(){
     const activeFeatures = getActiveClassFeatures(c);
     const byClass = {};
     for (const f of activeFeatures) { (byClass[f.className] = byClass[f.className] || []).push(f); }
-    const chSpecs = (typeof computeClassChoiceSpecs === 'function') ? computeClassChoiceSpecs(c) : [];
+    const chSpecs = computeClassChoiceSpecs(c);
     const consumedSpecs = new Set();
     const tagColor = { active:'#7daadc', passive:'var(--gold)', meta:'#c499d4', unimplemented:'var(--g40)' };
     const tagLabel = { active:'active', passive:'passive · automated', meta:'character build', unimplemented:'not yet automated' };
@@ -1167,7 +1167,7 @@ function renderSheet(){
           powersHtml += `<br><span style="font-size:11px;color:var(--tx65);padding-left:12px;">Prepared today (memorized at dawn — manage on the Powers &amp; Spells tab):</span>`;
           for (const r of prepList) {
             const left = (r.qty || 0) - (r.cast || 0);
-            const hovP = (typeof powerHoverText === 'function') ? powerHoverText(SPELLS_DB.find(x => x.name === r.name)) : '';  // v8.79.0: hover dossier on prepared rows too
+            const hovP = powerHoverText(SPELLS_DB.find(x => x.name === r.name));  // v8.79.0: hover dossier on prepared rows too
             powersHtml += `<br><span style="font-size:11px;padding-left:24px;${left <= 0 ? 'opacity:.45;text-decoration:line-through;' : 'color:#cccca0;'}${hovP ? 'cursor:help;' : ''}" ${hovP ? `title="${escapeHTML(hovP)}"` : ''}>${r.qty}× ${escapeHTML(r.dispName || r.name)} <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(lvl ${r.lvl}${r.free ? ', free specialty' : ', ' + r.cost + ' PP'})</span>${r.cast ? ` <span style="font-size:9px;color:#d4b870;">${left}/${r.qty} left</span>` : ''}</span>`;
           }
         } else {
@@ -1197,7 +1197,7 @@ function renderSheet(){
               const s = byName[p.name];
               const nm = (s && p.token) ? displayNameForRoute(s, {token: p.token, lvl: p.lvl, pool: p.pool, applies: p.applies}) : p.name;
               const lvlBit = (p.lvl !== undefined && p.lvl !== null) ? ` <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(lvl ${p.lvl}${s ? ', ' + powerCastCost(s, p.lvl) + ' PP' : ''})</span>` : '';
-              const hov = (typeof powerHoverText === 'function') ? powerHoverText(s) : '';
+              const hov = powerHoverText(s);
               powersHtml += `<br><span style="font-size:11px;padding-left:24px;color:#cccca0;${hov ? 'cursor:help;' : ''}" ${hov ? `title="${escapeHTML(hov)}"` : ''}>${escapeHTML(nm)}${nm !== p.name ? ` <span style="font-size:9px;opacity:.5;">(${escapeHTML(p.name)})</span>` : ''}${lvlBit}${p.personal ? ' <span style="font-size:9px;color:var(--vio);">✦</span>' : ''}</span>`;
             }
           }

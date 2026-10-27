@@ -46,7 +46,7 @@ function renderArmorIntegrity(c) {
   host.style.display = '';
   const rows = items.map(it => {
     const g = armorItemIntegrity(it);
-    const name = (typeof enchantDisplayName === 'function') ? enchantDisplayName(it) : it.ref;
+    const name = enchantDisplayName(it);
     const prof = isProficientWithArmor(c, it.ref);
     const pct = Math.max(0, Math.min(100, Math.round(g.hp / g.maxHP * 100)));
     const barColor = g.destroyed ? '#555' : g.broken ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
@@ -82,7 +82,7 @@ function armorIncomingHit(itemId) {
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = armorItemIntegrity(it); if (!g) return;
   if (g.destroyed) { toast('That armor is destroyed — it no longer intercedes.'); return; }
-  const name = (typeof enchantDisplayName === 'function') ? enchantDisplayName(it) : it.ref;
+  const name = enchantDisplayName(it);
   openChoiceModal(`⚔ Hit on ${name} — enter the raw damage, optionally followed by points of hardness ignored (e.g. "14" or "14 5" for a +1 weapon)`, [], (val) => {
     const m = /^(\d+)(?:\s+(\d+))?$/.exec(String(val || '').trim());
     if (!m) { toast('Enter the damage as a number, e.g. "14" or "14 5".'); return; }
@@ -108,7 +108,7 @@ function armorIncomingHit(itemId) {
         if (toChar && typeof c.currentHP === 'number') c.currentHP = Math.max(-999, c.currentHP - toChar);
         const g2 = armorItemIntegrity(it);
         logAct(`⚔ Hit on ${name}: ${math}; ${toArmor} to the ${g.isShield ? 'shield' : 'armor'} (${g2.hp}/${g2.maxHP})${toChar ? `, ${toChar} to ${c.name}` : ''}.${g2.destroyed ? ' ☠ DESTROYED.' : g2.broken ? ' ⚑ BROKEN — no AC bonus until repaired.' : ''}`);
-        save(); renderArmorIntegrity(c); if (typeof renderTracker === 'function') renderTracker(); renderSheet();
+        save(); renderArmorIntegrity(c); renderTracker(); renderSheet();
         toast(g2.destroyed ? `${name} is DESTROYED.` : g2.broken ? `${name} is BROKEN — no AC bonus until repaired.` : `Applied: ${toArmor} to ${name}${toChar ? `, ${toChar} to ${c.name}` : ''}.`);
       };
       if (pick === optAll) apply(net);
@@ -125,7 +125,7 @@ function armorRepair(itemId) {
   const c = chars.find(x => x.id === curId); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = armorItemIntegrity(it); if (!g) return;
-  const name = (typeof enchantDisplayName === 'function') ? enchantDisplayName(it) : it.ref;
+  const name = enchantDisplayName(it);
   if (g.destroyed) { toast(`${name} is destroyed — beyond repair (salvage only, HH p.181). The GM may adjudicate an exceptional restoration via ± on the item's damage in a future pass.`); }
   if (!g.damage) { toast(`${name} is undamaged.`); return; }
   openChoiceModal(`🔧 Repair ${name} — enter HP repaired (${g.damage} damage outstanding; Repair skill task table HH p.181, tool kit required)`, [], (val) => {
@@ -156,7 +156,7 @@ function vehicleIntegrity(it) {
   if (it.catalogue === 'vehicle') def = getCatalogueEntry('vehicle', it.ref);
   // v8.17.0 Segment C: mecha share the hull-integrity machinery (hardness
   // from the superstructure, HP from the frame).
-  else if (it.catalogue === 'mecha' && typeof mechaDefOf === 'function') def = mechaDefOf(it);
+  else if (it.catalogue === 'mecha') def = mechaDefOf(it);
   if (!def) return null;
   const damage = Math.max(0, it.vehicleDamage || 0);
   const maxHP = def.hp;
@@ -279,10 +279,10 @@ function renderVehicles() {
   const items = getCharItems(c).filter(i => i.catalogue === 'vehicle');
   // v8.14.x Segment B FIX: power armor and Second Skin cards render even
   // with no conventional vehicles owned — build all three groups first.
-  const paCards = (typeof renderPowerArmorCards === 'function') ? renderPowerArmorCards(c) : '';
-  const skinCard = (typeof renderSecondSkinCard === 'function') ? renderSecondSkinCard(c) : '';
-  const mechaCards = (typeof renderMechaCards === 'function') ? renderMechaCards(c) : '';
-  const shipCards = (typeof renderStarshipCards === 'function') ? renderStarshipCards(c) : '';
+  const paCards = renderPowerArmorCards(c);
+  const skinCard = renderSecondSkinCard(c);
+  const mechaCards = renderMechaCards(c);
+  const shipCards = renderStarshipCards(c);
   if (!items.length && !paCards && !skinCard && !mechaCards && !shipCards) { list.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--g40);">Nothing pilotable owned — purchase vehicles, mecha, starships, or power armor on the ⚒ Gear tab.</div>`; return; }
   list.innerHTML = items.map(it => {
     const def = getCatalogueEntry('vehicle', it.ref); if (!def) return '';

@@ -133,7 +133,7 @@ function openCastOptions(ctx) {
     // v8.44.0 (Cut 3): option-aware augments — multi-option powers get one
     // stepper (or checkbox) PER printed option; the generic single stepper
     // survives for everything else.
-    const augOpts = (typeof AUGMENT_OPTIONS !== 'undefined' && AUGMENT_OPTIONS[spell.name]) || null;
+    const augOpts = (AUGMENT_OPTIONS[spell.name]) || null;
     const augRow = augOpts ? `<div style="margin:4px 0;font-size:12px;"><div style="font-size:10px;color:var(--bronze);text-transform:uppercase;letter-spacing:.05em;">Augment options (independent purchases)</div>
       ${augOpts.map((o, i) => o.once
         ? `<label style="display:flex;gap:6px;align-items:baseline;margin:2px 0;"><input type="checkbox" id="co-opt-${i}" onchange="__coUpdate()"> <span>${escapeHTML(o.label)} <b style="color:var(--gold);">+${o.step} PP</b></span></label>`
@@ -318,7 +318,7 @@ async function castPowerAt(idx) {
   let focusNote = null;
   if (powerMeta) {
     if (p.pool === 'psionic') {
-      if (typeof psiFocusLocked === 'function' && psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin — no Power feats until it drops.'); return; }
+      if (psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin — no Power feats until it drops.'); return; }
       if (!c.psiFocused) { toast(`○ Not psionically focused — ${powerMeta.name} requires expending your focus (gain it first: full-round action, or move with Psionic Meditation).`); return; }
       c.psiFocused = false;
       logActionEvent(c, 'psi-focus', 0, 'Focus expended', `Psionic focus expended — ${powerMeta.name} on ${spell.name}.`);
@@ -340,7 +340,7 @@ async function castPowerAt(idx) {
   // options make dice (and only those move the DC), count/flag options
   // render as their own receipt lines. No more every-PP-moves-the-DC.
   let augFx = null;
-  const augOptDefs = (typeof AUGMENT_OPTIONS !== 'undefined' && AUGMENT_OPTIONS[spell.name]) || null;
+  const augOptDefs = (AUGMENT_OPTIONS[spell.name]) || null;
   if (aug && opts.extra > 0) {
     augFx = { extra: opts.extra, text: aug.text, dice: null, dcAdd: 0, label: aug.diceLabel, optBits: null };
     if (augOptDefs && opts.augPicks) {
@@ -400,12 +400,12 @@ async function castPowerAt(idx) {
     const saveDC = (spell.save && !/none/i.test(spell.save)) ? 10 + lvlEff + attrMod + dcBonus + (augFx ? augFx.dcAdd : 0) : null;
     renderCastResult({ name: displayName, baseName: spell.name, pool: p.pool, lvl: lvlEff, baseLvl: lvl, cost, spent, after, atom, saveDC, dcBonus, spell, buff: isSuper && p.buff,
       augFx, metasApplied: opts.chosen, focusNote, ocBoost: opts.oc, ocResult, spontMeta: spont.any && poolKind === 'spell' && opts.chosen.length > 0, heightened: opts.hl > 0, mpPicks });
-    if (typeof logAct === 'function') logAct(`${p.buff ? 'Invoked buff' : ((p.pool === 'psionic' || p.pool === 'super') ? 'Manifested' : 'Cast')} ${displayName} (${spent} PP, ${p.pool}${opts.extra ? `, +${opts.extra} augment` : ''}${opts.chosen.length ? `, ${opts.chosen.map(m => m.name).join(' + ')}` : ''}${opts.hl ? `, heightened to ${opts.hl}` : ''}) → ${after.current}/${after.max} PP`);
+    logAct(`${p.buff ? 'Invoked buff' : ((p.pool === 'psionic' || p.pool === 'super') ? 'Manifested' : 'Cast')} ${displayName} (${spent} PP, ${p.pool}${opts.extra ? `, +${opts.extra} augment` : ''}${opts.chosen.length ? `, ${opts.chosen.map(m => m.name).join(' + ')}` : ''}${opts.hl ? `, heightened to ${opts.hl}` : ''}) → ${after.current}/${after.max} PP`);
     // v8.42.0: transient-wired buffs — curated powers land on the sheet as
     // active effects, bonus values computed from the actual augment spend.
-    if (typeof applyWiredBuff === 'function') applyWiredBuff(c, spell.name, p.pool, opts.extra, opts.augPicks);
+    applyWiredBuff(c, spell.name, p.pool, opts.extra, opts.augPicks);
     save(); renderPowers();
-    if (typeof renderPPRecovery === 'function') renderPPRecovery(c);
+    renderPPRecovery(c);
   };
 
   if (spell.damage && spell.damage.is_template) {
@@ -546,9 +546,9 @@ function renderPowers() {
   const mpSt = getMPState(c);
   const cStats = computeCasterStats(c);
   // v8.82.0: the ✨ Supernatural Attributes panel (Powers side, super-capables).
-  if (typeof renderSuAttrPanel === 'function') renderSuAttrPanel(c);
+  renderSuAttrPanel(c);
   // v8.83.0: the 🎭 Super-Talents sibling.
-  if (typeof renderSuperTalentPanel === 'function') renderSuperTalentPanel(c);
+  renderSuperTalentPanel(c);
   let budgetHTML = Object.keys(budget).filter(pool => modePools.includes(pool)).length
     ? Object.entries(budget).filter(([pool]) => modePools.includes(pool)).map(([pool, b]) => {
         const pp = getPoolPPState(c, pool);

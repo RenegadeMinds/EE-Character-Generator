@@ -258,7 +258,7 @@ async function openMechaBuilder() {
   const probe = mechaDefOf({ catalogue: 'mecha', custom });
   const techScale = scenarioTechScale(c);
   let provenance = null;
-  if (!(typeof promptProvenance !== 'function')) {
+  {
     const priceUnits = dollarsForDC(marketAdjustedDC(probe.purchaseDC, probe.ts, techScale));
     provenance = await promptProvenance(c, custom.name, priceUnits);
     if (provenance === null) return;
@@ -270,7 +270,7 @@ async function openMechaBuilder() {
   if (provenance) item.provenance = provenance;
   c.items.push(item);
   logAct(`🏗 Custom mecha commissioned: ${custom.name} (${szName} ${ssName} frame, ${arName} armor — base purchase DC ${probe.purchaseDC}). Weapons & systems install on the Vehicles tab (Craft checks & build times per FF Ch.III).`);
-  save(); renderGear(); renderVehicles(); if (typeof renderNavTabs === 'function') renderNavTabs(c);
+  save(); renderGear(); renderVehicles(); renderNavTabs(c);
   toast(`${custom.name} commissioned — outfit it on the 🕹 Vehicles tab.`);
 }
 // The mecha operations card.

@@ -73,7 +73,7 @@ function printSheet(){
     const syn = computeSkillSynergies(sk.n, c).auto.reduce((s, e) => s + e.value, 0);
     const misc = (psSkillMisc[sk.n]?.total || 0) + syn;
     const total=ranks+amod+misc;
-    return`<tr class="${cls?'cs':''}"><td>${((typeof displaySkillName==='function')?displaySkillName(c, sk.n):sk.n).replace('Knowledge ','Kn. ').replace('Craft ','Cr. ').replace('Perform ','Perf. ')}</td><td class="attr">${sk.k}</td><td class="attr">${amod>=0?'+':''}${amod}</td><td class="cls">${ranks}</td><td class="attr">${misc?((misc>0?'+':'')+misc):'—'}</td><td class="tot">${total>=0?'+':''}${total}</td></tr>`;
+    return`<tr class="${cls?'cs':''}"><td>${(displaySkillName(c, sk.n)).replace('Knowledge ','Kn. ').replace('Craft ','Cr. ').replace('Perform ','Perf. ')}</td><td class="attr">${sk.k}</td><td class="attr">${amod>=0?'+':''}${amod}</td><td class="cls">${ranks}</td><td class="attr">${misc?((misc>0?'+':'')+misc):'—'}</td><td class="tot">${total>=0?'+':''}${total}</td></tr>`;
   }).join('');
 
   // v8.4.1: build the feat list with correct field-name resolution. Previously
@@ -200,12 +200,12 @@ function printSheet(){
   // lifting numbers — the HH's own character sheet has a Carrying Capacity
   // field, and Adam uses these for lift/move rulings (not encumbrance).
   let carryBlock = '';
-  if (typeof computeCarryCapacity === 'function') {
+  {
     const pcc = computeCarryCapacity(c);
     const pgr = computeGrapple(c);
     const pSz = SIZE_LADDER[effectiveSizeIndex(c)];
     // v8.88.0: tons past the 5-ton line (fmtCarry) + the 💥 demolition line.
-    const pHi = (typeof computeHardnessIgnore === 'function') ? computeHardnessIgnore(c) : null;
+    const pHi = computeHardnessIgnore(c);
     carryBlock = `<div style="font-size:7.5pt;margin-top:3px;"><b>Carry:</b> light ≤${fmtCarry(pcc.light)} · med ≤${fmtCarry(pcc.medium)} · heavy ≤${fmtCarry(pcc.heavy)} · lift over head ${fmtCarry(pcc.liftOverHead)} · off ground ${fmtCarry(pcc.liftOffGround)} · push/drag ${fmtCarry(pcc.pushDrag)} · <b>Grapple</b> ${pgr.total>=0?'+':''}${pgr.total}${pcc.superTalents.length?` · 🦾 ×${Math.pow(4,pcc.superTalents.length)} carry, ${pSz} for natural dice/grapple/Jump (Su)`:''}${pcc.supremeEffortOwned?' · Supreme Effort: ×4 carry &amp; +1 size while performing':''}${pHi && pHi.mode === 'mangler' ? ` · 💥 ignore ${pHi.ignore} hardness, break DC −${pHi.breakDC}${pHi.instances > 1 ? ' (Mangler ×2: Titanic echo)' : ''}` : ''}</div>`;
     gearBlock = gearBlock
       ? gearBlock.replace('</div></div>', carryBlock + '</div></div>')
@@ -218,9 +218,9 @@ function printSheet(){
     if (c.wealthScore != null && c.funds != null) {
       extraLines.push(`<div style="font-size:7.5pt;margin-top:3px;"><b>Wealth:</b> Score ${c.wealthScore} · ${escapeHTML(fundsLabel(c.funds, scenarioTechScale(c)))}${c.funds < 0 ? ' (in debt)' : ''} <span style="color:#888;">(score tracks funds — HH p.45)</span></div>`);
     }
-    if (typeof getCyber === 'function' && getCyber(c).length) {
+    if (getCyber(c).length) {
       const cyb = getCyber(c).map(r => r.n + (r.param ? ` (${r.param})` : '')).join(', ');
-      const exc = (typeof cyberExcess === 'function') ? cyberExcess(c) : 0;
+      const exc = cyberExcess(c);
       extraLines.push(`<div style="font-size:7.5pt;margin-top:2px;"><b>🦾 Cybernetics:</b> ${escapeHTML(cyb)} — ${cyberCount(c)} of ${cyberMax(c)} attachments${exc ? ` · ⚠ ${exc} negative level${exc > 1 ? 's' : ''}` : ''}${getCyber(c).some(r => r.n === 'Anti-Shock Implant') ? '' : ' · ⚡ +50% electricity damage'}</div>`);
     }
     if (extraLines.length) {
@@ -239,7 +239,7 @@ function printSheet(){
   // Speed & SR join the combat grid; provenance rides the footnote.
   const psSpd = computeSpeeds(c);
   const psSpdCell = `<div class="ps-stat"><span class="ps-stat-lbl">Speed</span><span class="ps-stat-val">${psSpd.walk}′</span></div>`;
-  const psSR = (typeof computeSR === 'function') ? computeSR(c) : null;
+  const psSR = computeSR(c);
   const psSRCell = psSR ? `<div class="ps-stat"><span class="ps-stat-lbl">Spell Resist</span><span class="ps-stat-val">${psSR.total}</span></div>` : '';
   const psSpdFoot = `<div style="font-size:6.5pt;color:#888;margin-top:2px;">Speed: ${psSpd.parts.join(' · ')} · Run ${psSpd.run}${psSpd.modes.map(m=>` · ${m.type} ${m.speed}′ (${m.note})`).join('')}${psSR?` &nbsp;·&nbsp; SR: ${psSR.note}`:''}</div>`;
   // Defenses line — immunities / resistances / DR instances (best-in-situation
@@ -260,7 +260,7 @@ function printSheet(){
   }
   // Per-diem abilities with pencil-and-paper use boxes (weekly ones flagged).
   let perDiemBlock = '';
-  if (typeof computePerDiemAbilities === 'function') {
+  {
     const pdSpecs = computePerDiemAbilities(c);
     if (pdSpecs.length) {
       const rows = pdSpecs.map(s => `<div style="font-size:8pt;margin:2px 0;"><b>${s.name}</b>${s.weekly?' <span style="font-size:6.5pt;color:#888;">(per WEEK)</span>':''} — ${s.kind==='pool'?`pool of ${s.max} pts · spent: ________`:`${s.max}/day ${psChk(s.max)}`}${s.note?`<div style="font-size:6.5pt;color:#888;">${s.note}</div>`:''}</div>`).join('');
@@ -271,10 +271,10 @@ function printSheet(){
   // (psClassBlock) — this strip keeps only the pending-count advisory and
   // the Favored Enemies consolidation.
   let psChoiceRows = '';
-  if (typeof computeClassChoiceSpecs === 'function') {
+  {
     const ccSpecs = computeClassChoiceSpecs(c);
     const ccPending = ccSpecs.filter(s => !s.chosen).length;
-    const fe = (typeof computeFavoredEnemies === 'function') ? computeFavoredEnemies(c) : [];
+    const fe = computeFavoredEnemies(c);
     if (ccPending || fe.length) {
       psChoiceRows = `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #c8a02d;">
       ${ccPending?`<div style="font-size:7.5pt;color:#7a5c00;"><b>⚑ ${ccPending} class choice${ccPending===1?'':'s'} pending</b> — pick in 🎓 Class Choices on the Sheet.</div>`:''}
@@ -283,7 +283,7 @@ function printSheet(){
   }
   // Companions — base stats + the master-level-derived adjustments.
   let companionsBlock = '';
-  if ((c.companions||[]).length && typeof companionDerived === 'function') {
+  if ((c.companions||[]).length) {
     const compCards = c.companions.map(comp => {
       const base = COMPANION_BASE_STATS[comp.species] || null;
       const d = companionDerived(comp, c);
@@ -298,12 +298,12 @@ function printSheet(){
   }
   // Worn armor & shield integrity (T/ACtical, HH p.382) appended to the gear
   // section — hardness, HP, state banners, and a damage-tally blank.
-  if (typeof trackedArmorItems === 'function') {
+  {
     const tArm = trackedArmorItems(c);
     if (tArm.length) {
       const aRows = tArm.map(it => {
         const g = armorItemIntegrity(it);
-        const nm = (typeof enchantDisplayName==='function')?enchantDisplayName(it):it.ref;
+        const nm = enchantDisplayName(it);
         const prof = isProficientWithArmor(c, it.ref);
         const state = g.destroyed?' · ☠ DESTROYED (salvage only)':g.broken?' · ⚑ BROKEN (no AC bonus; enchantment suppressed)':'';
         return `<div style="font-size:7.5pt;margin:2px 0;">${g.isShield?'🛡':'⛨'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.alwaysIntercede?' · ◈ always intercedes':''}${prof?'':' · ⚠ non-proficient (ATTACKER chooses the split)'}${g.selfRepairing?' · Self-Repairing (1 HP/min; full overnight)':''}${state} · damage tally: ____________</div>`;
@@ -318,28 +318,28 @@ function printSheet(){
   {
     const mParts = [];
     const loadoutLines = (it) => {
-      const ll = (typeof paLoadout==='function')?paLoadout(it):[];
-      return ll.length?`<div style="font-size:7pt;color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(typeof shipLinkOf==='function'&&shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(typeof shipBatteryOf==='function'&&shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
+      const ll = paLoadout(it);
+      return ll.length?`<div style="font-size:7pt;color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
     };
-    const pv = (typeof pilotedVehicle==='function')?pilotedVehicle(c):null;
-    const pvG = (pv && typeof vehicleIntegrity==='function')?vehicleIntegrity(pv):null;
+    const pv = pilotedVehicle(c);
+    const pvG = (pv)?vehicleIntegrity(pv):null;
     if (pv && pvG && pv.catalogue==='mecha') {
       const mg = pvG, md = mg.def, mT = mechaTouchAC(md);
       const mName = pv.custom?pv.custom.name:(pv.customName||pv.ref);
       mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🦿 Piloting: ${mName}</b> <span style="font-size:7pt;color:#888;">${md.size} TS ${md.ts} mecha${md.superstructure?` · ${md.superstructure}${md.armorType?' / '+md.armorType:''}`:''}</span>
-      <div style="font-size:7.5pt;">T/AC ${mT}/${mT+(md.equipAC||0)+((typeof paShieldBonus==='function')?paShieldBonus(pv):0)} · Hardness ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} (drives melee; your BAB attacks) · your Dex caps at ${md.dexMax} · speed ${md.speed}′${md.fly?' · fly':''}</div>${loadoutLines(pv)}</div>`);
+      <div style="font-size:7.5pt;">T/AC ${mT}/${mT+(md.equipAC||0)+(paShieldBonus(pv))} · Hardness ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} (drives melee; your BAB attacks) · your Dex caps at ${md.dexMax} · speed ${md.speed}′${md.fly?' · fly':''}</div>${loadoutLines(pv)}</div>`);
     } else if (pv && pvG) {
       const vg = pvG, vd = vg.def, vchk = vehicleOperatorCheck(c, vd);
       mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🕹 Piloting: ${enchantDisplayName(pv)}</b> <span style="font-size:7pt;color:#888;">${vd.maneuver_class} maneuver</span>
       <div style="font-size:7.5pt;">T/AC ${vd.touch_ac}/${vd.total_ac} · Hardness ${vg.hardness} · HP ${vg.hp}/${vg.maxHP} · ${vd.skill} ${vchk.withManeuver>=0?'+':''}${vchk.withManeuver}${vchk.initPenalty?` · ${vchk.initPenalty} Initiative`:''} · speed ${vd.top_speed} (${vd.chase_speed})</div></div>`);
     }
-    const paW = (typeof equippedPowerArmor==='function')?equippedPowerArmor(c):null;
+    const paW = equippedPowerArmor(c);
     if (paW) {
       const paG = armorItemIntegrity(paW), paD = POWER_ARMOR_DB[paW.ref];
       mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🤖 Power Armor: ${enchantDisplayName(paW)}</b> <span style="font-size:7pt;color:#888;">${paD.size} TS ${paD.ts} — a mecha your size (FF Ch.III)</span>
       <div style="font-size:7.5pt;">Hardness ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin?` · Str floors at ${paD.strMin}`:''}${paD.equipStrMod?` · +${paD.equipStrMod} equipment Str`:''}${paD.dexMax?` · Dex caps at ${paD.dexMax}`:''}${paD.fly?` · fly ${paD.fly}`:''} · ◈ always intercedes (full AC confirms crits only)</div>${loadoutLines(paW)}</div>`);
     }
-    const skW = (typeof activeSecondSkin==='function')?activeSecondSkin(c):null;
+    const skW = activeSecondSkin(c);
     if (skW && !skW.destroyed) {
       mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🧿 Second Skin</b> <span style="font-size:7pt;color:#888;">lvl ${skW.row.lvl} ectoplasmic sheath — HH p.241</span>
       <div style="font-size:7.5pt;">AC +${skW.row.ac} (as armor) · Hardness ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr?` · DR ${skW.row.dr}`:''}${(skW.state.abilities||[]).length?` · ${skW.state.abilities.join(', ')}`:''}</div>
@@ -347,13 +347,13 @@ function printSheet(){
     }
     for (const it of getCharItems(c)) {
       if (it.catalogue==='starship') {
-        const sd = (typeof shipDefOf==='function')?shipDefOf(it):null;
+        const sd = shipDefOf(it);
         const secs = sd?shipSections(it):null;
         if (sd && secs) mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🚀 ${it.customName||it.ref}</b> <span style="font-size:7pt;color:#888;">${sd.cls} ${it.ship.subtype} · ${it.ship.engine} · ${it.ship.armor} armor · crew ${sd.crew}</span>
         <div style="font-size:7.5pt;">${secs.map(s=>`${s.section} ${s.hp}/${s.maxHP}${s.disabled?' <b>[DISABLED]</b>':''}`).join(' · ')}</div>${loadoutLines(it)}</div>`);
       } else if ((it.catalogue==='vehicle'||it.catalogue==='mecha') && !it.piloted) {
-        const g = (typeof vehicleIntegrity==='function')?vehicleIntegrity(it):null; if (!g) continue;
-        const nm = it.custom?it.custom.name:(it.customName||((typeof enchantDisplayName==='function')?enchantDisplayName(it):it.ref));
+        const g = vehicleIntegrity(it); if (!g) continue;
+        const nm = it.custom?it.custom.name:(it.customName||(enchantDisplayName(it)));
         mParts.push(`<div style="font-size:7.5pt;margin:2px 0;">${it.catalogue==='mecha'?'🦿':'🚗'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed?' · ☠ DESTROYED':g.broken?' · 🛑 DISABLED':''}${it.jointOwners?` · owners: ${it.jointOwners}`:''}</div>`);
       }
     }
@@ -384,10 +384,10 @@ function printSheet(){
   // record with 🎓 picks resolved in place. Feature descriptions stay on
   // the screen — paper lists the record, the book carries the prose.
   const tierLabels={hero:'',basic:' (Basic)',advanced:' (Advanced)',prestige:' (Prestige)'};
-  const psActiveFeats = (typeof getActiveClassFeatures === 'function') ? getActiveClassFeatures(c) : [];
+  const psActiveFeats = getActiveClassFeatures(c);
   const psByClass = {};
   for (const f of psActiveFeats) { (psByClass[f.className] = psByClass[f.className] || []).push(f); }
-  const psSpecs = (typeof computeClassChoiceSpecs === 'function') ? computeClassChoiceSpecs(c) : [];
+  const psSpecs = computeClassChoiceSpecs(c);
   const psConsumed = new Set();
   const psRendered = new Set();
   const psClassBlock = (name, e, cls) => {
@@ -573,23 +573,23 @@ function printSheet(){
         <div class="ps-sec-head">Scenario, Racial Features, &amp; Starting Occupation</div>
         <div class="ps-sec-body ps-classes">
           ${c.sixLevels?`<div style="margin-bottom:5px;"><div style="font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#6b5320;margin-bottom:2px;">Scenario: ${normalizePresetName(c.scenarioPreset||'Custom')}</div><div style="font-size:8pt;color:#555;">${['arcane','divine','heroic','mutation','psionic','tech'].map(a=>`${SIX_LEVELS[a].short} ${c.sixLevels[a]||0}`).join(' · ')}</div></div>`:''}
-          ${(() => { const mpP = (typeof getMPState==='function') ? getMPState(c) : null;
+          ${(() => { const mpP = getMPState(c);
             const templ = !!(mpP && mpP.isMutantTemplated);
-            const rn = ((typeof raceDisplayOf==='function')?raceDisplayOf(c):c.race) + (templ ? ' Mutant' : '');
-            return `<div class="ps-class-row"><span class="ps-class-nm">${rn}</span><span class="ps-class-det">${(typeof hybridInfo==='function'&&hybridInfo(c))?'RLM':'ECL'} +${(typeof raceEclOf==='function')?raceEclOf(c):(RACES[c.race]?.ecl||0)}${templ && mpP.mutantLevel ? ` (+${mpP.mutantLevel} Mutant)` : ''}</span></div>`; })()}
-          ${(() => { const hy = (typeof hybridInfo==='function') ? hybridInfo(c) : null;
+            const rn = (raceDisplayOf(c)) + (templ ? ' Mutant' : '');
+            return `<div class="ps-class-row"><span class="ps-class-nm">${rn}</span><span class="ps-class-det">${(hybridInfo(c))?'RLM':'ECL'} +${raceEclOf(c)}${templ && mpP.mutantLevel ? ` (+${mpP.mutantLevel} Mutant)` : ''}</span></div>`; })()}
+          ${(() => { const hy = hybridInfo(c);
             if (!hy) return `<div style="font-size:8pt;color:#555;">${RACES[c.race]?.notes||''}</div>`;
             return `<div style="font-size:7.5pt;color:#555;"><b>${escapeHTML(hy.a)}:</b> ${hy.A.notes||'—'}</div><div style="font-size:7.5pt;color:#555;"><b>${escapeHTML(hy.b)}:</b> ${hy.B.notes||'—'}</div>`; })()}
-          ${(() => { const mpP = (typeof getMPState==='function') ? getMPState(c) : null;
+          ${(() => { const mpP = getMPState(c);
             if (!mpP || !mpP.isMutantTemplated) return '';
             const ml = mpP.mutantLevel, conM = am(((c.attrs)||[10,10,10,10,10,10])[2]);
-            const spp = mpP.isSuperMutant && (typeof getSuperPPState==='function') ? getSuperPPState(c) : null;
+            const spp = mpP.isSuperMutant ? getSuperPPState(c) : null;
             return `<div style="font-size:7.5pt;color:#555;">🧬 <b>${mpP.tier.tier} ${mpP.isSuperMutant ? 'Super-Mutant' : 'Mutant'}</b> (RLM +${ml} · ${mpP.totalEarned} MP): Unnatural Prowess +${Math.floor(ml/2)} BA / +${Math.floor(ml/3)} Def / +${2*ml} SP (Tech-0) · Resilience +${ml*(5+conM)} HP / +${Math.floor(ml/2)} saves${mpP.isSuperMutant ? ` · ESL ${mpP.eml} · ${spp?spp.max:'—'} super-PP/day` : ''}</div>`; })()}
           ${(() => { // v8.96.1 (print parity for §240): the Starting Occupation on paper.
             const pOccs = (c.occupations && c.occupations.length ? c.occupations : (c.occ ? [c.occ] : [])).filter(Boolean);
             if (!pOccs.length) return '';
             return pOccs.map((o, oi) => {
-              const od = (typeof getOccupationData === 'function') ? getOccupationData(o) : null;
+              const od = getOccupationData(o);
               const picks = (c.occupationPicks || {})[oi === 0 ? 'primary' : 'secondary'] || {};
               const sk = (picks.skills || []).filter(Boolean);
               const bits = [];

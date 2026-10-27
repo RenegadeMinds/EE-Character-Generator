@@ -294,12 +294,12 @@ function createSectionSummary(id){
       return bits.filter(Boolean).join(' · ');
     }
     if(id==='attrs-panel'){
-      const a=(typeof getAttrs==='function')?getAttrs():null;
+      const a=getAttrs();
       return a?`STR ${a[0]} · DEX ${a[1]} · CON ${a[2]} · INT ${a[3]} · WIS ${a[4]} · CHA ${a[5]}`:'';
     }
     if(id==='occupation-panel') return document.getElementById('c-occ')?.value||'';
     if(id==='classes-panel'){
-      const fc=(typeof formClasses!=='undefined')?formClasses:[];
+      const fc=formClasses;
       return fc.length?fc.map(e=>`${e.name} ${e.level}`).join(' / '):'no classes yet';
     }
     if(id==='derived-panel') return '';

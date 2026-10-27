@@ -55,9 +55,9 @@ function grantEnergyImmunityPick(c) {
     if (addTalentToChar(c, sel)) {
       const rec = (c.talents || []).find(t => t.name === sel);
       if (rec) rec.grantedBy = 'Energy Immunity';
-      if (typeof logAct === 'function') logAct(`◈ ${sel} granted FREE by Energy Immunity (no Talent slot consumed) — immunity now covers every owned Resistance type.`);
+      logAct(`◈ ${sel} granted FREE by Energy Immunity (no Talent slot consumed) — immunity now covers every owned Resistance type.`);
       save(); filterTalents();
-      if (typeof renderSheet === 'function') renderSheet();
+      renderSheet();
       toast(`◈ ${sel} granted by Energy Immunity — now immune to all owned Resistance types.`);
     }
   });

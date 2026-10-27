@@ -118,7 +118,7 @@ function renderClassSubOptions(){
   if (names.has('Cleric')) {
     const so = formSubOptions;
     const alignOk = /Neutral/i.test(document.getElementById('c-align')?.value || '');
-    const techZero = (typeof getSixLevels === 'function') && ((getSixLevels().tech ?? 0) < 1);
+    const techZero = ((getSixLevels().tech ?? 0) < 1);
     if (techZero && !so.druidOption) {
       // v8.5.4: availability-table footnote — at Tech 0 the base Cleric is
       // unavailable; only the Druid Option qualifies.
@@ -167,7 +167,7 @@ function renderClassSubOptions(){
   }
   // v8.5.4: Scale-0 variant pickers (Nature's Secrets / Storyteller). Read
   // the form's live scenario so toggling a Scale re-shapes the block.
-  const sixNow = (typeof getSixLevels === 'function') ? getSixLevels() : {};
+  const sixNow = getSixLevels();
   const scale0Block = (className) => {
     const v = SCALE0_VARIANTS[className];
     const entry = formClasses.find(e => e.name === className);
@@ -269,7 +269,7 @@ function renderClassList(){
   //   • a brief inline note explains the constraint
   // The gate is OFF for Edit mode (editId !== null) — Edit stays fully
   // versatile per decision 5.
-  const isL1Genesis = (typeof editId !== 'undefined') && editId === null;
+  const isL1Genesis = editId === null;
   if(formClasses.length===0){
     list.innerHTML=`<div style="padding:1rem;text-align:center;color:var(--g40);font-style:italic;border:1px dashed rgba(200,151,30,.2);border-radius:3px;">No classes added yet — click "+ Add Class" to begin.</div>`;
   } else {
@@ -370,7 +370,7 @@ function openAddClassDialog(){
   // v8.4.0: lock the level input to 1 in L1-genesis mode (new character,
   // !editId). Edit mode leaves it freely editable.
   const lvlInp = document.getElementById('add-cls-lvl');
-  const isL1Genesis = (typeof editId !== 'undefined') && editId === null;
+  const isL1Genesis = editId === null;
   if (lvlInp) {
     lvlInp.disabled = isL1Genesis;
     lvlInp.max = isL1Genesis ? 1 : lvlInp.max;
@@ -418,7 +418,7 @@ function onAddClassTierChange(){
   // at level 10, mirroring their Hero counterparts. v8.4.0: in L1-genesis
   // mode the cap is hard-1 regardless of tier.
   const tierMaxes={hero:10,ordinary:10,basic:20,advanced:10,prestige:10};
-  const isL1Genesis = (typeof editId !== 'undefined') && editId === null;
+  const isL1Genesis = editId === null;
   const effectiveMax = isL1Genesis ? 1 : (tierMaxes[tier]||20);
   document.getElementById('add-cls-lvl').max = effectiveMax;
   if(parseInt(document.getElementById('add-cls-lvl').value) > effectiveMax)
@@ -481,7 +481,7 @@ function confirmAddClass(){
   const cap=tierMaxLevel(fakeEntry);
   // v8.4.0: L1-genesis hard cap. Defense in depth — even if the UI's
   // disabled input is bypassed, the level is forced to 1 here.
-  const isL1Genesis = (typeof editId !== 'undefined') && editId === null;
+  const isL1Genesis = editId === null;
   const effectiveCap = isL1Genesis ? 1 : cap;
   const finalLvl=Math.min(Math.max(1,lvl),effectiveCap);
   // First-class flag: if no entry currently has it, this one gets it
@@ -511,7 +511,7 @@ function onClassLevelChange(i, val){
   const e=formClasses[i];
   const cap=tierMaxLevel(e);
   // v8.4.0: L1-genesis hard cap. Defense in depth.
-  const isL1Genesis = (typeof editId !== 'undefined') && editId === null;
+  const isL1Genesis = editId === null;
   const effectiveCap = isL1Genesis ? 1 : cap;
   e.level=Math.min(Math.max(1,parseInt(val)||1),effectiveCap);
   renderClassList();

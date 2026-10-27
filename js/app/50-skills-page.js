@@ -127,7 +127,7 @@ function getClassSkillSources(skillName, arg2, occupation){
     // "All listed skills are class skills". The seed carries no skill list,
     // so the lane treats every skill as class; pruning is the GM's finishing
     // touch, like the rest of the statblock's skill section.
-    if (typeof MONSTROUS_CLASSES !== 'undefined' && MONSTROUS_CLASSES[className]) {
+    if (MONSTROUS_CLASSES[className]) {
       return `class:${className} (monstrous — FF: a creature's listed skills are class skills)`;
     }
     const skills = CLASS_SKILLS[className];
@@ -230,7 +230,7 @@ function getClassSkillSources(skillName, arg2, occupation){
         if (!pick) continue;
         // v8.91.0: match through the canonicalizer — the stored pick keeps
         // the book's spelling, the comparison speaks catalog.
-        const pickC = (typeof canonSkillPick === 'function') ? canonSkillPick(pick) : pick;
+        const pickC = canonSkillPick(pick);
         if (pickC === skillName) {
           sources.push(`occupation-pick:${occName} (${pick})`);
           continue;
@@ -255,8 +255,7 @@ function getClassSkillSources(skillName, arg2, occupation){
   }
   // v8.99.0 (the cybernetics wire-through): Data Archive (HH p.337) — "The
   // recipient treats ALL skills as class skills."
-  if (arg2 && typeof arg2 === 'object' && typeof getCyber === 'function'
-      && getCyber(arg2).some(r => r.n === 'Data Archive')) {
+  if (arg2 && typeof arg2 === 'object' && getCyber(arg2).some(r => r.n === 'Data Archive')) {
     sources.push('cybernetic:Data Archive (all skills are class skills)');
   }
   return sources;
@@ -453,7 +452,7 @@ function renderSkills(){
   // hover ⓘ, the house idiom. Nothing is lost — only folded.
   let bkBits = [];
   try { const cc = crossClassPremiumOf(c); if (cc.prem > 0) bkBits.push(`+${cc.prem} cross-class premium (${cc.items.join(', ')})`); } catch (e) {}
-  try { const _mlN = (typeof getMPState === 'function') ? (getMPState(c).mutantLevel || 0) : 0; if (_mlN > 0) bkBits.push(`+${2 * _mlN} skill points from Unnatural Prowess (Mutant +${_mlN}) — HH p.29: these bonus points may only buy TECH SCALE 0 skills (no Computer Use, Drive, Pilot, Repair and kin); the table enforces the restriction`); } catch (e) {}
+  try { const _mlN = (getMPState(c).mutantLevel || 0); if (_mlN > 0) bkBits.push(`+${2 * _mlN} skill points from Unnatural Prowess (Mutant +${_mlN}) — HH p.29: these bonus points may only buy TECH SCALE 0 skills (no Computer Use, Drive, Pilot, Repair and kin); the table enforces the restriction`); } catch (e) {}
   const bkNote = bkBits.length ? ` <span style="cursor:help;opacity:.8;color:var(--g90);" title="${escapeHTML('Budget breakdown — ' + bkBits.join('  ·  '))}">ⓘ</span>` : '';
   ptsInfoEl.innerHTML = `<span title="${sDisplay.label}" style="color:${sDisplay.color};">${sDisplay.icon}</span> Skill Points: ${spent} spent of ~${totalSP} total${sSuffix}${bkNote}`;
   ptsInfoEl.style.color = sDisplay.color;
@@ -592,11 +591,11 @@ function renderSkills(){
     // reach follows the EFFECTIVE size (HH p.173 table), so the Strong
     // super-talents' +1-size-per-talent riders (HH p.263, Su) land here.
     let jumpIndicator = '';
-    if (sk.n === 'Jump' && typeof effectiveSizeIndex === 'function') {
+    if (sk.n === 'Jump') {
       const szIdx = effectiveSizeIndex(c);
       const REACH_FT = ['½', '1', '2½', '5', '7½', '15', '30', '60', '120'];
       const superSized = szIdx !== raceSizeIndex(c);
-      const seNote = (!c.nullified && typeof hasSupremeEffort === 'function' && hasSupremeEffort(c))
+      const seNote = (!c.nullified && hasSupremeEffort(c))
         ? ` During a Supreme Effort (move action): one size category larger again — ${SIZE_LADDER[Math.min(SIZE_LADDER.length - 1, szIdx + 1)]}, reach ${REACH_FT[Math.min(REACH_FT.length - 1, szIdx + 1)]} ft.` : '';
       jumpIndicator = `<span style="font-size:10px;color:${superSized ? '#78afcd' : 'var(--g45)'};margin-left:4px;cursor:help;" title="${escapeHTML(`Vertical reach ${REACH_FT[szIdx]} ft (${SIZE_LADDER[szIdx]}${superSized ? ' — Super-Strong size riders, Su, suppressed while Nullified' : ''}) — height reachable without jumping; high jumps add to it (HH p.173). Speed above/below 30 ft modifies Jump checks via the Misc column.${seNote}`)}">${superSized ? '🦾 ' : ''}↕${REACH_FT[szIdx]}′</span>`;
     }
@@ -622,8 +621,8 @@ function renderSkills(){
     // wears its HH dossier (qualifier line + description + Check) as a hover,
     // dotted-gold underlined per the house idiom. The row's provenance title
     // still answers everywhere else on the row.
-    const dispNm = (typeof displaySkillName==='function')?displaySkillName(c, sk.n):sk.n;
-    const dossier = (typeof skillHoverText==='function') ? skillHoverText(c, sk) : '';
+    const dispNm = displaySkillName(c, sk.n);
+    const dossier = skillHoverText(c, sk);
     const nameHTML = dossier
       ? `<span style="cursor:help;border-bottom:1px dotted rgba(200,151,30,.45);" title="${escapeHTML(dossier)}">${dispNm}</span>`
       : dispNm;
@@ -703,10 +702,10 @@ function restPP(poolName) {
   // v8.42.0: resting ends ALL active power effects (Adam: "all effects wear
   // off at the very least when the character rests"). Idempotent — the
   // fullyRested() multi-pool sweep clears on its first pool only.
-  const _aeCleared = (typeof clearActiveBuffs === 'function') ? clearActiveBuffs(c, 'rested') : 0;
+  const _aeCleared = clearActiveBuffs(c, 'rested');
   if (_aeCleared) {
     toast(`✨ ${_aeCleared} active power effect${_aeCleared === 1 ? '' : 's'} ended with the rest.`);
-    if (typeof renderActiveBuffs === 'function') renderActiveBuffs(c);
+    renderActiveBuffs(c);
   }
   for (const ctr of pool.contributors) {
     if (ctr._isAdvancer) continue;  // heritage/feat PP refills too (v8.5.4)
@@ -731,7 +730,7 @@ function restPP(poolName) {
   }
   save();
   renderSheet(c);
-  if (typeof renderPowers === 'function') renderPowers();
+  renderPowers();
 }
 
 // v8.3.12: Capture textarea changes for prepared-today and powers-known lists,
@@ -811,11 +810,11 @@ function computeSkillPointBudget(c) {
   // restriction is TABLE-ENFORCED (the first typed SP pool — the budget
   // tracker stays one number, the restriction rides the advisory line on
   // the Mutations tab and the budget note).
-  const _mlSP = (typeof getMPState === 'function') ? (getMPState(c).mutantLevel || 0) : 0;
+  const _mlSP = (getMPState(c).mutantLevel || 0);
   if (_mlSP > 0 && levelCounter >= 1) totalSP += 2 * _mlSP;
   // v8.68.0: a Human-parent Hybrid inherits the Human SP bonus ("all racial
   // abilities of both parents" — Adam's simple model).
-  const _hySPh = (typeof hybridInfo === 'function') ? hybridInfo(c) : null;
+  const _hySPh = hybridInfo(c);
   const _isHumanish = c.race === 'Human' || (_hySPh && (_hySPh.a === 'Human' || _hySPh.b === 'Human'));
   if (_isHumanish && levelCounter >= 1) {
     totalSP += 5;                         // L1 bonus
@@ -902,7 +901,7 @@ async function checkScenarioGateOnRankChange(skill, ranks, c) {
   if (_scenarioGateAcknowledged.has(skill.n)) return true;
   const req = parseSkillReq(skill.req);
   const have = (c.sixLevels && c.sixLevels[req.axis]) || 0;
-  const axisDef = (typeof SIX_LEVELS !== 'undefined' && SIX_LEVELS[req.axis]) || {};
+  const axisDef = (SIX_LEVELS[req.axis]) || {};
   const axisLabel = axisDef.label || req.axis;
   const ok = await confirmModal(
     `"${skill.n}" requires ${axisLabel} ≥ ${req.min}, but this scenario has ${axisLabel} ${have}.\n\n` +

@@ -245,12 +245,12 @@ function toggleTwoHandGrip(itemId) {
     const offBusy = getCharItems(c).some(o => o.id !== it.id && o.equipped && o.slot === 'off_hand');
     if (offBusy) { toast('🤲 Off hand is occupied — free it first to take a two-handed grip.'); return; }
     // v8.91.0 (task 3): no off hand to commit — Lost Arm unreplaced.
-    if (typeof offHandAvailable === 'function' && !offHandAvailable(c)) { toast('🤲 No off hand to commit — Lost Arm (drawback). Install a cybernetic Prosthetic Arm to restore it.'); return; }
+    if (!offHandAvailable(c)) { toast('🤲 No off hand to commit — Lost Arm (drawback). Install a cybernetic Prosthetic Arm to restore it.'); return; }
     it.twoHandedGrip = true;
-    if (typeof logAct === 'function') logAct(`🤲 ${it.ref}: two-handed grip — Str ×1.5 to damage, Power Attack counts double; the off hand is committed.`);
+    logAct(`🤲 ${it.ref}: two-handed grip — Str ×1.5 to damage, Power Attack counts double; the off hand is committed.`);
   } else {
     delete it.twoHandedGrip;
-    if (typeof logAct === 'function') logAct(`🤲 ${it.ref}: back to a one-handed grip.`);
+    logAct(`🤲 ${it.ref}: back to a one-handed grip.`);
   }
   save(); renderGear();
 }
@@ -329,7 +329,7 @@ function toggleNullified() {
   c.nullified = !c.nullified;
   logAct(c.nullified ? '⊘ NULLIFIED — all Supernatural modifiers suppressed (Null Power Field).' : '✦ Nullification lifted — Supernatural modifiers restored.');
   save(); renderSheet(); renderGear(); renderSkills();
-  try { if (typeof renderConds === 'function' && document.getElementById('tr-nullify')) renderConds(c); } catch (e) {}  // v8.60.2: refresh the Tracker toggle
+  try { if (document.getElementById('tr-nullify')) renderConds(c); } catch (e) {}  // v8.60.2: refresh the Tracker toggle
   toast(c.nullified ? '⊘ Supernatural modifiers suppressed.' : '✦ Supernatural modifiers restored.');
 }
 
@@ -348,7 +348,7 @@ function toggleRecklessOffense() {
     ? '⚡ RECKLESS OFFENSE declared — +2 on melee attack rolls (Grapple included), −4 AC (HH p.239). Base Attack and the iterative ladder untouched. Holds until re-declared.'
     : '⚔ Reckless Offense withdrawn — the stance ends; AC and melee attack rolls return to normal.');
   save(); renderSheet(); renderGear();
-  try { if (typeof renderConds === 'function' && document.getElementById('tr-reckless')) renderConds(c); } catch (e) {}
+  try { if (document.getElementById('tr-reckless')) renderConds(c); } catch (e) {}
   toast(c.combatDecl.ro ? '⚡ Reckless Offense: +2 melee attacks / −4 AC.' : '⚔ Reckless Offense withdrawn.');
 }
 

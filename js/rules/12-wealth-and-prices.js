@@ -181,7 +181,7 @@ function startingWealthBreakdown(c) {
   const parts = [{ label: 'Base', v: 20 }];
   const occs = (c.occupations && c.occupations.length ? c.occupations : (c.occ ? [c.occ] : [])).filter(Boolean);
   for (const o of occs) {
-    const od = (typeof getOccupationData === 'function') ? getOccupationData(o) : null;
+    const od = getOccupationData(o);
     if (od && od.wealth != null) parts.push({ label: o, v: od.wealth });
   }
   const profRanks = Math.max(0, ...SKILLS.filter(sk => sk.family === 'Profession').map(sk => (c.skills || {})[sk.n] || 0));
@@ -459,7 +459,7 @@ function finesseShieldACP(c) {
   for (const it of getCharItems(c)) {
     if (it.catalogue !== 'armor' || !it.equipped) continue;
     const d = getCatalogueEntry('armor', it.ref);
-    if (d && d.type === 'shield') acp += (typeof parseArmorCheckPenalty === 'function') ? (parseArmorCheckPenalty(d) || 0) : 0;
+    if (d && d.type === 'shield') acp += (parseArmorCheckPenalty(d) || 0);
   }
   return acp;  // ≤ 0
 }
@@ -621,7 +621,7 @@ function computeEquippedArmorShield(c) {
     // p.383: armor at 0 HP "no longer offers any armor bonus to AC, although
     // it still has any armor penalty") contributes nothing here — ACP, max
     // Dex, and speed limits still derive from the worn def elsewhere.
-    const _integ = (typeof armorItemIntegrity === 'function') ? armorItemIntegrity(it) : null;
+    const _integ = armorItemIntegrity(it);
     if (_integ && (_integ.broken || _integ.destroyed)) continue;
     const bonus = def.ac_bonus + Math.max(mc, enh);
     if (def.type === 'shield') shield = (shield || 0) + bonus;
@@ -629,15 +629,14 @@ function computeEquippedArmorShield(c) {
       armor = (armor || 0) + bonus;
       // v8.14.x Segment B: a power armor's tactical-shield SYSTEM (Bulwark
       // +2 / Bastion +4 / Barricade +6, best undamaged one) adds shield AC.
-      const paSh = (typeof POWER_ARMOR_DB !== 'undefined' && POWER_ARMOR_DB[it.ref]
-                    && typeof paShieldBonus === 'function') ? paShieldBonus(it) : 0;
+      const paSh = (POWER_ARMOR_DB[it.ref]) ? paShieldBonus(it) : 0;
       if (paSh) shield = (shield || 0) + paSh;
     }
   }
   // v8.14.x Segment B: an ACTIVE Second Skin behaves as armor (HH p.241 —
   // its AC bonus doesn't stack with other armor; manifesting requires bare
   // armor anyway). Applies while the skin has hit points left.
-  const _sk = (typeof activeSecondSkin === 'function') ? activeSecondSkin(c) : null;
+  const _sk = activeSecondSkin(c);
   if (_sk && !_sk.destroyed && armor == null) armor = _sk.row.ac;
   return { armor, shield };
 }

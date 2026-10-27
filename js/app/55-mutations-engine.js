@@ -133,7 +133,7 @@ function spendSuperPP(c, amount) {
 function restSuperPPClick() {
   const c = chars.find(x => x.id === curId); if (!c) return;
   c.superPPCurrent = getSuperPPState(c).max;
-  save(); renderMutations(); if (typeof renderPowers === 'function') renderPowers();
+  save(); renderMutations(); renderPowers();
   toast('Super-power points restored.');
 }
 
@@ -178,7 +178,7 @@ const SUPER_RUNGS = {
 };
 function superBuySpec(spell) {
   if (spell.mp != null) return { mp: spell.mp, levels: spell.levels, mpNote: spell.mp_note, via: null, rungs: SUPER_RUNGS[spell.name] || null };
-  const v = (typeof VARIANT_NAMES !== 'undefined') && VARIANT_NAMES[spell.name];
+  const v = VARIANT_NAMES[spell.name];
   if (v) {
     const parent = SPELLS_DB.find(x => x.name === v.parent);
     if (parent && parent.mp != null) return { mp: parent.mp, levels: parent.levels, mpNote: parent.mp_note, via: parent.name };
@@ -194,7 +194,6 @@ function superBuySpec(spell) {
 // sets. Historical purchases keep their paid price — removing an anchor
 // power later never retro-reprices earlier buys (GM territory).
 function suiteDiscountFor(c, spell) {
-  if (typeof POWER_THEMES === 'undefined') return null;
   const sets = _powerThemeSets();
   const owned = (c.powers || []).filter(p => p.pool === 'super').map(p => p.name);
   let best = null;
@@ -472,7 +471,7 @@ function buildMutationBonuses(c) {
     // v8.91.0 (task 3): a cybernetic Prosthetic Arm replaces the lost arm —
     // the −2 Climb/Swim (and grapple) penalties lift with the replacement
     // (HH p.332: replacements duplicate the biological counterpart).
-    if (m.name === 'Lost Arm' && typeof hasCyberArm === 'function' && hasCyberArm(c)) continue;
+    if (m.name === 'Lost Arm' && hasCyberArm(c)) continue;
     for (const sk in (fx.skills || {})) push('skill:' + sk, fx.skills[sk], m.name);
     for (const sk in (fx.condSkills || {})) push('skill:' + sk, fx.condSkills[sk][0], m.name, fx.condSkills[sk][1]);
     for (const sv in (fx.saves || {})) push(sv, fx.saves[sv], m.name);
@@ -544,8 +543,8 @@ function reconcileAttributeMutations(c) {
   // ruling, the hard-baked door), on its own delta ledger c.cybNacHpApplied
   // (NOT edit-preserved, same convention as mutNacHpApplied). Equipped-ITEM
   // NAC still deliberately grants no HP (firm-wired door; removable).
-  const expectedCyb = (typeof getCyber === 'function' ? getCyber(c) : []).reduce((s, r) => {
-    const d = (typeof cyberDef === 'function') ? cyberDef(r.n) : null;
+  const expectedCyb = (getCyber(c)).reduce((s, r) => {
+    const d = cyberDef(r.n);
     return s + ((d && d.nac) || 0) * 5;
   }, 0);
   const appliedCyb = c.cybNacHpApplied || 0;
@@ -684,7 +683,7 @@ function setSuperMutantTier(key) {
   c.superMutantTier = key;
   delete c.superPPCurrent; // pool max changed — refill to new max
   refreshEclXp(c); // v8.12.4: reconcile + re-stamp c.ecl/xpNext
-  save(); renderMutations(); if (typeof renderPowers === 'function') renderPowers();
+  save(); renderMutations(); renderPowers();
 }
 
 // v8.5.4: ML → ECL XP compensation (Adam's slope-only ruling, 2026-08-24).
@@ -707,7 +706,7 @@ function reconcileMutantLevelXp(c) {
     return;
   }
   if (ml <= c.mlXpCompensatedTo) return;
-  const raceEcl = (typeof raceEclOf === 'function') ? raceEclOf(c) : (RACES[c.race]?.ecl || 0);  // v8.68.0: Hybrid-aware
+  const raceEcl = raceEclOf(c);  // v8.68.0: Hybrid-aware
   let grant = 0;
   for (let k = c.mlXpCompensatedTo + 1; k <= ml; k++) {
     const eclBefore = (c.totalLvl || 1) + raceEcl + (k - 1);
@@ -731,7 +730,7 @@ function refreshEclXp(c) {
   // hand-built) derive it from the class array — HH p.22 keys ECL off class
   // levels earned, not off whether a save path has run yet.
   const _lvl = c.totalLvl || migrateLegacyClasses(c).reduce((s, e) => s + (e.level || 0), 0) || 1;
-  c.ecl = _lvl + ((typeof raceEclOf === 'function') ? raceEclOf(c) : (RACES[c.race]?.ecl || 0)) + getMPState(c).mutantLevel;  // v8.68.0: Hybrid RLM (A+B+1, or the GM override)
+  c.ecl = _lvl + (raceEclOf(c)) + getMPState(c).mutantLevel;  // v8.68.0: Hybrid RLM (A+B+1, or the GM override)
   c.xpNext = xpThreshold(c.ecl + 1);
 }
 
@@ -751,7 +750,7 @@ function renderMutations() {
   // wiring (idempotent — flagged records are skipped).
   if (reconcileAttributeMutations(c)) { save(); toast('Mutation effects synced (ability scores / natural-AC hit points).'); }
   // v8.67.0 (Mutant sync): the subtype bakes track MP/tier changes live.
-  if (typeof reconcileMutantSubtype === 'function' && reconcileMutantSubtype(c)) save();
+  if (reconcileMutantSubtype(c)) save();
 
   const st = getMPState(c);
   const pp = getSuperPPState(c);

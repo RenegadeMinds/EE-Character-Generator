@@ -29,7 +29,7 @@ populateRaceDropdown();
 renderSixLevelsGrid();
 initCreateAccordion();  // v8.5.4 ergo C2
 applyScenarioPreset(); // applies the default-selected 'The Ordinary World' preset
-if (typeof hbGearSync === 'function') hbGearSync();  // v9.12.0 (§269): the Armory joins the catalogs before first render
+hbGearSync();  // v9.12.0 (§269): the Armory joins the catalogs before first render
 renderAttrGrid();updateRaceInfo();renderClassList();updateClassPreview();renderRoster();
 // v8.3.17: paint the initial gate state. Default is 'awaiting' for a fresh page;
 // editCurrentChar() sets 'locked' before showing the form.

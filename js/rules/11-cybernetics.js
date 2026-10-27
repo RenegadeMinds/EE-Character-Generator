@@ -138,7 +138,7 @@ function buildCyberneticsBonuses(c) {
     if (def.init) push('init', def.init, def.n);
     if (def.skill) push('skill:' + def.skill[0], def.skill[1], def.n);
     if (def.n === 'Skill Implant' && r.param) push('skill:' + r.param, 2, def.n + ' (' + r.param + ')');
-    if (def.n === 'Data Archive') for (const sk of (typeof SKILLS !== 'undefined' ? SKILLS : [])) { if (sk.n.startsWith('Knowledge (')) push('skill:' + sk.n, 4, 'Data Archive'); }
+    if (def.n === 'Data Archive') for (const sk of SKILLS) { if (sk.n.startsWith('Knowledge (')) push('skill:' + sk.n, 4, 'Data Archive'); }
     // v8.99.0: Mindscreen Implant (HH p.338) — +2 equipment on saves vs
     // mind-affecting attacks; a CONDITIONAL entry per save lane (shows in
     // the drilldowns like the mutations' conditional saves, never folds
@@ -152,8 +152,8 @@ function buildCyberneticsBonuses(c) {
   // entry per catalog skill; saves ride the statblock lanes, attack rolls
   // the RO lane, grapple its own compute. Ability-check −1, effective-level
   // die rolls, and the lost top spell/power remain table-adjudicated.
-  const nl = (typeof cyberExcess === 'function') ? cyberExcess(c) : 0;
-  if (nl > 0) for (const sk of (typeof SKILLS !== 'undefined' ? SKILLS : [])) {
+  const nl = cyberExcess(c);
+  if (nl > 0) for (const sk of SKILLS) {
     (out['skill:' + sk.n] = out['skill:' + sk.n] || []).push({ type: BONUS_TYPES.UNTYPED, source: 'cybernetic:negative-levels', value: -nl, label: `Negative level${nl > 1 ? 's' : ''} ×${nl} (cybernetic overload — HH p.333)` });
   }
   return out;
@@ -216,7 +216,7 @@ function syncCyberFeats(c) {
     for (let k = mine.length; k < want; k++) { c.feats = (c.feats || []).concat([{ name: 'Cybertaker', grantedBy: SRC }]); changed = true; }
     for (let k = mine.length; k > want; k--) { const victim = (c.feats || []).filter(f => (f.name || f.n) === 'Cybertaker' && f.grantedBy === SRC).pop(); c.feats = c.feats.filter(x => x !== victim); changed = true; }
   }
-  if (changed) { save(); if (typeof logAct === 'function') logAct('🦾 Cybernetic feat grants synced — implant-granted feats materialized (budget-exempt; removed implants cascade their feats away).'); }
+  if (changed) { save(); logAct('🦾 Cybernetic feat grants synced — implant-granted feats materialized (budget-exempt; removed implants cascade their feats away).'); }
   return changed;
 }
 
@@ -230,7 +230,7 @@ function toggleGearCyber() {
 function renderCybernetics(c) {
   const sumEl = document.getElementById('gear-cyber-summary'), body = document.getElementById('gear-cyber-body');
   if (!sumEl || !body) return;
-  if (typeof syncCyberFeats === 'function') syncCyberFeats(c);  // v8.99.0 self-heal
+  syncCyberFeats(c);  // v8.99.0 self-heal
   const ts = scenarioTechScale(c);
   const owned = getCyber(c);
   const max = cyberMax(c), count = cyberCount(c), excess = cyberExcess(c);
@@ -280,14 +280,14 @@ function addCyberFromSel() {
   if (def.needsProsthetic && !hasCyberArm(c) && !getCyber(c).some(r => (cyberDef(r.n) || {}).replaceLeg)) { toast(`${def.n} attaches to a prosthetic limb — install a Prosthetic Arm or Leg first.`); return; }
   const finish = (param) => {
     c.cybernetics = getCyber(c).concat([{ n: def.n, ...(param ? { param } : {}), at: new Date().toLocaleDateString() }]);
-    if (typeof syncCyberFeats === 'function') syncCyberFeats(c);  // v8.99.0: feat grants materialize immediately
+    syncCyberFeats(c);  // v8.99.0: feat grants materialize immediately
     const exc = cyberExcess(c);
     save(); renderGear(); renderSheet(); renderSkills();
     logAct(`🦾 Installed ${def.n}${param ? ' (' + param + ')' : ''} — PDC ${cyberPDC(c, def)}${def.rx !== '—' ? ', ' + def.rx : ''}.${exc ? ` ⚠ ${exc} attachment${exc > 1 ? 's' : ''} over the maximum — ${exc} negative level${exc > 1 ? 's' : ''} until removed or Con rises.` : ''}`);
     toast(`${def.n} installed${exc ? ` — ⚠ over the attachment maximum (${exc} negative level${exc > 1 ? 's' : ''})` : ''}.`);
   };
   if (def.param === 'skill') {
-    const classSkills = (typeof SKILLS !== 'undefined' ? SKILLS : []).filter(sk => isClassSkill(sk.n, c)).map(sk => sk.n);
+    const classSkills = SKILLS.filter(sk => isClassSkill(sk.n, c)).map(sk => sk.n);
     openChoiceModal('Skill Implant — choose one CLASS skill (+2 competence)', classSkills, v => { if (v) finish(v); });
     return;
   }
@@ -295,7 +295,7 @@ function addCyberFromSel() {
     // v9.2.2 (Adam 2026-10-06; HH p.337 "cannot duplicate a metamagic or
     // psionic feat"): Magic and Power feats are not offered — the Psi
     // Implant is the one route to a Power feat (Wild Talent).
-    openChoiceModal('Feat Implant — name the granted feat (prerequisites must be met; no Magic or Power feats)', (typeof FEATS_DB !== 'undefined' ? FEATS_DB.filter(f => f.family !== 'Magic' && f.family !== 'Power').map(f => f.n) : []), v => { if (v) finish(v); });
+    openChoiceModal('Feat Implant — name the granted feat (prerequisites must be met; no Magic or Power feats)', (FEATS_DB.filter(f => f.family !== 'Magic' && f.family !== 'Power').map(f => f.n)), v => { if (v) finish(v); });
     return;
   }
   finish(null);
@@ -305,7 +305,7 @@ function removeCyber(idx) {
   const c = chars.find(x => x.id === curId); if (!c) return;
   const r = getCyber(c)[idx]; if (!r) return;
   c.cybernetics = getCyber(c).filter((_, i) => i !== idx);
-  if (typeof syncCyberFeats === 'function') syncCyberFeats(c);  // v8.99.0: granted feats cascade away (HH p.337)
+  syncCyberFeats(c);  // v8.99.0: granted feats cascade away (HH p.337)
   save(); renderGear(); renderSheet(); renderSkills();
   logAct(`🦾 Removed ${r.n}. Without Cybernetic Surgery, removal deals 1d4 permanent Con drain (HH p.333) — adjudicate at the table.`);
   toast(`${r.n} removed — 1d4 permanent Con drain unless removed with Cybernetic Surgery.`);

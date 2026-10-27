@@ -207,7 +207,7 @@ function paLoadout(it) {
   // v8.17.0 Segment C: the loadout machinery serves power armor AND mecha —
   // the default comes from whichever definition the item resolves to.
   const src = POWER_ARMOR_DB[it.ref]
-    || (it.catalogue === 'mecha' && typeof mechaDefOf === 'function' ? mechaDefOf(it) : null);
+    || (it.catalogue === 'mecha' ? mechaDefOf(it) : null);
   if (!src || !src.defaultLoadout) return it.paLoadout || [];
   if (!it.paLoadout) it.paLoadout = src.defaultLoadout.map(l => ({ slot: l.slot, gear: l.gear, fixed: !!l.fixed, state: 'ok' }));
   return it.paLoadout;
@@ -248,7 +248,7 @@ function activeSecondSkin(c) {
 // the power armor is equipped and the system undamaged.
 function buildPowerArmorSkillBonuses(c) {
   const out = {};
-  const it = (typeof equippedPowerArmor === 'function') ? equippedPowerArmor(c) : null;
+  const it = equippedPowerArmor(c);
   if (!it) return out;
   const push = (skill, value, label) => (out['skill:' + skill] = out['skill:' + skill] || []).push(
     { type: 'equipment', source: 'pa:' + it.id + ':' + label, value, label });
@@ -265,7 +265,7 @@ function paCycleSlotState(itemId, idx) {
   const lines = paLoadout(it); const line = lines[idx]; if (!line) return;
   line.state = PA_SLOT_STATES[(PA_SLOT_STATES.indexOf(line.state || 'ok') + 1) % 3];
   logAct(`${enchantDisplayName(it)} — ${line.slot}: ${line.gear} marked ${line.state.toUpperCase()}${line.state === 'damaged' ? ' (repair: 1 hr, Repair DC 20; slot itself DC 25)' : line.state === 'destroyed' ? ' (replace only; destroyed slot: 12 hrs + Craft mechanical DC 30)' : ''}.`);
-  save(); renderVehicles(); renderSheet(); if (typeof renderSkills === 'function') renderSkills();
+  save(); renderVehicles(); renderSheet(); renderSkills();
 }
 async function paAddLoadoutLine(itemId) {
   const c = chars.find(x => x.id === curId); if (!c) return;
@@ -279,7 +279,7 @@ async function paAddLoadoutLine(itemId) {
         STARSHIP_SENSORS.map(d => `${d.name} (TS ${d.ts} · sensor)`),
         STARSHIP_COMMS.map(d => `${d.name} (TS ${d.ts} · comms)`))
     : MECHA_SYSTEMS.map(s => `${s.name} (TS ${s.ts} · ${s.cat})`)
-        .concat((typeof MECHA_WEAPONS !== 'undefined' ? MECHA_WEAPONS : []).map(w => `${w.name} (TS ${w.ts} · weapon)`)))
+        .concat(MECHA_WEAPONS.map(w => `${w.name} (TS ${w.ts} · weapon)`)))
     .concat(['✎ Custom line (free text)']);
   openChoiceModal('Install a system or weapon (slot requirements & purchase DCs in each tooltip after install)', names, async (pick) => {
     let gear = pick ? pick.replace(/\s*\(TS \d+ · \w+\)$/, '') : null;
@@ -363,7 +363,7 @@ async function paAddLoadoutLine(itemId) {
         ? ` — ⧉ battery of ${linkPick.battery} (threat ${shipThreatRange(wepRow.stat, linkPick.battery - 1)}, crit ×${1 + linkPick.battery}${wepRow.dc ? `, ${linkPick.battery}× DC ${wepRow.dc + 2}` : ''}, FF p.642)`
         : '';
     logAct(`${enchantDisplayName(it)} — installed ${gear}${slot ? ' (' + slot + ')' : ''}${mountNote}${linkNote}.`);
-    save(); renderVehicles(); renderSheet(); if (typeof renderSkills === 'function') renderSkills();
+    save(); renderVehicles(); renderSheet(); renderSkills();
   });
 }
 function paRemoveLoadoutLine(itemId, idx) {
@@ -373,7 +373,7 @@ function paRemoveLoadoutLine(itemId, idx) {
   if (!line || line.fixed) return;
   lines.splice(idx, 1);
   logAct(`${enchantDisplayName(it)} — removed ${line.gear}.`);
-  save(); renderVehicles(); renderSheet(); if (typeof renderSkills === 'function') renderSkills();
+  save(); renderVehicles(); renderSheet(); renderSkills();
 }
 function renderPowerArmorCards(c) {
   const items = getCharItems(c).filter(i => i.catalogue === 'armor' && POWER_ARMOR_DB[i.ref]);
@@ -467,7 +467,7 @@ function toggleSecondSkin() {
     c.secondSkin.active = false; c.secondSkin.damage = 0;
     logAct('Second Skin dismissed (the ectoplasm dissipates; damage does not persist to the next manifestation).');
   }
-  save(); renderVehicles(); renderSheet(); if (typeof renderArmorIntegrity === 'function') renderArmorIntegrity(c);
+  save(); renderVehicles(); renderSheet(); renderArmorIntegrity(c);
 }
 function ssIncomingHit() {
   const c = chars.find(x => x.id === curId); if (!c) return;
@@ -485,7 +485,7 @@ function ssIncomingHit() {
     if (overflow > 0 && typeof c.currentHP === 'number') c.currentHP -= overflow;
     const after = activeSecondSkin(c);
     logAct(`⚔ Second Skin hit: ${math}; ${toSkin} to the skin (${Math.max(0, after.hp)}/${after.maxHP})${overflow ? `, ${overflow} carries over to ${c.name} (HH p.242)` : ''}.${after.destroyed ? ' 🧿 The skin is DESTROYED — dismiss and re-manifest for a fresh one.' : ''}`);
-    save(); renderVehicles(); renderSheet(); if (typeof renderTracker === 'function') renderTracker();
+    save(); renderVehicles(); renderSheet(); renderTracker();
     toast(after.destroyed ? 'Second Skin destroyed — excess damage carried over.' : `Skin: ${after.hp}/${after.maxHP}${overflow ? ` · ${overflow} to you` : ''}.`);
   });
 }

@@ -119,7 +119,7 @@ function buildMonstrousClass(typeName, maxHD) {
 }
 function monstrousBoot() {
   for (const [n, d] of Object.entries(monstrousStore.classes || {})) MONSTROUS_CLASSES[n] = d;
-  for (const [n, d] of Object.entries(monstrousStore.races || {})) if (typeof RACES !== 'undefined' && !RACES[n]) RACES[n] = d;
+  for (const [n, d] of Object.entries(monstrousStore.races || {})) if (!RACES[n]) RACES[n] = d;
 }
 monstrousBoot();
 function importCreatureSeed(seed) {
@@ -148,7 +148,7 @@ function importCreatureSeed(seed) {
   };
   // v9.15.1: UPSERT — a re-import refreshes the race entry (an enriched
   // seed, e.g. one carrying the AC line, must win over a stale registration).
-  if (typeof RACES !== 'undefined') RACES[raceName] = raceDef;
+  RACES[raceName] = raceDef;
   monstrousStore.races[raceName] = raceDef;
   const id = 'seed-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
   // v9.15.1 §274: honor the seed's PLAN — the Advancer panel's advanced HD
@@ -167,7 +167,7 @@ function importCreatureSeed(seed) {
   let planNote = '';
   if (seed.classPlan && seed.classPlan.name && +seed.classPlan.levels > 0) {
     const pn = String(seed.classPlan.name), pl = Math.min(20, +seed.classPlan.levels);
-    const tier = (typeof _compassTierOf === 'function' && _compassTierOf(pn)) || (getClassData(pn) ? 'basic' : null);
+    const tier = (_compassTierOf(pn)) || (getClassData(pn) ? 'basic' : null);
     if (tier && tier !== 'monstrous') {
       classes.push({ tier, name: pn, level: pl, first: classes.length === 0 });
       planNote = 'Class plan pre-assigned from the Familiar: ' + pn + ' ' + pl + ' — skill, feat and talent/spell picks for those levels are OWED (open the editor to choose; the Quickdraw auto-allocator for monstrous bases is on the roadmap).';
@@ -189,7 +189,7 @@ function importCreatureSeed(seed) {
   const c = {
     id, name: nice, race: raceName, sex: '', align: 'Neutral', hybrid: null, allegiance: '',
     occupations: [], xp: 0, hpMode: 'hero',
-    schemaVer: (typeof CURRENT_SCHEMA_VER !== 'undefined') ? CURRENT_SCHEMA_VER : 1,
+    schemaVer: CURRENT_SCHEMA_VER,
     attrs: listedAttrs, attrBumps: [], racialApplied: raceName,
     sixLevels: { arcane: 5, divine: 5, heroic: 5, mutation: 5, psionic: 5, tech: 5 },
     scenarioPreset: 'Custom',
@@ -210,7 +210,7 @@ function importCreatureSeed(seed) {
   // the first Edit → Save.
   c.hpRolls = generateHpRolls(classes, 'hero');
   const _impConM = am(c.attrs[2]);
-  const _impNat = (typeof computeNaturalAC === 'function') ? (computeNaturalAC(c).total || 0) : (natM ? +natM[1] : 0);
+  const _impNat = (computeNaturalAC(c).total || 0);
   c.maxHP = Math.max(1, computeMaxHPFromRolls(classes, c.hpRolls, _impConM) + _impNat * 5);
   c.hp = c.maxHP; c.currentHP = c.maxHP;
   const _impStats = computeStatsFromClasses(classes, c.attrs[5] || 10, effectiveHeroicLevelForAP(c), 0);
@@ -218,14 +218,13 @@ function importCreatureSeed(seed) {
   c.bab = _impStats.bab; c.def = _impStats.def; c.fort = _impStats.fort; c.ref = _impStats.ref; c.will = _impStats.will; c.rep = _impStats.rep;
   c.apMax = _impStats.ap; c.ap = _impStats.ap;
   chars.push(c);
-  if (typeof reconcileMissingHP === 'function') reconcileMissingHP(c);
-  if (typeof refreshEclXp === 'function') refreshEclXp(c);
+  reconcileMissingHP(c);
+  refreshEclXp(c);
   save(); renderRoster();
-  if (typeof selChar === 'function') selChar(id);
+  selChar(id);
   toast('⬆ Monstrous Heritage: ' + nice + ' imported — ' + (hdPlanned >= 2 ? hdPlanned + ' racial HD as the Monstrous class, ' : '') + (seed.classPlan && seed.classPlan.name ? seed.classPlan.name + ' ' + seed.classPlan.levels + ' pre-assigned, ' : '') + 'RLM +' + la + '. See the log.');
 }
 function hbGearSync() {
-  if (typeof WEAPONS_CATALOG === 'undefined' || typeof ARMOR_CATALOG === 'undefined') return;
   for (const arr of [WEAPONS_CATALOG, ARMOR_CATALOG]) {
     for (let i = arr.length - 1; i >= 0; i--) if (arr[i] && arr[i].hb) arr.splice(i, 1);
   }
@@ -244,7 +243,7 @@ function hbgTypeChange() {
   // v9.13.0 (§271): the standard-feature gadget list follows the type —
   // weapon gadgets for weapons, armor gadgets for armor (GADGETS_CATALOG).
   const sel = document.getElementById('hbg-gadget');
-  if (sel && typeof GADGETS_CATALOG !== 'undefined') {
+  if (sel) {
     const keep = sel.value;
     const kind = w ? 'weapon' : 'armor';
     sel.innerHTML = '<option value="">None</option>' + GADGETS_CATALOG
@@ -320,7 +319,7 @@ function hbgSave() {
     const sub = v('hbg-substance');
     if (sub && HBG_SUBSTANCES[sub]) {
       const subTS = HBG_SUBSTANCES[sub];
-      const row = (typeof ARMOR_HARDNESS_BY_TS !== 'undefined') ? ARMOR_HARDNESS_BY_TS[Math.min(subTS, 8)] : null;
+      const row = (ARMOR_HARDNESS_BY_TS[Math.min(subTS, 8)]);
       const cat = atype === 'shield' ? 'medium' : atype;  // p.384 has no shield column; medium row, GM may adjust
       rec.hb_substance = sub;
       rec.hb_hardness = subTS <= 4 ? rec.ac_bonus : ((row && row[cat] != null) ? row[cat] : rec.ac_bonus);
@@ -342,14 +341,14 @@ function hbgSave() {
   const i = homebrewGear.findIndex(r => r.name === name && (r.category === 'weapon') === isWeapon);
   if (i >= 0) homebrewGear[i] = rec; else homebrewGear.push(rec);
   hbgStoreSave(); hbGearSync(); hbgRenderList();
-  if (typeof renderGear === 'function' && typeof curId !== 'undefined' && curId) renderGear();
+  if (curId) renderGear();
   toast(`⚒ ${name} forged${rec.hb_substance ? ` in ${rec.hb_substance} (hardness ${rec.hb_hardness}, native-TS row — HH p.384)` : ''} — it now sits in the ${isWeapon ? 'weapons' : 'armor'} catalogue (TS ${ts}, DC ${dc}).`);
 }
 function hbgDelete(i) {
   const r = homebrewGear[i]; if (!r) return;
   homebrewGear.splice(i, 1);
   hbgStoreSave(); hbGearSync(); hbgRenderList();
-  if (typeof renderGear === 'function' && typeof curId !== 'undefined' && curId) renderGear();
+  if (curId) renderGear();
   toast(`${r.name} unmade. Owned copies on characters keep their records (the dossier loses its catalogue page).`);
 }
 function hbgRenderList() {
@@ -513,7 +512,7 @@ function hbApplyGrant(c, r, choiceIdx) {
   if (isFree) entry.grantedBy = 'Homebrew (GM grant)';
   c.feats.push(entry);
   logAct(`🌍 ${r.name} granted (GM homebrew): ${hbAdjSummary(r)}${choiceIdx !== null ? ` — choice: ${ATTR_NAMES[choiceIdx]}` : ''}${hpDelta ? ` · HP ${hpDelta > 0 ? '+' : ''}${hpDelta} (Con modifier × level, RAW retro-adjust)` : ''}. ${isFree ? 'Free — no slot, no budget' : 'Costs a feat selection — counted against the feat budget'}; prereqs waived.`);
-  save(); hbRenderList(); renderFeats(); if (typeof renderSheet === 'function') renderSheet();
+  save(); hbRenderList(); renderFeats(); renderSheet();
   toast(`🌍 ${r.name} → ${c.name}.`);
 }
 async function hbRevoke(i) {
@@ -528,7 +527,7 @@ async function hbRevoke(i) {
   // Re-locate by reference — the reversal's child splices shift indices.
   const idx2 = c.feats.indexOf(entry);
   if (idx2 >= 0) c.feats.splice(idx2, 1);
-  save(); hbRenderList(); renderFeats(); if (typeof renderSheet === 'function') renderSheet();
+  save(); hbRenderList(); renderFeats(); renderSheet();
   toast(`↩ ${r.name} revoked from ${c.name}.`);
 }
 // Shared reversal used by hbRevoke AND the Feats-page trash can.

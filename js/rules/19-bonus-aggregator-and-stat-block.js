@@ -329,15 +329,13 @@ function computeNaturalAC(c) {
   // rule ("the built-in armor gives its HP to the cyborg"): the rule even
   // reproduces the implant table's own HP column exactly (+2→10, +5→25,
   // +8→40).
-  const cybNat = (typeof getCyber === 'function')
-    ? getCyber(c).map(r => cyberDef(r.n)).filter(d => d && d.nac).map(d => ({ type: BONUS_TYPES.TECH, source: 'cybernetic:' + d.n, value: d.nac, label: d.n + ' (cybernetic — tech bonus to Natural AC)' }))
-    : [];
+  const cybNat = (getCyber(c).map(r => cyberDef(r.n)).filter(d => d && d.nac).map(d => ({ type: BONUS_TYPES.TECH, source: 'cybernetic:' + d.n, value: d.nac, label: d.n + ' (cybernetic — tech bonus to Natural AC)' })));
   // v8.6.0 firm-wire: equipped Amulets of Natural Armor (enhancement type —
   // correctly superseded-by/superseding other enhancement NAC sources).
   const magNat = buildMagicItemBonuses(c).naturalAC || [];
   // v8.42.0: transient wired buffs (Thicken Skin) — join the display total,
   // excluded from permTotal exactly like item NAC (temporary = no ×5 HP).
-  const buffNat = (typeof activeBuffBonuses === 'function') ? (activeBuffBonuses(c).naturalAC || []) : [];
+  const buffNat = (activeBuffBonuses(c).naturalAC || []);
   const agg = aggregateBonuses(sources.concat(talentNat, mutNat, magNat, buffNat, cybNat));
   // permTotal excludes equipped-item NAC — the ×5-HP rule applies only to
   // PERMANENT natural armor (Adam's ruling: item NAC hit points would be
@@ -416,7 +414,7 @@ function computeStatBlock(char, activeConditions) {
   // item enhancements included, derived live). HP deliberately keeps the
   // BASE Con mod — stored max HP is a level-up snapshot and item-CON hit
   // points are temporary by RAW (see the firm-wire ontology comment).
-  const eff = (typeof effAttrs === 'function') ? effAttrs(char) : attrs;
+  const eff = effAttrs(char);
   const conM = am(eff[2]), dexM = am(eff[1]), wisM = am(eff[4]);
   const conMBase = am(attrs[2]);
   // Class-progression bonuses, bucketed by stat
@@ -424,7 +422,7 @@ function computeStatBlock(char, activeConditions) {
   // Racial trait bonuses, bucketed by target stat
   // v8.68.0: Hybrids merge both parents' trait bonuses (distinct sources —
   // the typed aggregator reconciles same-type overlaps).
-  const racialBon = (typeof buildRacialBonusesFor === 'function') ? buildRacialBonusesFor(char) : buildRacialBonuses(char.race);
+  const racialBon = buildRacialBonusesFor(char);
   // Feat bonus contributions, bucketed by target stat
   const featBon = buildFeatBonuses(char);
   // v8.5.0 Layer 2: talent bonus contributions. Only hp and init merge here —
@@ -443,17 +441,17 @@ function computeStatBlock(char, activeConditions) {
   const mgBon = buildMagicItemBonuses(char);
   // v8.8.2: class-feature save bonuses (Divine Grace, Self-Control, and the
   // conditional Strong Personality / Still Mind / Trap Sense drilldown rows).
-  const cfSaveBon = (typeof buildClassFeatureSaveBonuses === 'function') ? buildClassFeatureSaveBonuses(char) : {};
+  const cfSaveBon = buildClassFeatureSaveBonuses(char);
   // v8.42.0: transient wired buffs (active powers — Foresight, Empty Mind,
   // Precognition Defensive…). Empty while nullified (NPF, Adam's ruling).
-  const aeBon = (typeof activeBuffBonuses === 'function') ? activeBuffBonuses(char) : {};
+  const aeBon = activeBuffBonuses(char);
   // Compose per-stat lists. Order of contribution doesn't matter to the aggregator;
   // we just collect everything that targets each stat. Feat contributions are merged
   // in alongside class and racial bonuses, and the aggregator handles stacking rules.
   // v8.65.0: Best Defense (declared stance, Survivor 5) SPENDS Defense
   // Bonus — one negative untyped entry rides the def and ac lanes so the
   // cards, drilldowns, and AC all move together (PA's mirror).
-  const _bdDecl = (typeof combatDecl === 'function') ? (combatDecl(char).bd || 0) : 0;
+  const _bdDecl = (combatDecl(char).bd || 0);
   const _bdEntry = _bdDecl ? [{ type: 'untyped', source: 'declared:bestDefense', value: -_bdDecl, label: `Best Defense (declared — +${_bdDecl} melee attack)` }] : [];
   // v8.76.0 (Adam's Hellfire report — "the defensive modifiers aren't
   // changing at all"): CE and RO were DISPLAY-ONLY on the defense side
@@ -463,34 +461,34 @@ function computeStatBlock(char, activeConditions) {
   // and dropped when flat-footed, as dodge bonuses are); RO as an untyped
   // −4 (reaches touch too; recklessness isn't cured by being flat-footed).
   // Parry/Dodge get the same lines in their own compute functions.
-  const _ceDecl = (typeof combatDecl === 'function') ? (combatDecl(char).ce || 0) : 0;
+  const _ceDecl = (combatDecl(char).ce || 0);
   const _ceEntry = _ceDecl ? [{ type: 'dodge', source: 'declared:combatExpertise', value: _ceDecl, label: `Combat Expertise (declared — −${_ceDecl} on melee attack rolls; Base Attack untouched)` }] : [];
-  const _roDecl = (typeof combatDecl === 'function') ? !!combatDecl(char).ro : false;
+  const _roDecl = (!!combatDecl(char).ro);
   const _roEntry = _roDecl ? [{ type: 'untyped', source: 'declared:recklessOffense', value: -4, label: 'Reckless Offense (declared — +2 melee attack rolls)' }] : [];
   // v8.67.0 (Mutant sync): Unnatural Prowess/Resilience lanes — the bab/def
   // entries mirror the reconciler's bakes (card/drilldown parity), the save
   // entries ARE the wire (saves aren't baked). verifyParity subtracts these.
-  const msLanes = (typeof buildMutantSubtypeLanes === 'function') ? buildMutantSubtypeLanes(char) : { bab: [], def: [], fort: [], ref: [], will: [] };
+  const msLanes = buildMutantSubtypeLanes(char);
   // v8.92.0 (Adam: "wire the negative level modifier for completeness"):
   // excess cybernetic attachments — −1 per negative level on SAVES here;
   // attack rolls ride the RO lane, skills ride the skill engine, grapple in
   // computeGrapple. Effective-level die rolls + the lost top spell/power
   // stay table-adjudicated (choice-dependent).
-  const _cybNL = (typeof cyberExcess === 'function') ? cyberExcess(char) : 0;
+  const _cybNL = cyberExcess(char);
   const _cybNLEntry = _cybNL ? [{ type: 'untyped', source: 'cybernetic:negative-levels', value: -_cybNL, label: `Negative level${_cybNL > 1 ? 's' : ''} ×${_cybNL} (cybernetic overload — HH p.333)` }] : [];
   // v8.99.0: the implants' own lane entries (Mindscreen's conditional saves,
   // Initiative Implant) — computed once.
-  const cybBon = (typeof buildCyberneticsBonuses === 'function') ? buildCyberneticsBonuses(char) : {};
+  const cybBon = buildCyberneticsBonuses(char);
   // v9.1.0: equipment save entries (Cold weather outfit, Parka, tents — all
   // CONDITIONAL today: drilldown rows, never the headline).
-  const eqBon = (typeof buildItemBonuses === 'function') ? buildItemBonuses(char) : {};
+  const eqBon = buildItemBonuses(char);
   const lists = {
     bab:  [...classBon.bab,  ...(featBon.bab||[]), ...((cfSaveBon && cfSaveBon.bab)||[]), ...msLanes.bab],
     def:  [...classBon.def,  ...(racialBon.def||[]),  ...(featBon.def||[]), ...((cfSaveBon && cfSaveBon.def)||[]), ...msLanes.def, ..._bdEntry],
     fort: [...classBon.fort, buildAttributeBonus('CON', conM), ...(racialBon.fort||[]), ...(featBon.fort||[]), ...(mutBon.fort||[]), ...(mgBon.fort||[]), ...(cfSaveBon.fort||[]), ...(aeBon.fort||[]), ...msLanes.fort, ..._cybNLEntry, ...(cybBon.fort||[]), ...(eqBon.fort||[])],
     ref:  [...classBon.ref,  buildAttributeBonus('DEX', dexM), ...(racialBon.ref||[]),  ...(featBon.ref||[]),  ...(mutBon.ref||[]),  ...(mgBon.ref||[]),  ...(cfSaveBon.ref||[]),  ...(aeBon.ref||[]), ...msLanes.ref, ..._cybNLEntry, ...(cybBon.ref||[]), ...(eqBon.ref||[])],
     will: [...classBon.will, buildAttributeBonus('WIS', wisM), ...(racialBon.will||[]), ...(featBon.will||[]), ...(mutBon.will||[]), ...(mgBon.will||[]), ...(cfSaveBon.will||[]), ...(aeBon.will||[]), ...msLanes.will, ..._cybNLEntry, ...(cybBon.will||[]), ...(eqBon.will||[])],
-    rep:  [...classBon.rep,  ...(racialBon.rep||[]),  ...(featBon.rep||[]), ...((typeof buildClassFeatureRepBonuses === 'function') ? buildClassFeatureRepBonuses(char) : [])],
+    rep:  [...classBon.rep,  ...(racialBon.rep||[]),  ...(featBon.rep||[]), ...(buildClassFeatureRepBonuses(char))],
     // Armor Class: 10 base + size + DEX + def-bonus + natural + (future: armor, shield, deflection)
     ac:   [
       {type:BONUS_TYPES.BASE, source:'base:ac', value:10, label:'AC base'},
@@ -498,7 +496,7 @@ function computeStatBlock(char, activeConditions) {
       // Class def-bonus contributes to AC; pulled from classBon.def
       ...classBon.def.map(b => ({...b, target:'ac'})),
       // v8.16.0 Races pass: size modifier (+1 Small, −1 Large).
-      ...(((typeof raceACSizeMod === 'function') && raceACSizeMod(char)) ? [{type:'size', source:'race:size', value:raceACSizeMod(char), label:`size (${char.race})`}] : []),
+      ...((raceACSizeMod(char)) ? [{type:'size', source:'race:size', value:raceACSizeMod(char), label:`size (${char.race})`}] : []),
       ...(racialBon.ac||[]),
       ...(featBon.ac||[]),
       ...(mgBon.ac||[]),  // v8.6.0 firm-wire: deflection rings et al.
@@ -642,23 +640,23 @@ function verifyParity(char) {
   // v8.6.0 firm-wire: v8 save totals now use EFFECTIVE attribute mods and
   // include equipped-item bonuses — subtract both to isolate the class-only
   // portion (aggregated per type, since resistance items don't stack).
-  const effP = (typeof effAttrs === 'function') ? effAttrs(char) : (char.attrs || [10,10,10,10,10,10]);
+  const effP = effAttrs(char);
   const mgBonP = buildMagicItemBonuses(char);
   const mgContrib = (target) => aggregateBonuses(mgBonP[target] || []).total;
-  const eqBonP = (typeof buildItemBonuses === 'function') ? buildItemBonuses(char) : {};
+  const eqBonP = buildItemBonuses(char);
   const eqContrib = (target) => aggregateBonuses((eqBonP[target] || []).filter(b => !b.condition)).total;
   // v8.8.2: class-feature save bonuses (Divine Grace, Self-Control…) subtract
   // like feats do — v7 knows only the class PROGRESSION, not features.
-  const cfBonP = (typeof buildClassFeatureSaveBonuses === 'function') ? buildClassFeatureSaveBonuses(char) : {};
+  const cfBonP = buildClassFeatureSaveBonuses(char);
   const cfContrib = (target) => (cfBonP[target] || []).filter(b => !b.condition).reduce((s, b) => s + (b.value || 0), 0);
   // v8.16.0 Races pass: racial trait bonuses (Halfling +1 saves, Xeph…)
   // now reach the v8 save totals — subtract the unconditional portion the
   // same way feats/mutations/items do, keeping the class-only comparison.
-  const raBonP = (typeof buildRacialBonusesFor === 'function') ? buildRacialBonusesFor(char) : buildRacialBonuses(char.race);
+  const raBonP = buildRacialBonusesFor(char);
   const raContrib = (target) => (raBonP[target] || []).filter(b => !b.condition).reduce((s, b) => s + (b.value || 0), 0);
   // v8.67.0 (Mutant sync): Unnatural Prowess/Resilience lanes subtract the
   // same way feats/racials do — v7 knows only the class progression.
-  const msLanesP = (typeof buildMutantSubtypeLanes === 'function') ? buildMutantSubtypeLanes(char) : {};
+  const msLanesP = buildMutantSubtypeLanes(char);
   const msContrib = (target) => (msLanesP[target] || []).reduce((s, b) => s + (b.value || 0), 0);
   const diffs = {};
   const checks = [

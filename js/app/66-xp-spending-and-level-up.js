@@ -721,13 +721,13 @@ function lvlupCommit(skipBump) {
   refreshEclXp(c);
   // v8.20.0: level gained — the Techsmith Mastercraft XP Reserve forfeits any
   // unspent balance and grants the new class level's 250 × level (HH p.140).
-  if (typeof reconcileMcReserve === 'function') reconcileMcReserve(c);
+  reconcileMcReserve(c);
   c.bab = s.bab; c.def = s.def; c.fort = s.fort; c.ref = s.ref; c.will = s.will; c.rep = s.rep;
   c.apMax = s.ap; c.ap = c.apMax;
   // v8.67.0: level-up rebuilt bab/def — zero the Unnatural Prowess ledger
   // halves (HP is incremental at level-up, its ledger half stands) and
   // re-apply, so Mutant characters keep the subtype bonuses through gains.
-  if (c.mutSubApplied) { c.mutSubApplied.bab = 0; c.mutSubApplied.def = 0; if (typeof reconcileMutantSubtype === 'function') reconcileMutantSubtype(c); }
+  if (c.mutSubApplied) { c.mutSubApplied.bab = 0; c.mutSubApplied.def = 0; reconcileMutantSubtype(c); }
   // Refresh legacy slot mirrors so older code paths still work
   const heroEntry = c.classes.find(e => e.tier === 'hero');
   const basicEntry = c.classes.find(e => e.tier === 'basic');

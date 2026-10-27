@@ -41,7 +41,7 @@ function renderTracker(){
   if(reconcileMissingHP(c)){save();toast(`HP auto-assigned (${c.maxHP} — average Hit Dice); GM may override via ⚙ HP Mode.`);}  // v8.6.0 C5
   prompt.style.display='none';cont.style.display='block';
   document.getElementById('tr-nm').textContent=c.name+' — Combat Tracker';
-  renderHPBar(c);renderAPBar(c);renderPPRecovery(c);renderPerDiem(c);if(typeof renderArmorIntegrity==='function')renderArmorIntegrity(c);renderXPBar(c);renderConds(c);renderTalentActions(c);renderCombatOptions(c);renderBardicMusic(c);renderElementalist(c);renderLog(c);
+  renderHPBar(c);renderAPBar(c);renderPPRecovery(c);renderPerDiem(c);renderArmorIntegrity(c);renderXPBar(c);renderConds(c);renderTalentActions(c);renderCombatOptions(c);renderBardicMusic(c);renderElementalist(c);renderLog(c);
   // v8.3.27: action log panel renders alongside the free-text session journal.
   renderActionLog(c);
 }
@@ -76,7 +76,7 @@ function renderPPRecovery(c){
     bits.push(`<div style="font-size:12px;margin:3px 0;"><span title="Effective Super Level" style="cursor:help;color:var(--tv80);">ESL ${mpSt.eml}</span> · super: <b style="color:rgba(196,153,212,.95);">${spp.current}</b>/${spp.max} PP</div>`);
   }
   // v8.21.0 Segment A: the psionic-focus chip joins the PP panel.
-  if (typeof psiFocusChipHTML === 'function') { const chip = psiFocusChipHTML(c); if (chip) bits.push(chip); }
+  { const chip = psiFocusChipHTML(c); if (chip) bits.push(chip); }
   if (!bits.length) { panel.style.display = 'none'; return; }
   panel.style.display = '';
   host.innerHTML = bits.join('');
@@ -410,7 +410,7 @@ function toggleAPOpt(key) {
 function renderXPBar(c){
   // v8.20.0: self-heal the Techsmith Mastercraft XP Reserve on render (the
   // ECL-bug lesson: stored derived state reconciles wherever it's displayed).
-  if (typeof reconcileMcReserve === 'function') reconcileMcReserve(c);
+  reconcileMcReserve(c);
   // v8.3.1: progression is within the CURRENT level's XP band, not cumulative
   // from zero. See computeXpProgress() near XP_TBL for the math.
   const prog = computeXpProgress(c);
@@ -481,7 +481,7 @@ function renderTalentActions(c) {
 function renderCombatOptions(c) {
   const host = document.getElementById('tr-combat-options');
   if (!host) return;
-  const tumble = (typeof getLiveSkillRanks === 'function') ? (getLiveSkillRanks(c, 'Tumble') || 0) : 0;
+  const tumble = (getLiveSkillRanks(c, 'Tumble') || 0);
   const t5 = tumble >= 5;
   const chip = (name, body, tip) => `<span style="display:inline-block;margin:1px 10px 1px 0;white-space:nowrap;cursor:help;" title="${escapeHTML(tip)}"><b style="color:var(--tc85);">${name}</b> <span style="opacity:.8;">${body}</span></span>`;
   host.innerHTML = [
@@ -501,10 +501,10 @@ function renderCombatOptions(c) {
   // v8.72.0 (Adam's CDO, justly triggered): Grapple REJOINS the uniform
   // chip rank — soft blue title, quick blurb — so it catches the eye like
   // its siblings; the full rules fold below as the Grappling Rules Summary.
-  const gr = (typeof computeGrapple === 'function') ? computeGrapple(c) : null;
+  const gr = computeGrapple(c);
   const ownsFeat = (n) => (c.feats || []).some(f => (f.name || f.n) === n);
   const impGrap = ownsFeat('Improved Grapple');
-  const eaRanks = (typeof getLiveSkillRanks === 'function') ? (getLiveSkillRanks(c, 'Escape Artist') || 0) : 0;
+  const eaRanks = (getLiveSkillRanks(c, 'Escape Artist') || 0);
   const gH = (t) => `<div style="margin-top:5px;color:rgba(212,184,112,.9);font-weight:bold;">${t}</div>`;
   host.innerHTML = [
     host.innerHTML,
@@ -540,7 +540,7 @@ function renderBardicMusic(c) {
   const panel = document.getElementById('tr-bardic-panel');
   const host = document.getElementById('tr-bardic');
   if (!panel || !host) return;
-  const brd = (typeof _cfLvlOf === 'function') ? _cfLvlOf(c, 'Bard') : 0;
+  const brd = _cfLvlOf(c, 'Bard');
   if (brd <= 0) { panel.style.display = 'none'; host.innerHTML = ''; return; }
   panel.style.display = '';
   let perf = 0, perfName = '—';
@@ -577,7 +577,7 @@ function renderElementalist(c) {
   const panel = document.getElementById('tr-elemental-panel');
   const host = document.getElementById('tr-elemental');
   if (!panel || !host) return;
-  const ele = (typeof _cfLvlOf === 'function') ? _cfLvlOf(c, 'Elementalist') : 0;
+  const ele = _cfLvlOf(c, 'Elementalist');
   if (ele <= 0) { panel.style.display = 'none'; host.innerHTML = ''; return; }
   panel.style.display = '';
   const pick = ((c.classChoices || {})['ele_var_1'] || '');
@@ -585,7 +585,7 @@ function renderElementalist(c) {
   if (!vn) { host.innerHTML = `<div style="font-size:11px;color:#d4b870;">Choose the Elemental Focus in 🎓 Class Choices (Sheet) — every attack form keys off the variant.</div>`; return; }
   const eff = effAttrs(c);
   const strM = am(eff[0]), dexM = am(eff[1]);
-  const szm = (typeof raceACSizeMod === 'function') ? (raceACSizeMod(c) || 0) : 0;
+  const szm = (raceACSizeMod(c) || 0);
   const mTouch = (c.bab || 0) + strM + szm;
   const rTouch = (c.bab || 0) + dexM + szm;
   const fmt = (n) => `${n >= 0 ? '+' : ''}${n}`;
@@ -618,7 +618,7 @@ function renderConds(c){
   {
     const nfEl = document.getElementById('tr-nullify');
     if (nfEl) {
-      const suAttrs = (typeof suBakedPerAttr === 'function') ? suBakedPerAttr(c) : [0,0,0,0,0,0];
+      const suAttrs = suBakedPerAttr(c);
       const hasSu = suAttrs.some(v => v)
         || (c.talents || []).some(t => TALENTS_DB.find(x => x.n === (t.name || t.n) && /Super-Talent/.test(x.tier || '')))
         || (c.powers || []).some(p => p.pool === 'super');
@@ -630,8 +630,8 @@ function renderConds(c){
     // while active (same idiom as ⊘ Nullified). Attack rolls only (Adam).
     const roEl = document.getElementById('tr-reckless');
     if (roEl) {
-      const roOn = (typeof combatDecl === 'function') && combatDecl(c).ro;
-      roEl.innerHTML = (typeof ownsFeatN === 'function' && ownsFeatN(c, 'Reckless Offense'))
+      const roOn = combatDecl(c).ro;
+      roEl.innerHTML = ownsFeatN(c, 'Reckless Offense')
         ? `<button class="ilbtn" style="${roOn ? 'border-color:rgba(212,112,112,.7);color:var(--red-text);' : 'opacity:.7;'}" title="${roOn ? 'Reckless Offense declared — +2 on melee attack rolls incl. Grapple (a grapple check is like a melee attack roll), −4 AC (HH p.239). Base Attack and the iterative ladder untouched. Click to withdraw the stance.' : 'Declare Reckless Offense: take −4 AC for +2 on melee attack rolls (HH p.239) — Grapple included; never ranged. A set-point stance — holds until re-declared. Never touches Base Attack (no extra iterative attacks).'}" onclick="toggleRecklessOffense()">⚡ Reckless${roOn ? ' ✓' : '?'}</button>`
         : '';
     }
@@ -641,7 +641,7 @@ function renderConds(c){
     // blue EUPHORIC banner as the in-effect flag.
     const euEl = document.getElementById('tr-euphoric');
     if (euEl) {
-      const euB = (typeof euphoriacBonus === 'function') ? euphoriacBonus(c) : 0;
+      const euB = euphoriacBonus(c);
       euEl.innerHTML = euB
         ? `<button class="ilbtn" style="${c.euphoric ? 'border-color:rgba(120,175,205,.7);color:#78afcd;' : 'opacity:.7;'}" title="${c.euphoric ? `Euphoric — +${euB} morale on attack rolls, damage rolls, and saving throws (baked into the Sheet). Lasts (wild-surge intensity) rounds. Click when it fades.` : `Euphoriac (Ex, Wilder): after invoking a wild surge without neuralgia, gain +${euB} morale on attack, damage, and saves for (surge intensity) rounds. Click to declare it.`}" onclick="toggleEuphoric()">⚡ Euphoric${c.euphoric ? ' ✓' : '?'}</button>`
         : '';
@@ -805,8 +805,8 @@ async function assignHerosGiftAsFeat(){
   renderSheet();
   // v9.19.0: the claim card lives on the Feats tab now — refresh it and the
   // nav dots so the claim's effect is visible where it was clicked.
-  if (typeof renderFeats === 'function') try { renderFeats(); } catch (e) {}
-  if (typeof renderNavTabs === 'function') renderNavTabs(c);
+  try { renderFeats(); } catch (e) {}
+  renderNavTabs(c);
   toast("Hero's Gift assigned as Feat. +1 feat slot available.");
 }
 
@@ -824,9 +824,9 @@ async function assignHerosGiftAsTalent(){
   // No herosGift slot added — talents aren't in firstLevelSlots.
   save();
   renderSheet();
-  if (typeof renderFeats === 'function') try { renderFeats(); } catch (e) {}
-  if (typeof renderTalents === 'function') try { renderTalents(); } catch (e) {}
-  if (typeof renderNavTabs === 'function') renderNavTabs(c);
+  try { renderFeats(); } catch (e) {}
+  try { renderTalents(); } catch (e) {}
+  renderNavTabs(c);
   toast("Hero's Gift assigned as Talent. +1 talent slot available.");
 }
 

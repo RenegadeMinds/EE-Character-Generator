@@ -96,7 +96,7 @@ function armorItemIntegrity(it) {
   const hardParts = [hardSrc];
   let maxHP = def.ac_bonus * 5;
   const hpParts = [`AC bonus ${def.ac_bonus} × 5`];
-  const ench = (typeof enchantInfoOf === 'function') ? enchantInfoOf(it) : null;
+  const ench = enchantInfoOf(it);
   const m = ench ? Math.max(0, Math.min(10, ench.totalMod)) : 0;
   if (m > 0) {
     hardness += ENCH_BONUS_HARDNESS[m];
@@ -109,7 +109,7 @@ function armorItemIntegrity(it) {
   // conversion (FF Ch.III: the Implacable is Duralloy 15 / 50 HP, not
   // ac_bonus-derived). Enchantment durability still rides on top.
   let paUnit = null, substance = def.hb_substance || (ts <= 4 ? 'Steel' : (ARMOR_SUBSTANCE_BY_TS[Math.min(ts, 9)] || 'Steel'));
-  if (typeof POWER_ARMOR_DB !== 'undefined' && POWER_ARMOR_DB[it.ref]) {
+  if (POWER_ARMOR_DB[it.ref]) {
     paUnit = POWER_ARMOR_DB[it.ref];
     hardness = paUnit.hardness + (m > 0 ? ENCH_BONUS_HARDNESS[m] : 0);
     maxHP = paUnit.hp + (m > 0 ? m * 10 : 0);
@@ -515,7 +515,7 @@ function weaponAttachments(it) {
 function hasScope(it) { return weaponAttachments(it).some(a => a.key === 'scope'); }
 function accessoryFits(fits, wdef) {
   if (!wdef) return false;
-  const ranged = (typeof isRangedWeapon === 'function') ? isRangedWeapon(wdef) : (wdef.kind === 'ranged' || wdef.firearm);
+  const ranged = isRangedWeapon(wdef);
   const pistol = /pistol|derringer|revolver/i.test(wdef.name || wdef.n || '');
   if (fits === 'ranged') return ranged;
   if (fits === 'firearm') return !!wdef.firearm;

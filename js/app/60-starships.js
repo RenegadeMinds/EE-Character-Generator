@@ -666,7 +666,7 @@ async function openStarshipBuilder() {
   ];
   c.items.push(item);
   logAct(`🚀 ${ship.name} commissioned: ${subName} (${sdef.cls}, ${sdef.D}D), ${ship.engine}, ${ship.armor} armor — base DC ${sdef.dc} (hull + trained crew; engines/armor/systems price separately per their DC formulas).`);
-  save(); renderGear(); renderVehicles(); if (typeof renderNavTabs === 'function') renderNavTabs(c);
+  save(); renderGear(); renderVehicles(); renderNavTabs(c);
   toast(`${ship.name} commissioned — fit her out on the 🕹 Vehicles tab.`);
 }
 function shipIncomingHit(itemId) {
@@ -740,7 +740,6 @@ function renderStarshipCards(c) {
       // the tooltips — the pass-1 "table-level" placeholder retires. Auto-
       // capable weapons carry the FF p.640 autofire ladder.
       const fxLookup = (nm) => {
-        if (typeof STARSHIP_SYSTEM_FX === 'undefined') return '';
         const key = Object.keys(STARSHIP_SYSTEM_FX).find(k => nm.toLowerCase().startsWith(k.toLowerCase()) || k.toLowerCase().startsWith(nm.toLowerCase().replace(/ \(ship\)$/, '')));
         return key ? '\n— ' + STARSHIP_SYSTEM_FX[key] : '';
       };
@@ -805,7 +804,7 @@ function renderStarshipCards(c) {
           const engFt = eng ? (parseInt(String(eng.bonus).replace(/[^\d]/g, ''), 10) || 0) : 0;
           const penFt = (arm && arm.speedPen !== '—') ? (parseInt(String(arm.speedPen).replace(/[^\d]/g, ''), 10) || 0) : 0;
           const spd = Math.max(0, engFt - penFt);
-          const st = (typeof STARSHIP_SUBTYPE_STATS !== 'undefined') ? STARSHIP_SUBTYPE_STATS[def.subtype] : null;
+          const st = (STARSHIP_SUBTYPE_STATS[def.subtype]);
           const printed = st && st.speed ? st.speed : null;
           const pFt = printed ? (parseInt(printed.replace(/[^\d]/g, '').slice(0, 6), 10) || 0) : 0;
           const shown = printed || `${spd.toLocaleString()} ft (${Math.floor(spd / 250)} hexes)`;
@@ -820,7 +819,7 @@ function renderStarshipCards(c) {
         // v8.26.0 pass 2: the printed subtype statblock line (FF pp.663-684)
         // — space, length/weight, crew (+quality mod), passengers, cargo, the
         // HD split notation, initiative — plus the Dex-vs-Cha initiative rule.
-        const st = (typeof STARSHIP_SUBTYPE_STATS !== 'undefined') ? STARSHIP_SUBTYPE_STATS[def.subtype] : null;
+        const st = (STARSHIP_SUBTYPE_STATS[def.subtype]);
         if (!st) return '';
         const big = /Light|Medium|Heavy|Superheavy/.test(String(st.space || '')) && !/Ultralight/.test(String(st.space || ''));
         const initRule = big ? 'CHA check (Light-Colossal and larger — GMG p.506)' : 'DEX check (Ultralight-Colossal and smaller — GMG p.506)';
@@ -832,7 +831,7 @@ function renderStarshipCards(c) {
         ${hasOp ? '<span style="color:#6dba88;">✓ Starship Operation</span>' : '<span style="color:var(--red-text);" title="Without it: reduced Defense Bonus contribution and operation penalties — see GMG crewed-starship rules.">✗ Starship Operation</span>'}
         · Roles: pilot · copilot · gunners (${def.weapons} weapon slots) · engineer (damage control) · sensor/comm officers — FF p.662.
         · Slots: ${def.weapons} weapons (${cls.weaponsPer}) · ${def.defense} defense · ${def.sensors} sensors · engines ${escapeHTML(def.engineD)}
-        · <span style="cursor:help;color:#78afcd;" title="${escapeHTML(Object.values(typeof STARSHIP_COMBAT_REF !== 'undefined' ? STARSHIP_COMBAT_REF : {}).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
+        · <span style="cursor:help;color:#78afcd;" title="${escapeHTML(Object.values(STARSHIP_COMBAT_REF).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
       </div>
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g55);margin-top:7px;">Fittings <button class="btn btn-sm" style="font-size:9px;padding:0 5px;margin-left:6px;" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
       ${loadout}

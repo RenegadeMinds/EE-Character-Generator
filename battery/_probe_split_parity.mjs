@@ -31,6 +31,7 @@
 //
 // USAGE
 //   OLD=path/to/old/index.html node _probe_split_parity.mjs
+//   CODE_CHANGED=1 OLD=... node _probe_split_parity.mjs   (refactors: ignore function source text)
 //   (NEW defaults to ../index.html; set NEW=... to compare something else)
 
 import { readFileSync } from 'node:fs';
@@ -42,6 +43,10 @@ import { appRequestHandler, readAppSource } from './_serve.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OLD = process.env.OLD;
+// CODE_CHANGED=1: the change under test edits function bodies on purpose (a
+// refactor), so compare functions by name and type only, not by source text.
+// Data, character records and every rendered page must still match exactly.
+const CODE_CHANGED = !!process.env.CODE_CHANGED;
 const NEW = process.env.NEW || resolve(__dir, '../index.html');
 if (!OLD) { console.error('Set OLD=path/to/the/previous/index.html'); process.exit(2); }
 
@@ -86,20 +91,20 @@ async function boot(file, port) {
 
 // Snapshot of every top-level name: its type and a short fingerprint of its value.
 async function globalsSnapshot(page) {
-  return page.evaluate((list) => {
+  return page.evaluate((list, FN_SRC) => {
     const out = {};
-    const seen = () => { const ws = new WeakSet(); return (k, v) => { if (typeof v === 'function') return 'fn:' + v.toString(); if (v instanceof Node) return 'node:' + v.nodeName + '#' + (v.id || ''); if (v instanceof Set) return { set: [...v] }; if (v instanceof Map) return { map: [...v] }; if (v && typeof v === 'object') { if (ws.has(v)) return '[cycle]'; ws.add(v); } return v; }; };
+    const seen = () => { const ws = new WeakSet(); return (k, v) => { if (typeof v === 'function') return FN_SRC ? 'fn:' + v.toString() : 'fn'; if (v instanceof Node) return 'node:' + v.nodeName + '#' + (v.id || ''); if (v instanceof Set) return { set: [...v] }; if (v instanceof Map) return { map: [...v] }; if (v && typeof v === 'object') { if (ws.has(v)) return '[cycle]'; ws.add(v); } return v; }; };
     for (const n of list) {
       let v, t;
       try { v = (0, eval)(n); t = typeof v; } catch (e) { out[n] = 'unreachable: ' + e.name; continue; }
       let s;
-      try { s = t === 'function' ? v.toString() : JSON.stringify(v, seen()); } catch (e) { s = 'unserializable'; }
+      try { s = t === 'function' ? (FN_SRC ? v.toString() : 'fn') : JSON.stringify(v, seen()); } catch (e) { s = 'unserializable'; }
       // A small hash keeps the report short.
       let h = 0; s = String(s); for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;
       out[n] = t + ':' + s.length + ':' + h;
     }
     return out;
-  }, [...names]);
+  }, [...names], !CODE_CHANGED);
 }
 
 // The rendered markup, minus the parts expected to differ between the builds:

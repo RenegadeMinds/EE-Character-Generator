@@ -136,7 +136,7 @@ function deriveFirstLevelSlots({race, classes, occupations, hybrid}) {
   // One occupation slot per occupation that has bonus_feat_options.
   for (const occName of (occupations || [])) {
     if (!occName) continue;
-    const occData = (typeof getOccupationData === 'function') ? getOccupationData(occName) : null;
+    const occData = getOccupationData(occName);
     if (occData && occData.bonus_feat_options && occData.bonus_feat_options.length) {
       slots.push({
         kind:'occupation',
@@ -166,7 +166,7 @@ function deriveFirstLevelSlots({race, classes, occupations, hybrid}) {
 // SLOT_PREFERENCE_ORDER so loose slots stay open for picks that need them.
 function slotAcceptsFeat(slot, featName) {
   if (!slot || slot.filled !== null) return false;  // already filled
-  const data = (typeof getFeatData === 'function') ? getFeatData(featName) : null;
+  const data = getFeatData(featName);
   const isHeritage = data && data.family === 'Heritage';
   if (slot.kind === 'occupation') {
     // Occupation slots are hard-restricted to their options list.
@@ -253,7 +253,7 @@ function scanHerosGiftRetconCompliance(c) {
   const breaks = [];
   if (!c) return breaks;
   // Walk feats
-  if (typeof checkFeatPrereqs === 'function') {
+  {
     for (const f of (c.feats || [])) {
       const name = f.name || f.n;
       if (!name) continue;
@@ -267,7 +267,7 @@ function scanHerosGiftRetconCompliance(c) {
     }
   }
   // Walk talents
-  if (typeof checkTalentPrereqs === 'function') {
+  {
     for (const t of (c.talents || [])) {
       const name = t.name || t.n;
       if (!name) continue;
@@ -398,7 +398,7 @@ async function saveCharacter(){
   formHpMode = getFormHpMode();
   const maxHP=computeMaxHPFromRolls(formClasses,formHpRolls,conM) + (naturalACForm * 5);
   // v8.68.0: Hybrid RLM from the form (refreshEclXp re-stamps post-merge).
-  const _raceEclForm = race === 'Hybrid' ? ((typeof _formHybridRlm === 'function') ? _formHybridRlm() : 0) : (RACES[race]?.ecl||0);
+  const _raceEclForm = race === 'Hybrid' ? (_formHybridRlm()) : (RACES[race]?.ecl||0);
   const ecl=s.totalLvl+_raceEclForm;
   // Deep-copy the form classes array so mutations don't leak back
   const classesCopy=formClasses.map(e=>Object.assign({},e));
@@ -717,7 +717,7 @@ async function saveCharacter(){
       reconcileAttributeMutations(char);
       reconcileGrantedFeats(char);  // v8.6.1: class-entry feat grants (Monk CMA/DMA) sync with the edited class array
       reconcileTalentHp(char);  // v8.8.0: Robust HP re-applies onto the fresh maxHP (talentHpApplied not preserved — same convention as mutNacHpApplied)
-      if (typeof reconcileMutantSubtype === 'function') reconcileMutantSubtype(char);  // v8.67.0: Unnatural Prowess/Resilience re-apply onto the fresh bab/def/maxHP (mutSubApplied not preserved — same convention)
+      reconcileMutantSubtype(char);  // v8.67.0: Unnatural Prowess/Resilience re-apply onto the fresh bab/def/maxHP (mutSubApplied not preserved — same convention)
       // v9.9.2 (§261): attrDmg is now preserved above, but its HP ledger
       // (conDmgHpApplied) follows the not-preserved convention — and its
       // reconciler otherwise runs only on damage/heal events, which left the
@@ -726,7 +726,7 @@ async function saveCharacter(){
       // the live damage event, so only maxHP needs it back: snapshot current
       // around the call (the ledger was wiped, so the reconciler would debit
       // BOTH and double-charge current); the v8.12.3 clamp below still rules.
-      if (typeof reconcileConDamageHP === 'function') {
+      {
         const _curSnap = char.currentHP;
         reconcileConDamageHP(char);
         if (typeof _curSnap === 'number' && isFinite(_curSnap)) char.currentHP = _curSnap;
