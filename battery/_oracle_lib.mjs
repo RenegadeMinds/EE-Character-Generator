@@ -9,7 +9,7 @@ import puppeteer from 'puppeteer';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 export const CG_FILE = resolve(__dir, '../index.html');
-export const BOOK_DIR = 'C:/Users/adam_/OneDrive/Desktop/E&E/extraction';
+export const BOOK_DIR = fileURLToPath(new URL('../../EE-Rulebooks/extraction', import.meta.url));
 
 // ---------- book text ----------
 const _cache = {};

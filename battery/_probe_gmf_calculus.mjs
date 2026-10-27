@@ -3,7 +3,7 @@
 // re-renders it, verdict chips exist in all three flavors, zero console errors.
 import puppeteer from 'puppeteer';
 
-const url = 'file:///C:/Users/adam_/EE/EE-GM-Familiar/gmf.html';
+const url = new URL('../../EE-GM-Familiar/gmf.html', import.meta.url).href;
 const browser = await puppeteer.launch({ headless: 'new' });
 const page = await browser.newPage();
 const errors = [];

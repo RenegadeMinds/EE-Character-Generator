@@ -13,7 +13,7 @@ const page = await browser.newPage();
 const errors = [];
 page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 page.on('pageerror', e => errors.push(String(e)));
-await page.goto('file:///C:/Users/adam_/EE/EE-GM-Familiar/gmf.html', { waitUntil: 'load', timeout: 60000 });
+await page.goto(new URL('../../EE-GM-Familiar/gmf.html', import.meta.url).href, { waitUntil: 'load', timeout: 60000 });
 
 const r = await page.evaluate(() => {
   const out = {};

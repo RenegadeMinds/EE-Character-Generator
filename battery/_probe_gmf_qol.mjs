@@ -7,10 +7,11 @@
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import puppeteer from 'puppeteer';
+import { fileURLToPath } from 'node:url';
 
 // Served over local HTTP (the §276 technique): file:// masks injected-throw
 // errors as "Script error." and denies clipboard permission grants.
-const html = readFileSync('C:/Users/adam_/EE/EE-GM-Familiar/gmf.html');
+const html = readFileSync(fileURLToPath(new URL('../../EE-GM-Familiar/gmf.html', import.meta.url)));
 const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(html); });
 await new Promise(r => server.listen(8793, '127.0.0.1', r));
 const ORIGIN = 'http://127.0.0.1:8793';

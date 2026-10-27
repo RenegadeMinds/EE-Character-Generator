@@ -13,9 +13,11 @@
 // Will is the GM's), maxHP in the 8d8+40 hero-roll range, ECL 17.
 // The old attrsBase === '10,10,10,11,11,11' assertion PINNED the F1 bug.
 import puppeteer from 'puppeteer';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
-const FILE = 'C:/Users/adam_/OneDrive/Desktop/E&E/EpicsAndEpochs_Character_Generator_v9.15.2.html';
+// Was a fixed path to a v9.15.2 copy on Adam's desktop; now the generator in
+// this repository, like every other probe (CG_FILE=... tests another build).
+const FILE = process.env.CG_FILE || fileURLToPath(new URL('../index.html', import.meta.url));
 const SEED = {
   seed: 'ee-creature', from: 'GMF v0.6.2', fam: 'ABOLETH', label: 'Aboleth',
   size: 'Huge', type: 'Aberration', hit_dice: '8d8+40 (76 hp)',
