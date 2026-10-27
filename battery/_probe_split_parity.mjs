@@ -24,6 +24,10 @@
 //      (qdBespokeBuild), then every page rendered for each of them: Sheet,
 //      Skills, Feats, Gear, Powers, Spells, Mutations, Talents, Vehicles,
 //      Tracker, Roster. Each page's markup must match.
+//   4c. Nine "rich" characters (gear, magic items, super powers, talents,
+//      Dwarf / Elf / Halfling / Hybrid races, rage / nullified / fatigued
+//      states): every page, the print sheet, the equipped-weapon summaries
+//      and an Edit -> Save round trip must match too.
 //   5. Console errors: neither build may log any.
 //
 //   Randomness and the clock are pinned to the same fixed sequence in both
@@ -118,6 +122,8 @@ const markup = (page) => page.evaluate(() => {
   // Blank text left between the (removed) <script> tags at the top level of <body>.
   [...b.childNodes].forEach(n => { if (n.nodeType === 3 && !n.textContent.trim()) n.remove(); });
   b.querySelectorAll('#site-logo, #site-logo-r, .ps-logo').forEach(i => i.removeAttribute('src'));
+  // The toast message is transient: whether it is still showing depends on timing.
+  b.querySelectorAll('#toast').forEach(t => t.remove());
   return b.innerHTML;
 });
 
@@ -128,11 +134,17 @@ console.log(`== SPLIT PARITY ==\n   OLD: ${OLD}\n   NEW: ${NEW}\n   ${names.size
 const A = await boot(OLD, 8801);
 const B = await boot(NEW, 8802);
 
+// In refactor mode, names that exist in only ONE build are new or retired
+// helpers: report them, don't fail on them. Everything both builds share
+// must still match.
+const onlyOne = (x, y) => (x || '').startsWith('unreachable') !== (y || '').startsWith('unreachable');
+const globalsDiff = (ga, gb) => [...names].filter(n => ga[n] !== gb[n] && !(CODE_CHANGED && onlyOne(ga[n], gb[n])));
+const addedRemoved = (ga, gb) => { const add = [...names].filter(n => (ga[n] || '').startsWith('unreachable') && !(gb[n] || '').startsWith('unreachable')); const rem = [...names].filter(n => !(ga[n] || '').startsWith('unreachable') && (gb[n] || '').startsWith('unreachable')); return (add.length ? ` · ${add.length} new: ${add.join(', ')}` : '') + (rem.length ? ` · ${rem.length} retired: ${rem.join(', ')}` : ''); };
 // 1. Globals after start-up.
 {
   const ga = await globalsSnapshot(A.page), gb = await globalsSnapshot(B.page);
-  const diff = [...names].filter(n => ga[n] !== gb[n]);
-  mark('GLOBALS-IDENTICAL-AFTER-BOOT', diff.length === 0, diff.length ? `${diff.length} differ: ` + diff.slice(0, 8).map(n => `${n} (${ga[n]} vs ${gb[n]})`).join('; ') : `${names.size} names`);
+  const diff = globalsDiff(ga, gb);
+  mark('GLOBALS-IDENTICAL-AFTER-BOOT', diff.length === 0, diff.length ? `${diff.length} differ: ` + diff.slice(0, 8).map(n => `${n} (${ga[n]} vs ${gb[n]})`).join('; ') : `${names.size} names` + (CODE_CHANGED ? addedRemoved(ga, gb) : ''));
 }
 // 2. Markup after start-up.
 {
@@ -175,10 +187,85 @@ for (const spec of SPECS) {
 }
 const pageFails = results.filter(r => r.id.startsWith('  ') && !r.pass).length;
 mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page renders across ${built} characters`);
+// 4c. Rich characters: gear, magic, super powers, talents, odd races and
+// state flags, so far more of the Sheet, Gear, print and save code runs.
+// For each one, compare: the decorated record, every page, the print sheet,
+// the equipped-weapon summaries, and an Edit -> Save round trip.
+{
+  const RICH = [
+    { spec: { steps: [{ name: 'Strong Hero', levels: 3 }, { name: 'Fighter', levels: 4 }], race: 'Human', name: 'Rich Bruiser' }, extras: { talents: ['Mangler'], flags: { raging: false } } },
+    { spec: { steps: [{ name: 'Rogue', levels: 5 }], race: 'Dwarf', name: 'Rich Dwarf Rogue' }, extras: { flags: { fatigued: true } } },
+    { spec: { steps: [{ name: 'Sorcerer', levels: 6 }], race: 'Elf', name: 'Rich Elf Sorcerer' }, extras: {} },
+    { spec: { steps: [{ name: 'Fast Hero', levels: 4 }, { name: 'Soldier', levels: 3 }], race: 'Human', name: 'Rich Super' }, extras: { powers: [{ name: 'Stoneskin', pool: 'super', mp: 10 }], flags: { nullified: true } } },
+    { spec: { steps: [{ name: 'Ranger', levels: 4 }], race: 'Hybrid', hybrid: { a: 'Human', b: 'Elf', sizeFrom: 'Human' }, name: 'Rich Hybrid Ranger' }, extras: {} },
+    { spec: { steps: [{ name: 'Wilder', levels: 5 }], race: 'Human', name: 'Rich Wilder' }, extras: { flags: { euphoric: true } } },
+    { spec: { steps: [{ name: 'Berserker', levels: 4 }], race: 'Human', name: 'Rich Berserker' }, extras: { flags: { raging: true } } },
+    { spec: { steps: [{ name: 'Monk', levels: 5 }], race: 'Human', name: 'Rich Monk' }, extras: {} },
+    { spec: { steps: [{ name: 'Bard', levels: 4 }], race: 'Halfling', name: 'Rich Bard' }, extras: {} },
+  ];
+  const decorate = async ([spec, extras]) => {
+    // Answer every dialog the same way in both builds, and make printing silent.
+    window.confirmModal = async () => true;
+    window.openChoiceModal = (title, opts, cb) => cb((opts || [])[0]);
+    window.textModal = async (t, d) => d || 'x';
+    window.print = () => {};
+    try {
+      const r = qdBespokeBuild(spec);
+      if (!r.ok) return { ok: false, reason: r.reason };
+      chars.push(r.char); curId = r.char.id; save();
+      const c = r.char;
+      const ts = 5;
+      const melee = WEAPONS_CATALOG.filter(w => (w.tl || 0) <= ts && w.kind !== 'ranged').slice(0, 2);
+      const ranged = WEAPONS_CATALOG.filter(w => (w.tl || 0) <= ts && w.kind === 'ranged').slice(0, 1);
+      for (const w of melee) await addItemToChar('weapon', w.name, 'main_hand', { skipPurchase: true });
+      for (const w of ranged) await addItemToChar('weapon', w.name, 'off_hand', { skipPurchase: true });
+      const armor = ARMOR_CATALOG.find(a => a.type !== 'shield' && (a.tl || 0) <= ts);
+      if (armor) await addItemToChar('armor', armor.name, 'armor', { skipPurchase: true });
+      const ring = MAGIC_ITEMS_DB.find(m => /^Ring of Protection/.test(m.name));
+      if (ring) await addItemToChar('magic', ring.name, magicItemDefaultSlot(ring), { skipPurchase: true });
+      if (extras.powers) c.powers = (c.powers || []).concat(extras.powers);
+      if (extras.talents) for (const t of extras.talents) { try { addTalentToChar(c, t); } catch (e) {} }
+      if (extras.flags) Object.assign(c, extras.flags);
+      save();
+      return { ok: true, json: JSON.stringify(c) };
+    } catch (e) { return { ok: false, reason: String(e) }; }
+  };
+  // (the test server's address differs between the two builds: strip it)
+  const printOut = () => { try { printSheet(); return document.getElementById('print-sheet').innerHTML.split(location.origin).join(''); } catch (e) { return 'THREW ' + e; } };
+  const weaponSums = () => { try { return JSON.stringify(computeEquippedWeaponSummaries(chars.find(x => x.id === curId))); } catch (e) { return 'THREW ' + e; } };
+  const editSave = async () => {
+    try { editCurrentChar(); await saveCharacter(); return JSON.stringify(chars.find(x => x.id === curId)); }
+    catch (e) { return 'THREW ' + e; }
+  };
+  let richBuilt = 0, richChecks = 0, richFails = 0;
+  const same = (id, a, b) => {
+    richChecks++;
+    // A crash in BOTH builds would compare equal and prove nothing: fail it.
+    if (/^THREW /.test(a) || /^THREW /.test(b)) { richFails++; mark(`  ${id}`, false, `threw: OLD ${a.slice(0, 120)} | NEW ${b.slice(0, 120)}`); return; }
+    const i = firstDiff(a, b);
+    if (i !== -1) { richFails++; mark(`  ${id}`, false, `differs at ${i}: OLD ${ctx(a, i)} NEW ${ctx(b, i)}`); }
+  };
+  for (const { spec: s, extras } of RICH) {
+    const spec = Object.assign({ sixLevels: SCALES, presetName: 'Custom', hybrid: null, occupation: '' }, s);
+    const ra = await A.page.evaluate(decorate, [spec, extras]), rb = await B.page.evaluate(decorate, [spec, extras]);
+    if (!ra.ok || !rb.ok) { same(`${s.name}: build outcome`, String(ra.reason), String(rb.reason)); console.log(`   (${s.name} not built in either: ${ra.reason})`); continue; }
+    richBuilt++;
+    same(`${s.name}: decorated record`, ra.json, rb.json);
+    for (const pg of PAGES) {
+      await A.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
+      await B.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
+      same(`${s.name} / ${pg}`, await markup(A.page), await markup(B.page));
+    }
+    same(`${s.name}: print sheet`, await A.page.evaluate(printOut), await B.page.evaluate(printOut));
+    same(`${s.name}: weapon summaries`, await A.page.evaluate(weaponSums), await B.page.evaluate(weaponSums));
+    same(`${s.name}: Edit -> Save`, await A.page.evaluate(editSave), await B.page.evaluate(editSave));
+  }
+  mark('RICH-CHARACTERS-IDENTICAL', richFails === 0 && richBuilt > 0, `${richChecks} comparisons across ${richBuilt} decorated characters (pages, print sheet, weapon summaries, Edit -> Save)`);
+}
 // 4b. Globals again, after all that activity.
 {
   const ga = await globalsSnapshot(A.page), gb = await globalsSnapshot(B.page);
-  const diff = [...names].filter(n => ga[n] !== gb[n]);
+  const diff = globalsDiff(ga, gb);
   mark('GLOBALS-IDENTICAL-AFTER-USE', diff.length === 0, diff.length ? `${diff.length} differ: ` + diff.slice(0, 8).join(', ') : '');
 }
 // 5. Console silence.
