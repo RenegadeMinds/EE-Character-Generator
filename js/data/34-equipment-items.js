@@ -7,14 +7,20 @@
 //   EQUIPMENT_ITEMS: general equipment (adventuring gear, kits, tools). The
 //   whole table sits on one long line.
 //
-// GENERATED DATA: DO NOT HAND-EDIT
-//   The tables in this file are produced by Adam's data-build scripts
+// ORIGINALLY GENERATED: READ THIS BEFORE CHANGING THE DATA
+//   These tables were first built by Adam's data-build scripts
 //   (equipment_substrate/build_inline_all.mjs (plus the damage_, spells_ and
-//   vehicles_substrate builders)), which live outside this repository. Until
-//   v9.19.0 those scripts wrote straight into index.html between the
-//   /*<<JSON:NAME>>*/ and /*<<END:NAME>>*/ markers; the markers are still
-//   here, unchanged, so the scripts only need to be pointed at this file
-//   instead. A hand edit here would be overwritten the next time they run.
+//   vehicles_substrate builders)), which live in the private EE-Rulebooks
+//   repository. Those scripts are NOT a working build any more: each was
+//   written to patch one specific old copy of the generator (the newest
+//   targets v8.49.0), and since then the data has been edited directly in the
+//   generator. For most catalogs (equipment, armor, gadgets, weapons, item
+//   slots, vehicles, magic items) their source JSON files are now OLDER than
+//   this file, and some catalogs are missing from the combined block entirely,
+//   so re-running them would silently delete newer content. Treat THIS file as
+//   the source of truth. The JSON/END marker comments around each table, and
+//   the BEGIN/END substrate banner lines, are kept unchanged so a future
+//   script can still find the tables.
 //
 // KEY NAMES (so you can search for them)
 //   tables/objects: EQUIPMENT_ITEMS

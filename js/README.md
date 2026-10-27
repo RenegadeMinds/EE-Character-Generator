@@ -46,16 +46,39 @@ when the code was a single `<script>`. So:
 Numbers don't have to stay contiguous. If a new file goes between `21-` and
 `22-`, call it `21b-...` rather than renumbering everything.
 
-### Generated files: don't hand-edit
+### Data files that were once generated: the generator is now the source of truth
 
-The files marked **generated** below are produced by Adam's data-build
-scripts (`equipment_substrate/build_inline_all.mjs` and friends, and
-`domains_substrate/build_domains.py`). Those scripts are **not in this
-repository**. Until v9.19.0 they wrote straight into `index.html` between the
-`/*<<JSON:NAME>>*/` and `/*<<END:NAME>>*/` markers. The markers are still in
-the data files, unchanged, so the scripts only need to be pointed at the new
-file instead. A hand edit to a generated file would be lost the next time
-they run.
+The files marked **once generated** below were first built by Adam's
+data-build scripts, which live in the private EE-Rulebooks repository
+(`equipment_substrate/build_inline_all.mjs`, `damage_substrate/`,
+`spells_substrate/`, `vehicles_substrate/`, `magic_items_substrate/`,
+`mutations_substrate/`, `domains_substrate/build_domains.py`).
+
+**Those scripts are not a working build any more, and must not be re-run as
+they are.** A check against v9.19.0 (October 2026) found:
+
+- Each splice script was written to patch **one specific old copy** of the
+  generator (`EpicsAndEpochs_Character_Generator_v8.x.html`). The newest
+  one targets v8.49.0. None of them points at `index.html`.
+- Since then the data has been edited **directly in the generator**, so the
+  source JSON files are now **older** than the generator for most catalogs:
+  equipment items (22 in the source vs 312 in the generator), armor (30 vs
+  34), gadgets (47 vs 50), weapons (108 vs 110), item slots (22 vs 23),
+  vehicles (80 vs 90), magic items, spell damage and domains. Spells,
+  mutations, mutation rules and damage types still match.
+- The main splicer (`equipment_substrate/inline_into_generator.mjs`)
+  replaces **everything** between the BEGIN and END "Damage-Typing
+  Substrate" banner lines with `inline_block_all.js`. That block has no
+  vehicles or magic items and predates the hand-written `SLOT_GROUPS` table
+  that now sits inside the banners. Running it would silently delete all of
+  that.
+
+So: **edit the data in these files directly**, and treat the generator as
+the source of truth. The JSON/END marker comments around each table and the
+BEGIN/END banner lines are kept unchanged, so a future script can still
+find the tables. (Since the split, the BEGIN banner is in
+`26-damage-types.js` and the END banner is in `39-mutation-rules.js`, 14
+files apart, so any new tool should work table by table, not by banner.)
 
 ### Finding things
 
@@ -89,7 +112,7 @@ A local server just matches how the live site behaves.)
 
 `js/boot.js` loads first, in `<head>`. Then:
 
-| # | File | Lines | Size | Generated | What's in it |
+| # | File | Lines | Size | Once generated | What's in it |
 |---|---|---|---|---|---|
 | 1 | `js/rules/01-races-and-base-classes.js` | 351 | 31 KB |  | The six attribute names, every playable race (RACES: attribute adjustments, ECL, size, speed, structured racial traits), and the Hero, Ordinary and Basic class tables (HERO_CLASSES, ORDINARY_CLASSES, BASIC_CLASSES) with their per-level BAB, Defense, saves, Reputation and Action Point progressions. |
 | 2 | `js/rules/02-class-features.js` | 896 | 117 KB |  | CLASS_FEATURES: what every class gains at every level (bonus feats, talents, special abilities), the Druid option features, and the helpers that turn those features into bonus-feat counts. |
