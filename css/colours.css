@@ -107,3 +107,31 @@
   /* bistre #4a3a12 */ --tint-bistre:74 58 18;
   /* pine #1d3320 */ --tint-pine:29 51 32;
 }
+
+/* ---- HIGH CONTRAST (data-theme="hc") -------------------------------------
+   The theme's rule (css/app.css): text at least 7:1 against its near-black
+   ground (AAA). Two kinds of change, nothing else:
+   1. Hues High Contrast already brightens through its own tokens now get the
+      same brighter value when the code names them here, for text AND lines
+      (so a hard-coded violet matches var(--vio), and so on):
+        gold   -> #ffd060 (HC --gold)          amber  -> #ffe08a (HC --state-warning)
+        violet -> #d4b0e0 (HC --vio)           red, salmon -> #ffb0b0 (HC --state-error, --fp-dmg)
+        blue   -> #a8ccf0 (HC --fp-heal)
+   2. Text colours with no HC version that fall below 7:1 on the HC panel
+      (#120d05) get the smallest lift toward white that clears it, the same
+      method css/app.css used for the Parchment theme:
+        orange #d4865a -> #d78d64   coral #d6785c -> #db8a71
+        grey60 #999999 and grey33 #555555 -> #9e9e9e
+   Tints (backgrounds) are left alone: a brighter background lowers the
+   contrast of the text on it. Classic is not touched at all: it is the
+   v9.15.2 palette exactly.
+   ------------------------------------------------------------------------- */
+html[data-theme="hc"]{
+  --line-gold:255 208 96;
+  --text-amber:255 224 138; --line-amber:255 224 138;
+  --text-violet:212 176 224; --line-violet:212 176 224;
+  --line-red:255 176 176; --text-salmon:255 176 176;
+  --text-blue:168 204 240; --line-blue:168 204 240;
+  --text-orange:215 141 100; --text-coral:219 138 113;
+  --text-grey60:158 158 158; --text-grey33:158 158 158;
+}
