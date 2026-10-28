@@ -68,19 +68,19 @@ function applyGateState() {
   // Pill: status indicator on the Six Scales panel header.
   if (gateState === 'awaiting') {
     pill.textContent = 'Awaiting Lock or Sandbox';
-    pill.style.background = 'rgba(212,184,112,.15)';
-    pill.style.color = '#d4b870';
-    pill.style.border = '1px solid rgba(212,184,112,.4)';
+    pill.style.background = 'rgb(var(--tint-amber) / .15)';
+    pill.style.color = 'rgb(var(--text-amber))';
+    pill.style.border = '1px solid rgb(var(--line-amber) / .4)';
   } else if (gateState === 'sandbox') {
     pill.textContent = '⚡ Sandbox Mode';
-    pill.style.background = 'rgba(196,153,212,.15)';
-    pill.style.color = '#c499d4';
-    pill.style.border = '1px solid rgba(196,153,212,.4)';
+    pill.style.background = 'rgb(var(--tint-violet) / .15)';
+    pill.style.color = 'rgb(var(--text-violet))';
+    pill.style.border = '1px solid rgb(var(--line-violet) / .4)';
   } else if (gateState === 'locked') {
     pill.textContent = '🔒 Official';
-    pill.style.background = 'rgba(125,170,220,.15)';
-    pill.style.color = '#7daadc';
-    pill.style.border = '1px solid rgba(125,170,220,.4)';
+    pill.style.background = 'rgb(var(--tint-blue) / .15)';
+    pill.style.color = 'rgb(var(--text-blue))';
+    pill.style.border = '1px solid rgb(var(--line-blue) / .4)';
   }
 
   // Buttons: show Lock+Sandbox before commitment, Unlock after.
@@ -124,7 +124,7 @@ function applyGateState() {
     if (!banner) {
       banner = document.createElement('div');
       banner.id = 'sandbox-banner';
-      banner.style.cssText = 'background:rgba(196,153,212,.08);border:1px solid rgba(196,153,212,.35);border-radius:3px;padding:8px 12px;margin:0 0 .75rem 0;font-size:12px;color:var(--vio);font-style:italic;line-height:1.5;';
+      banner.style.cssText = 'background:rgb(var(--tint-violet) / .08);border:1px solid rgb(var(--line-violet) / .35);border-radius:3px;padding:8px 12px;margin:0 0 .75rem 0;font-size:12px;color:var(--vio);font-style:italic;line-height:1.5;';
       banner.innerHTML = '⚡ <b>Sandbox Mode active.</b> Choices below are not validated against any specific scenario. When you Lock as Official, any conflicts with the locked scenario will be flagged (your selections will not be auto-modified).';
       const idPanel = document.getElementById('identity-panel');
       if (idPanel && idPanel.parentNode) {
@@ -412,7 +412,7 @@ function promptScenarioPresetChange(presetName, diffs, preset){
     <p class="m-0-0-0_75rem-0">You're switching to the
       <b class="c-gold">${escapeHTML(presetName)}</b> scenario preset,
       which changes ${diffs.length} Six Scales axis${diffs.length===1?'':'es'}:</p>
-    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);">
+    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgb(var(--tint-gold) / .05);border-left:2px solid rgb(var(--line-gold) / .4);">
       ${diffLines}
     </div>
     <p style="margin:0 0 .5rem 0;">The Six Scales axes define the scenario's
@@ -466,7 +466,7 @@ function promptSixLevelChange(change){
     <p class="m-0-0-0_75rem-0">You're changing the
       <b class="c-gold">${def?.label || change.axis}</b> axis from
       <b>${change.oldVal}</b> to <b>${change.newVal}</b>.</p>
-    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);">
+    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgb(var(--tint-gold) / .05);border-left:2px solid rgb(var(--line-gold) / .4);">
       <div style="margin-bottom:.4rem;"><b>From ${change.oldVal}:</b> ${escapeHTML(oldDesc)}</div>
       <div><b>To ${change.newVal}:</b> ${escapeHTML(newDesc)}</div>
     </div>

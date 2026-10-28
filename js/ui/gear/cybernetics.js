@@ -39,17 +39,17 @@ function renderCybernetics(c) {
   const hasAntiShock = owned.some(r => r.n === 'Anti-Shock Implant');
   // summary line beside the section head
   if (ts < 5 && !owned.length) { sumEl.textContent = '— requires a Tech Scale 5+ scenario'; body.innerHTML = ''; return; }
-  sumEl.innerHTML = `${count} of ${max} attachments` + (excess ? ` <span class="bold" style="color:#e08080;">⚠ +${excess} negative level${excess > 1 ? 's' : ''}</span>` : '');
+  sumEl.innerHTML = `${count} of ${max} attachments` + (excess ? ` <span class="bold" style="color:rgb(var(--text-salmon));">⚠ +${excess} negative level${excess > 1 ? 's' : ''}</span>` : '');
   const bits = [];
   // doctrine strip
   const _ctN = (c.feats || []).filter(f => (f.name || f.n) === 'Cybertaker').length;
   bits.push(`<div class="fs-11 mb-0_5rem" style="color:var(--tb75);">Maximum attachments = 1 + Con modifier${_ctN ? ` + Cybertaker ×${_ctN}` : ''} (${max}; supernatural Con excluded — HH p.333${_ctN ? '; Cybertaker p.209 stacks' : ''}). Each excess attachment = 1 negative level — the −1 on attack rolls, saves, grapple, and all skill checks is WIRED LIVE (v8.92.0) with provenance on each cell; the −1 on ability checks, −1 effective level on die rolls, and a caster/manifester's lost top-level spell/power stay at the table (choice-dependent). Removal without <i>Cybernetic Surgery</i>: 1d4 permanent Con drain. Implants cost −2 Purchase DC per Tech Scale above their own (scenario TS ${ts}).</div>`);
-  if (owned.length && !hasAntiShock) bits.push(`<div class="fs-11 mb-0_5rem" style="color:#d4b870;" title="HH p.333: a creature with one or more cybernetic attachments takes 50% more damage from any attack that deals electricity damage. An Anti-Shock Implant (TS 6) negates this.">⚡ Electricity vulnerability: +50% electricity damage (no Anti-Shock Implant)</div>`);
+  if (owned.length && !hasAntiShock) bits.push(`<div class="fs-11 mb-0_5rem" style="color:rgb(var(--text-amber));" title="HH p.333: a creature with one or more cybernetic attachments takes 50% more damage from any attack that deals electricity damage. An Anti-Shock Implant (TS 6) negates this.">⚡ Electricity vulnerability: +50% electricity damage (no Anti-Shock Implant)</div>`);
   if (owned.length && hasAntiShock) bits.push(`<div class="fs-11 mb-0_5rem" style="color:var(--tg80);">⚡ Electricity vulnerability negated — Anti-Shock Implant.</div>`);
   if (hasLostArm(c)) {
     bits.push(hasCyberArm(c)
       ? `<div class="fs-11 mb-0_5rem" style="color:var(--tg80);">🦾 Lost Arm (drawback) — REPLACED by a cybernetic arm: off hand restored, two-handed weapons and the −2 Climb/Swim/grapple penalties lifted.</div>`
-      : `<div class="fs-11 mb-0_5rem" style="color:#e08080;">🦾 Lost Arm (drawback) — no off hand, no two-handed weapons, −2 Climb/Swim/grapple. Install a Prosthetic Arm (any tier) to restore the arm; arm-mounted implants need the prosthetic first.</div>`);
+      : `<div class="fs-11 mb-0_5rem" style="color:rgb(var(--text-salmon));">🦾 Lost Arm (drawback) — no off hand, no two-handed weapons, −2 Climb/Swim/grapple. Install a Prosthetic Arm (any tier) to restore the arm; arm-mounted implants need the prosthetic first.</div>`);
   }
   // owned rows
   if (owned.length) {
@@ -57,7 +57,7 @@ function renderCybernetics(c) {
     owned.forEach((r, i) => {
       const def = cyberDef(r.n) || {};
       const noCnt = def.cnt === 0 ? ' <span class="fs-9" style="color:var(--tg70);" title="Does not count toward the attachment maximum.">free</span>' : '';
-      bits.push(`<tr><td><span style="cursor:help;border-bottom:1px dotted rgba(120,175,205,.5);" title="${escapeHTML((def.d || '') + (def.rx && def.rx !== '—' ? '\nRestriction: ' + def.rx : ''))}">${escapeHTML(r.n)}</span>${r.param ? ` <span class="c-gold fs-11">(${escapeHTML(r.param)})</span>` : ''}${noCnt}</td><td class="fs-11">${CYBER_SLOTS[def.slot] || def.slot || ''}</td><td class="fs-11">${def.type || ''}</td><td class="fs-11">${escapeHTML(def.hard || '')}</td><td><button class="fs-10 btn btn-sm" onclick="removeCyber(${i})">✕</button></td></tr>`);
+      bits.push(`<tr><td><span style="cursor:help;border-bottom:1px dotted rgb(var(--line-sky) / .5);" title="${escapeHTML((def.d || '') + (def.rx && def.rx !== '—' ? '\nRestriction: ' + def.rx : ''))}">${escapeHTML(r.n)}</span>${r.param ? ` <span class="c-gold fs-11">(${escapeHTML(r.param)})</span>` : ''}${noCnt}</td><td class="fs-11">${CYBER_SLOTS[def.slot] || def.slot || ''}</td><td class="fs-11">${def.type || ''}</td><td class="fs-11">${escapeHTML(def.hard || '')}</td><td><button class="fs-10 btn btn-sm" onclick="removeCyber(${i})">✕</button></td></tr>`);
     });
     bits.push('</tbody></table>');
   }

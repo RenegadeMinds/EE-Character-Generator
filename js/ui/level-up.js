@@ -100,7 +100,7 @@ function lvlupRenderClassChoice() {
   document.getElementById('lvlup-title').textContent = `⬆ ${c.name} reaches Level ${c.totalLvl + 1}`;
   const optsHtml = lu.options.map((o, i) => {
     const checked = (lu.choice === o) ? 'checked' : '';
-    return `<label class="rounded-3 gap-6 items-center p-6-8 cursor-pointer mb-4" style="display:flex;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);">
+    return `<label class="rounded-3 gap-6 items-center p-6-8 cursor-pointer mb-4" style="display:flex;background:rgb(var(--tint-gold) / .04);border:1px solid rgb(var(--line-gold) / .15);">
       <input type="radio" name="lvlup-choice" value="${i}" ${checked} onchange="lvlupOnClassChoice(${i})">
       <span>${escapeHTML(o.label)}</span>
     </label>`;
@@ -142,7 +142,7 @@ function lvlupRenderNewClassForm() {
   // heroic-act note prereq — see the ascension-note injection.)
   let warn = '';
   if (tierLow === 'hero' && hasCareerPathLockingLevel(c.classes)) {
-    warn = `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:#d4b870;background:rgba(212,184,112,.06);">
+    warn = `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:rgb(var(--text-amber));background:rgb(var(--tint-amber) / .06);">
       ⚠ <b>Career Path rule</b> (HH): no new Hero classes after taking a non-Hero level (Ordinary levels excepted). Selecting a Hero class here will be recorded as a GM exception.
     </div>`;
   }
@@ -151,7 +151,7 @@ function lvlupRenderNewClassForm() {
   // be recorded as a GM exception on commit.
   if (lu.attrMinException) {
     const ex = lu.attrMinException;
-    warn += `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:#e08080;background:rgba(212,112,112,.06);">
+    warn += `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:rgb(var(--text-salmon));background:rgb(var(--tint-red) / .06);">
       ⚠ <b>Attribute prerequisite unmet</b> (HH p.52): ${escapeHTML(lu.newClassName)} requires <b>${escapeHTML(ex.label)}</b>. Your character has ${escapeHTML(ex.scoreStr)}. Proceeding will be recorded as a GM exception.
     </div>`;
   }
@@ -160,13 +160,13 @@ function lvlupRenderNewClassForm() {
   // sixLevels prereqs that aren't met. Parallels the Form's Save flow.
   if (Array.isArray(lu.prereqMiss) && lu.prereqMiss.length > 0) {
     const items = lu.prereqMiss.map(m => `<li>${escapeHTML(m)}</li>`).join('');
-    warn += `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:#e08080;background:rgba(212,112,112,.06);">
+    warn += `<div class="fs-11 m-4-0 p-5-7 rounded-3 lh-1_4" style="color:rgb(var(--text-salmon));background:rgb(var(--tint-red) / .06);">
       ⚠ <b>Class prerequisites unmet</b>: ${escapeHTML(lu.newClassName)} requires:
       <ul class="p-0" style="margin:4px 0 0 1.2em;">${items}</ul>
       <div class="fs-10_5 mt-4 c-g55">Items marked "GM-verify" can't be auto-checked — confirm with your GM. Proceeding will be recorded as a GM exception.</div>
       ${lu.char && lu.char.careerGoal === lu.newClassName
-        ? `<div class="fs-10_5 mt-4" style="color:#7daadc;">⭐ This is your current career goal — the Sheet tab tracks the path.</div>`
-        : `<button class="btn btn-sm" onclick="setCareerGoalFromLevelUp('${escapeHTML(lu.newClassName).replace(/'/g, "\\'")}')" style="font-size:10px;margin-top:5px;border-color:#7daadc;color:#7daadc;" title="Pledge this class as a career goal — the Sheet's Career Compass will track the qualification path (v8.39.0)">⭐ Set as career goal instead</button>`}
+        ? `<div class="fs-10_5 mt-4" style="color:rgb(var(--text-blue));">⭐ This is your current career goal — the Sheet tab tracks the path.</div>`
+        : `<button class="btn btn-sm" onclick="setCareerGoalFromLevelUp('${escapeHTML(lu.newClassName).replace(/'/g, "\\'")}')" style="font-size:10px;margin-top:5px;border-color:rgb(var(--line-blue));color:rgb(var(--text-blue));" title="Pledge this class as a career goal — the Sheet's Career Compass will track the qualification path (v8.39.0)">⭐ Set as career goal instead</button>`}
     </div>`;
   }
   // v8.3.32: ASCENSION note. Triggers when an Ordinary character is taking
@@ -175,7 +175,7 @@ function lvlupRenderNewClassForm() {
   // this note is the GM-adjudicated heroic-act gate. Distinct purple styling
   // marks it as the aspirant-ascension moment rather than a rules violation.
   if (lu.ascensionNote) {
-    warn += `<div class="fs-11 c-vio m-4-0 p-5-7 rounded-3 lh-1_4" style="background:rgba(196,153,212,.07);">
+    warn += `<div class="fs-11 c-vio m-4-0 p-5-7 rounded-3 lh-1_4" style="background:rgb(var(--tint-violet) / .07);">
       ⬟ <b>Ascension</b>: this character is rising from Ordinary to Hero. ${escapeHTML(lu.ascensionNote)}. The attribute minimum still applies; the heroic act is the GM's call. Proceeding records a GM exception documenting the ascension.
     </div>`;
   }
@@ -210,7 +210,7 @@ function lvlupRenderNewClassForm() {
     names.map(n => `<option value="${escapeHTML(n)}" ${n===lu.newClassName?'selected':''}>${badgeOf(n)}${escapeHTML(n)}</option>`)
   ).join('');
   return `
-    <div class="rounded-3 mt-8 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
+    <div class="rounded-3 mt-8 p-8-10" style="background:rgb(var(--tint-gold) / .04);border:1px solid rgb(var(--line-gold) / .18);">
       <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-5">New Multiclass</div>
       <div class="gap-8 flex-wrap items-center" style="display:flex;">
         <label class="fs-11 c-g75">Tier:</label>
@@ -391,7 +391,7 @@ function lvlupRenderHpRoll() {
     if (owed.bumps > 0) lines.push(`<li><b class="c-gold">+1 attribute point</b> from reaching level ${newTotalLvl} (every 4th level per HH p.879). Click an attribute below to assign it now, or assign it later by editing the character.</li>`);
     if (owed.skillPoints > 0) lines.push(`<li><b class="c-gold">${owed.skillPoints} new skill points</b> — head to the Skills tab after to spend.</li>`);
     owedHtml = `
-      <div class="mt-12" style="padding:10px 12px;background:rgba(200,151,30,.06);border-left:3px solid var(--gold);border-radius:0 3px 3px 0;">
+      <div class="mt-12" style="padding:10px 12px;background:rgb(var(--tint-gold) / .06);border-left:3px solid var(--gold);border-radius:0 3px 3px 0;">
         <div class="font-serif fs-10 uppercase ls-0_1em c-gold mb-6">⚜ This level also grants:</div>
         <ul class="m-0 fs-12 lh-1_55" style="padding-left:18px;">${lines.join('')}</ul>
       </div>
@@ -402,14 +402,14 @@ function lvlupRenderHpRoll() {
   if (owed.bumps > 0) {
     const sel = lu.bumpChoice || '';
     bumpUi = `
-      <div class="rounded-3 mt-10 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
+      <div class="rounded-3 mt-10 p-8-10" style="background:rgb(var(--tint-gold) / .04);border:1px solid rgb(var(--line-gold) / .18);">
         <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-6">Attribute Bump (Level ${newTotalLvl})</div>
         <div class="gap-6 flex-wrap" style="display:flex;">
           ${ATTR_NAMES.map(a => `
-            <button class="btn btn-sm" onclick="lvlupSetBumpChoice('${a}')" style="${sel===a?'background:rgba(200,151,30,.25);border-color:var(--gold);':''}">${a}${sel===a?' ✓':''}</button>
+            <button class="btn btn-sm" onclick="lvlupSetBumpChoice('${a}')" style="${sel===a?'background:rgb(var(--tint-gold) / .25);border-color:var(--gold);':''}">${a}${sel===a?' ✓':''}</button>
           `).join('')}
         </div>
-        ${sel ? `<div class="mt-5 fs-11 c-g65">+1 ${sel} — your ${sel} score becomes ${c.attrs[ATTR_NAMES.indexOf(sel)]+1}.</div>` : '<div class="mt-5 fs-11" style="color:#d4b870;">⚠ Pick an attribute to bump (or skip to defer — you can assign later).</div>'}
+        ${sel ? `<div class="mt-5 fs-11 c-g65">+1 ${sel} — your ${sel} score becomes ${c.attrs[ATTR_NAMES.indexOf(sel)]+1}.</div>` : '<div class="mt-5 fs-11" style="color:rgb(var(--text-amber));">⚠ Pick an attribute to bump (or skip to defer — you can assign later).</div>'}
       </div>
     `;
   }
@@ -421,7 +421,7 @@ function lvlupRenderHpRoll() {
         ? `Advancing <b class="c-gold">${escapeHTML(lu.choice.classRef.name)}</b> from level ${lu.choice.classRef.level} to ${lu.choice.classRef.level + 1}.`
         : `Adding a new class: <b class="c-gold">${escapeHTML(lu.newClassName)}</b> (${lu.newClassTier}, level 1).`}
     </p>
-    <div class="rounded-3" style="padding:10px 12px;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);">
+    <div class="rounded-3" style="padding:10px 12px;background:rgb(var(--tint-gold) / .05);border:1px solid rgb(var(--line-gold) / .2);">
       <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-6">HP Roll — ${escapeHTML(modeLabel)}</div>
       <div class="gap-10 items-center flex-wrap" style="display:flex;">
         <span class="font-serif c-gold fw-600" style="font-size:22px;">+${totalHpThisLevel} HP</span>

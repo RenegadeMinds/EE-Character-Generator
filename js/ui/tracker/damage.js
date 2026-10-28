@@ -47,16 +47,16 @@ function mdtRender(stage) {
        <div class="fs-12 mb-10" style="color:var(--tw75);">Failure: reduced to −[Con modifier] hit points (minimum −1 in all cases) and <b>Dying</b> if the source was lethal; reduced to 0 HP, <b>Unconscious but Stable</b>, if nonlethal. (HH p.348)</div>
        <button onclick="mdtResolve('made')" class="mr-8">Save MADE — still standing</button>
        ${_mdtPending.nl
-         ? `<button onclick="mdtResolve('failNonlethal')" style="color:#d4b070;">FAILED — 0 HP, Unconscious but Stable</button>`
+         ? `<button onclick="mdtResolve('failNonlethal')" style="color:rgb(var(--text-amber2));">FAILED — 0 HP, Unconscious but Stable</button>`
          : `<button onclick="mdtResolve('failLethal')" class="mr-8 c-red-text">FAILED (lethal) — Dying</button>
-       <button onclick="mdtResolve('failNonlethal')" style="color:#d4b070;">FAILED (nonlethal) — Unconscious</button>`}`
+       <button onclick="mdtResolve('failNonlethal')" style="color:rgb(var(--text-amber2));">FAILED (nonlethal) — Unconscious</button>`}`
     : `<div class="mb-6" style="font-size:15px;">⚠ <b>${amt} damage</b> meets ${escapeHTML(c.name)}'s massive damage threshold (${thrLine}).</div>
        <div class="fs-12_5 mb-10" style="color:var(--tw80);">Was this a <b>single attack</b>? Damage totaled from several smaller hits does not trigger a Massive Damage save (HH p.348).</div>
        <button onclick="mdtRender('save')" class="mr-8 c-red-text">A single attack</button>
        <button onclick="mdtResolve('aggregate')">Several smaller hits (no save)</button>
        <div class="mt-10 fs-11" style="color:var(--tw60);">Misc threshold adjustment (Healer −3, enhancements, drawbacks…): <input type="number" value="${t.adj}" style="width:56px;padding:2px 4px;" onchange="(function(v){const c=chars.find(x=>x.id===curId); if(c){c.mdtAdj=parseInt(v)||0; save(); mdtRender();}})(this.value)"> <span class="op-0_7">(persists on this character)</span></div>`;
-  host.innerHTML = `<div class="items-center p-1rem" style="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)mdtClose()">
-    <div class="max-w-560 lh-1_6" style="background:#141824;border:1px solid rgba(212,112,112,.5);border-radius:4px;padding:16px 18px;">
+  host.innerHTML = `<div class="items-center p-1rem" style="position:fixed;inset:0;background:rgb(var(--tint-black) / .72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)mdtClose()">
+    <div class="max-w-560 lh-1_6" style="background:rgb(var(--tint-midnight));border:1px solid rgb(var(--line-red) / .5);border-radius:4px;padding:16px 18px;">
       <div class="ls-0_05em c-red-text mb-8" style="font-family:'Cinzel',Georgia,serif;">💥 MASSIVE DAMAGE</div>
       ${inner}
     </div></div>`;
@@ -111,7 +111,7 @@ function renderNLLine(c) {
   const st = nlStatus(c);
   const lvl = c.totalLvl || (c.classes || []).reduce((s, e) => s + (e.level || 0), 0) || 1;
   el.innerHTML = `<div class="mt-5 fs-11_5" style="color:var(--tt85);">😵 Nonlethal: <b>${nl}</b> vs HP ${c.currentHP}
-    ${st === 2 ? '· <b class="c-red-text">UNCONSCIOUS</b> (helpless)' : st === 1 ? '· <b style="color:#d4b070;">STAGGERED</b> (standard OR move)' : ''}
+    ${st === 2 ? '· <b class="c-red-text">UNCONSCIOUS</b> (helpless)' : st === 1 ? '· <b style="color:rgb(var(--text-amber2));">STAGGERED</b> (standard OR move)' : ''}
     <span class="o-60 c-dim">· heals ${lvl}/hour (1/hr/level)</span></div>`;
 }
 function adjustAttrDmg(i, d) {
@@ -147,8 +147,8 @@ function renderAttrDmg(c) {
   const any = c.attrDmg.some(v => v > 0);
   const eff = effAttrs(c);
   el.innerHTML = `<div class="mt-6 fs-11" style="color:var(--tt80);">
-    <span class="cursor-help" style="border-bottom:1px dotted rgba(200,180,140,.5);" title="Temporary attribute damage (Ego Whip, a Shadow's touch, poison…): modifiers change immediately, full effect. Heals 1 point per evening of rest per damaged ability. Horror-born mental strain is tracked in the Sanity panel instead (it has the half-floor); ability DRAIN is permanent — edit the attribute itself. Con damage recomputes hit points automatically: each point of Con modifier lost costs [level] HP from max and current, restored as the damage heals.">Attr damage:</span>
-    ${names.map((n, i) => `<span style="margin-left:7px;white-space:nowrap;${(c.attrDmg[i] || 0) > 0 ? 'color:#d49a70;' : ''}">${n} <b class="cursor-pointer" style="color:#7dc98c;" onclick="adjustAttrDmg(${i},-1)" title="Heal 1">−</b><b>${c.attrDmg[i] || 0}</b><b class="cursor-pointer c-red-text" onclick="adjustAttrDmg(${i},1)" title="Take 1 ${n} damage">+</b>${(c.attrDmg[i] || 0) > 0 ? `<span class="fs-10"> (→${eff[3] !== undefined ? eff[i] : '?'})</span>` : ''}</span>`).join('')}
+    <span class="cursor-help" style="border-bottom:1px dotted rgb(var(--line-tan) / .5);" title="Temporary attribute damage (Ego Whip, a Shadow's touch, poison…): modifiers change immediately, full effect. Heals 1 point per evening of rest per damaged ability. Horror-born mental strain is tracked in the Sanity panel instead (it has the half-floor); ability DRAIN is permanent — edit the attribute itself. Con damage recomputes hit points automatically: each point of Con modifier lost costs [level] HP from max and current, restored as the damage heals.">Attr damage:</span>
+    ${names.map((n, i) => `<span style="margin-left:7px;white-space:nowrap;${(c.attrDmg[i] || 0) > 0 ? 'color:rgb(var(--text-peach));' : ''}">${n} <b class="cursor-pointer" style="color:rgb(var(--text-leaf));" onclick="adjustAttrDmg(${i},-1)" title="Heal 1">−</b><b>${c.attrDmg[i] || 0}</b><b class="cursor-pointer c-red-text" onclick="adjustAttrDmg(${i},1)" title="Take 1 ${n} damage">+</b>${(c.attrDmg[i] || 0) > 0 ? `<span class="fs-10"> (→${eff[3] !== undefined ? eff[i] : '?'})</span>` : ''}</span>`).join('')}
     ${any ? ` <button onclick="attrDmgDailyRecovery()" class="fs-10 ml-6" title="One evening of rest: 1 point per damaged ability (Full Rest applies this too).">🌙 evening</button>` : ''}
   </div>`;
 }

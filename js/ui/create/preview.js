@@ -81,9 +81,9 @@ function renderAllPrereqChecks(){
     // Advanced/Prestige (where the all-met state is informative). For Hero/Basic
     // classes with no violation, suppress the noise.
     if(!result.met){
-      panels.push(`<div class="rounded-3 c-red-text p-7-10 fs-12" style="border:1px solid rgba(139,26,26,.3);background:rgba(139,26,26,.08);"><b>⚠ Missing prerequisites</b> for ${e.name} (${tierLabel}):<ul class="p-0" style="margin:4px 0 0 1.2em;">${result.missing.map(m=>`<li>${m}</li>`).join('')}</ul><div class="fs-11 mt-4 c-g55">Items marked "GM-verify" can't be auto-checked — confirm with your GM. Save anyway if granted an exception.</div></div>`);
+      panels.push(`<div class="rounded-3 c-red-text p-7-10 fs-12" style="border:1px solid rgb(var(--line-blood) / .3);background:rgb(var(--tint-blood) / .08);"><b>⚠ Missing prerequisites</b> for ${e.name} (${tierLabel}):<ul class="p-0" style="margin:4px 0 0 1.2em;">${result.missing.map(m=>`<li>${m}</li>`).join('')}</ul><div class="fs-11 mt-4 c-g55">Items marked "GM-verify" can't be auto-checked — confirm with your GM. Save anyway if granted an exception.</div></div>`);
     } else if(e.tier==='advanced' || e.tier==='prestige'){
-      panels.push(`<div class="rounded-3 p-7-10 fs-12" style="color:#6dba88;border:1px solid rgba(50,140,80,.3);background:rgba(50,140,80,.08);"><b>✓ Prerequisites met</b> for ${e.name} (${tierLabel}).</div>`);
+      panels.push(`<div class="rounded-3 p-7-10 fs-12" style="color:rgb(var(--text-green));border:1px solid rgb(var(--line-forest) / .3);background:rgb(var(--tint-forest) / .08);"><b>✓ Prerequisites met</b> for ${e.name} (${tierLabel}).</div>`);
     }
   }
   root.innerHTML=panels.join('');
@@ -129,7 +129,7 @@ function renderAttrBumpsPanel() {
     ).join('');
     const status = sel
       ? `<span class="c-g65 fs-10">→ +1 ${sel}</span>`
-      : `<span class="fs-10" style="color:#d4b870;">⚠ pending</span>`;
+      : `<span class="fs-10" style="color:rgb(var(--text-amber));">⚠ pending</span>`;
     rows.push(`<div class="gap-8 items-center" style="display:flex;">
       <span class="font-serif fs-11 c-g75" style="min-width:75px;">Level ${level}:</span>
       <select onchange="onAttrBumpChange(${i}, this.value)" class="flex-1 fs-12" style="max-width:160px;">${opts}</select>

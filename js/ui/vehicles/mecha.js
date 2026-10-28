@@ -71,7 +71,8 @@ function renderMechaCards(c) {
     const sz = MECHA_SIZE_STATS[def.size] || {};
     const touch = mechaTouchAC(def);
     const pct = Math.max(0, Math.min(100, Math.round(g.hp / g.maxHP * 100)));
-    const barColor = g.destroyed ? '#555' : g.broken ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
+    const barColor = g.destroyed ? 'rgb(var(--text-grey33))' : g.broken ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--text-orange))' : 'rgb(var(--text-green))';
+    const barFill = g.destroyed ? 'rgb(var(--tint-grey33))' : g.broken ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--tint-orange))' : 'rgb(var(--tint-green))';  // the bar itself
     const pilotDexM = am(Math.min(effAttrs(c)[1], def.dexMax));
     const ranks = getLiveSkillRanks(c, 'Pilot');
     const opPen = hasOp ? 0 : -4;
@@ -80,7 +81,7 @@ function renderMechaCards(c) {
     const strM = am(def.str);
     const loadout = paLoadout(it).map((l, idx) => {
       const sIcon = l.state === 'destroyed' ? '☠' : l.state === 'damaged' ? '⚑' : '●';
-      const sColor = l.state === 'destroyed' ? '#999' : l.state === 'damaged' ? 'var(--red-text)' : '#6dba88';
+      const sColor = l.state === 'destroyed' ? 'rgb(var(--text-grey60))' : l.state === 'damaged' ? 'var(--red-text)' : 'rgb(var(--text-green))';
       const sys = MECHA_SYSTEMS.find(s => l.gear.startsWith(s.name.replace(/ \(\+2\)$/, '')));
       const wep = MECHA_WEAPONS.find(w => l.gear.startsWith(w.name.split(' (')[0]) || l.gear.includes(w.name));
       let tip = '';
@@ -91,15 +92,15 @@ function renderMechaCards(c) {
       return `<div class="items-center gap-6 fs-11" style="display:flex;padding:1px 0;">
         <button class="btn btn-sm" style="font-size:9px;padding:0 4px;color:${sColor};" title="Cycle: ok → damaged (1 hr, Repair DC 20; slot DC 25) → destroyed (replace; slot rebuild 12 hrs, Craft DC 30) → ok" onclick="paCycleSlotState('${it.id}',${idx})">${sIcon}</button>
         <span class="c-g55" style="min-width:98px;">${escapeHTML(l.slot)}</span>
-        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}${wep ? 'color:#d4865a;' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}</span>
+        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:rgb(var(--text-sky));' : ''}${wep ? 'color:rgb(var(--text-orange));' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}</span>
         ${l.fixed ? '' : `<button class="fs-9 p-0-4 btn btn-sm" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
       </div>`;
     }).join('');
-    return `<div class="mb-0_8rem panel" style="border-color:rgba(212,140,70,.4);">
+    return `<div class="mb-0_8rem panel" style="border-color:rgb(var(--line-copper) / .4);">
       <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
         <div class="font-serif fs-14 c-gold">${it.piloted ? '🕹 ' : ''}🦿 ${escapeHTML(name)} <span class="fs-10 c-g50">${def.size} TS ${def.ts}${def.quad ? ' Quadrupedal' : ''} Mecha · ${escapeHTML(def.superstructure)} / ${escapeHTML(def.armorType)}</span></div>
         <div class="nowrap">
-          <button class="btn btn-sm" style="font-size:10px;${it.piloted ? 'border-color:rgba(120,175,205,.6);color:#78afcd;' : ''}" onclick="togglePiloted('${it.id}')">${it.piloted ? '🕹 Dismount' : '🕹 Pilot'}</button>
+          <button class="btn btn-sm" style="font-size:10px;${it.piloted ? 'border-color:rgb(var(--line-sky) / .6);color:rgb(var(--text-sky));' : ''}" onclick="togglePiloted('${it.id}')">${it.piloted ? '🕹 Dismount' : '🕹 Pilot'}</button>
           <button class="fs-10 btn btn-sm" onclick="vehicleIncomingHit('${it.id}')">⚔ Hit</button>
           <button class="fs-10 btn btn-sm" onclick="vehicleRepair('${it.id}')">🔧 Repair</button>
           <button class="fs-10 btn btn-sm" onclick="setJointOwners('${it.id}')">✎ Owners</button>
@@ -114,14 +115,14 @@ function renderMechaCards(c) {
       </div>
       <div class="items-center gap-8 mt-5 fs-11_5" style="display:flex;">
         <span style="cursor:help;" title="${escapeHTML(def.superstructure + ' superstructure — hardness applies to every hull hit; crew is hit only via crit-table results (FF p.616).')}">Hull <b style="color:${barColor};">${g.hp}</b>/${g.maxHP} · Hardness <b>${g.hardness}</b></span>
-        <div class="flex-1 h-6 bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
-        <span class="cursor-help fs-10" style="color:#d4b870;" title="Mecha Critical Hits (FF p.616): d20 — 1-3 dmg+crew dazed · 4-7 equipment damaged · 8-9 crit+crew dazed · 10 equipment destroyed · 11-12 crit+prone · 13 CREW HIT · 14-16 crit+slot damaged · 17-18 crit+slot destroyed · 19-20 severe ×5. Mark results on the loadout.">🎲 crit table ⓘ</span>
+        <div class="flex-1 h-6 bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barFill};"></div></div>
+        <span class="cursor-help fs-10" style="color:rgb(var(--text-amber));" title="Mecha Critical Hits (FF p.616): d20 — 1-3 dmg+crew dazed · 4-7 equipment damaged · 8-9 crit+crew dazed · 10 equipment destroyed · 11-12 crit+prone · 13 CREW HIT · 14-16 crit+slot damaged · 17-18 crit+slot destroyed · 19-20 severe ×5. Mark results on the loadout.">🎲 crit table ⓘ</span>
       </div>
-      ${g.destroyed ? '<div class="fs-10_5 mt-3" style="color:#999;">☠ DESTROYED — salvage only (HH p.181).</div>' : g.broken ? '<div class="c-red-text fs-10_5 mt-3">🛑 DISABLED — 0 HP; repair 1 hr / DC 20 / 2d6 HP (workshop).</div>' : ''}
+      ${g.destroyed ? '<div class="fs-10_5 mt-3" style="color:rgb(var(--text-grey60));">☠ DESTROYED — salvage only (HH p.181).</div>' : g.broken ? '<div class="c-red-text fs-10_5 mt-3">🛑 DISABLED — 0 HP; repair 1 hr / DC 20 / 2d6 HP (workshop).</div>' : ''}
       <div class="fs-11 c-g70 mt-5">
         Your Pilot check aboard: <b class="c-gold">${pilotChk >= 0 ? '+' : ''}${pilotChk}</b> <span class="o-60 c-dim">(${ranks} ranks ${pilotDexM >= 0 ? '+' : ''}${pilotDexM} Dex [capped]${opPen ? ' − 4 no Mecha Operation' : ''})</span>
-        · ${hasOp ? '<span style="color:#6dba88;">✓ Mecha Operation</span>' : '<span class="c-red-text" title="−4 on Balance/Climb/Drive/Escape Artist/Hide/Move Silently/Pilot/Tumble aboard; no Defense Bonus to full AC; no run or charge.">✗ Mecha Operation</span>'}
-        · ${hasWp ? '<span style="color:#6dba88;">✓ Mecha Weapon Proficiency</span>' : '<span class="c-red-text" title="−4 on attacks with mecha weapons; firearm feats (Double Tap, Strafe…) unusable on them.">✗ Mecha Weapon Prof</span>'}
+        · ${hasOp ? '<span style="color:rgb(var(--text-green));">✓ Mecha Operation</span>' : '<span class="c-red-text" title="−4 on Balance/Climb/Drive/Escape Artist/Hide/Move Silently/Pilot/Tumble aboard; no Defense Bonus to full AC; no run or charge.">✗ Mecha Operation</span>'}
+        · ${hasWp ? '<span style="color:rgb(var(--text-green));">✓ Mecha Weapon Proficiency</span>' : '<span class="c-red-text" title="−4 on attacks with mecha weapons; firearm feats (Double Tap, Strafe…) unusable on them.">✗ Mecha Weapon Prof</span>'}
       </div>
       <div class="fs-10 uppercase ls-0_08em c-g55 mt-7">Equipment Slots (${sz.slots ?? '?'} total — cockpit fixed) <button class="fs-9 p-0-5 ml-6 btn btn-sm" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
       ${loadout}

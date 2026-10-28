@@ -33,25 +33,26 @@ function renderArmorIntegrity(c) {
     const name = enchantDisplayName(it);
     const prof = isProficientWithArmor(c, it.ref);
     const pct = Math.max(0, Math.min(100, Math.round(g.hp / g.maxHP * 100)));
-    const barColor = g.destroyed ? '#555' : g.broken ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
+    const barColor = g.destroyed ? 'rgb(var(--text-grey33))' : g.broken ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--text-orange))' : 'rgb(var(--text-green))';
+    const barFill = g.destroyed ? 'rgb(var(--tint-grey33))' : g.broken ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--tint-orange))' : 'rgb(var(--tint-green))';  // the bar itself
     const hardTip = g.hardParts.join(' + ') + ' · HP: ' + g.hpParts.join(' + ')
       + (g.alwaysIntercede ? '\nAlways intercedes: every hit applies this hardness; full AC is for confirming crits only (power armor / Environmental Seal).' : `\nHits in the band [Touch AC, Total AC) strike this ${g.isShield ? 'shield' : 'armor'} — hardness applies, remainder split between item and wearer.`)
       + (prof ? '\nProficient: the WEARER chooses how remaining damage is split.' : '\n⚠ NOT proficient: the ATTACKER chooses the split (hardness still applies first).')
       + (g.selfRepairing ? '\nSelf-Repairing gadget: 1 HP/minute; fully restored by a night’s rest.' : '\nArmor does not heal on its own — repairs need the Repair skill (tool kit; task table HH p.181) or services.');
     const state = g.destroyed
-      ? `<span class="fs-10" style="color:#999;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max): beyond repair, salvage only (HH p.181 rule). GM may adjudicate restoration.</span>`
+      ? `<span class="fs-10" style="color:rgb(var(--text-grey60));">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max): beyond repair, salvage only (HH p.181 rule). GM may adjudicate restoration.</span>`
       : g.broken
       ? `<span class="c-red-text fs-10">⚑ BROKEN — 0 HP: no AC bonus (penalties remain); enchantment suppressed (book: lost permanently — GM adjudicates). Repairable up to ${g.destroyThreshold - 1 - g.maxHP} more damage.</span>`
       : '';
-    return `<div class="p-4-0" style="margin:5px 0;border-top:1px solid rgba(200,151,30,.12);">
+    return `<div class="p-4-0" style="margin:5px 0;border-top:1px solid rgb(var(--line-gold) / .12);">
       <div class="items-center gap-6 fs-11_5" style="display:flex;">
-        <span class="flex-1 cursor-help" title="${escapeHTML(hardTip)}">${g.isShield ? '🛡' : '⛨'} ${escapeHTML(name)}${g.alwaysIntercede ? ' <span class="fs-9" style="color:#78afcd;" title="Power armor / Environmental Seal: always intercedes">◈</span>' : ''}${prof ? '' : ' <span class="fs-9" style="color:#d4b870;">⚠ non-proficient</span>'}</span>
+        <span class="flex-1 cursor-help" title="${escapeHTML(hardTip)}">${g.isShield ? '🛡' : '⛨'} ${escapeHTML(name)}${g.alwaysIntercede ? ' <span class="fs-9" style="color:rgb(var(--text-sky));" title="Power armor / Environmental Seal: always intercedes">◈</span>' : ''}${prof ? '' : ' <span class="fs-9" style="color:rgb(var(--text-amber));">⚠ non-proficient</span>'}</span>
         <span class="fs-10_5 c-g70">Hardness <b class="c-gold">${g.hardness}</b></span>
         <b style="color:${barColor};">${g.hp}</b><span class="o-55 c-dim">/${g.maxHP}</span>
         <button class="fs-10 p-0-6 btn btn-sm" title="Incoming hit — enter the damage; the generator applies hardness and offers the split" onclick="armorIncomingHit('${it.id}')">⚔ Hit</button>
         <button class="fs-10 p-0-6 btn btn-sm" title="Repair points of damage (Repair skill / services / GM)" onclick="armorRepair('${it.id}')">🔧</button>
       </div>
-      <div class="mt-2 bar-wrap" style="height:5px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+      <div class="mt-2 bar-wrap" style="height:5px;"><div class="bar-fill" style="width:${pct}%;background:${barFill};"></div></div>
       ${state}
     </div>`;
   }).join('');

@@ -51,8 +51,8 @@ function renderAPBar(c){
         <span class="font-serif fs-10 c-bronze">Action Points</span>
         <span class="font-serif fs-14 fw-600 c-g45 italic">— Unavailable —</span>
       </div>
-      <div class="fs-11 c-g55 lh-1_5 p-8-10 rounded-2" style="background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);">
-        <b style="color:#d4b870;">Heroic 0 — ${escapeHTML(cap.heroicLevelName)}.</b>
+      <div class="fs-11 c-g55 lh-1_5 p-8-10 rounded-2" style="background:rgb(var(--tint-black) / .2);border-left:2px solid rgb(var(--line-gold) / .3);">
+        <b style="color:rgb(var(--text-amber));">Heroic 0 — ${escapeHTML(cap.heroicLevelName)}.</b>
         No Action Points, Heroic Action Points, or Fate Points are available in this scenario.
         Feats or class abilities that normally require AP become usable 1/day instead.
         Talents are treated as General feats with an attribute prerequisite.
@@ -89,14 +89,14 @@ function renderAPBar(c){
       // HTML is trusted (built locally from controlled values); the
       // description proper is always escaped.
       const annot = it.annotationHTML ? `${it.annotationHTML} ` : '';
-      return `<div class="p-6-9 rounded-2" style="margin:6px 0;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);">
+      return `<div class="p-6-9 rounded-2" style="margin:6px 0;background:rgb(var(--tint-gold) / .04);border-left:2px solid rgb(var(--line-gold) / .3);">
          <div class="fw-600 c-gold fs-11 mb-2">${escapeHTML(it.name)}</div>
          <div class="fs-10_5 c-g75 lh-1_45">${annot}${escapeHTML(it.desc)}</div>
        </div>`;
     }).join('') : '';
     return `
       <div class="mt-6">
-        <div onclick="toggleAPOpt('${key}')" class="cursor-pointer font-serif fs-10 c-g70 rounded-2 select-none ls-0_04em uppercase" style="padding:3px 6px;background:rgba(200,151,30,.03);">${arrow} ${escapeHTML(title)}</div>
+        <div onclick="toggleAPOpt('${key}')" class="cursor-pointer font-serif fs-10 c-g70 rounded-2 select-none ls-0_04em uppercase" style="padding:3px 6px;background:rgb(var(--tint-gold) / .03);">${arrow} ${escapeHTML(title)}</div>
         <div>${itemsHTML}</div>
       </div>`;
   };
@@ -111,7 +111,7 @@ function renderAPBar(c){
     if (!baseOpt) continue;
     const owns = cap.ownedTalentNames.has(baseOpt.talent);
     const annotationHTML = owns
-      ? `<span class="fw-600" style="color:#6dba88;">[✓ ${escapeHTML(baseOpt.talent)} owned]</span>`
+      ? `<span class="fw-600" style="color:rgb(var(--text-green));">[✓ ${escapeHTML(baseOpt.talent)} owned]</span>`
       : `<span class="c-red-text fw-600">[⚠ Requires Talent: ${escapeHTML(baseOpt.talent)} — not owned]</span>`;
     fpItems.push({
       name: baseOpt.name,
@@ -252,7 +252,7 @@ function _buildOptionRadios(options, defaultValue) {
     const id = 'apopt-' + i + '-' + (opt.name||'opt').replace(/\W+/g, '_');
     const checked = (opt.name === defaultValue) ? 'checked' : '';
     const descText = opt.desc ? `<span class="fs-10_5 c-g60">${escapeHTML(opt.desc)}</span>` : '';
-    return `<label for="${id}" class="m-4-0 p-6-9 rounded-2 cursor-pointer fs-11_5 lh-1_4" style="display:block;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.25);">
+    return `<label for="${id}" class="m-4-0 p-6-9 rounded-2 cursor-pointer fs-11_5 lh-1_4" style="display:block;background:rgb(var(--tint-gold) / .04);border-left:2px solid rgb(var(--line-gold) / .25);">
       <input type="radio" name="ap-modal-opt" id="${id}" value="${escapeHTML(opt.name)}" ${checked} class="mt-2" style="margin-right:6px;vertical-align:top;">
       <span class="fw-600 c-gold">${escapeHTML(opt.name)}</span>${descText ? '<br>' + descText : ''}
     </label>`;

@@ -252,7 +252,7 @@ function renderSkills(){
         : '';
       const arrow = skillFamilyCollapsed[fam] ? '▸' : '▾';
       rows.push(`<tr class="cursor-pointer sk-fam-header" onclick="toggleSkillFamily('${fam}')">
-        <td colspan="6" class="font-serif fs-10 uppercase ls-0_1em c-g70" style="padding:6px 7px 4px;border-top:1px solid rgba(200,151,30,.15);background:rgba(200,151,30,.04);">
+        <td colspan="6" class="font-serif fs-10 uppercase ls-0_1em c-g70" style="padding:6px 7px 4px;border-top:1px solid rgb(var(--line-gold) / .15);background:rgb(var(--tint-gold) / .04);">
           ${arrow} ${fam} Skills <span class="o-55 c-dim">(${totalInFam})</span>${trainedSubset}
         </td>
       </tr>`);
@@ -332,9 +332,9 @@ function renderSkills(){
     const _tkSat = skillNeedsToolkit(sk) ? toolkitSatisfaction(c, sk) : null;
     const toolkitIndicator = skillNeedsToolkit(sk)
       ? (_tkSat.full
-        ? `<span style="font-size:10px;color:rgba(120,200,140,.9);margin-left:4px;cursor:help;" title="${escapeHTML('Satisfied by: ' + _tkSat.by.join(', ') + ' — no penalty.')}">⚒✓</span>`
+        ? `<span style="font-size:10px;color:rgb(var(--text-spring) / .9);margin-left:4px;cursor:help;" title="${escapeHTML('Satisfied by: ' + _tkSat.by.join(', ') + ' — no penalty.')}">⚒✓</span>`
         : _tkSat.partial != null
-        ? `<span style="font-size:10px;color:rgba(214,184,92,.9);margin-left:4px;cursor:help;" title="${escapeHTML('Minimally equipped: ' + _tkSat.by.join(', ') + ' — the penalty drops to ' + _tkSat.partial + ' instead of −4.')}">⚒${_tkSat.partial}</span>`
+        ? `<span style="font-size:10px;color:rgb(var(--text-mustard) / .9);margin-left:4px;cursor:help;" title="${escapeHTML('Minimally equipped: ' + _tkSat.by.join(', ') + ' — the penalty drops to ' + _tkSat.partial + ' instead of −4.')}">⚒${_tkSat.partial}</span>`
         : `<span class="fs-10 c-tb85 ml-4 cursor-help" title="May suffer up to a -4 penalty without the appropriate tool/skill kit. Add one on the Gear tab.">⚒</span>`)
       : '';
     // v8.8.2 (Adam's Jump wiring): vertical-reach chip on the Jump row —
@@ -347,7 +347,7 @@ function renderSkills(){
       const superSized = szIdx !== raceSizeIndex(c);
       const seNote = (!c.nullified && hasSupremeEffort(c))
         ? ` During a Supreme Effort (move action): one size category larger again — ${SIZE_LADDER[Math.min(SIZE_LADDER.length - 1, szIdx + 1)]}, reach ${REACH_FT[Math.min(REACH_FT.length - 1, szIdx + 1)]} ft.` : '';
-      jumpIndicator = `<span style="font-size:10px;color:${superSized ? '#78afcd' : 'var(--g45)'};margin-left:4px;cursor:help;" title="${escapeHTML(`Vertical reach ${REACH_FT[szIdx]} ft (${SIZE_LADDER[szIdx]}${superSized ? ' — Super-Strong size riders, Su, suppressed while Nullified' : ''}) — height reachable without jumping; high jumps add to it (HH p.173). Speed above/below 30 ft modifies Jump checks via the Misc column.${seNote}`)}">${superSized ? '🦾 ' : ''}↕${REACH_FT[szIdx]}′</span>`;
+      jumpIndicator = `<span style="font-size:10px;color:${superSized ? 'rgb(var(--text-sky))' : 'var(--g45)'};margin-left:4px;cursor:help;" title="${escapeHTML(`Vertical reach ${REACH_FT[szIdx]} ft (${SIZE_LADDER[szIdx]}${superSized ? ' — Super-Strong size riders, Su, suppressed while Nullified' : ''}) — height reachable without jumping; high jumps add to it (HH p.173). Speed above/below 30 ft modifies Jump checks via the Misc column.${seNote}`)}">${superSized ? '🦾 ' : ''}↕${REACH_FT[szIdx]}′</span>`;
     }
     const indent = isCollapsible ? 'padding-left:18px;' : '';
     const costIndicator = cls ? '' : '<span style="font-size:10px;color:var(--g40);margin-left:4px;" title="Cross-class skill: 2 points per rank (HH p.542)">2×</span>';
@@ -359,11 +359,11 @@ function renderSkills(){
     // being touched.
     const capMax = cls ? (lvl + 4) : Math.floor((lvl + 4) / 2);
     const overCap = ranks > capMax;
-    const capChip = `<span style="font-size:10px;color:${overCap ? '#e08080' : 'var(--g38)'};margin-left:3px;cursor:help;${overCap ? 'font-weight:bold;' : ''}" title="${overCap
+    const capChip = `<span style="font-size:10px;color:${overCap ? 'rgb(var(--text-salmon))' : 'var(--g38)'};margin-left:3px;cursor:help;${overCap ? 'font-weight:bold;' : ''}" title="${overCap
       ? `OVER CAP: max ranks at level ${lvl} is ${capMax} for this ${cls ? 'class' : 'cross-class'} skill (${cls ? 'level+4' : 'half of level+4, rounded down'}). Reduce ranks or record a GM exception.`
       : `Max ranks: ${capMax} (${cls ? 'class skill: level+4' : 'cross-class: half of level+4, rounded down'})`}">/${capMax}${overCap ? '⚠' : ''}</span>`;
     const gateMet = meetsSkillReq(sk, c.sixLevels);
-    const reqColor = sk.req ? (gateMet ? 'var(--g55)' : '#d4b870') : '';
+    const reqColor = sk.req ? (gateMet ? 'var(--g55)' : 'rgb(var(--text-amber))') : '';
     const reqAnnotation = sk.req
       ? `<span class="sk-sub" style="color:${reqColor};${!gateMet?'font-weight:bold;':''}" title="${gateMet?'Scenario meets this requirement.':'Scenario does not meet this requirement — taking ranks will prompt for GM exception.'}">${sk.req}</span>`
       : '';
@@ -374,7 +374,7 @@ function renderSkills(){
     const dispNm = displaySkillName(c, sk.n);
     const dossier = skillHoverText(c, sk);
     const nameHTML = dossier
-      ? `<span class="cursor-help" style="border-bottom:1px dotted rgba(200,151,30,.45);" title="${escapeHTML(dossier)}">${dispNm}</span>`
+      ? `<span class="cursor-help" style="border-bottom:1px dotted rgb(var(--line-gold) / .45);" title="${escapeHTML(dossier)}">${dispNm}</span>`
       : dispNm;
     rows.push(`<tr title="${escapeHTML(provTitle)}">
       <td style="${indent}">${nameHTML}${cls ? `<span class="cursor-help sk-cls" title="${escapeHTML(provTitle)}">class</span>` : ''}${reqAnnotation}${condIndicator}${toolkitIndicator}${jumpIndicator}</td>

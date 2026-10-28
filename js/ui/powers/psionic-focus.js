@@ -50,7 +50,7 @@ function psiFocusChipHTML(c) {
   const state = locked
     ? `<b class="c-vio">🧿 locked</b> <span class="o-60 c-dim">(sustaining the Second Skin)</span>`
     : c.psiFocused
-    ? `<b style="color:#6dba88;">● focused</b>`
+    ? `<b style="color:rgb(var(--text-green));">● focused</b>`
     : `<b class="op-0_6">○ unfocused</b>`;
   const btn = locked ? '' : c.psiFocused
     ? `<button class="fs-10 p-0-6 btn btn-sm" onclick="expendPsiFocus('manual (declared at the table)')" title="Expend the focus (Power feats, Power Penetration, Slippery Mind, ki features...)">Expend</button>`

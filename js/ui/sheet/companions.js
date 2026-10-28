@@ -67,14 +67,14 @@ function renderCompanions(c) {
          <span class="o-55 c-dim">(FF p.${base.page}${comp.kind === 'owned' ? '' : ' — base animal, before the adjustments below'})</span></div>`)
       : `<div class="op-0_6">Base stats: see the Foe Folio.</div>`;
     const kindLbl = comp.kind === 'familiar' ? '🦉 Familiar' : comp.kind === 'mount' ? '🐎 Special Mount' : comp.kind === 'owned' ? '🐴 Owned animal' : '🐾 Animal Companion';
-    return `<div class="rounded-3 p-5-8 m-4-0 fs-11 lh-1_5" style="border:1px solid rgba(200,151,30,.25);">
-      <b style="color:rgba(120,175,205,.95);">${kindLbl}: ${escapeHTML(comp.name || comp.species)}</b>${comp.name ? ` <span class="o-60 c-dim">(${escapeHTML(comp.species)})</span>` : ''}
+    return `<div class="rounded-3 p-5-8 m-4-0 fs-11 lh-1_5" style="border:1px solid rgb(var(--line-gold) / .25);">
+      <b style="color:rgb(var(--text-sky) / .95);">${kindLbl}: ${escapeHTML(comp.name || comp.species)}</b>${comp.name ? ` <span class="o-60 c-dim">(${escapeHTML(comp.species)})</span>` : ''}
       <span class="cursor-pointer fs-10 op-0_6 ml-6" onclick="renameCompanion('${comp.id}')" title="Name this companion">✎</span>
       <span class="cursor-pointer fs-10 op-0_6" onclick="removeCompanion('${comp.id}')" title="Remove">✕</span>
       ${baseLines}
       <div class="c-g85">${escapeHTML(d.line)}</div>
       ${d.specials ? `<div>Special: ${escapeHTML(d.specials)}</div>` : ''}
-      ${d.perk ? `<div style="color:#78afcd;">${escapeHTML(d.perk)}</div>` : ''}
+      ${d.perk ? `<div style="color:rgb(var(--text-sky));">${escapeHTML(d.perk)}</div>` : ''}
       ${d.magicalBeast ? `<div class="op-0_65">${escapeHTML(d.magicalBeast)}</div>` : ''}
     </div>`;
   }).join('');

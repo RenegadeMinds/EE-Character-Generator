@@ -57,7 +57,7 @@ function renderMagicBrowse() {
     return true;
   });
   const propBanner = (typeF && MAGIC_PROPERTY_TYPES.has(typeF))
-    ? `<div class="p-6-9 fs-10_5 c-tb85" style="border-bottom:1px solid rgba(200,151,30,.1);">These are PROPERTIES, not items — reference reading for the ✨ Enchant / Imbue builder on a weapon or armor inventory row. They cannot be added directly.</div>`
+    ? `<div class="p-6-9 fs-10_5 c-tb85" style="border-bottom:1px solid rgb(var(--line-gold) / .1);">These are PROPERTIES, not items — reference reading for the ✨ Enchant / Imbue builder on a weapon or armor inventory row. They cannot be added directly.</div>`
     : '';
   const CAP = 100;
   el.innerHTML = propBanner + _magicBrowseList.slice(0, CAP).map((m, i) => {
@@ -69,10 +69,10 @@ function renderMagicBrowse() {
     const addBtn = isProp
       ? `<span class="fs-9 c-g50">property — apply via ✨ Enchant on a weapon/armor row (Gear inventory)</span>`
       : `<button class="fs-10 btn btn-sm btn-pri" onclick="addMagicFromBrowse(${i})">+ Add${m.type === 'artifact' ? ' (GM)' : ''}</button>`;
-    return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
+    return `<div class="p-6-9" style="border-bottom:1px solid rgb(var(--line-gold) / .08);">
       <div class="justify-between items-center gap-6" style="display:flex;">
         <div style="${desc ? 'cursor:pointer;' : ''}flex:1;" ${desc ? `onclick="toggleMagicDetail(${i})"` : ''}><b>${escapeHTML(m.name)}</b>
-          <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
+          <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgb(var(--tint-violet) / .12);border:1px solid rgb(var(--line-violet) / .3);">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
           <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${m.cl ? (m.cl_kind || 'CL') + ' ' + m.cl + ' · ' : ''}${magicPriceLabel(m)}</span>
           ${desc ? `<span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span>` : ''}</div>
         ${addBtn}
@@ -180,11 +180,11 @@ function renderMagicInventory(c) {
   host.innerHTML = owned.length ? owned.map(it => {
     const def = getCatalogueEntry('magic', it.ref) || {};
     const slotDef = ITEM_SLOTS.find(s => s.id === it.slot);
-    return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
+    return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgb(var(--line-gold) / .08);">
       <div><b>${escapeHTML(it.customName || it.ref)}${it.tier ? ` +${it.tier}` : ''}</b>${it.customName ? ` <span class="fs-9 o-55 c-dim">(${escapeHTML(it.ref)})</span>` : ''}${(MAGIC_ITEM_EFFECTS[it.ref] && it.equipped) ? ' <span class="fs-9 c-pb90" title="firm-wired: effect applies while equipped">⚡wired</span>' : ''}
-        <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
+        <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgb(var(--tint-violet) / .12);border:1px solid rgb(var(--line-violet) / .3);">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
         <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${slotDef ? slotDef.label : it.slot} · ${magicPriceLabel(def)}</span>
-        ${it.equipped ? '<span class="fs-10" style="color:#6dba88;margin-left:5px;">● equipped</span>' : ''}</div>
+        ${it.equipped ? '<span class="fs-10" style="color:rgb(var(--text-green));margin-left:5px;">● equipped</span>' : ''}</div>
       <div>
         ${(slotDef && slotDef.category !== 'carried') ? `<button class="fs-10 btn btn-sm" onclick="toggleItemEquipped('${it.id}')">${it.equipped ? 'Unequip' : 'Equip'}</button>` : ''}
         <button class="fs-10 btn btn-sm" onclick="renameItem('${it.id}')" title="Give this item a custom name (flavor only)">✎</button>
@@ -204,7 +204,7 @@ function magicSlotRowsHTML(c, interactive) {
   const slotById = (id) => ITEM_SLOTS.find(s => s.id === id) || {};
   const chipOf = (it) => interactive
     ? renderEquippedItemChip(it)
-    : `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);">${escapeHTML(itemDisplayName(it))}</span>`;
+    : `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgb(var(--tint-gold) / .08);border:1px solid rgb(var(--line-gold) / .25);">${escapeHTML(itemDisplayName(it))}</span>`;
   const rows = Object.keys(SLOT_GROUPS).map(gid => {
     const g = SLOT_GROUPS[gid];
     const inGroup = (i) => (i.catalogue === 'magic' && g.slots.includes(i.slot)) || (i.catalogue === 'equipment' && g.slots.includes((gearDef(i) || {}).slot));
@@ -213,7 +213,7 @@ function magicSlotRowsHTML(c, interactive) {
     const free = g.cap - equipped.length - (armorWorn ? 1 : 0);
     const unequipped = c.items.filter(i => inGroup(i) && !i.equipped);
     const chips = equipped.map(chipOf).join('')
-      + (armorWorn ? `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(120,145,170,.1);border:1px solid rgba(120,145,170,.3);" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
+      + (armorWorn ? `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgb(var(--tint-slate) / .1);border:1px solid rgb(var(--line-slate) / .3);" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
     const eqSel = (interactive && free > 0 && unequipped.length)
       ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" class="fs-11 ml-6"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>`
       : '';

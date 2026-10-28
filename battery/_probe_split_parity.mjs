@@ -26,7 +26,7 @@
 //      Tracker, Roster. Each page's markup must match.
 //   4c. Eleven "rich" characters (gear, magic items, super powers, talents,
 //      Dwarf / Elf / Halfling / Hybrid races, rage / nullified / fatigued
-//      states): every page, the print sheet, the equipped-weapon summaries
+//      states, one condition of each severity tier): every page, the print sheet, the equipped-weapon summaries
 //      and an Edit -> Save round trip must match too.
 //   5. Console errors: neither build may log any.
 //
@@ -270,7 +270,7 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
 {
   const RICH = [
     { spec: { steps: [{ name: 'Strong Hero', levels: 3 }, { name: 'Fighter', levels: 4 }], race: 'Human', name: 'Rich Bruiser' }, extras: { talents: ['Mangler'], flags: { raging: false }, enchant: true, weaponFocus: true } },
-    { spec: { steps: [{ name: 'Rogue', levels: 5 }], race: 'Dwarf', name: 'Rich Dwarf Rogue' }, extras: { flags: { fatigued: true } } },
+    { spec: { steps: [{ name: 'Rogue', levels: 5 }], race: 'Dwarf', name: 'Rich Dwarf Rogue' }, extras: { flags: { fatigued: true }, conditions: true } },
     { spec: { steps: [{ name: 'Sorcerer', levels: 6 }], race: 'Elf', name: 'Rich Elf Sorcerer' }, extras: {} },
     { spec: { steps: [{ name: 'Fast Hero', levels: 4 }, { name: 'Soldier', levels: 3 }], race: 'Human', name: 'Rich Super' }, extras: { powers: [{ name: 'Stoneskin', pool: 'super', mp: 10 }], flags: { nullified: true } } },
     { spec: { steps: [{ name: 'Ranger', levels: 4 }], race: 'Hybrid', hybrid: { a: 'Human', b: 'Elf', sizeFrom: 'Human' }, name: 'Rich Hybrid Ranger' }, extras: {} },
@@ -312,6 +312,9 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
       if (extras.powers) c.powers = (c.powers || []).concat(extras.powers);
       if (extras.talents) for (const t of extras.talents) { try { addTalentToChar(c, t); } catch (e) {} }
       if (extras.flags) Object.assign(c, extras.flags);
+      // One condition from each severity tier (beneficial ... terminal), so the
+      // tier-coloured condition pills on the Tracker and Sheet get drawn.
+      if (extras.conditions) { const seen = new Set(); c.conditions = Object.keys(CONDITIONS_DATA).filter(k => { const tr = CONDITIONS_DATA[k].tier; if (seen.has(tr)) return false; seen.add(tr); return true; }); }
       save();
       return { ok: true, json: JSON.stringify(c) };
     } catch (e) { return { ok: false, reason: String(e) }; }

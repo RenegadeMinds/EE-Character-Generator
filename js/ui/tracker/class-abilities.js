@@ -159,7 +159,7 @@ function renderPerDiem(c) {
       const low = left === 0;
       return `<div class="items-center gap-6 fs-11_5 m-2-0" style="display:flex;">
         <span class="flex-1 cursor-help" title="${escapeHTML(s.note || '')}">${s.name}${s.weekly ? ' <span class="op-0_55 fs-9">(per week)</span>' : ''}</span>
-        <b style="color:${low ? 'var(--red-text)' : 'rgba(120,175,205,.95)'};">${left}</b><span class="o-55 c-dim">/${s.max}${s.kind === 'pool' ? ' pts' : ''}</span>
+        <b style="color:${low ? 'var(--red-text)' : 'rgb(var(--text-sky) / .95)'};">${left}</b><span class="o-55 c-dim">/${s.max}${s.kind === 'pool' ? ' pts' : ''}</span>
         <button class="fs-10 p-0-6 btn btn-sm" title="Spend one ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',1)">−</button>
         <button class="fs-10 p-0-6 btn btn-sm" title="Undo a spent ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',-1)">+</button>
         <button class="fs-10 p-0-6 op-0_7 btn btn-sm" title="GM renew: reset ${s.name} alone (a rejuvenating roleplay event short of a full rest)" onclick="renewAbility('${s.key}')">↻</button>
@@ -181,10 +181,10 @@ function renderBattleFocus(c) {
   const focused = !!c.battleFocused;
   const passive = Math.ceil(mod / 2);
   host.innerHTML = `
-    <div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border:1px solid rgba(200,151,30,.2);border-left:2px solid ${focused ? '#7daadc' : 'rgba(200,151,30,.3)'};border-radius:2px;">
+    <div style="margin-top:10px;padding:8px 10px;background:rgb(var(--tint-black) / .2);border:1px solid rgb(var(--line-gold) / .2);border-left:2px solid ${focused ? 'rgb(var(--line-blue))' : 'rgb(var(--line-gold) / .3)'};border-radius:2px;">
       <div class="justify-between items-center mb-4" style="display:flex;">
         <span class="font-serif fs-10 c-bronze">Battle Focus (Psionic 0 variant) &middot; modifier +${mod}</span>
-        <span style="font-family:'Epics Serif','Cinzel',serif;font-size:12px;font-weight:600;color:${focused ? '#7daadc' : 'var(--g45)'};">${focused ? '◉ FOCUSED' : '○ unfocused'}</span>
+        <span style="font-family:'Epics Serif','Cinzel',serif;font-size:12px;font-weight:600;color:${focused ? 'rgb(var(--text-blue))' : 'var(--g45)'};">${focused ? '◉ FOCUSED' : '○ unfocused'}</span>
       </div>
       <div class="fs-10_5 c-g70 lh-1_45 mb-6">
         ${focused
@@ -239,7 +239,7 @@ function renderTalentActions(c) {
   const chaM = effAm(c, 5), intM = effAm(c, 3);
   const fmt = (n) => `${n >= 0 ? '+' : ''}${n}`;
   const cards = [];
-  const card = (name, body, tip) => cards.push(`<div class="p-4-0" style="border-bottom:1px solid rgba(200,151,30,.08);" title="${escapeHTML(tip || '')}"><b class="cursor-help" style="color:rgba(212,184,112,.9);">${name}</b> — ${body}</div>`);
+  const card = (name, body, tip) => cards.push(`<div class="p-4-0" style="border-bottom:1px solid rgb(var(--line-gold) / .08);" title="${escapeHTML(tip || '')}"><b class="cursor-help" style="color:rgb(var(--text-amber) / .9);">${name}</b> — ${body}</div>`);
   // ---- Charisma suite ----
   if (owned.has('Charm')) card('Charm', `+${chaLvl} competence on Charisma-based checks made to INFLUENCE others`, 'Only against targets with attitudes of indifferent or better — never vs unfriendly or hostile (GM adjudicates attitude).');
   if (owned.has('Fast-Talk')) card('Fast-Talk', `+${chaLvl} competence on Bluff, Diplomacy, and Gamble while lying, cheating, or bending the truth${owned.has('Silver Tongue') ? ' — Silver Tongue extends this to Gather Information and Intimidate, and lets you spend an AP to reroll (keep the second roll)' : ''}`, 'Applies when attempting to con or deceive.');
@@ -294,7 +294,7 @@ function renderCombatOptions(c) {
   const ownsFeat = (n) => (c.feats || []).some(f => (f.name || f.n) === n);
   const impGrap = ownsFeat('Improved Grapple');
   const eaRanks = (getLiveSkillRanks(c, 'Escape Artist') || 0);
-  const gH = (t) => `<div class="mt-5 bold" style="color:rgba(212,184,112,.9);">${t}</div>`;
+  const gH = (t) => `<div class="mt-5 bold" style="color:rgb(var(--text-amber) / .9);">${t}</div>`;
   host.innerHTML = [
     host.innerHTML,
     chip('Grapple', `d20 ${gr ? (gr.total >= 0 ? '+' : '') + gr.total : '+ mods'} — special modifiers &amp; options; see details below`, `Grapple check = d20 + BAB + Str mod + special size modifier (±4 per size step)${impGrap ? ' + Improved Grapple +4' : ''}${gr ? `. Yours: ${gr.parts.join(' · ')}.` : '.'} The full start-a-grapple sequence, in-grapple actions, pins, and multi-grappler rules are in the Grappling Rules Summary directly below.`),
@@ -342,7 +342,7 @@ function renderBardicMusic(c) {
   const sugDC = 10 + Math.floor(brd / 2) + chaM;
   const card = (ranksReq, name, body, tip) => {
     const ok = perf >= ranksReq;
-    return `<div style="margin:3px 0;${ok ? '' : 'opacity:.45;'}cursor:help;" title="${escapeHTML(tip + (ok ? '' : ` LOCKED — needs ${ranksReq} Perform ranks (your best: ${perf}).`))}"><b style="color:rgba(156,195,218,${ok ? '.9' : '.5'});">${name}</b> <span class="op-0_85">${body}${ok ? '' : ` <i class="fs-10">(needs ${ranksReq} ranks)</i>`}</span></div>`;
+    return `<div style="margin:3px 0;${ok ? '' : 'opacity:.45;'}cursor:help;" title="${escapeHTML(tip + (ok ? '' : ` LOCKED — needs ${ranksReq} Perform ranks (your best: ${perf}).`))}"><b style="color:rgb(var(--text-ice) / ${ok ? '.9' : '.5'});">${name}</b> <span class="op-0_85">${body}${ok ? '' : ` <i class="fs-10">(needs ${ranksReq} ranks)</i>`}</span></div>`;
   };
   const rows = [`<div class="fs-10_5 c-g60 mb-5">${brd} uses/day (${used} used — the ☀ per-diem panel tracks them) · best Perform: ${escapeHTML(perfName)} ${perf} ranks · starting a performance is a standard action; no spellcasting or spell-trigger/completion items while performing; a deaf Bard fails 20% of attempts (the use is still spent).</div>`];
   rows.push(card(3, 'Countersong', `(Su) Perform check each round — anyone within 30 ft may use it in place of their save vs sonic / language-dependent magic; up to 10 rounds.`, 'Ongoing noninstantaneous effects get a new save each round at your Perform result. No effect on save-less effects.'));
@@ -371,7 +371,7 @@ function renderElementalist(c) {
   panel.style.display = '';
   const pick = ((c.classChoices || {})['ele_var_1'] || '');
   const vn = (pick.match(/^(Ambrian|Kryonian|Vesuvian|Vitrolian)/) || [])[1] || null;
-  if (!vn) { host.innerHTML = `<div class="fs-11" style="color:#d4b870;">Choose the Elemental Focus in 🎓 Class Choices (Sheet) — every attack form keys off the variant.</div>`; return; }
+  if (!vn) { host.innerHTML = `<div class="fs-11" style="color:rgb(var(--text-amber));">Choose the Elemental Focus in 🎓 Class Choices (Sheet) — every attack form keys off the variant.</div>`; return; }
   const eff = effAttrs(c);
   const strM = am(eff[0]), dexM = am(eff[1]);
   const szm = (raceACSizeMod(c) || 0);
@@ -386,7 +386,7 @@ function renderElementalist(c) {
     Vesuvian:  { fist: `2d6 fire per melee TOUCH (${fmt(mTouch)})`, bolt: `${boltDice} fire OR heat (nonlethal fire), ranged touch ${fmt(rTouch)}, 15 ft`, blasts: [`Targeted Fire Blast — ${ele}d6 fire, ranged touch ${fmt(rTouch)}, range ${ele * 30} ft`, `Area Fire Blast — ${ele}d6 fire, ${ele * 5}′-radius area, Reflex DC ${13 + dexM} half, range ${ele * 10} ft`], weapon: '+2d6 fire per hit' },
     Vitrolian: { fist: `2d6 bludgeoning + Str (${fmt(strM)}) — a NORMAL armed unarmed attack, stone-sheathed`, bolt: `+2d6 additional bludgeoning on each successful Elemental Fist or Slam hit${greater ? ' · Fist ignores 10 hardness (Greater Adaptation)' : ''}`, blasts: [`Clap Shockwave — ${ele}d6 concussion (nonlethal sonic), ${ele * 10}′ cone, Fort DC ${13 + strM} half`, `Stomp Shockwave — ${ele}d4 nonlethal, ${ele * 10}′ radius on you (you're immune), Str check DC ${13 + strM} or knocked PRONE`], weapon: '+5 Hardness, +10 HP, and a magical +1 to hit on the engulfed weapon' },
   }[vn];
-  const card = (name, body, tip) => `<div class="m-3-0 cursor-help" title="${escapeHTML(tip)}"><b style="color:rgba(212,134,90,.95);">${name}</b> <span class="op-0_85">${body}</span></div>`;
+  const card = (name, body, tip) => `<div class="m-3-0 cursor-help" title="${escapeHTML(tip)}"><b style="color:rgb(var(--text-orange) / .95);">${name}</b> <span class="op-0_85">${body}</span></div>`;
   const rows = [`<div class="fs-10_5 c-g60 mb-5">${vn} · Elementalist ${ele} — all forms are AT-WILL (Su)${greater ? ' · Greater Elemental Adaptation active (7th)' : ''}. The Nimbus (1${ele >= 8 ? '-2' : ''}/day or 1 AP) is on the ☀ per-diem panel.</div>`];
   rows.push(card('Elemental Fist', `move action to invoke — ${V.fist}`, 'GMG p.165: the element engulfs your hand (harmless to you); your unarmed attack counts as ARMED. Also shown as an alt mode on the Gear tab’s unarmed row.'));
   if (ele >= 2) rows.push(card(vn === 'Vitrolian' ? 'Elemental Bolt (rider)' : 'Elemental Bolt', `${V.bolt} — usable once per attack: iteratives from high BA each carry one.`, 'GMG p.166: a full-attack Elementalist fires one bolt per attack.'));

@@ -188,9 +188,9 @@ function powerPrereqBadge(s, c) {
     const need = parseInt(m[1], 10);
     const have = (c && c.sixLevels && c.sixLevels.tech) || 0;
     const ok = have >= need;
-    return ` <span style="font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid ${ok ? 'rgba(212,184,112,.45)' : 'rgba(212,112,112,.6)'};color:${ok ? '#d4b870' : 'var(--red-text)'};margin-left:4px;cursor:help;" title="Prerequisite: ${escapeHTML(s.prerequisite)}${ok ? '' : ' — this scenario is Tech Scale ' + have + ': GM exception territory'}">⚙ Tech ${need}+${ok ? '' : ' ✗'}</span>`;
+    return ` <span style="font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid ${ok ? 'rgb(var(--line-amber) / .45)' : 'rgb(var(--line-red) / .6)'};color:${ok ? 'rgb(var(--text-amber))' : 'var(--red-text)'};margin-left:4px;cursor:help;" title="Prerequisite: ${escapeHTML(s.prerequisite)}${ok ? '' : ' — this scenario is Tech Scale ' + have + ': GM exception territory'}">⚙ Tech ${need}+${ok ? '' : ' ✗'}</span>`;
   }
-  return ` <span class="rounded-2 fs-9 p-1-5 ml-4 cursor-help" style="border:1px solid rgba(212,184,112,.45);color:#d4b870;" title="Prerequisite: ${escapeHTML(s.prerequisite)}">⚑ prereq</span>`;
+  return ` <span class="rounded-2 fs-9 p-1-5 ml-4 cursor-help" style="border:1px solid rgb(var(--line-amber) / .45);color:rgb(var(--text-amber));" title="Prerequisite: ${escapeHTML(s.prerequisite)}">⚑ prereq</span>`;
 }
 
 function spellStatLine(s) {
@@ -236,7 +236,7 @@ function renderPowers() {
         // GMG p.185), shared with the linked pool(s); the tooltip shows the
         // pool's own contribution.
         const blendBit = pp.blended
-          ? ` <span style="cursor:help;color:#c8b3e0;" title="Blended Technique (Theurge): ${pp.blended.join(' + ')} power points are ONE united pool — this figure is the shared total (this pool's own share: ${pp.ownCurrent}/${pp.ownMax}). Spend on either art; memorization draws from the union at dawn.">⚭</span>`
+          ? ` <span style="cursor:help;color:rgb(var(--text-lavender));" title="Blended Technique (Theurge): ${pp.blended.join(' + ')} power points are ONE united pool — this figure is the shared total (this pool's own share: ${pp.ownCurrent}/${pp.ownMax}). Spend on either art; memorization draws from the union at dawn.">⚭</span>`
           : '';
         // v8.34.0 (Adam's ruling): the per-spell-level split is ENFORCED at
         // add time (Gate 2.5) for matrix pools — the tooltip shows live
@@ -258,10 +258,10 @@ function renderPowers() {
         if (b.total !== null) {
           if (kbl.some(n => n > 0)) {
             splitBit = ' <span class="fs-11" style="opacity:.9;">— ' + kbl.map((n, i) => n > 0
-              ? `${ord(i)} ${pbl[i] || 0}/${n}${(pbl[i] || 0) < n ? ' <b style="color:#e0a94a;">⚠</b>' : ''}`
+              ? `${ord(i)} ${pbl[i] || 0}/${n}${(pbl[i] || 0) < n ? ' <b style="color:rgb(var(--text-marigold));">⚠</b>' : ''}`
               : null).filter(Boolean).join(' · ') + '</span>';
           } else if (b.picked < b.total) {
-            splitBit = ` <span class="fs-11" style="color:#e0a94a;">— ${b.total - b.picked} unpicked ⚠ <span class="op-0_75">(any mix up to ${ord(b.maxPowerLvl)})</span></span>`;
+            splitBit = ` <span class="fs-11" style="color:rgb(var(--text-marigold));">— ${b.total - b.picked} unpicked ⚠ <span class="op-0_75">(any mix up to ${ord(b.maxPowerLvl)})</span></span>`;
           }
         }
         return `<span class="ml-10">${pool}: <b class="cursor-help" title="${escapeHTML(knownTitle)}">${b.picked}${b.total !== null ? '/' + b.total : ''}</b> known${b.total === null ? ' (no limit)' : ''}${splitBit} · ${effBit}max ${pool === 'psionic' ? 'power' : 'spell'} lvl ${b.maxPowerLvl} · <b class="c-pb90">${pp.current}/${pp.max} PP</b>${blendBit}</span>`;
@@ -274,12 +274,12 @@ function renderPowers() {
   if (_pwMode === 'powers' && mpSt.isSuperMutant) {
     const spp = getSuperPPState(c);
     const owned = getCharPowers(c).filter(p => p.pool === 'super').length;
-    budgetHTML += `<span class="ml-10" style="color:#b58fd4;">super (${mpSt.tier ? mpSt.tier.tier : '?'}): <b>${owned}</b> owned · <span title="Effective Super Level (the HH’s ‘EML’): character level + Mutant level modifier — super-powers manifest at this level" class="cursor-help">ESL ${mpSt.eml}</span> · <b>${mpSt.balance} MP</b> banked · <b>${spp.current}/${spp.max} PP</b></span>`;
+    budgetHTML += `<span class="ml-10" style="color:rgb(var(--text-lilac));">super (${mpSt.tier ? mpSt.tier.tier : '?'}): <b>${owned}</b> owned · <span title="Effective Super Level (the HH’s ‘EML’): character level + Mutant level modifier — super-powers manifest at this level" class="cursor-help">ESL ${mpSt.eml}</span> · <b>${mpSt.balance} MP</b> banked · <b>${spp.current}/${spp.max} PP</b></span>`;
   }
   // v8.5.4 Layer 4: one-click new day (all pools + super PP; AP untouched —
   // those refresh only on level-up).
   if (Object.keys(budget).length || mpSt.isSuperMutant) {
-    budgetHTML += ` <button class="fs-10 ml-10 btn btn-sm" style="border-color:rgba(220,205,138,.5);color:#dccd8a;" title="New day: refill every PP pool, re-memorize prepared lists, refill super PP. Action Points do NOT refresh (level-up only)." onclick="fullyRested()">☀ Fully Rested</button>`;
+    budgetHTML += ` <button class="fs-10 ml-10 btn btn-sm" style="border-color:rgb(var(--line-khaki) / .5);color:rgb(var(--text-khaki));" title="New day: refill every PP pool, re-memorize prepared lists, refill super PP. Action Points do NOT refresh (level-up only)." onclick="fullyRested()">☀ Fully Rested</button>`;
   }
   document.getElementById('pw-budget-line').innerHTML = budgetHTML;
 
@@ -307,12 +307,12 @@ function renderPowers() {
     if (domOwned.has('Paladin')) for (const d of (c.paladinDomains || [])) domSources.push(['Paladin', d]);
   }
   domHost.innerHTML = domSources.length
-    ? `<div class="rounded-3 mt-8 p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(200,151,30,.18);">
+    ? `<div class="rounded-3 mt-8 p-7-10" style="background:rgb(var(--tint-black) / .18);border:1px solid rgb(var(--line-gold) / .18);">
         <div class="font-serif fs-10 uppercase ls-0_08em c-g70 mb-4">Domain Granted Powers</div>
         ${domSources.map(([cls, d]) => {
           const dd = DOMAINS_DB.find(x => x.name === d);
           if (!dd) return '';
-          return `<div class="fs-11 c-g70 m-3-0 lh-1_45"><b class="c-gold">${escapeHTML(d)}</b> <span class="fs-9 c-g45">(${cls})</span>${dd.prerequisite ? ` <span class="fs-10" style="color:#d4b870;">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>` : ''} — ${escapeHTML(dd.grantedPower)}</div>`;
+          return `<div class="fs-11 c-g70 m-3-0 lh-1_45"><b class="c-gold">${escapeHTML(d)}</b> <span class="fs-9 c-g45">(${cls})</span>${dd.prerequisite ? ` <span class="fs-10" style="color:rgb(var(--text-amber));">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>` : ''} — ${escapeHTML(dd.grantedPower)}</div>`;
         }).join('')}
       </div>`
     : '';
@@ -333,7 +333,7 @@ function renderPowers() {
         const s = byName[p.name];
         const key = p.name + '|' + p.pool;
         const open = _pwExpandedKnown.has(key);
-        const adv = (p.advisory ? ` <span class="fs-10 cursor-help" style="color:#d4b870;" title="${escapeHTML(p.advisory)}">⚠</span>` : '')
+        const adv = (p.advisory ? ` <span class="fs-10 cursor-help" style="color:rgb(var(--text-amber));" title="${escapeHTML(p.advisory)}">⚠</span>` : '')
           + (p.personal ? ` <span class="fs-10 c-vio cursor-help" title="Personal Domain spell — a permanent, deity-approved addition to this Saint’s spell list (HH).">✦ Personal</span>` : '');
         // v8.5.2 Phase D: Cast button with live PP cost; dimmed (not blocked
         // — insufficient-PP has its own GM-exception flow) when short.
@@ -351,10 +351,10 @@ function renderPowers() {
           const prepOnly = !isSuper && npInfo && (p.pool === 'arcane' || p.pool === 'divine') && routes.length
             && !spellPoolOptions(s, npInfo).some(o => o.pool === p.pool);
           castBtn = prepOnly
-            ? `<button class="btn btn-sm" style="font-size:10px;${short ? 'opacity:.55;' : 'border-color:rgba(220,205,138,.5);color:rgba(220,205,138,.95);'}" title="Prepared caster — memorize at dawn (spends the PP); cast the memorized instance from the Prepared Spells panel (no further PP)." onclick="memorizeKnownAt(${i})">🌅 Memorize ${cost} PP</button>`
-            : `<button class="btn btn-sm" style="font-size:10px;${short ? 'opacity:.55;' : (p.buff ? 'border-color:var(--g55);color:#d4b870;' : 'border-color:rgba(120,175,205,.5);color:rgba(120,175,205,.95);')}" title="${short ? 'Insufficient PP — casting will prompt for a GM exception' : (p.buff ? 'Perpetual Buff — always manifested at no PP; invoke to augment for a scene (the ⏻ suppression toggle lives on the Sheet ✨ panel)' : 'Cast / manifest')}" onclick="castPowerAt(${i})">${p.buff ? '◉' : '⚡'} ${cost} PP</button>`;
+            ? `<button class="btn btn-sm" style="font-size:10px;${short ? 'opacity:.55;' : 'border-color:rgb(var(--line-khaki) / .5);color:rgb(var(--text-khaki) / .95);'}" title="Prepared caster — memorize at dawn (spends the PP); cast the memorized instance from the Prepared Spells panel (no further PP)." onclick="memorizeKnownAt(${i})">🌅 Memorize ${cost} PP</button>`
+            : `<button class="btn btn-sm" style="font-size:10px;${short ? 'opacity:.55;' : (p.buff ? 'border-color:var(--g55);color:rgb(var(--text-amber));' : 'border-color:rgb(var(--line-sky) / .5);color:rgb(var(--text-sky) / .95);')}" title="${short ? 'Insufficient PP — casting will prompt for a GM exception' : (p.buff ? 'Perpetual Buff — always manifested at no PP; invoke to augment for a scene (the ⏻ suppression toggle lives on the Sheet ✨ panel)' : 'Cast / manifest')}" onclick="castPowerAt(${i})">${p.buff ? '◉' : '⚡'} ${cost} PP</button>`;
         }
-        return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
+        return `<div class="p-6-9" style="border-bottom:1px solid rgb(var(--line-gold) / .08);">
           <div class="justify-between items-center gap-6" style="display:flex;">
             <div class="cursor-pointer flex-1" onclick="togglePwKnownDetail('${escapeHTML(key).replace(/'/g, "\\'")}')"><b>${escapeHTML((s && p.token) ? displayNameForRoute(s, {token: p.token, lvl: p.lvl, pool: p.pool, applies: p.applies}) : p.name)}</b>${(s && p.token && displayNameForRoute(s, {token: p.token, lvl: p.lvl, pool: p.pool, applies: p.applies}) !== p.name) ? ` <span class="fs-10 o-50 c-dim">(${escapeHTML(p.name)})</span>` : ''} <span class="fs-10 o-60 c-dim">(${p.pool})</span>${adv}${s ? powerPrereqBadge(s, c) : ''} <span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span></div>
             ${castBtn}
@@ -456,12 +456,12 @@ function renderPowersBrowse() {
           const label = `${o.pool}${o.overMax ? '↑' : ''}` + (nm !== primaryName ? ` · ${nm}` : '');
           if (tagSeen.has(label)) return '';
           tagSeen.add(label);
-          return `<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);margin-left:4px;" title="${o.overMax ? 'above this pool’s max castable level (GM exception to add)' : 'castable via this pool'}${nm !== s.name ? ' — this source knows it as “' + escapeHTML(nm) + '”' : ''}">${escapeHTML(label)}</span>`;
+          return `<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgb(var(--tint-sky) / .12);border:1px solid rgb(var(--line-sky) / .3);margin-left:4px;" title="${o.overMax ? 'above this pool’s max castable level (GM exception to add)' : 'castable via this pool'}${nm !== s.name ? ' — this source knows it as “' + escapeHTML(nm) + '”' : ''}">${escapeHTML(label)}</span>`;
         }).join('')
       : `<span class="fs-9 op-0_4 ml-4">not on your lists</span>`;
     const allKnown = opts.length && opts.every(o => knownKeys.has(s.name + '|' + o.pool));
     const addBtn = opts.length
-      ? (allKnown ? `<span class="fs-10" style="color:#6dba88;">✓ known</span>` : `<button class="fs-10 btn btn-sm btn-pri" onclick="addPowerFromBrowse(${i})">+ Add</button>`)
+      ? (allKnown ? `<span class="fs-10" style="color:rgb(var(--text-green));">✓ known</span>` : `<button class="fs-10 btn btn-sm btn-pri" onclick="addPowerFromBrowse(${i})">+ Add</button>`)
       : '';
     // v8.5.3: super-power purchase — spend banked MP for a permanent
     // supernatural ability (HH p.422). Eligibility gated by tier caps.
@@ -469,7 +469,7 @@ function renderPowersBrowse() {
     let buyBtn = '';
     if (_pwMode === 'powers') {
       if (knownKeys.has(s.name + '|super')) {
-        buyBtn = `<span class="fs-10" style="color:#b58fd4;">◈ owned</span>`;
+        buyBtn = `<span class="fs-10" style="color:rgb(var(--text-lilac));">◈ owned</span>`;
       } else {
         const elig = superBuyEligibility(c, s);
         // v8.75.0: the suite discount (HH p.670, Adam's ruling) shows on the
@@ -478,7 +478,7 @@ function renderPowersBrowse() {
         // prompts which rung (HH p.424 prices — the seller's-market ladder).
         const _rLo = elig.rungs ? elig.rungs[0][1] : null, _rHi = elig.rungs ? elig.rungs[elig.rungs.length - 1][1] : null;
         const _buyLabel = elig.rungs ? (_rLo === _rHi ? `◈ Buy ${Math.max(1, _rLo - (elig.suite ? 1 : 0))} MP` : `◈ Buy ${Math.max(1, _rLo - (elig.suite ? 1 : 0))}–${Math.max(1, _rHi - (elig.suite ? 1 : 0))} MP`) : `◈ Buy ${elig.mp} MP`;
-        if (elig.ok) buyBtn = `<button class="fs-10 btn btn-sm" style="border-color:rgba(181,143,212,.5);color:#b58fd4;" title="Buy as a permanent super-power (spends banked MP)${elig.rungs ? ` — PRICED BY RUNG (HH p.424, the seller's-market ladder): ${elig.rungs.map(r => `${r[0]} ${r[1]} MP`).join(' · ')}${elig.rungsBlocked ? ` — ${elig.rungsBlocked} higher rung${elig.rungsBlocked === 1 ? '' : 's'} beyond your tier's per-power cap` : ''}. You choose the rung when buying; the full scaling capability costs its full upfront price.` : ''}${elig.suite ? ` — SUITE DISCOUNT: you own ${elig.suiteOwned} ${escapeHTML(elig.suite)} powers, so this costs ${elig.mp} MP instead of ${elig.mpBase} (HH p.670: two powers from one suite make further suite powers 1 MP less)` : ''}${elig.via ? ` — priced as its parent power, ${elig.via}` : ''}" onclick="buySuperPower(${i})">${_buyLabel}${elig.suite ? ` <span class="op-0_85" style="font-size:8px;">(suite −1)</span>` : ''}</button>`;
+        if (elig.ok) buyBtn = `<button class="fs-10 btn btn-sm" style="border-color:rgb(var(--line-lilac) / .5);color:rgb(var(--text-lilac));" title="Buy as a permanent super-power (spends banked MP)${elig.rungs ? ` — PRICED BY RUNG (HH p.424, the seller's-market ladder): ${elig.rungs.map(r => `${r[0]} ${r[1]} MP`).join(' · ')}${elig.rungsBlocked ? ` — ${elig.rungsBlocked} higher rung${elig.rungsBlocked === 1 ? '' : 's'} beyond your tier's per-power cap` : ''}. You choose the rung when buying; the full scaling capability costs its full upfront price.` : ''}${elig.suite ? ` — SUITE DISCOUNT: you own ${elig.suiteOwned} ${escapeHTML(elig.suite)} powers, so this costs ${elig.mp} MP instead of ${elig.mpBase} (HH p.670: two powers from one suite make further suite powers 1 MP less)` : ''}${elig.via ? ` — priced as its parent power, ${elig.via}` : ''}" onclick="buySuperPower(${i})">${_buyLabel}${elig.suite ? ` <span class="op-0_85" style="font-size:8px;">(suite −1)</span>` : ''}</button>`;
         // v8.79.0 (Adam's Rhad shopping report): a blocked row now SAYS WHY
         // — a dimmed dashed chip with the gate (tier level band, per-power
         // MP cap, feat, scenario), and the tier ladder in the hover so the
@@ -490,11 +490,11 @@ function renderPowersBrowse() {
             : /Supernatural Mutation/.test(w) ? 'needs Su Mutation'
             : /Mutation Scale/.test(w) ? 'needs Mut 5 scenario'
             : 'not buyable';
-          buyBtn = `<span class="rounded-2 fs-9 p-2-6 nowrap cursor-help" style="color:var(--tp55);border:1px dashed rgba(181,143,212,.3);" title="Not buyable yet — ${escapeHTML(w)}. The shopping window follows your CLASSIFICATION, which tracks TOTAL MP earned (+1 Mutant level per full 10 — Adam's unification ruling, HH p.423): Minor <10 MP (lvl 1-3, ≤6 MP/power) · Moderate 10+ (1-5, ≤10) · Major 20+ (1-9, ≤20) · Mega 30+ (1-9, uncapped). Earn MP across a threshold and the window widens automatically; the Mutation Scale caps the total (GMG pp.64-66).">◈ ${escapeHTML(short)}</span>`;
+          buyBtn = `<span class="rounded-2 fs-9 p-2-6 nowrap cursor-help" style="color:var(--tp55);border:1px dashed rgb(var(--line-lilac) / .3);" title="Not buyable yet — ${escapeHTML(w)}. The shopping window follows your CLASSIFICATION, which tracks TOTAL MP earned (+1 Mutant level per full 10 — Adam's unification ruling, HH p.423): Minor <10 MP (lvl 1-3, ≤6 MP/power) · Moderate 10+ (1-5, ≤10) · Major 20+ (1-9, ≤20) · Mega 30+ (1-9, uncapped). Earn MP across a threshold and the window widens automatically; the Mutation Scale caps the total (GMG pp.64-66).">◈ ${escapeHTML(short)}</span>`;
         }
       }
     }
-    return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
+    return `<div class="p-6-9" style="border-bottom:1px solid rgb(var(--line-gold) / .08);">
       <div class="justify-between items-center gap-6" style="display:flex;">
         <div class="cursor-pointer flex-1" onclick="togglePwBrowseDetail(${i})"><b>${escapeHTML(primaryName)}</b>${secondary}${poolTags}${powerPrereqBadge(s, c)} <span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span></div>
         ${buyBtn}
@@ -514,7 +514,7 @@ function renderPowersBrowse() {
           if (n === 1) return `<span title="Own one more ${escapeHTML(th)} power to unlock the suite discount (−1 MP on further ${escapeHTML(th)} purchases, HH p.670).">${escapeHTML(th)} (1/2)</span>`;
           return escapeHTML(th);
         });
-        return `<div class="fs-10 mt-4" style="color:#b58fd4;" title="Super-Power Suites by Theme (HH Ch.XI). Own two powers from one suite and further powers from that suite cost 1 MP less.">◈ Suites: ${bits.join(' · ')}</div>`; })()}` : ''}
+        return `<div class="fs-10 mt-4" style="color:rgb(var(--text-lilac));" title="Super-Power Suites by Theme (HH Ch.XI). Own two powers from one suite and further powers from that suite cost 1 MP less.">◈ Suites: ${bits.join(' · ')}</div>`; })()}` : ''}
     </div>`;
   }).join('') || `<div class="p-0_9rem fs-12 c-g45 text-center">Nothing matches the current filters.</div>`)
   + (_pwBrowseList.length > CAP ? `<div class="p-6-9 fs-11 c-g50 text-center">…and ${_pwBrowseList.length - CAP} more — refine the filters to see them.</div>` : '');

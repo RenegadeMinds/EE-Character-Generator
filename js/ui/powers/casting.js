@@ -41,7 +41,7 @@ function openCastOptions(ctx) {
       const powerKind = pool === 'psionic' || pool === 'super';
       return `<label style="display:flex;gap:6px;align-items:baseline;font-size:12px;margin:2px 0;${ok ? '' : 'opacity:.45;'}">
         <input type="${powerKind ? 'radio' : 'checkbox'}" name="co-meta${powerKind ? '-radio' : '-' + i}" data-i="${i}" ${ok ? '' : 'disabled'} onchange="__coUpdate()">
-        <span>${m.name} <b class="c-gold">${m.pp ? '+' + m.pp + ' PP' : 'no PP'}</b>${powerKind ? ' <span class="fs-10" style="color:#78afcd;">+ focus</span>' : ''}
+        <span>${m.name} <b class="c-gold">${m.pp ? '+' + m.pp + ' PP' : 'no PP'}</b>${powerKind ? ' <span class="fs-10" style="color:rgb(var(--text-sky));">+ focus</span>' : ''}
         <span class="op-0_65 fs-10_5"> — ${ok ? m.fx : '✗ ' + (m.why || 'not applicable')}</span></span></label>`;
     }).join('');
     const heightenRow = canHeighten ? `<div class="fs-12 m-4-0">Heighten Spell to level
@@ -61,14 +61,14 @@ function openCastOptions(ctx) {
     : aug ? `<div class="m-4-0 fs-12">Augment: +<input type="number" id="co-aug" value="0" min="0" step="${aug.step || 1}" style="width:64px;" oninput="__coUpdate()"> PP
       ${aug.step ? `<span class="op-0_65 fs-10_5">(steps of ${aug.step})</span>` : ''}
       <div class="fs-10_5 c-g70 mt-2" style="max-height:70px;overflow:auto;">${escapeHTML(aug.text)}</div></div>` : '';
-    host.innerHTML = `<div class="items-center" style="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)__coDone(false)">
-      <div class="rounded-6" style="background:#161210;border:1px solid rgba(200,151,30,.5);padding:14px 18px;max-width:520px;width:92%;max-height:82vh;overflow:auto;">
+    host.innerHTML = `<div class="items-center" style="position:fixed;inset:0;background:rgb(var(--tint-black) / .72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)__coDone(false)">
+      <div class="rounded-6" style="background:rgb(var(--tint-night2));border:1px solid rgb(var(--line-gold) / .5);padding:14px 18px;max-width:520px;width:92%;max-height:82vh;overflow:auto;">
         <div class="font-serif c-gold mb-6" style="font-size:15px;">${prep ? '📜' : '⚡'} ${escapeHTML(spell.name)} — ${prep ? 'memorization options' : 'cast options'}</div>
         <div class="fs-11_5 c-g70 mb-6">Base ${baseCost} PP (level ${lvl}${isBuff ? ', Buff — 0 PP unaugmented' : ''}) · cap: total ≤ ${capLabel} ${cap}<span id="co-capnote"></span></div>
-        ${prep ? `<div class="fs-10_5 mb-6" style="color:#d4b870;">Prepared casting: ALL Magic-feat and augment costs are paid NOW, at memorization — this particular instance then casts at no PP with everything baked in (a Quickened instance casts as a swift action). Other instances of the same spell memorize at their standard cost unless likewise declared.</div>` : ''}
+        ${prep ? `<div class="fs-10_5 mb-6" style="color:rgb(var(--text-amber));">Prepared casting: ALL Magic-feat and augment costs are paid NOW, at memorization — this particular instance then casts at no PP with everything baked in (a Quickened instance casts as a swift action). Other instances of the same spell memorize at their standard cost unless likewise declared.</div>` : ''}
         ${augRow}${metaRows ? `<div class="m-4-0"><div class="fs-10 c-bronze uppercase ls-0_05em">${pool === 'psionic' || pool === 'super' ? 'Power feats (one per manifestation — one focus)' : 'Magic feats'}</div>${metaRows}</div>` : ''}
         ${heightenRow}${ocRow}
-        ${spont.any && (pool === 'arcane' || pool === 'divine') ? `<div class="fs-10_5 m-4-0" style="color:#d4b870;">Spontaneous casting (Saint/Sorcerer/Bard): any Magic feat escalates the cast to a full-round action; Quicken Spell is barred on spontaneous casts (HH pp.238/340).</div>` : ''}
+        ${spont.any && (pool === 'arcane' || pool === 'divine') ? `<div class="fs-10_5 m-4-0" style="color:rgb(var(--text-amber));">Spontaneous casting (Saint/Sorcerer/Bard): any Magic feat escalates the cast to a full-round action; Quicken Spell is barred on spontaneous casts (HH pp.238/340).</div>` : ''}
         <div id="co-total" class="fs-13" style="margin:8px 0 4px;color:var(--gold);"></div>
         <div class="gap-8 justify-end" style="display:flex;">
           <button class="btn btn-sm" onclick="__coDone(false)">Cancel</button>
@@ -332,19 +332,19 @@ function renderCastResult(r) {
   else if (r.spell.save) bits.push(`<b>Save:</b> ${escapeHTML(r.spell.save)}`);
   if (r.spell.resistance) bits.push(`<b>SR/PR:</b> ${escapeHTML(r.spell.resistance)}`);
   // v8.21.0 Segments B & C: what this cast actually applied.
-  if (r.heightened) bits.push(`<b style="color:#78afcd;">Heightened</b> to level ${r.lvl} (from ${r.baseLvl}) — DC and level-dependent effects use ${r.lvl}`);
+  if (r.heightened) bits.push(`<b style="color:rgb(var(--text-sky));">Heightened</b> to level ${r.lvl} (from ${r.baseLvl}) — DC and level-dependent effects use ${r.lvl}`);
   if (r.augFx) {
     // v8.44.0: itemized option receipt when the split was declared.
     const optTail = (r.augFx.optBits && r.augFx.optBits.length) ? ` · ${r.augFx.optBits.map(escapeHTML).join(' · ')}` : '';
-    bits.push(`<b style="color:#78afcd;">Augmented +${r.augFx.extra} PP</b>${r.augFx.dice ? ` — +${r.augFx.dice.n}d${r.augFx.dice.d} ${r.augFx.label}${r.augFx.dcAdd ? `, save DC +${r.augFx.dcAdd} (already included)` : ''}${optTail}` : (optTail ? ` —${optTail}` : ` — <span class="op-0_8">${escapeHTML(r.augFx.text.slice(0, 160))}${r.augFx.text.length > 160 ? '…' : ''}</span>`)}`);
+    bits.push(`<b style="color:rgb(var(--text-sky));">Augmented +${r.augFx.extra} PP</b>${r.augFx.dice ? ` — +${r.augFx.dice.n}d${r.augFx.dice.d} ${r.augFx.label}${r.augFx.dcAdd ? `, save DC +${r.augFx.dcAdd} (already included)` : ''}${optTail}` : (optTail ? ` —${optTail}` : ` — <span class="op-0_8">${escapeHTML(r.augFx.text.slice(0, 160))}${r.augFx.text.length > 160 ? '…' : ''}</span>`)}`);
   }
   for (const m of (r.metasApplied || [])) bits.push(`<b class="c-vio">${m.name}</b> — ${escapeHTML(m.fx || '')}${m.pp ? ` (+${m.pp} PP, included)` : ''}`);
   // v8.25.0: Mental Pinnacle's chosen modes (HH p.574 — five attack/defense
   // pairs + one floater; the pairing guarantees at least one of each).
   if (r.mpPicks) bits.push(`<b class="c-vio">🧠 Modes (6):</b> ${r.mpPicks.map(n => escapeHTML(n)).join(', ')}${r.buff ? ' <span class="op-0_7">(permanent — Super-Power)</span>' : ''} · +4 inherent Int/Wis/Cha (min 15 each) · +2 bonus PP per CL · manifest the modes as a Psion of your CL · Divine variant: other spellcasting locked (Mind domain excepted)`);
   if (r.focusNote) bits.push(`<b>Focus:</b> ${escapeHTML(r.focusNote)}`);
-  if (r.ocBoost) bits.push(`<b style="color:#d4865a;">Overchannel +${r.ocBoost} EPL</b> — took ${r.ocResult.total} damage (${r.ocResult.rolls.join('+')})`);
-  if (r.spontMeta) bits.push(`<b style="color:#d4b870;">Casting time escalates to a full-round action</b> (Magic feat on a spontaneous cast — HH p.340)`);
+  if (r.ocBoost) bits.push(`<b style="color:rgb(var(--text-orange));">Overchannel +${r.ocBoost} EPL</b> — took ${r.ocResult.total} damage (${r.ocResult.rolls.join('+')})`);
+  if (r.spontMeta) bits.push(`<b style="color:rgb(var(--text-amber));">Casting time escalates to a full-round action</b> (Magic feat on a spontaneous cast — HH p.340)`);
   // v8.5.4 EAL pass: feat/feature riders that modify the effective level or
   // its checks at cast time — surfaced so the table can apply them.
   const cc = chars.find(x => x.id === curId);

@@ -52,8 +52,8 @@ function renderClassSubOptions(){
     if (techZero && !so.druidOption) {
       // v8.5.4: availability-table footnote — at Tech 0 the base Cleric is
       // unavailable; only the Druid Option qualifies.
-      blocks.push(`<div class="sub-opt-block" style="border-left-color:#d4b870;">
-        <div class="fs-11" style="color:#d4b870;">⚠ Tech Scale 0 scenario: the base Cleric is unavailable — only the <b>Druid Option</b> below qualifies (HH availability table). Enable it, or this will be recorded as a GM exception at save.</div>
+      blocks.push(`<div class="sub-opt-block" style="border-left-color:rgb(var(--line-amber));">
+        <div class="fs-11" style="color:rgb(var(--text-amber));">⚠ Tech Scale 0 scenario: the base Cleric is unavailable — only the <b>Druid Option</b> below qualifies (HH availability table). Enable it, or this will be recorded as a GM exception at save.</div>
       </div>`);
     }
     blocks.push(`<div class="sub-opt-block">
@@ -63,7 +63,7 @@ function renderClassSubOptions(){
         <b>The Druid Option</b> — trade Turn Undead + both Domains for the Druid spell list, Animal Companion, Wild Empathy, Woodland Stride (3rd), Wildshape (5th)
       </label>
       ${so.druidOption
-        ? `<div class="fs-11 c-g60 mt-4">Adds Knowledge (Nature) &amp; Survival as class skills. No metal weapons/armor.${alignOk?'':' <span style="color:#d4b870;">⚠ Druids require a Neutral alignment component — current alignment doesn’t qualify (GM confirm).</span>'}</div>`
+        ? `<div class="fs-11 c-g60 mt-4">Adds Knowledge (Nature) &amp; Survival as class skills. No metal weapons/armor.${alignOk?'':' <span style="color:rgb(var(--text-amber));">⚠ Druids require a Neutral alignment component — current alignment doesn’t qualify (GM confirm).</span>'}</div>`
         : `<div class="gap-8 mt-6 items-center flex-wrap" style="display:flex;">
             <span class="fs-11 c-g65">Domains (choose 2):</span>
             <select onchange="onSubOptDomain('clericDomains', 0, this.value)">${domainOpts(so.clericDomains[0]||'')}</select>
@@ -71,7 +71,7 @@ function renderClassSubOptions(){
           </div>
           ${(so.clericDomains||[]).filter(Boolean).map(d => {
             const dd = DOMAINS_DB.find(x => x.name === d);
-            return dd ? `<div class="fs-10_5 c-g50 mt-3"><b class="c-g70">${d}:</b> ${escapeHTML(dd.grantedPower.slice(0,180))}${dd.grantedPower.length>180?'…':''}${dd.prerequisite?` <span style="color:#d4b870;">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>`:''}</div>` : '';
+            return dd ? `<div class="fs-10_5 c-g50 mt-3"><b class="c-g70">${d}:</b> ${escapeHTML(dd.grantedPower.slice(0,180))}${dd.grantedPower.length>180?'…':''}${dd.prerequisite?` <span style="color:rgb(var(--text-amber));">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>`:''}</div>` : '';
           }).join('')}`}
     </div>`);
   }
@@ -201,7 +201,7 @@ function renderClassList(){
   // versatile per decision 5.
   const isL1Genesis = editId === null;
   if(formClasses.length===0){
-    list.innerHTML=`<div class="rounded-3 p-1rem text-center c-g40 italic" style="border:1px dashed rgba(200,151,30,.2);">No classes added yet — click "+ Add Class" to begin.</div>`;
+    list.innerHTML=`<div class="rounded-3 p-1rem text-center c-g40 italic" style="border:1px dashed rgb(var(--line-gold) / .2);">No classes added yet — click "+ Add Class" to begin.</div>`;
   } else {
     list.innerHTML=formClasses.map((e,i)=>{
       const cls=getClassEntry(e);
@@ -360,7 +360,7 @@ function updateAddClassWarnings(){
   // already delegates to hasCareerPathLockingLevel so this fires only when a
   // Basic/Advanced/Prestige level is present, never for pure-Ordinary.
   if(tier==='hero' && hasNonHeroEntry()){
-    warnings.push(`<span style="color:#d4b870;">⚠ Career Path rule: per the handbook, no NEW Hero classes can be picked up after taking a non-Hero level (Ordinary levels excepted). You can still save with this — flag the GM if they're granting an exception.</span>`);
+    warnings.push(`<span style="color:rgb(var(--text-amber));">⚠ Career Path rule: per the handbook, no NEW Hero classes can be picked up after taking a non-Hero level (Ordinary levels excepted). You can still save with this — flag the GM if they're granting an exception.</span>`);
   }
   // Attribute prereq — Hero classes need 13; Basic classes Cleric/Paladin/Saint/
   // Psion/Wizard/Sorcerer/Wilder need 10 in their key attribute (handbook
@@ -382,7 +382,7 @@ function updateAddClassWarnings(){
         if (score < cls.attrMin) {
           const label = `${code} ${cls.attrMin}+`;
           const scoreStr = `${code} ${score}`;
-          warnings.push(`<span style="color:#e08080;">⚠ Attribute prereq unmet (HH p.52): ${escapeHTML(name)} requires <b>${escapeHTML(label)}</b>; you have ${escapeHTML(scoreStr)}. You can still save — this will be recorded as a GM exception.</span>`);
+          warnings.push(`<span style="color:rgb(var(--text-salmon));">⚠ Attribute prereq unmet (HH p.52): ${escapeHTML(name)} requires <b>${escapeHTML(label)}</b>; you have ${escapeHTML(scoreStr)}. You can still save — this will be recorded as a GM exception.</span>`);
         }
       }
     }

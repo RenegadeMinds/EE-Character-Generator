@@ -38,7 +38,7 @@ function renderConds(c){
         || (c.talents || []).some(t => TALENTS_DB.find(x => x.n === (t.name || t.n) && /Super-Talent/.test(x.tier || '')))
         || (c.powers || []).some(p => p.pool === 'super');
       nfEl.innerHTML = hasSu
-        ? `<button class="ilbtn" style="${c.nullified ? 'border-color:rgba(212,112,112,.7);color:var(--red-text);' : 'opacity:.7;'}" title="${c.nullified ? 'Null Power Field active — all Supernatural modifiers suppressed (Su ability bakes, Bulletproof, Hyper-Speed, Energy Immunity, Super-Smash, ✨ buffs). Click to restore.' : 'Simulate a Null Power Field: suppress ALL Supernatural modifiers, reducing the character to natural + Extraordinary. Rage still works (Ex).'}" onclick="toggleNullified()">⊘ Nullified${c.nullified ? ' ✓' : '?'}</button>`
+        ? `<button class="ilbtn" style="${c.nullified ? 'border-color:rgb(var(--line-red) / .7);color:var(--red-text);' : 'opacity:.7;'}" title="${c.nullified ? 'Null Power Field active — all Supernatural modifiers suppressed (Su ability bakes, Bulletproof, Hyper-Speed, Energy Immunity, Super-Smash, ✨ buffs). Click to restore.' : 'Simulate a Null Power Field: suppress ALL Supernatural modifiers, reducing the character to natural + Extraordinary. Rage still works (Ex).'}" onclick="toggleNullified()">⊘ Nullified${c.nullified ? ' ✓' : '?'}</button>`
         : '';
     }
     // v8.63.0: ⚡ Reckless Offense declared stance — feat-gated, lit red
@@ -47,7 +47,7 @@ function renderConds(c){
     if (roEl) {
       const roOn = combatDecl(c).ro;
       roEl.innerHTML = ownsFeatN(c, 'Reckless Offense')
-        ? `<button class="ilbtn" style="${roOn ? 'border-color:rgba(212,112,112,.7);color:var(--red-text);' : 'opacity:.7;'}" title="${roOn ? 'Reckless Offense declared — +2 on melee attack rolls incl. Grapple (a grapple check is like a melee attack roll), −4 AC (HH p.239). Base Attack and the iterative ladder untouched. Click to withdraw the stance.' : 'Declare Reckless Offense: take −4 AC for +2 on melee attack rolls (HH p.239) — Grapple included; never ranged. A set-point stance — holds until re-declared. Never touches Base Attack (no extra iterative attacks).'}" onclick="toggleRecklessOffense()">⚡ Reckless${roOn ? ' ✓' : '?'}</button>`
+        ? `<button class="ilbtn" style="${roOn ? 'border-color:rgb(var(--line-red) / .7);color:var(--red-text);' : 'opacity:.7;'}" title="${roOn ? 'Reckless Offense declared — +2 on melee attack rolls incl. Grapple (a grapple check is like a melee attack roll), −4 AC (HH p.239). Base Attack and the iterative ladder untouched. Click to withdraw the stance.' : 'Declare Reckless Offense: take −4 AC for +2 on melee attack rolls (HH p.239) — Grapple included; never ranged. A set-point stance — holds until re-declared. Never touches Base Attack (no extra iterative attacks).'}" onclick="toggleRecklessOffense()">⚡ Reckless${roOn ? ' ✓' : '?'}</button>`
         : '';
     }
     // v8.77.0 (Adam's Sheet polish): ⚡ Euphoric's TRIGGER moved here from
@@ -58,7 +58,7 @@ function renderConds(c){
     if (euEl) {
       const euB = euphoriacBonus(c);
       euEl.innerHTML = euB
-        ? `<button class="ilbtn" style="${c.euphoric ? 'border-color:rgba(120,175,205,.7);color:#78afcd;' : 'opacity:.7;'}" title="${c.euphoric ? `Euphoric — +${euB} morale on attack rolls, damage rolls, and saving throws (baked into the Sheet). Lasts (wild-surge intensity) rounds. Click when it fades.` : `Euphoriac (Ex, Wilder): after invoking a wild surge without neuralgia, gain +${euB} morale on attack, damage, and saves for (surge intensity) rounds. Click to declare it.`}" onclick="toggleEuphoric()">⚡ Euphoric${c.euphoric ? ' ✓' : '?'}</button>`
+        ? `<button class="ilbtn" style="${c.euphoric ? 'border-color:rgb(var(--line-sky) / .7);color:rgb(var(--text-sky));' : 'opacity:.7;'}" title="${c.euphoric ? `Euphoric — +${euB} morale on attack rolls, damage rolls, and saving throws (baked into the Sheet). Lasts (wild-surge intensity) rounds. Click when it fades.` : `Euphoriac (Ex, Wilder): after invoking a wild surge without neuralgia, gain +${euB} morale on attack, damage, and saves for (surge intensity) rounds. Click to declare it.`}" onclick="toggleEuphoric()">⚡ Euphoric${c.euphoric ? ' ✓' : '?'}</button>`
         : '';
     }
   }
@@ -95,7 +95,7 @@ function renderConds(c){
         const data = CONDITIONS_DATA[co];
         if(!data){
           // Unrecognized condition — preserve it, but flag it
-          return `<div class="mb-8 p-8-10 rounded-2" style="background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);">
+          return `<div class="mb-8 p-8-10 rounded-2" style="background:rgb(var(--tint-gold) / .04);border-left:2px solid rgb(var(--line-gold) / .3);">
             <div class="fw-600 c-gold fs-12 mb-3">${escapeHTML(co)}</div>
             <div class="fs-11 c-g55 italic">No reference data found for this condition. See the Hero's Handbook condition appendix.</div>
           </div>`;
@@ -117,7 +117,7 @@ function renderConds(c){
         const descHtml = escapeHTML(data.desc).replace(/\n\n/g, `</p><p style="${paraCSSNext}">`);
         const cit = data.citation ? `<span class="fs-10 c-g40 italic ml-6">(${data.citation.book} p.${data.citation.page})</span>` : '';
         return `
-          <div style="margin-bottom:8px;padding:9px 11px;background:rgba(200,151,30,.04);border-left:3px solid ${style.border};border-radius:2px;">
+          <div style="margin-bottom:8px;padding:9px 11px;background:rgb(var(--tint-gold) / .04);border-left:3px solid ${style.border};border-radius:2px;">
             <div class="mb-5 fs-12"><span style="${titleCSS}">${escapeHTML(co)}</span> <span class="fs-10 c-g45 uppercase ls-0_04em ml-4">${style.label}</span>${cit}</div>
             <p style="${paraCSS}">${descHtml}</p>
           </div>`;

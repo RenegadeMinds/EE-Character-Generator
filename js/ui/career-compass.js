@@ -67,37 +67,37 @@ function renderCareerCompass(c) {
         `<option value="${esc(n)}"${st && st.goal === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</optgroup>`).join('')}
     </select>`;
     if (!st) {
-      slot.innerHTML = `<div class="rounded-3 items-center gap-8 p-5-10 fs-11 c-g60" style="display:inline-flex;border:1px dashed rgba(200,151,30,.3);">
+      slot.innerHTML = `<div class="rounded-3 items-center gap-8 p-5-10 fs-11 c-g60" style="display:inline-flex;border:1px dashed rgb(var(--line-gold) / .3);">
         ⭐ Career Compass ${selHTML}</div>`;
       return;
     }
     if (st.invalid) {
-      slot.innerHTML = `<div class="rounded-3 p-5-10 fs-11 c-red-text" style="border:1px solid rgba(212,112,112,.3);">
+      slot.innerHTML = `<div class="rounded-3 p-5-10 fs-11 c-red-text" style="border:1px solid rgb(var(--line-red) / .3);">
         ⭐ Career goal "${esc(st.goal)}" not found (renamed?). <button class="fs-10 btn btn-sm" onclick="setCareerGoal('')">Clear</button></div>`;
       return;
     }
     const tierLabel = {advanced:'Advanced', prestige:'Prestige', hero:'Hero', basic:'Basic', ordinary:'Ordinary'}[st.tier] || st.tier;
     let statusChip;
-    if (st.owned) statusChip = `<span class="bold" style="color:#6dba88;">🎉 ACHIEVED</span>`;
-    else if (st.met) statusChip = `<span class="bold" style="color:#6dba88;">✓ UNLOCKED — take your first level!</span>`;
+    if (st.owned) statusChip = `<span class="bold" style="color:rgb(var(--text-green));">🎉 ACHIEVED</span>`;
+    else if (st.met) statusChip = `<span class="bold" style="color:rgb(var(--text-green));">✓ UNLOCKED — take your first level!</span>`;
     else statusChip = `<span class="c-g85">${st.metCount}/${st.totalCount} met · earliest entry ~level ${st.earliest}${st.gmGated ? ' + GM gate' : ''} <span class="o-55 c-dim">(best case)</span></span>`;
     const arrow = _compassExp() ? '▾' : '▸';
-    let html = `<div class="rounded-3 fs-12" style="border:1px solid rgba(125,170,220,.35);background:rgba(125,170,220,.05);">
+    let html = `<div class="rounded-3 fs-12" style="border:1px solid rgb(var(--line-blue) / .35);background:rgb(var(--tint-blue) / .05);">
       <div class="items-center gap-8 p-6-10 flex-wrap" style="display:flex;">
-        <span onclick="toggleCompass()" class="cursor-pointer font-serif ls-0_05em" style="color:#7daadc;">${arrow} ⭐ Career Compass:</span>
+        <span onclick="toggleCompass()" class="cursor-pointer font-serif ls-0_05em" style="color:rgb(var(--text-blue));">${arrow} ⭐ Career Compass:</span>
         <b class="c-gold">${esc(st.goal)}</b>
         <span class="fs-10 uppercase ls-0_04em" style="color:var(--tk80);">${tierLabel}</span>
         ${statusChip}
         <button class="fs-10 p-2-7 ml-auto btn btn-sm" onclick="setCareerGoal('')" title="Clear the career goal">✕ Clear</button>
       </div>`;
     if (_compassExp()) {
-      html += `<div class="p-8-12" style="border-top:1px solid rgba(125,170,220,.2);">`;
+      html += `<div class="p-8-12" style="border-top:1px solid rgb(var(--line-blue) / .2);">`;
       if (st.owned) {
-        html += `<div style="color:#6dba88;">The path is walked — <b>${esc(st.goal)}</b> is on your class list. Set a new goal whenever the next horizon calls.</div>`;
+        html += `<div style="color:rgb(var(--text-green));">The path is walked — <b>${esc(st.goal)}</b> is on your class list. Set a new goal whenever the next horizon calls.</div>`;
       } else {
         for (const g of st.groups) {
           if (g.met) {
-            html += `<div class="p-2-0" style="color:#6dba88;">✓ <span class="op-0_75">${esc(g.options.map(o => o.desc).join(' or '))}</span></div>`;
+            html += `<div class="p-2-0" style="color:rgb(var(--text-green));">✓ <span class="op-0_75">${esc(g.options.map(o => o.desc).join(' or '))}</span></div>`;
             continue;
           }
           const allGM = g.options.every(o => o.kind !== 'build');
@@ -111,8 +111,8 @@ function renderCareerCompass(c) {
         // Advisor line — greedy, one step, reasons shown.
         const adv = careerNextStep(c, st);
         if (adv && adv.top) {
-          html += `<div class="mt-8 p-6-8 rounded-3 fs-11_5" style="background:rgba(125,170,220,.08);">
-            <span style="color:#7daadc;">Suggested next step:</span> <b class="c-gold">${esc(adv.top.name)}</b>
+          html += `<div class="mt-8 p-6-8 rounded-3 fs-11_5" style="background:rgb(var(--tint-blue) / .08);">
+            <span style="color:rgb(var(--text-blue));">Suggested next step:</span> <b class="c-gold">${esc(adv.top.name)}</b>
             <span class="op-0_75">— ${esc(adv.top.reasons.join('; '))}</span>
             ${adv.runnerUp ? `<div class="fs-10_5 op-0_6 mt-2">Runner-up: ${esc(adv.runnerUp.name)} — ${esc(adv.runnerUp.reasons.join('; '))}</div>` : ''}
             <div class="fs-10 op-0_45 mt-2">Most direct progression suggestion — it optimizes your next level for the most direct route, not necessarily the most optimized one. Rarely is there only one way to build a character.</div>

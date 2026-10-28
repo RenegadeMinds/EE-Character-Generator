@@ -122,11 +122,12 @@ function renderStarshipCards(c) {
     const sections = shipSections(it);
     const secBars = sections.map(s => {
       const pct = Math.max(0, Math.min(100, Math.round(s.hp / s.maxHP * 100)));
-      const col = s.disabled ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
+      const col = s.disabled ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--text-orange))' : 'rgb(var(--text-green))';
+      const colFill = s.disabled ? 'var(--red-text)' : pct <= 33 ? 'rgb(var(--tint-orange))' : 'rgb(var(--tint-green))';  // the bar itself
       return `<div class="items-center gap-6 fs-10_5" style="display:flex;">
         <span class="c-g60" style="min-width:86px;">${s.section}</span>
         <span style="min-width:70px;"><b style="color:${col};">${s.hp}</b>/${s.maxHP} <span class="o-50 c-dim">(${s.D}D)</span></span>
-        <div class="flex-1 bar-wrap" style="height:4px;"><div class="bar-fill" style="width:${pct}%;background:${col};"></div></div>
+        <div class="flex-1 bar-wrap" style="height:4px;"><div class="bar-fill" style="width:${pct}%;background:${colFill};"></div></div>
         ${s.disabled ? '<span class="c-red-text fs-9">DISABLED</span>' : ''}
       </div>`;
     }).join('');
@@ -175,15 +176,15 @@ function renderStarshipCards(c) {
       const tip = wep ? `${wep.stat} · min ship ${wep.mss}${wep.dc ? ' · DC ' + wep.dc : ''}${autofireTip}${mountTip}${linkTip}` : dfx ? `Defense system · TS ${dfx.ts} · DC ${dfx.dc} · ${dfx.restriction}${fxLookup(dfx.name)}` : sen ? `Sensor system · TS ${sen.ts} · DC ${sen.dc}${fxLookup(sen.name)}` : fxLookup(l.gear);
       const mountChip = wep ? [shipMountChip(l), shipLinkChip(l), shipBatteryChip(l)].filter(Boolean).join(' · ') : '';
       const sIcon = l.state === 'destroyed' ? '☠' : l.state === 'damaged' ? '⚑' : '●';
-      const sColor = l.state === 'destroyed' ? '#999' : l.state === 'damaged' ? 'var(--red-text)' : '#6dba88';
+      const sColor = l.state === 'destroyed' ? 'rgb(var(--text-grey60))' : l.state === 'damaged' ? 'var(--red-text)' : 'rgb(var(--text-green))';
       return `<div class="items-center gap-6 fs-11" style="display:flex;padding:1px 0;">
         <button class="btn btn-sm" style="font-size:9px;padding:0 4px;color:${sColor};" title="Cycle: ok → damaged (10 hrs, Repair DC 30; jury-rig DC 25 for the battle) → destroyed (replace) → ok" onclick="paCycleSlotState('${it.id}',${idx})">${sIcon}</button>
         <span class="c-g55" style="min-width:80px;">${escapeHTML(l.slot)}</span>
-        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}${wep ? 'color:#d4865a;' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}${mountChip ? ` <span class="fs-9_5" style="color:#78afcd;">${escapeHTML(mountChip)}</span>` : ''}</span>
+        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:rgb(var(--text-sky));' : ''}${wep ? 'color:rgb(var(--text-orange));' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}${mountChip ? ` <span class="fs-9_5" style="color:rgb(var(--text-sky));">${escapeHTML(mountChip)}</span>` : ''}</span>
         ${l.fixed ? '' : `<button class="fs-9 p-0-4 btn btn-sm" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
       </div>`;
     }).join('');
-    return `<div class="mb-0_8rem panel" style="border-color:rgba(150,150,220,.4);">
+    return `<div class="mb-0_8rem panel" style="border-color:rgb(var(--line-iris) / .4);">
       <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
         <div class="font-serif fs-14 c-gold">🚀 ${escapeHTML(name)} <span class="fs-10 c-g50">${escapeHTML(def.subtype)} · ${def.cls} TS ${def.ts} · ${escapeHTML(def.armor || '')} armor</span></div>
         <div class="nowrap">
@@ -214,7 +215,7 @@ function renderStarshipCards(c) {
           return `<span class="cursor-help" title="Tactical speed per MOVE action — 1 stellar hex = 250 ft (Adam's scales). Round economy (GMG p.506): two move actions + one standard, any order — full burn = ${((printed ? pFt : spd) * 2).toLocaleString()} ft/round.${printed ? ` Printed subtype speed (standard engine, FF statblock). Engine-derived after refit: ${eng ? eng.name : 'thrusters'} ${engFt.toLocaleString()} ft${penFt ? ` − armor ${penFt.toLocaleString()}` : ''} = ${spd.toLocaleString()} ft.` : ''}${zeroNote}">speed <b>${shown}</b>/move <span class="o-60 c-dim">(×2/round)</span></span> ·`;
         })()}
         grapple ${cls.grappleMod || '+0'} ·
-        <span class="cursor-help" style="color:#d4b870;" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
+        <span class="cursor-help" style="color:rgb(var(--text-amber));" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
       </div>
       <div class="mt-5">${secBars}</div>
       ${(() => {
@@ -230,10 +231,10 @@ function renderStarshipCards(c) {
         </div>`;
       })()}
       <div class="fs-11 c-g70 mt-5">
-        ${hasOp ? '<span style="color:#6dba88;">✓ Starship Operation</span>' : '<span class="c-red-text" title="Without it: reduced Defense Bonus contribution and operation penalties — see GMG crewed-starship rules.">✗ Starship Operation</span>'}
+        ${hasOp ? '<span style="color:rgb(var(--text-green));">✓ Starship Operation</span>' : '<span class="c-red-text" title="Without it: reduced Defense Bonus contribution and operation penalties — see GMG crewed-starship rules.">✗ Starship Operation</span>'}
         · Roles: pilot · copilot · gunners (${def.weapons} weapon slots) · engineer (damage control) · sensor/comm officers — FF p.662.
         · Slots: ${def.weapons} weapons (${cls.weaponsPer}) · ${def.defense} defense · ${def.sensors} sensors · engines ${escapeHTML(def.engineD)}
-        · <span class="cursor-help" style="color:#78afcd;" title="${escapeHTML(Object.values(STARSHIP_COMBAT_REF).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
+        · <span class="cursor-help" style="color:rgb(var(--text-sky));" title="${escapeHTML(Object.values(STARSHIP_COMBAT_REF).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
       </div>
       <div class="fs-10 uppercase ls-0_08em c-g55 mt-7">Fittings <button class="fs-9 p-0-5 ml-6 btn btn-sm" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
       ${loadout}

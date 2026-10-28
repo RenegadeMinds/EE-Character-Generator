@@ -74,34 +74,34 @@ const CONDITION_TIER_STYLE = {
   beneficial: {
     // Net-positive or mixed-advantage conditions (Invisible, Incorporeal).
     // Blue palette, distinct from the warning hues.
-    bg:'rgba(125,170,220,.15)', border:'rgba(125,170,220,.45)', color:'#7daadc',
-    sheetBg:'rgba(125,170,220,.10)', sheetBorder:'rgba(125,170,220,.5)', sheetColor:'#9bc2e8',
+    bg:'rgb(var(--tint-blue) / .15)', border:'rgb(var(--line-blue) / .45)', color:'rgb(var(--text-blue))',
+    sheetBg:'rgb(var(--tint-blue) / .10)', sheetBorder:'rgb(var(--line-blue) / .5)', sheetColor:'rgb(var(--text-cornflower))',
     label:'Beneficial',
   },
   mild: {
     // Yellow tier: minor penalties or transitional states (incl. Stable —
     // bleeding stopped but still helpless).
-    bg:'rgba(212,184,112,.15)', border:'rgba(212,184,112,.45)', color:'#d4b870',
-    sheetBg:'rgba(212,184,112,.10)', sheetBorder:'rgba(212,184,112,.5)', sheetColor:'#e5cb8a',
+    bg:'rgb(var(--tint-amber) / .15)', border:'rgb(var(--line-amber) / .45)', color:'rgb(var(--text-amber))',
+    sheetBg:'rgb(var(--tint-amber) / .10)', sheetBorder:'rgb(var(--line-amber) / .5)', sheetColor:'rgb(var(--text-wheat))',
     label:'Mild',
   },
   moderate: {
     // Orange tier: meaningful debuffs but the character can still act.
-    bg:'rgba(217,142,79,.15)', border:'rgba(217,142,79,.45)', color:'#d98e4f',
-    sheetBg:'rgba(217,142,79,.10)', sheetBorder:'rgba(217,142,79,.5)', sheetColor:'#eaa56d',
+    bg:'rgb(var(--tint-tangerine) / .15)', border:'rgb(var(--line-tangerine) / .45)', color:'rgb(var(--text-tangerine))',
+    sheetBg:'rgb(var(--tint-tangerine) / .10)', sheetBorder:'rgb(var(--line-tangerine) / .5)', sheetColor:'rgb(var(--text-apricot))',
     label:'Moderate',
   },
   severe: {
     // Red tier: largely incapacitating.
-    bg:'rgba(212,112,112,.18)', border:'rgba(212,112,112,.55)', color:'#e08080',
-    sheetBg:'rgba(212,112,112,.12)', sheetBorder:'rgba(212,112,112,.6)', sheetColor:'#ec9595',
+    bg:'rgb(var(--tint-red) / .18)', border:'rgb(var(--line-red) / .55)', color:'rgb(var(--text-salmon))',
+    sheetBg:'rgb(var(--tint-red) / .12)', sheetBorder:'rgb(var(--line-red) / .6)', sheetColor:'rgb(var(--text-pink))',
     label:'Severe',
   },
   terminal: {
     // Headstone tier: black-on-white inversion with a red border accent.
     // Singular visual treatment so it can never be confused with any other.
-    bg:'#fafafa', border:'#8b1a1a', color:'#0a0a0a',
-    sheetBg:'#fafafa', sheetBorder:'#8b1a1a', sheetColor:'#0a0a0a',
+    bg:'rgb(var(--tint-paper))', border:'rgb(var(--line-blood))', color:'rgb(var(--text-jet))',
+    sheetBg:'rgb(var(--tint-paper))', sheetBorder:'rgb(var(--line-blood))', sheetColor:'rgb(var(--text-jet))',
     label:'Terminal', stark:true,
   },
 };

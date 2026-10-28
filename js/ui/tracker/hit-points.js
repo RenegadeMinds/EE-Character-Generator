@@ -33,9 +33,9 @@ function renderHPBar(c){
   const mode = c.hpMode || 'hero';
   const modeLabel = {hero:"Hero's Hit Die", random:'Random', max:'Maximum'}[mode] || mode;
   const hasRolls = Array.isArray(c.hpRolls) && c.hpRolls.length > 0;
-  const legacyTag = hasRolls ? '' : ' <span style="color:#d4b870;" title="This character was created before v8.2.3 and uses the legacy HP formula. Open the HP Mode panel to regenerate.">(legacy)</span>';
+  const legacyTag = hasRolls ? '' : ' <span style="color:rgb(var(--text-amber));" title="This character was created before v8.2.3 and uses the legacy HP formula. Open the HP Mode panel to regenerate.">(legacy)</span>';
   // v8.6.0 C5: self-healed HP wears its flag until the GM re-rolls.
-  const autoTag = c.hpAutoAssigned ? ` <span class="cursor-help" style="color:#7daadc;" title="HP was missing from this record and auto-assigned on ${escapeHTML(c.hpAutoAssigned.atDate||'')} (${escapeHTML(c.hpAutoAssigned.how||'average')}). GM may override via ⚙ HP Mode — re-rolling clears this flag.">(auto-assigned)</span>` : '';
+  const autoTag = c.hpAutoAssigned ? ` <span class="cursor-help" style="color:rgb(var(--text-blue));" title="HP was missing from this record and auto-assigned on ${escapeHTML(c.hpAutoAssigned.atDate||'')} (${escapeHTML(c.hpAutoAssigned.how||'average')}). GM may override via ⚙ HP Mode — re-rolling clears this flag.">(auto-assigned)</span>` : '';
   document.getElementById('tr-hp-bar').innerHTML=`
     <div class="justify-between items-center mb-6" style="display:flex;">
       <span class="font-serif fs-10 c-bronze">HP <span class="c-g45 fs-9 fw-normal normal-case ls-0" style="font-family:'Epics Serif','Crimson Pro',serif;">· ${escapeHTML(modeLabel)}${legacyTag}${autoTag}</span></span>
@@ -89,7 +89,7 @@ function renderSheetHpModePanel() {
   const hasRolls = Array.isArray(c.hpRolls) && c.hpRolls.length > 0;
   if (note) {
     if (!hasRolls) {
-      note.innerHTML = '<b style="color:#d4b870;">Legacy character.</b> Click Re-roll HP to migrate to per-level rolls under the current mode.';
+      note.innerHTML = '<b style="color:rgb(var(--text-amber));">Legacy character.</b> Click Re-roll HP to migrate to per-level rolls under the current mode.';
     } else {
       note.textContent = 'Changing mode or re-rolling will recompute Max HP. Current HP scales to match.';
     }

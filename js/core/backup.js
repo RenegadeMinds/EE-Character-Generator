@@ -59,7 +59,8 @@ function renderBackupChip() {
     // never-exported roster; green otherwise.
     const red = (never && m.savesSince >= 5) || days >= 14 || m.savesSince >= 25;
     const amber = never || days >= 7 || m.savesSince >= 10;
-    const col = red ? ['#4a1a1a', '#e0a0a0', '#a05050'] : amber ? ['#4a3a12', '#e8d49a', '#a08a40'] : ['#1d3320', '#a8d4ae', '#4a7a52'];
+    // [background, text, border] of the chip
+    const col = red ? ['rgb(var(--tint-maroon))', 'rgb(var(--text-rose))', 'rgb(var(--line-brick))'] : amber ? ['rgb(var(--tint-bistre))', 'rgb(var(--text-sand))', 'rgb(var(--line-ochre))'] : ['rgb(var(--tint-pine))', 'rgb(var(--text-celadon))', 'rgb(var(--line-moss))'];
     const label = never ? 'no backup file yet' : days < 1 ? 'backed up today' : `backed up ${Math.floor(days)} day${Math.floor(days) === 1 ? '' : 's'} ago`;
     if (!chip) {
       // v8.58.2 (Adam's final placement): the chip rides INLINE at the end of

@@ -116,11 +116,11 @@ function wealthChartHTML(c) {
   for (let dc = 1; dc < WEALTH_DC_DOLLARS.length; dc++) {
     const d = WEALTH_DC_DOLLARS[dc];
     const cur = c.wealthScore === dc;
-    rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;padding:0 6px;${cur ? 'background:rgba(200,151,30,.18);border-radius:2px;font-weight:bold;color:var(--gold);' : ''}"><span>DC ${dc}${cur ? ' ◂' : ''}</span><span>${fmtCoin(d / 100)} gp · $${d.toLocaleString()}</span></div>`);
+    rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;padding:0 6px;${cur ? 'background:rgb(var(--tint-gold) / .18);border-radius:2px;font-weight:bold;color:var(--gold);' : ''}"><span>DC ${dc}${cur ? ' ◂' : ''}</span><span>${fmtCoin(d / 100)} gp · $${d.toLocaleString()}</span></div>`);
   }
   return `<details ${_wealthChartOpen ? 'open' : ''} ontoggle="_wealthChartOpen=this.open" class="mt-8 fs-11">
     <summary class="cursor-pointer c-g80">📊 Wealth Score / Purchase DC chart <span class="cite cite-HH" title="Hero's Handbook p.45 — the Score/DC currency table (1 gp = $100 = 100 credits)">HH 45</span> <span class="op-0_5 fs-9_5">— your current score is highlighted</span></summary>
-    <div class="rounded-3 overflow-y-auto mt-6 lh-1_7" style="columns:3;column-gap:18px;max-height:260px;padding:6px;border:1px solid rgba(200,151,30,.2);">${rows.join('')}</div>
+    <div class="rounded-3 overflow-y-auto mt-6 lh-1_7" style="columns:3;column-gap:18px;max-height:260px;padding:6px;border:1px solid rgb(var(--line-gold) / .2);">${rows.join('')}</div>
   </details>`;
 }
 function renderWealthPanel(c) {
@@ -152,7 +152,7 @@ function renderWealthPanel(c) {
     <button class="fs-11 btn btn-sm" onclick="adjustFunds()">± Adjust</button>
     <label class="fs-11 op-0_85" title="Display-only lens: see what gear would cost in another era's market. Purchases always charge the scenario's market.">🔍 Price check:
       <select onchange="setPriceCheckTs(this.value)" class="fs-10">${pcOpts}</select></label>
-    ${_priceCheckTs != null ? `<span class="fs-10" style="color:#d4b870;">🔍 viewing TS ${_priceCheckTs} market prices — display only; purchases charge the scenario (TS ${ts})</span>` : ''}
+    ${_priceCheckTs != null ? `<span class="fs-10" style="color:rgb(var(--text-amber));">🔍 viewing TS ${_priceCheckTs} market prices — display only; purchases charge the scenario (TS ${ts})</span>` : ''}
     <span class="fs-10 op-0_5 cursor-help" title="${escapeHTML(PRICE_FLUX_NOTE)}">💰 Purchased deducts · 🎁 Acquired is free · list prices; the GM applies market swings via ± Adjust</span>
   </div>${wealthChartHTML(c)}`;
 }

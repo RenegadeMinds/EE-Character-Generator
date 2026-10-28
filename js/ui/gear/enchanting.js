@@ -89,10 +89,10 @@ function renderEnchantModal() {
     // (flat-gp abilities never consume the budget — always available).
     const wouldMod = abilityMod + (d.price_bonus || 0);
     const grey = !sel && d.price_bonus && (wouldMod > 5 || st.enh + wouldMod > cap);
-    return `<label style="display:flex;gap:7px;align-items:baseline;padding:3px 2px;border-bottom:1px solid rgba(200,151,30,.06);${grey ? 'opacity:.38;' : 'cursor:pointer;'}" title="${escapeHTML((d.d || '').slice(0, 400))}">
+    return `<label style="display:flex;gap:7px;align-items:baseline;padding:3px 2px;border-bottom:1px solid rgb(var(--line-gold) / .06);${grey ? 'opacity:.38;' : 'cursor:pointer;'}" title="${escapeHTML((d.d || '').slice(0, 400))}">
       <input type="checkbox" ${sel ? 'checked' : ''} ${grey ? 'disabled' : ''} onchange="enchantToggleAbility('${escapeHTML(d.name).replace(/'/g, "\\'")}')">
       <b class="flex-1">${escapeHTML(d.name)}</b>
-      <span style="font-size:10px;color:${d.price_bonus ? '#d4b870' : 'var(--pb90)'};">${costLbl}</span>
+      <span style="font-size:10px;color:${d.price_bonus ? 'rgb(var(--text-amber))' : 'var(--pb90)'};">${costLbl}</span>
     </label>`;
   }).join('');
   document.getElementById('enchant-modal-body').innerHTML = `
@@ -111,7 +111,7 @@ function renderEnchantModal() {
         </select></label>
     </div>
     <div class="fs-10 uppercase ls-0_08em c-g60 mb-3">Special abilities <span class="normal-case ls-0">(bonus-equivalents ≤ +5; flat-gp abilities don't consume the budget)</span></div>
-    <div class="rounded-3 overflow-y-auto p-2-6" style="max-height:34vh;border:1px solid rgba(200,151,30,.15);">${rows || '<div class="op-0_5 fs-11" style="padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
+    <div class="rounded-3 overflow-y-auto p-2-6" style="max-height:34vh;border:1px solid rgb(var(--line-gold) / .15);">${rows || '<div class="op-0_5 fs-11" style="padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
     <div class="mt-0_7rem fs-12 lh-1_6">
       Aggregate modifier: <b style="color:${overCap || overAbility ? 'var(--red-text)' : 'var(--gold)'};">+${totalMod}</b> (enhancement +${st.enh} · abilities +${abilityMod}${flatGp ? ` · flat ${flatGp.toLocaleString()} gp` : ''})<br>
       ${word} value: <b>${cost.toLocaleString()} gp</b> <span class="op-0_6 cursor-help" title="${escapeHTML(PRICE_FLUX_NOTE)}">(${escapeHTML(priceLabel(dcForDollars(cost * 100), scenarioTechScale(c)))})</span>${prev ? ` — upgrade cost <b>${delta.toLocaleString()} gp</b> (current value ${prev.cost.toLocaleString()} gp)` : ''} · crafting time ≈ <b>${days} day${days === 1 ? '' : 's'}</b> <span class="o-55 c-dim">(RP only)</span>

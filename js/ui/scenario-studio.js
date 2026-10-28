@@ -89,9 +89,9 @@ function scenAnnotate() {
   let dis = [];
   try { dis = [...disabledClassesForScenario(sl)].sort(); } catch (e) {}
   if (!dis.length) {
-    el.innerHTML = '<span style="color:#6dba88;">✓ Every class in the catalogue is available under these dials.</span>';
+    el.innerHTML = '<span style="color:rgb(var(--text-green));">✓ Every class in the catalogue is available under these dials.</span>';
   } else {
-    el.innerHTML = `<span style="color:#d4b870;">◌ ${dis.length} class${dis.length === 1 ? ' is' : 'es are'} unavailable under these dials:</span> <span class="op-0_75">${dis.join(', ')}</span>`;
+    el.innerHTML = `<span style="color:rgb(var(--text-amber));">◌ ${dis.length} class${dis.length === 1 ? ' is' : 'es are'} unavailable under these dials:</span> <span class="op-0_75">${dis.join(', ')}</span>`;
   }
 }
 async function scenSave() {
@@ -131,7 +131,7 @@ function scenRenderList() {
   const el = document.getElementById('scen-list');
   if (!el) return;
   el.innerHTML = customScenarios.length
-    ? customScenarios.map((s, i) => `<div class="items-center gap-8 fs-11_5" style="display:flex;padding:4px 6px;border-top:1px solid rgba(200,151,30,.12);">
+    ? customScenarios.map((s, i) => `<div class="items-center gap-8 fs-11_5" style="display:flex;padding:4px 6px;border-top:1px solid rgb(var(--line-gold) / .12);">
         <span>${s.locked ? '🔒 ' : ''}<b>${escapeHTML(s.name)}</b> <span class="o-60 c-dim">${scenarioSummaryStr(s.scales)}</span>${s.notes ? ` <span class="op-0_45 cursor-help" title="${escapeHTML(s.notes)}">✎</span>` : ''}</span>
         <span class="ml-auto gap-5" style="display:inline-flex;">
           <button class="fs-10 p-1-7 btn btn-sm" onclick="scenExport(${i})" title="Download this scenario as a small JSON file — hand it to your players; they Import it and their Create page carries your dials.">⬇</button>

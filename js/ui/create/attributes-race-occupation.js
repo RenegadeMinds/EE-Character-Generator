@@ -143,7 +143,7 @@ function renderAttrBudget(){
     div.innerHTML = `<span class="o-60 c-dim">No attribute budget set — pick a method above (Roll or Point Buy) to enable budget tracking.</span>`;
   } else {
     const delta = baseSum - target;
-    const deltaColor = delta === 0 ? '#6dba88' : (Math.abs(delta) <= 2 ? 'var(--g85)' : 'var(--red-text)');
+    const deltaColor = delta === 0 ? 'rgb(var(--text-green))' : (Math.abs(delta) <= 2 ? 'var(--g85)' : 'var(--red-text)');
     const deltaText = delta === 0 ? 'Δ 0' : `Δ ${delta>0?'+':''}${delta}`;
     const racialLine = formBudget.racialApplied ? ` &nbsp;·&nbsp; <span class="op-0_7">racial (${formBudget.racialApplied}): ${adj.map((v,i) => v!==0?`${v>0?'+':''}${v} ${ATTR_NAMES[i]}`:null).filter(Boolean).join(', ')||'none'}</span>` : '';
     div.style.display = 'block';
@@ -182,15 +182,15 @@ function updateHybridForm() {
     if (a && b) {
       const auto = ((RACES[a] || {}).ecl || 0) + ((RACES[b] || {}).ecl || 0) + 1;
       const eff = _formHybridRlm();
-      info.innerHTML = `RLM: <b>+${eff}</b> ${eff === auto ? `(auto: ${(RACES[a]||{}).ecl||0} + ${(RACES[b]||{}).ecl||0} + 1)` : `<span style="color:#d4b870;">(GM override — auto would be +${auto})</span>`}`;
-    } else info.innerHTML = '<span style="color:#d4b870;">⚑ pick BOTH parents (HUMANOID races only, GM approval)</span>';
+      info.innerHTML = `RLM: <b>+${eff}</b> ${eff === auto ? `(auto: ${(RACES[a]||{}).ecl||0} + ${(RACES[b]||{}).ecl||0} + 1)` : `<span style="color:rgb(var(--text-amber));">(GM override — auto would be +${auto})</span>`}`;
+    } else info.innerHTML = '<span style="color:rgb(var(--text-amber));">⚑ pick BOTH parents (HUMANOID races only, GM approval)</span>';
   // v8.68.1: legacy/GM-exception guard — a stored non-Humanoid parent flags.
   // v9.0.0: 'Half-Again' is exempt — not an ancestry, a stature (the egg).
   if (info && a && b) {
     const bad = [a, b].filter(x => !HYBRID_HUMANOID_RACES.includes(x) && x !== 'Half-Again');
     if (bad.length) info.innerHTML += ` <span class="c-red-text fs-10" title="Only Humanoid races can interbreed (Adam's ruling 2026-10-02). A non-Humanoid parent on a legacy record stands only as an explicit GM exception.">⚠ ${bad.join(' & ')}: not Humanoid — GM exception territory</span>`;
     if (a === 'Half-Again' && b === 'Half-Again') info.innerHTML += ` <span class="c-red-text fs-10">⚠ Half-Again × Half-Again is no hybrid at all — pick a real race for one parent.</span>`;
-    else if (a === 'Half-Again') info.innerHTML += ` <span class="fs-10" style="color:#d4b870;">💡 Half-Again serves as Parent B — size, speed, and racial abilities follow the real parent either way.</span>`;
+    else if (a === 'Half-Again') info.innerHTML += ` <span class="fs-10" style="color:rgb(var(--text-amber));">💡 Half-Again serves as Parent B — size, speed, and racial abilities follow the real parent either way.</span>`;
     else if (b === 'Half-Again') info.innerHTML += ` <span class="fs-10" style="color:var(--tg85);" title="A half-again-sized specimen of Parent A: +2 Str/+2 Con/−2 Dex, Powerful Build (one size larger where advantageous — Grapple, larger weapons, carry ×2). Formal rules in the UCS.">🥚 found it — ${escapeHTML(a || 'the parent')}, and Half-Again!</span>`;
   }
   }
@@ -366,7 +366,7 @@ function renderOccupationPicker(slot){
   const occ = getOccupationData(occName);
   if (!occ) {
     picker.style.display = 'block';
-    picker.innerHTML = `<div class="fs-11 c-red-text p-6-8 rounded-3" style="background:rgba(212,112,112,.08);">No occupation data for "${escapeHTML(occName)}".</div>`;
+    picker.innerHTML = `<div class="fs-11 c-red-text p-6-8 rounded-3" style="background:rgb(var(--tint-red) / .08);">No occupation data for "${escapeHTML(occName)}".</div>`;
     return;
   }
   const picks = formOccupationPicks[slot] || (formOccupationPicks[slot] = {skills:[], bonusFeat:null});
@@ -518,7 +518,7 @@ function renderOccupationPicker(slot){
     rows.push(`<div class="fs-10 c-g55 mt-6" style="letter-spacing:.02em;">${meta.join(' &middot; ')}</div>`);
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div class="rounded-3 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="rounded-3 p-8-10" style="background:rgb(var(--tint-gold) / .04);border:1px solid rgb(var(--line-gold) / .18);">${rows.join('')}</div>`;
 }
 
 // Read-only display of an occupation's picks. Used when the occupation is
@@ -531,12 +531,12 @@ function renderOccupationPickerReadonly(slot, occ, picks){
   if (skillsPicked.length) {
     rows.push(`<div class="fs-11 c-g65"><b class="c-gold">Class Skills:</b> ${escapeHTML(skillsPicked.join(', '))}</div>`);
   } else if (occ.skill_count) {
-    rows.push(`<div class="fs-11" style="color:#d4b870;"><b>⚠ Skill picks pending</b> — ${occ.skill_count} skill${occ.skill_count===1?'':'s'} not yet selected from the ${occ.n} occupation list. Unlock with ⚿ Edit (GM) to fill them in.</div>`);
+    rows.push(`<div class="fs-11" style="color:rgb(var(--text-amber));"><b>⚠ Skill picks pending</b> — ${occ.skill_count} skill${occ.skill_count===1?'':'s'} not yet selected from the ${occ.n} occupation list. Unlock with ⚿ Edit (GM) to fill them in.</div>`);
   }
   if (picks.bonusFeat) {
     rows.push(`<div class="fs-11 c-g65 mt-4"><b class="c-gold">Bonus Feat:</b> ${escapeHTML(picks.bonusFeat)}</div>`);
   } else if (occ.bonus_feat_options && occ.bonus_feat_options.length) {
-    rows.push(`<div class="fs-11 mt-4" style="color:#d4b870;"><b>⚠ Bonus feat pending</b> — pick one from: ${occ.bonus_feat_options.map(escapeHTML).join(', ')}. Unlock with ⚿ Edit (GM) to choose.</div>`);
+    rows.push(`<div class="fs-11 mt-4" style="color:rgb(var(--text-amber));"><b>⚠ Bonus feat pending</b> — pick one from: ${occ.bonus_feat_options.map(escapeHTML).join(', ')}. Unlock with ⚿ Edit (GM) to choose.</div>`);
   }
   if (!rows.length) {
     picker.style.display = 'none';
@@ -544,7 +544,7 @@ function renderOccupationPickerReadonly(slot, occ, picks){
     return;
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div class="rounded-3 p-7-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="rounded-3 p-7-10" style="background:rgb(var(--tint-gold) / .04);border:1px solid rgb(var(--line-gold) / .18);">${rows.join('')}</div>`;
 }
 
 // Called by each pick-select's onchange.

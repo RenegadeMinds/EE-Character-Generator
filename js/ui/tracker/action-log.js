@@ -127,14 +127,14 @@ function renderActionLog(c) {
   el.innerHTML = entries.map(e => {
     const kindLabel = ({
       'ap-spend':   { text: 'AP Spend',   color: 'var(--gold)',         sign: '−'},
-      'ap-restore': { text: 'AP Restore', color: '#6dba88',             sign: '+'},
+      'ap-restore': { text: 'AP Restore', color: 'rgb(var(--text-green))',             sign: '+'},
       'ap-reset':   { text: 'AP Reset',   color: 'var(--g60)', sign: '↻'},
-      'fp-spend':   { text: 'FP Spend',   color: '#c499d4',             sign: '−'},
-      'fp-restore': { text: 'FP Restore', color: '#c499d4',             sign: '+'},
+      'fp-spend':   { text: 'FP Spend',   color: 'rgb(var(--text-violet))',             sign: '−'},
+      'fp-restore': { text: 'FP Restore', color: 'rgb(var(--text-violet))',             sign: '+'},
       // v8.20.0 XP-expenditure ledger kinds.
-      'xp-grant':   { text: 'XP Grant',   color: '#6dba88',             sign: '+'},
-      'xp-spend':   { text: 'XP Spend',   color: '#d4865a',             sign: '−'},
-      'xp-reserve': { text: 'MC Reserve', color: '#78afcd',             sign: '🔧'},
+      'xp-grant':   { text: 'XP Grant',   color: 'rgb(var(--text-green))',             sign: '+'},
+      'xp-spend':   { text: 'XP Spend',   color: 'rgb(var(--text-orange))',             sign: '−'},
+      'xp-reserve': { text: 'MC Reserve', color: 'rgb(var(--text-sky))',             sign: '🔧'},
     })[e.kind] || { text: e.kind, color: 'var(--g70)', sign: '·'};
     const isFP = e.kind === 'fp-spend' || e.kind === 'fp-restore';
     const isXP = e.kind && e.kind.startsWith('xp-');
@@ -152,8 +152,8 @@ function renderActionLog(c) {
     const editBtn = e.note
       ? `<button type="button" class="border-none c-g40 fs-10 cursor-pointer" style="background:none;padding:0 0 0 4px;" onclick="onActionLogNoteEditStart('${escapeHTML(e.id)}')" title="Edit note">✎</button>`
       : '';
-    const bgTint = isFP ? 'rgba(196,153,212,.04)' : 'rgba(200,151,30,.03)';
-    const borderTint = isFP ? 'rgba(196,153,212,.3)' : 'rgba(200,151,30,.2)';
+    const bgTint = isFP ? 'rgb(var(--tint-violet) / .04)' : 'rgb(var(--tint-gold) / .03)';
+    const borderTint = isFP ? 'rgb(var(--line-violet) / .3)' : 'rgb(var(--line-gold) / .2)';
     const deltaAbs = Math.abs(e.delta || 1);
     return `<div class="al-entry" data-entry-id="${escapeHTML(e.id)}" style="margin:5px 0;padding:6px 9px;background:${bgTint};border-left:2px solid ${borderTint};border-radius:2px;">
       <div class="justify-between items-baseline fs-10_5 c-g55" style="display:flex;">
@@ -179,9 +179,9 @@ function onActionLogNoteEditStart(entryId) {
   const c = chars.find(x => x.id === curId);
   const existing = (c && (c.actionLog || []).find(e => e.id === entryId)?.note) || '';
   noteRow.innerHTML = `
-    <input type="text" class="rounded-2 flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.4);">
-    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="rounded-2 p-2-6 fs-10 cursor-pointer" style="background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);">✓</button>
-    <button type="button" onclick="renderActionLog(chars.find(x=>x.id===curId))" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
+    <input type="text" class="rounded-2 flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgb(var(--tint-black) / .35);border:1px solid rgb(var(--line-gold) / .4);">
+    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="rounded-2 p-2-6 fs-10 cursor-pointer" style="background:rgb(var(--tint-sage) / .15);color:rgb(var(--text-green));border:1px solid rgb(var(--line-sage) / .5);">✓</button>
+    <button type="button" onclick="renderActionLog(chars.find(x=>x.id===curId))" style="background:rgb(var(--tint-gold) / .06);color:var(--g70);border:1px solid rgb(var(--line-gold) / .3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
   `;
   const inp = noteRow.querySelector('input');
   if (inp) {

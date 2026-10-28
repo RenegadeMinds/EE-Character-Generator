@@ -180,7 +180,7 @@ function renderTalents(){
         : `<span class="c-g35">◇</span>`);
     } else {
       // Beyond entitled budget — these are GM-exception talents.
-      pips.push(`<span style="color:#e08080;" title="Over budget — GM exception">◆</span>`);
+      pips.push(`<span style="color:rgb(var(--text-salmon));" title="Over budget — GM exception">◆</span>`);
     }
   }
   budgetEl.innerHTML =
@@ -201,13 +201,13 @@ function renderTalents(){
       const tier = data?.tier || 'Talent';
       const desc = data?.d || '';
       const cit = citeHTML('talents', t.name);
-      const tierColor = tier === 'Apex Super-Talent' ? '#c499d4'
-                      : tier === 'Super-Talent' ? '#7daadc'
+      const tierColor = tier === 'Apex Super-Talent' ? 'rgb(var(--text-violet))'
+                      : tier === 'Super-Talent' ? 'rgb(var(--text-blue))'
                       : 'var(--g65)';
       // v8.87.0: a grantedBy record is Energy Immunity's free pick — the tag
       // outranks the generic source label (no slot was consumed for it).
       const sourceLabel = t.grantedBy
-        ? `<span class="fs-10 ml-6" style="color:#7daadc;" title="Granted free by ${escapeHTML(t.grantedBy)} — no Talent slot consumed; removed automatically if ${escapeHTML(t.grantedBy)} is removed.">◈ granted by ${escapeHTML(t.grantedBy)}</span>`
+        ? `<span class="fs-10 ml-6" style="color:rgb(var(--text-blue));" title="Granted free by ${escapeHTML(t.grantedBy)} — no Talent slot consumed; removed automatically if ${escapeHTML(t.grantedBy)} is removed.">◈ granted by ${escapeHTML(t.grantedBy)}</span>`
         : (t.grantedAt?.source
         ? `<span class="fs-10 c-g50 ml-6">from ${escapeHTML(t.grantedAt.source)}</span>`
         : '');
@@ -224,7 +224,7 @@ function renderTalents(){
         const waivedBy = owned.map(o => TALENTS_DB.find(x => x.n === o.name))
           .find(o => o && Array.isArray(o.waivesApCost) && o.waivesApCost.includes(t.name));
         apButton = waivedBy
-          ? `<span class="fs-10 mr-8" style="color:#6dba88;" title="AP cost waived by ${escapeHTML(waivedBy.n)}">⚡ free (${escapeHTML(waivedBy.n)})</span>`
+          ? `<span class="fs-10 mr-8" style="color:rgb(var(--text-green));" title="AP cost waived by ${escapeHTML(waivedBy.n)}">⚡ free (${escapeHTML(waivedBy.n)})</span>`
           : `<button class="btn btn-sm" style="margin-right:6px;" title="Spend ${data.ap_cost} Action Point${data.ap_cost===1?'':'s'} to activate" onclick="spendTalentAP('${t.name.replace(/'/g,"\\'")}', ${data.ap_cost})">⚡ Spend ${data.ap_cost} AP</button>`;
       }
       return `<div class="feat-entry">
@@ -252,7 +252,7 @@ function renderTalents(){
         <span>${escapeHTML(e.stat)}: <b class="c-gold">${escapeHTML(e.text)}</b></span>
         <span class="fs-11 c-g55" style="text-align:right;">${escapeHTML(e.from)}</span>
       </div>`).join('');
-    list.innerHTML = `<div class="p-8-12 mb-10 fs-13" style="border:1px solid rgba(200,151,30,.25);background:rgba(200,151,30,.05);">
+    list.innerHTML = `<div class="p-8-12 mb-10 fs-13" style="border:1px solid rgb(var(--line-gold) / .25);background:rgb(var(--tint-gold) / .05);">
       <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-4">Active Talent Effects</div>
       ${fxRows}
     </div>` + list.innerHTML;
@@ -441,7 +441,7 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
     }).length;
   }
   const superNote = hiddenSuper
-    ? `<div class="p-8-12 fs-12" style="color:var(--tk85);border-bottom:1px solid rgba(200,151,30,.15);background:rgba(125,170,220,.05);">
+    ? `<div class="p-8-12 fs-12" style="color:var(--tk85);border-bottom:1px solid rgb(var(--line-gold) / .15);background:rgb(var(--tint-blue) / .05);">
         <b>${hiddenSuper}</b> Super-Talent${hiddenSuper===1?'':'s'} hidden by the "Qualifies Only" filter. Super-Talents are purchased right here — they require the <b>Supernatural Mutation</b> feat and enough banked MP (adding one spends the MP automatically).
         <button class="ml-8 btn btn-sm" onclick="const q=document.getElementById('talent-qual-filter'); if(q){q.value='';} filterTalents();">Show them</button>
       </div>`
@@ -468,7 +468,7 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
         ? `<button class="btn btn-sm btn-pri" onclick="addTalentFromBrowser('${t.n.replace(/'/g,"\\'")}')">+ Add Again</button>`
         : `<button class="op-0_5 btn btn-sm" disabled>Owned</button>`;
     } else if (cur === 'qualifies') {
-      statusBadge = `<span class="fs-10 ml-6" style="color:#6dba88;">✓ qualifies</span>`;
+      statusBadge = `<span class="fs-10 ml-6" style="color:rgb(var(--text-green));">✓ qualifies</span>`;
       addBtn = `<button class="btn btn-sm btn-pri" onclick="addTalentFromBrowser('${t.n.replace(/'/g,"\\'")}')">+ Add</button>`;
     } else if (cur === 'gmverify') {
       statusBadge = `<span class="fs-10 c-g65 ml-6">⚠ GM-verify</span>
@@ -480,8 +480,8 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
       addBtn = `<button class="op-0_5 btn btn-sm" disabled>Locked</button>`;
     }
 
-    const tierColor = tier === 'Apex Super-Talent' ? '#c499d4'
-                    : tier === 'Super-Talent' ? '#7daadc'
+    const tierColor = tier === 'Apex Super-Talent' ? 'rgb(var(--text-violet))'
+                    : tier === 'Super-Talent' ? 'rgb(var(--text-blue))'
                     : 'var(--g65)';
     const tierTag = `<span style="font-size:10px;color:${tierColor};margin-left:6px;text-transform:uppercase;letter-spacing:.04em;">${escapeHTML(tier)}</span>`;
     const mpTag = t.mp_cost ? `<span class="fs-10 ml-4" style="color:var(--tv70);">${t.mp_cost} MP</span>` : '';

@@ -427,7 +427,7 @@ function addItemFromPicker(catalogue) {
 }
 
 function renderEquippedItemChip(it) {
-  return `<span class="rounded-3 items-center gap-4 p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);">
+  return `<span class="rounded-3 items-center gap-4 p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgb(var(--tint-gold) / .08);border:1px solid rgb(var(--line-gold) / .25);">
     ${escapeHTML(itemDisplayName(it))}
     <button class="p-0-5 fs-9 btn btn-sm" onclick="toggleItemEquipped('${it.id}')" title="Unequip">✕</button>
   </span>`;
@@ -461,7 +461,7 @@ function renderInventoryList(items, techScale, catalogue) {
         const gd = GADGETS_CATALOG.find(x => x.name === g.ref && x.type === catalogue);
         const tip = gd ? gadgetTooltip(gd) : '';
         const gLabel = g.altWeapon ? `${g.ref}: ${g.altWeapon} (${g.detachable ? 'detachable' : 'fixed'})` : g.ref;
-        return `<span title="${escapeHTML(tip)}" class="rounded-3 fs-10 p-1-5 cursor-help" style="background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);margin-right:3px;">${escapeHTML(gLabel)} <button class="fs-9 btn btn-sm" style="padding:0 3px;" onclick="removeGadgetFromItem('${it.id}', ${idx})">✕</button></span>`;
+        return `<span title="${escapeHTML(tip)}" class="rounded-3 fs-10 p-1-5 cursor-help" style="background:rgb(var(--tint-sky) / .12);border:1px solid rgb(var(--line-sky) / .3);margin-right:3px;">${escapeHTML(gLabel)} <button class="fs-9 btn btn-sm" style="padding:0 3px;" onclick="removeGadgetFromItem('${it.id}', ${idx})">✕</button></span>`;
       }).join('');
       const elig = eligibleGadgets(catalogue, def, techScale).filter(g => g.multi_select || !(it.gadgets || []).some(x => x.ref === g.name));
       // v8.56.0 (playtest issue #3b): the gadget picker hides behind a
@@ -474,7 +474,7 @@ function renderInventoryList(items, techScale, catalogue) {
           : `<button class="fs-9 p-1-6 btn btn-sm" onclick="toggleGadgetCtl('${it.id}')" title="Attach technological gadgets to this item (slots: 1 + mastercraft bonus; Tech Scale gates apply)">⚙ Gadgets? (${(it.gadgets || []).length}/${gcap})</button>`)
         : '';
       // v9.3.0: mounted removable accessories ride beside the gadgets (no gadget slot used).
-      const accChips = (catalogue === 'weapon' && (it.accessories || []).length) ? ` <span class="fs-10 op-0_8">🔧 ${(it.accessories || []).map(a => { const sh = weaponAttachments(it).some(x => x.ref === a.ref); return `<span title="${escapeHTML(sh ? 'Removable accessory — detach it from its own row' : 'Shadowed by an integrated gadget of the same kind — they don’t stack')}" style="background:rgba(140,200,150,.1);border:1px solid rgba(140,200,150,.35);border-radius:3px;padding:1px 5px;margin-right:3px;${sh ? '' : 'opacity:.5;text-decoration:line-through;'}">${escapeHTML(a.ref)}</span>`; }).join('')}</span>` : '';
+      const accChips = (catalogue === 'weapon' && (it.accessories || []).length) ? ` <span class="fs-10 op-0_8">🔧 ${(it.accessories || []).map(a => { const sh = weaponAttachments(it).some(x => x.ref === a.ref); return `<span title="${escapeHTML(sh ? 'Removable accessory — detach it from its own row' : 'Shadowed by an integrated gadget of the same kind — they don’t stack')}" style="background:rgb(var(--tint-mint) / .1);border:1px solid rgb(var(--line-mint) / .35);border-radius:3px;padding:1px 5px;margin-right:3px;${sh ? '' : 'opacity:.5;text-decoration:line-through;'}">${escapeHTML(a.ref)}</span>`; }).join('')}</span>` : '';
       // v9.6.1 (§256, Adam's tweak): an item with NO installed gadgets shows
       // no gadget line on the collapsed row — the "⚙ Gadgets? (0/x)" add
       // control waits inside the dossier instead (the Enchantments idiom).
@@ -487,10 +487,10 @@ function renderInventoryList(items, techScale, catalogue) {
     const _on = _gd && _gd.active ? !!gearBoonOf(chars.find(x => x.id === curId) || {}, it) : false;
     const equipToggle = catalogue !== 'equipment'
       ? `<button class="fs-10 btn btn-sm" onclick="toggleItemEquipped('${it.id}')">${it.equipped ? 'Unequip' : 'Equip'}</button>`
-      : [ _gd && _gd.slot ? `<button class="btn btn-sm" style="font-size:10px;${it.equipped ? 'border-color:rgba(140,200,150,.6);color:#8cc896;' : ''}" onclick="toggleItemEquipped('${it.id}')" title="${it.equipped ? 'Worn in the ' : 'Wear in the '}${(ITEM_SLOTS.find(x => x.id === _gd.slot) || {}).label || _gd.slot} slot">${it.equipped ? '🎒 Remove' : '🎒 Wear'}</button>` : '',
-          _gd && _gd.active ? `<button class="btn btn-sm" style="font-size:10px;${_on ? 'border-color:rgba(140,200,150,.7);color:#8cc896;' : ''}${_gd.slot && !it.equipped ? 'opacity:.5;' : ''}" onclick="toggleGearActive('${it.id}')" title="${_gd.slot && !it.equipped ? 'Wear it first' : 'Toggle the device — its Boon shows on the Sheet'}">${_on ? '⏻ Turn off' : '⚡ Activate'}</button>` : '',
-          _gd && _gd.mount ? (() => { const w = it.mountedOn && (chars.find(x => x.id === curId) || {items: []}).items.find(i => i.id === it.mountedOn); return `<button class="btn btn-sm" style="font-size:10px;${w ? 'border-color:rgba(140,200,150,.6);color:#8cc896;' : ''}" onclick="mountAccessory('${it.id}')" title="${w ? 'Mounted on ' + escapeHTML(w.ref) + ' — click to detach' : 'Mount on an eligible weapon'}">🔧 ${w ? 'Mounted ✕' : 'Mount on…'}</button>`; })() : '',
-          _gd && _gd.upgrade ? `<button class="btn btn-sm" style="font-size:10px;${it.upgraded ? 'border-color:rgba(140,200,150,.6);color:#8cc896;' : ''}" onclick="toggleComputerUpgrade('${it.id}')" title="Processor upgrade: +1 equipment on Computer Use (Purchase DC +${_gd.upgrade.dc}; charge it with ± Adjust if tracking wealth)">⬆ ${it.upgraded ? 'Upgraded' : 'Upgrade'}</button>` : '',
+      : [ _gd && _gd.slot ? `<button class="btn btn-sm" style="font-size:10px;${it.equipped ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="toggleItemEquipped('${it.id}')" title="${it.equipped ? 'Worn in the ' : 'Wear in the '}${(ITEM_SLOTS.find(x => x.id === _gd.slot) || {}).label || _gd.slot} slot">${it.equipped ? '🎒 Remove' : '🎒 Wear'}</button>` : '',
+          _gd && _gd.active ? `<button class="btn btn-sm" style="font-size:10px;${_on ? 'border-color:rgb(var(--line-mint) / .7);color:rgb(var(--text-mint));' : ''}${_gd.slot && !it.equipped ? 'opacity:.5;' : ''}" onclick="toggleGearActive('${it.id}')" title="${_gd.slot && !it.equipped ? 'Wear it first' : 'Toggle the device — its Boon shows on the Sheet'}">${_on ? '⏻ Turn off' : '⚡ Activate'}</button>` : '',
+          _gd && _gd.mount ? (() => { const w = it.mountedOn && (chars.find(x => x.id === curId) || {items: []}).items.find(i => i.id === it.mountedOn); return `<button class="btn btn-sm" style="font-size:10px;${w ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="mountAccessory('${it.id}')" title="${w ? 'Mounted on ' + escapeHTML(w.ref) + ' — click to detach' : 'Mount on an eligible weapon'}">🔧 ${w ? 'Mounted ✕' : 'Mount on…'}</button>`; })() : '',
+          _gd && _gd.upgrade ? `<button class="btn btn-sm" style="font-size:10px;${it.upgraded ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="toggleComputerUpgrade('${it.id}')" title="Processor upgrade: +1 equipment on Computer Use (Purchase DC +${_gd.upgrade.dc}; charge it with ± Adjust if tracking wealth)">⬆ ${it.upgraded ? 'Upgraded' : 'Upgrade'}</button>` : '',
           _gd && _gd.use ? `<span class="fs-10 mr-4">×${it.qty || 1}</span><button class="fs-9 p-0-5 btn btn-sm" onclick="gearQty('${it.id}',1)" title="Add one">+</button><button class="fs-10 btn btn-sm" onclick="useGearItem('${it.id}')" title="Use one${(_gd.use.effects || []).length ? ' — starts its Boon' : ''}">🧪 Use</button>` : '' ].join(' ');
     // v8.6.1 TWF pass: one-handed weapons can swap hands (dual-wield lives
     // here + the Off Hand row's picker). Two-handers have no business off-hand.
@@ -500,17 +500,17 @@ function renderInventoryList(items, techScale, catalogue) {
     // v8.6.1: Enchant / Imbue builder entry point (weapons + armor/shields).
     const enchInfo = enchantInfoOf(it);
     const enchantBtn = (catalogue === 'weapon' || catalogue === 'armor')
-      ? `<button class="btn btn-sm" style="font-size:10px;${enchInfo ? 'border-color:rgba(196,153,212,.5);color:var(--vio);' : ''}" title="${enchInfo ? `${enchInfo.imbued ? 'Imbued' : 'Enchanted'} — aggregate +${enchInfo.totalMod}, value ${enchInfo.cost.toLocaleString()} gp. Click to upgrade.` : 'Enchant / imbue this item (GMG: enhancement +1..+5, then special abilities)'}" onclick="openEnchantBuilder('${it.id}')">✨ ${enchInfo ? `+${enchInfo.totalMod}` : 'Enchant'}</button>`
+      ? `<button class="btn btn-sm" style="font-size:10px;${enchInfo ? 'border-color:rgb(var(--line-violet) / .5);color:var(--vio);' : ''}" title="${enchInfo ? `${enchInfo.imbued ? 'Imbued' : 'Enchanted'} — aggregate +${enchInfo.totalMod}, value ${enchInfo.cost.toLocaleString()} gp. Click to upgrade.` : 'Enchant / imbue this item (GMG: enhancement +1..+5, then special abilities)'}" onclick="openEnchantBuilder('${it.id}')">✨ ${enchInfo ? `+${enchInfo.totalMod}` : 'Enchant'}</button>`
       : '';
     // v8.7.0 (Adam's display ruling): the tag shows the MECHANICAL face only
     // (+enh); the ability breakdown, aggregate modifier (cost/TS bookkeeping
     // — "doesn't need to be shown, just calculable"), and value live in the
     // tooltip.
     const enchantTags = enchInfo
-      ? `<span class="rounded-2 fs-9 p-1-5 ml-4 c-vio" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.35);" title="${escapeHTML((enchInfo.abilities.map(a => a.name + (a.bonus ? ` (+${a.bonus} equiv.)` : ` (${a.gp.toLocaleString()} gp)`)).join(' · ') || 'enhancement only') + ` — aggregate modifier +${enchInfo.totalMod} · value ${enchInfo.cost.toLocaleString()} gp`)}">${enchInfo.imbued ? '◈ imbued' : '✨ enchanted'} +${enchInfo.enh}</span>${enchInfo.overCap ? ' <span class="fs-9 c-red-text" title="Aggregate modifier exceeds this item’s Tech Scale cap — recorded as a GM override.">⚑ over TS cap (GM)</span>' : ''}`
+      ? `<span class="rounded-2 fs-9 p-1-5 ml-4 c-vio" style="background:rgb(var(--tint-violet) / .12);border:1px solid rgb(var(--line-violet) / .35);" title="${escapeHTML((enchInfo.abilities.map(a => a.name + (a.bonus ? ` (+${a.bonus} equiv.)` : ` (${a.gp.toLocaleString()} gp)`)).join(' · ') || 'enhancement only') + ` — aggregate modifier +${enchInfo.totalMod} · value ${enchInfo.cost.toLocaleString()} gp`)}">${enchInfo.imbued ? '◈ imbued' : '✨ enchanted'} +${enchInfo.enh}</span>${enchInfo.overCap ? ' <span class="fs-9 c-red-text" title="Aggregate modifier exceeds this item’s Tech Scale cap — recorded as a GM override.">⚑ over TS cap (GM)</span>' : ''}`
       : '';
     const _eqP = (catalogue === 'equipment' && def.effect && def.effect.param)
-      ? ` <button class="btn btn-sm" style="font-size:9px;padding:1px 6px;${it.param ? '' : 'border-color:rgba(214,120,92,.6);color:#d6785c;'}" onclick="setEquipParam('${it.id}')" title="${escapeHTML(def.effect.param.label)}">${it.param ? escapeHTML(it.param) + ' ✎' : '⚠ choose ' + escapeHTML(def.effect.param.label)}</button>` : '';
+      ? ` <button class="btn btn-sm" style="font-size:9px;padding:1px 6px;${it.param ? '' : 'border-color:rgb(var(--line-coral) / .6);color:rgb(var(--text-coral));'}" onclick="setEquipParam('${it.id}')" title="${escapeHTML(def.effect.param.label)}">${it.param ? escapeHTML(it.param) + ' ✎' : '⚠ choose ' + escapeHTML(def.effect.param.label)}</button>` : '';
     const effectNote = catalogue === 'equipment' && def.effect && def.effect.text ? `<div class="fs-10 op-0_65 mt-2">${escapeHTML(def.effect.text)}${def.pending ? ` <span class="op-0_7">(${def.pending})</span>` : ''}</div>${_eqP ? `<div class="mt-2">${_eqP}</div>` : ''}` : (_eqP ? `<div class="mt-2">${_eqP}</div>` : '');
     // v8.5.2: hover tooltip on the item name. Tool/skill kits have a
     // description (def.effect.text) ready now; weapons/armor don't carry
@@ -533,10 +533,10 @@ function renderInventoryList(items, techScale, catalogue) {
     let profFlag = '';
     const curChar = chars.find(x => x.id === curId);
     if (curChar && catalogue === 'weapon' && !isProficientWithWeapon(curChar, it.ref)) {
-      profFlag = ' <span class="fs-10" style="color:#d4865a;" title="-4 on attack rolls while not proficient">⚠ not proficient</span>';
+      profFlag = ' <span class="fs-10" style="color:rgb(var(--text-orange));" title="-4 on attack rolls while not proficient">⚠ not proficient</span>';
     } else if (curChar && catalogue === 'armor' && !isProficientWithArmor(curChar, it.ref)) {
       const acp = parseArmorCheckPenalty(def);
-      profFlag = ` <span class="fs-10" style="color:#d4865a;" title="Not proficient: while equipped, the armor check penalty (${acp}) applies to attack rolls and all Str- and Dex-based checks">⚠ not proficient${acp < 0 && it.equipped ? ` (${acp} atk & Str/Dex checks)` : ''}</span>`;
+      profFlag = ` <span class="fs-10" style="color:rgb(var(--text-orange));" title="Not proficient: while equipped, the armor check penalty (${acp}) applies to attack rolls and all Str- and Dex-based checks">⚠ not proficient${acp < 0 && it.equipped ? ` (${acp} atk & Str/Dex checks)` : ''}</span>`;
     }
 
     // v8.60.0 (Adam): 🤲 two-handed grip toggle — equipped one-handed melee
@@ -544,7 +544,7 @@ function renderInventoryList(items, techScale, catalogue) {
     const gripBtn = (catalogue === 'weapon' && it.equipped && def && def.kind === 'one-handed' && !isRangedWeapon(def)) ? (() => {
       const on = !!it.twoHandedGrip;
       const offBusy = curChar && getCharItems(curChar).some(o => o.id !== it.id && o.equipped && o.slot === 'off_hand');
-      return `<button class="btn btn-sm" style="font-size:10px;${on ? 'border-color:rgba(220,205,138,.6);color:rgba(220,205,138,.95);' : (offBusy ? 'opacity:.4;' : '')}" onclick="toggleTwoHandGrip('${it.id}')" title="${on ? 'Wielded in BOTH hands: Str ×1.5 damage, Power Attack ×2, off hand committed. Click to return to one hand.' : (offBusy ? 'Off hand is occupied — free it to take a two-handed grip.' : 'Wield this one-handed weapon in both hands (off hand stays committed): Str ×1.5 damage, Power Attack counts double.')}">🤲</button>`;
+      return `<button class="btn btn-sm" style="font-size:10px;${on ? 'border-color:rgb(var(--line-khaki) / .6);color:rgb(var(--text-khaki) / .95);' : (offBusy ? 'opacity:.4;' : '')}" onclick="toggleTwoHandGrip('${it.id}')" title="${on ? 'Wielded in BOTH hands: Str ×1.5 damage, Power Attack ×2, off hand committed. Click to return to one hand.' : (offBusy ? 'Off hand is occupied — free it to take a two-handed grip.' : 'Wield this one-handed weapon in both hands (off hand stays committed): Str ×1.5 damage, Power Attack counts double.')}">🤲</button>`;
     })() : '';
     // v9.6.0 (§255, Adam): line 1 = decorated name (the toggle) + state
     // buttons + the end-of-line trio (rename / sell / remove). Provenance +
@@ -557,16 +557,16 @@ function renderInventoryList(items, techScale, catalogue) {
       : '<span class="fs-10 op-0_45">provenance unrecorded</span>';
     const custRow = (enchantBtn || mcControl || gadgetDossierCtl) ? `<div class="items-center gap-8 flex-wrap mt-4 fs-10" style="display:flex;">${enchantBtn}<span>${mcControl}</span>${gadgetDossierCtl}</div>` : '';
     const dropdown = rowOpen
-      ? `<div class="rounded-3 mt-4 p-5-8" style="border:1px solid rgba(200,151,30,.18);background:rgba(200,151,30,.04);">
+      ? `<div class="rounded-3 mt-4 p-5-8" style="border:1px solid rgb(var(--line-gold) / .18);background:rgb(var(--tint-gold) / .04);">
           <div class="items-center gap-10 flex-wrap" style="display:flex;">${provHtml} ${priceHtml}</div>${custRow}
         </div>`
       : '';
     // Enchantments / Imbuements chip line (the Gadgets line's twin): each
     // built-in ability wears its GMG description as a hover pop-up.
     const enchLine = enchInfo
-      ? `<div class="mt-3 fs-10">Enchantments / Imbuements: <span class="rounded-2 fs-9 p-1-5 c-vio" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.35);margin-right:3px;" title="${escapeHTML(`Aggregate modifier +${enchInfo.totalMod} · value ${enchInfo.cost.toLocaleString()} gp`)}">${enchInfo.imbued ? '◈ imbued' : '✨ enchanted'} +${enchInfo.enh}</span>${enchInfo.abilities.map(a => `<span title="${escapeHTML((a.def && a.def.d) ? a.def.d : (a.bonus ? `+${a.bonus} bonus equivalent` : `${a.gp.toLocaleString()} gp`))}" class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgba(196,153,212,.08);border:1px solid rgba(196,153,212,.25);margin-right:3px;">${escapeHTML(a.name)}</span>`).join('')}${enchInfo.overCap ? ' <span class="fs-9 c-red-text" title="Aggregate modifier exceeds this item’s Tech Scale cap — recorded as a GM override.">⚑ over TS cap (GM)</span>' : ''}${(catalogue === 'weapon' && enchInfo.enh > 0) ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgba(196,153,212,.1);border:1px solid rgba(196,153,212,.3);" title="${escapeHTML(`Enchanted & Imbued Arms (GMG p.253): for every +1 of enhancement bonus, the weapon ignores 5 points of Hardness of anything it strikes — and whatever ignores hardness also ignores NATURAL hardness (GMG p.96).${(enchInfo.abilities || []).some(a => a.name === 'Bane') ? '\nBane (GMG p.260): +2 effective enhancement vs the designated foe — 10 more points of hardness ignored there.' : ''}`)}">⛏ ignores ${enchInfo.enh * 5} hardness</span>` : ''}</div>`
+      ? `<div class="mt-3 fs-10">Enchantments / Imbuements: <span class="rounded-2 fs-9 p-1-5 c-vio" style="background:rgb(var(--tint-violet) / .12);border:1px solid rgb(var(--line-violet) / .35);margin-right:3px;" title="${escapeHTML(`Aggregate modifier +${enchInfo.totalMod} · value ${enchInfo.cost.toLocaleString()} gp`)}">${enchInfo.imbued ? '◈ imbued' : '✨ enchanted'} +${enchInfo.enh}</span>${enchInfo.abilities.map(a => `<span title="${escapeHTML((a.def && a.def.d) ? a.def.d : (a.bonus ? `+${a.bonus} bonus equivalent` : `${a.gp.toLocaleString()} gp`))}" class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgb(var(--tint-violet) / .08);border:1px solid rgb(var(--line-violet) / .25);margin-right:3px;">${escapeHTML(a.name)}</span>`).join('')}${enchInfo.overCap ? ' <span class="fs-9 c-red-text" title="Aggregate modifier exceeds this item’s Tech Scale cap — recorded as a GM override.">⚑ over TS cap (GM)</span>' : ''}${(catalogue === 'weapon' && enchInfo.enh > 0) ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgb(var(--tint-violet) / .1);border:1px solid rgb(var(--line-violet) / .3);" title="${escapeHTML(`Enchanted & Imbued Arms (GMG p.253): for every +1 of enhancement bonus, the weapon ignores 5 points of Hardness of anything it strikes — and whatever ignores hardness also ignores NATURAL hardness (GMG p.96).${(enchInfo.abilities || []).some(a => a.name === 'Bane') ? '\nBane (GMG p.260): +2 effective enhancement vs the designated foe — 10 more points of hardness ignored there.' : ''}`)}">⛏ ignores ${enchInfo.enh * 5} hardness</span>` : ''}</div>`
       : '';
-    return `<div class="rounded-3 p-6-8 mb-5" style="border:1px solid rgba(200,151,30,.15);">
+    return `<div class="rounded-3 p-6-8 mb-5" style="border:1px solid rgb(var(--line-gold) / .15);">
       <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
         <div><span class="cursor-pointer fs-10 op-0_7" onclick="toggleItemCtl('${it.id}')" title="${rowOpen ? 'Hide' : 'Show'} provenance, Purchase DC, and the Enchant / Mastercraft controls">${rowOpen ? '▾' : '▸'}</span> <b${nameTip || ` class="cursor-pointer" onclick="toggleItemCtl('${it.id}')"`}>${escapeHTML(itemDisplayName(it))}</b>${it.customName ? ` <span class="fs-9 o-55 c-dim">(${escapeHTML(it.ref)})</span>` : ''}${profFlag} <span class="fs-10 o-60 c-dim">(${catalogue}${it.equipped ? ', equipped' : ''})</span>${armorStrip}</div>
         <div class="items-center gap-6" style="display:flex;">${equipToggle}${handSwap}${gripBtn}<button class="fs-10 btn btn-sm" onclick="renameItem('${it.id}')" title="Give this item a custom name (flavor only)">✎</button><button class="fs-10 btn btn-sm" onclick="sellItem('${it.id}')" title="Sell — into any market's Tech Scale (cross-scalar; HH p.257 Sale Price rule applies)">💱</button><button class="fs-10 btn btn-sm" onclick="removeItemFromChar('${it.id}')" title="Remove from inventory">🗑</button></div>
@@ -596,7 +596,7 @@ function renderGear() {
     // Replacements; the drawback's own Special line). The equip guard in
     // toggleItemEquipped already blocked it; now the slot SAYS so.
     if (slotDef.id === 'off_hand' && !offHandAvailable(c)) {
-      return `<tr><td class="font-serif c-g45">${slotDef.label}</td><td><span class="fs-11" style="color:#e08080;" title="Lost Arm (drawback): one arm is gone — no off hand, no two-handed weapons, −2 on Climb, Swim, and grapple checks. Install a cybernetic Prosthetic Arm (🦾 Cybernetics, below) to restore it.">✕ unavailable — Lost Arm (install a cybernetic arm to restore)</span></td></tr>`;
+      return `<tr><td class="font-serif c-g45">${slotDef.label}</td><td><span class="fs-11" style="color:rgb(var(--text-salmon));" title="Lost Arm (drawback): one arm is gone — no off hand, no two-handed weapons, −2 on Climb, Swim, and grapple checks. Install a cybernetic Prosthetic Arm (🦾 Cybernetics, below) to restore it.">✕ unavailable — Lost Arm (install a cybernetic arm to restore)</span></td></tr>`;
     }
     const equippedItems = c.items.filter(i => i.slot === slotDef.id && i.equipped);
     const virtualClaim = (slotDef.id === 'off_hand' && thWeapon) ? 1 : 0;
@@ -666,7 +666,7 @@ function renderGear() {
         ? `virtual Rapid Shot active — shown as an alt mode on ranged weapon rows${rangerLvlNow >= 6 ? ' + Manyshot (Ranger 6: 2 arrows as one standard-action attack at −4, bows only)' : ''}${rangerLvlNow >= 11 ? ' + Improved Precise Shot (Ranger 11: ignore anything less than total cover/concealment)' : ''}`
         : `SUPPRESSED — wearing ${cat} armor (light or none required)`;
     }
-    return `<tr><td colspan="5" class="fs-10_5 c-g75 p-4-8">🏹 <b>Ranger Combat Style</b> (2nd-level class feature): ${sel}${note ? ` <span style="color:${note.startsWith('SUPPRESSED') ? '#d4865a' : 'rgba(120,175,205,.85)'};">${escapeHTML(note)}</span>` : ''}</td></tr>`;
+    return `<tr><td colspan="5" class="fs-10_5 c-g75 p-4-8">🏹 <b>Ranger Combat Style</b> (2nd-level class feature): ${sel}${note ? ` <span style="color:${note.startsWith('SUPPRESSED') ? 'rgb(var(--text-orange))' : 'rgb(var(--text-sky) / .85)'};">${escapeHTML(note)}</span>` : ''}</td></tr>`;
   })() : '';
   const twfRow = twfNow ? (() => {
     const why = [`primary ${fmtAtk(twfNow.pri)} / off-hand ${fmtAtk(twfNow.off)}`];
@@ -679,7 +679,7 @@ function renderGear() {
   })() : '';
   // v8.61.0: toggle label state + the defensive-riders footer row.
   { const mb = document.getElementById('melee-opts-btn');
-    if (mb) { const on = meleeOptsOn(); mb.textContent = `⚔ Expanded Melee Options: ${on ? 'ON' : 'OFF'}`; mb.style.borderColor = on ? 'rgba(212,184,112,.6)' : ''; mb.style.color = on ? 'rgba(212,184,112,.95)' : ''; } }
+    if (mb) { const on = meleeOptsOn(); mb.textContent = `⚔ Expanded Melee Options: ${on ? 'ON' : 'OFF'}`; mb.style.borderColor = on ? 'rgb(var(--line-amber) / .6)' : ''; mb.style.color = on ? 'rgb(var(--text-amber) / .95)' : ''; } }
   const defR = defenseRiders(c);
   const defRow = defR.length
     ? `<tr><td colspan="5" class="fs-10_5 p-4-8" style="color:var(--tc80);">🛡 <b>Defensive riders</b> — ${defR.map(d => `<span title="${escapeHTML(d[1])}" class="cursor-help nowrap">${escapeHTML(d[0])}</span>`).join(' · ')}</td></tr>`
@@ -691,7 +691,7 @@ function renderGear() {
         // (extra dice like +1d6 cold stay distinct); the ⓘ itemizes the sum.
         const dmgTip = (s.dmgBreakdown || []).map(p => `${p.label}: ${p.value >= 0 ? '+' : ''}${p.value}`).join('\n');
         const dmgInfo = dmgTip ? ` <span style="cursor:help;color:var(--tb75);font-size:10px;" title="${escapeHTML('Damage modifier breakdown:\n' + dmgTip)}">ⓘ</span>` : '';
-        const handChip = s.hand ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${s.hand === 'main' ? 'main hand' : 'off hand'}</span>` : (s.gripBothHands ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgba(220,205,138,.12);border:1px solid rgba(220,205,138,.35);" title="One-handed weapon wielded in both hands: Str ×1.5 damage, Power Attack ×2. Toggle with 🤲 on the inventory row.">🤲 both hands</span>` : '');
+        const handChip = s.hand ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgb(var(--tint-sky) / .12);border:1px solid rgb(var(--line-sky) / .3);">${s.hand === 'main' ? 'main hand' : 'off hand'}</span>` : (s.gripBothHands ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgb(var(--tint-khaki) / .12);border:1px solid rgb(var(--line-khaki) / .35);" title="One-handed weapon wielded in both hands: Str ×1.5 damage, Power Attack ×2. Toggle with 🤲 on the inventory row.">🤲 both hands</span>` : '');
         // v8.60.0: Full Attack brackets — "+12 (+7)" per Adam's spec; TWF
         // off-hand rows keep their own extra-attack sequence display.
         const atkText = (s.twfExtraAtks && s.twfExtraAtks.length > 1)
@@ -701,22 +701,22 @@ function renderGear() {
             : fmtAtk(s.attackBonus);
         const atkIterTip = (s.fullAttack && s.fullAttack.length > 1)
           ? `\n\nFull Attack: ${s.fullAttack.map(fmtAtk).join(' / ')} — one extra swing per 5 points of Base Attack (max 5), each at a cumulative −5.` : '';
-        const unarmedTag = s.unarmed ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help" style="background:rgba(200,151,30,.1);border:1px solid rgba(200,151,30,.3);" title="${escapeHTML(s.unarmedNote || '')}">🥊 unarmed</span>` : '';
+        const unarmedTag = s.unarmed ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help" style="background:rgb(var(--tint-gold) / .1);border:1px solid rgb(var(--line-gold) / .3);" title="${escapeHTML(s.unarmedNote || '')}">🥊 unarmed</span>` : '';
         const capFlag = s.enchantOverCap ? ' <span class="c-red-text fs-10" title="Aggregate enchantment exceeds this item’s Tech Scale cap — GM override recorded.">⚑</span>' : '';
         // v9.6.1 (§256): the enchanted/imbued hardness-piercing rider.
-        const ihTag = s.ignoreHardness ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgba(196,153,212,.1);border:1px solid rgba(196,153,212,.3);" title="${escapeHTML(`Enchanted & Imbued Arms (GMG p.253): for every +1 of enhancement bonus, the weapon ignores 5 points of Hardness of anything it strikes — and whatever ignores hardness also ignores NATURAL hardness (GMG p.96).${s.ihBane ? '\nBane (GMG p.260): +2 effective enhancement vs the designated foe — 10 more points of hardness ignored there.' : ''}\nA monk’s ki strike stacks through a Ki Focus weapon (+5 ignored per +1).`)}">⛏ ignores ${s.ignoreHardness} hardness${s.ihBane ? ' (+10 bane)' : ''}</span>` : '';
-        const integTag = s.integratedIn ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.3);" title="Alternate Weapon gadget — integrated into the host, usable at any time while it is equipped.${s.detachable ? ' Detachable (can be physically separated).' : ' Fixed mounting.'}">🔩 in ${escapeHTML(s.integratedIn)}${s.detachable ? ' · detachable' : ''}</span>` : '';
+        const ihTag = s.ignoreHardness ? ` <span class="rounded-2 fs-9 p-1-5 cursor-help c-vio" style="background:rgb(var(--tint-violet) / .1);border:1px solid rgb(var(--line-violet) / .3);" title="${escapeHTML(`Enchanted & Imbued Arms (GMG p.253): for every +1 of enhancement bonus, the weapon ignores 5 points of Hardness of anything it strikes — and whatever ignores hardness also ignores NATURAL hardness (GMG p.96).${s.ihBane ? '\nBane (GMG p.260): +2 effective enhancement vs the designated foe — 10 more points of hardness ignored there.' : ''}\nA monk’s ki strike stacks through a Ki Focus weapon (+5 ignored per +1).`)}">⛏ ignores ${s.ignoreHardness} hardness${s.ihBane ? ' (+10 bane)' : ''}</span>` : '';
+        const integTag = s.integratedIn ? ` <span class="rounded-2 fs-9 p-1-5" style="background:rgb(var(--tint-gold) / .08);border:1px solid rgb(var(--line-gold) / .3);" title="Alternate Weapon gadget — integrated into the host, usable at any time while it is equipped.${s.detachable ? ' Detachable (can be physically separated).' : ' Fixed mounting.'}">🔩 in ${escapeHTML(s.integratedIn)}${s.detachable ? ' · detachable' : ''}</span>` : '';
         const statStrip = s.statStrip ? `<div style="font-size:9.5px;color:var(--g55);margin-top:1px;cursor:help;" title="crit threat/multiplier · range increment · Rate of Fire (S = semiautomatic, A = automatic) · magazine${s.rangeRule ? escapeHTML('\n\n' + s.rangeRule) : ''}">${escapeHTML(s.statStrip)}</div>` : '';
-        return `<tr><td>${escapeHTML(s.name)}${unarmedTag}${integTag}${handChip}${capFlag}${ihTag}${s.proficient ? '' : ' <span class="fs-10" style="color:#d4865a;" title="-4 not proficient">⚠ not proficient</span>'}${statStrip}</td>`
+        return `<tr><td>${escapeHTML(s.name)}${unarmedTag}${integTag}${handChip}${capFlag}${ihTag}${s.proficient ? '' : ' <span class="fs-10" style="color:rgb(var(--text-orange));" title="-4 not proficient">⚠ not proficient</span>'}${statStrip}</td>`
       + `<td class="cursor-help" title="${escapeHTML(atkTip + atkIterTip)}">${atkText}</td><td>${escapeHTML(s.damage)} ${escapeHTML(s.damageLabel)}${dmgInfo}</td>`
       + `<td style="font-size:10px;opacity:.8;cursor:help;" title="Resisted by: ${escapeHTML(s.resistances.join('; ') || '—')}${s.vsObjects ? escapeHTML('\nVs objects: ' + s.vsObjects) : ''}">${escapeHTML(s.typeLabel || (s.damageTypes || []).join('/') || '—')}</td>`
       + `<td class="fs-10">${s.altModes.length ? s.altModes.map(m => m.spike
-          ? `<div title="${escapeHTML(m.label)}" style="color:${m.path ? 'rgba(220,205,138,.95)' : 'rgba(220,205,138,.4)'};white-space:nowrap;cursor:help;">↳ ⚡ ${escapeHTML(m.name)}: ${escapeHTML(m.display)}${m.path ? ` <button class="fs-9 p-0-5 ml-4 btn btn-sm" onclick="weaponSpikeUse('${escapeHTML(m.dispFeat)}','${m.dice}','${m.path}')">Expend Focus</button>` : ''}</div>`
+          ? `<div title="${escapeHTML(m.label)}" style="color:${m.path ? 'rgb(var(--text-khaki) / .95)' : 'rgb(var(--text-khaki) / .4)'};white-space:nowrap;cursor:help;">↳ ⚡ ${escapeHTML(m.name)}: ${escapeHTML(m.display)}${m.path ? ` <button class="fs-9 p-0-5 ml-4 btn btn-sm" onclick="weaponSpikeUse('${escapeHTML(m.dispFeat)}','${m.dice}','${m.path}')">Expend Focus</button>` : ''}</div>`
           : `<div title="${escapeHTML(m.label)}" class="c-pb90 cursor-help nowrap">↳ ${escapeHTML(m.name)}: ${m.display ? escapeHTML(m.display) : `${m.atk >= 0 ? '+' : ''}${m.atk} atk / ×${m.dmgMult} dmg${m.roundsCost ? ` <span class="o-55 c-dim">(${m.roundsCost} rds)</span>` : ''}`}</div>`).join('') : '<span class="op-0_4">—</span>'}</td></tr>`
       // v8.61.0: the maneuvers + riders sub-row (Expanded Melee Options).
       + (((s.maneuvers && s.maneuvers.length) || (s.riders && s.riders.length))
-          ? `<tr><td colspan="5" class="fs-10 lh-1_9" style="padding:2px 8px 7px 20px;border-bottom:1px solid rgba(200,151,30,.08);">`
-            + (s.maneuvers || []).map(m => `<span title="${escapeHTML(m.label)}" class="cursor-help nowrap" style="color:rgba(212,184,112,.9);margin-right:12px;">⚔ ${m.n}: ${escapeHTML(m.display)}</span>`).join('')
+          ? `<tr><td colspan="5" class="fs-10 lh-1_9" style="padding:2px 8px 7px 20px;border-bottom:1px solid rgb(var(--line-gold) / .08);">`
+            + (s.maneuvers || []).map(m => `<span title="${escapeHTML(m.label)}" class="cursor-help nowrap" style="color:rgb(var(--text-amber) / .9);margin-right:12px;">⚔ ${m.n}: ${escapeHTML(m.display)}</span>`).join('')
             + (s.riders || []).map(r => `<span title="${escapeHTML(r[1])}" class="cursor-help nowrap" style="color:var(--tb65);margin-right:12px;">• ${escapeHTML(r[0])}</span>`).join('')
             + `</td></tr>`
           : '');
@@ -738,8 +738,8 @@ function renderGear() {
       const def = mechaDefOf(it); if (!def) return '';
       const g = vehicleIntegrity(it);
       const nm = it.custom ? it.custom.name : (it.customName || it.ref);
-      const state = g.destroyed ? ' <span class="fs-10" style="color:#999;">☠ DESTROYED</span>' : g.broken ? ' <span class="c-red-text fs-10">🛑 DISABLED</span>' : (it.piloted ? ' <span class="fs-10" style="color:#78afcd;">🕹 piloted</span>' : '');
-      return `<div class="justify-between items-center gap-8 p-4-0 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
+      const state = g.destroyed ? ' <span class="fs-10" style="color:rgb(var(--text-grey60));">☠ DESTROYED</span>' : g.broken ? ' <span class="c-red-text fs-10">🛑 DISABLED</span>' : (it.piloted ? ' <span class="fs-10" style="color:rgb(var(--text-sky));">🕹 piloted</span>' : '');
+      return `<div class="justify-between items-center gap-8 p-4-0 fs-12" style="display:flex;border-bottom:1px solid rgb(var(--line-gold) / .08);">
         <div><b>🦿 ${escapeHTML(nm)}</b>${state}
           <div class="fs-9_5 c-g55">${def.size} TS ${def.ts} · ${escapeHTML(def.superstructure)}/${escapeHTML(def.armorType)} · Str ${def.str} · Hull ${g.hp}/${g.maxHP} · Hard ${g.hardness}</div>
         </div>
@@ -759,7 +759,7 @@ function renderGear() {
       const def = shipDefOf(it); if (!def) return '';
       const secs = shipSections(it);
       const worst = secs.filter(s => s.disabled).map(s => s.section);
-      return `<div class="justify-between items-center gap-8 p-4-0 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
+      return `<div class="justify-between items-center gap-8 p-4-0 fs-12" style="display:flex;border-bottom:1px solid rgb(var(--line-gold) / .08);">
         <div><b>🚀 ${escapeHTML(it.customName || it.ref)}</b>${worst.length ? ` <span class="c-red-text fs-10">🛑 ${worst.join('/')}</span>` : ''}
           <div class="fs-9_5 c-g55">${escapeHTML(def.subtype)} · ${def.cls} TS ${def.ts} · ${def.D}D · crew ${def.crew} · Hard ${def.hardness}</div>
         </div>

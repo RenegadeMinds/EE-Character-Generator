@@ -62,20 +62,20 @@ function renderGMExceptions(c){
   const openCount = exceptions.length - resolvedCount;
   const arrow = gmExceptionsExpanded ? '▾' : '▸';
   // Banner header
-  let html = `<div onclick="toggleGMExceptionsExpanded()" class="rounded-3 cursor-pointer p-6-10 fs-12 c-red-text items-center gap-8 font-serif ls-0_05em" style="background:rgba(212,112,112,.08);border:1px solid rgba(212,112,112,.3);display:inline-flex;">
+  let html = `<div onclick="toggleGMExceptionsExpanded()" class="rounded-3 cursor-pointer p-6-10 fs-12 c-red-text items-center gap-8 font-serif ls-0_05em" style="background:rgb(var(--tint-red) / .08);border:1px solid rgb(var(--line-red) / .3);display:inline-flex;">
     ${arrow} ⚠ ${exceptions.length} GM exception${exceptions.length===1?'':'s'} on this character
-    ${resolvedCount > 0 ? `<span class="op-0_85" style="color:#6dba88;">(${resolvedCount} now resolved)</span>` : ''}
+    ${resolvedCount > 0 ? `<span class="op-0_85" style="color:rgb(var(--text-green));">(${resolvedCount} now resolved)</span>` : ''}
   </div>`;
   if (gmExceptionsExpanded) {
-    html += `<div class="rounded-3 mt-8" style="border:1px solid rgba(212,112,112,.25);background:rgba(20,15,10,.4);">`;
+    html += `<div class="rounded-3 mt-8" style="border:1px solid rgb(var(--line-red) / .25);background:rgb(var(--tint-night) / .4);">`;
     exceptions.forEach((ex, i) => {
       const isResolved = recheck[i];
       const statusBadge = isResolved
-        ? `<span class="fs-10 bold" style="color:#6dba88;">✓ Now Met</span>`
+        ? `<span class="fs-10 bold" style="color:rgb(var(--text-green));">✓ Now Met</span>`
         : `<span class="c-red-text fs-10 bold">✗ Still Open</span>`;
       const date = ex.grantedAt || '(no date)';
       const missingList = (ex.missing || []).map(m => `<li>${escapeHTML(m)}</li>`).join('');
-      html += `<div style="padding:8px 12px;border-top:${i===0?'none':'1px solid rgba(200,151,30,.08)'};font-size:12px;">
+      html += `<div style="padding:8px 12px;border-top:${i===0?'none':'1px solid rgb(var(--line-gold) / .08)'};font-size:12px;">
         <div class="justify-between items-start gap-8" style="display:flex;">
           <div class="flex-1">
             <div class="c-gold bold mb-3">${escapeHTML(ex.target)}</div>
@@ -182,7 +182,7 @@ function renderFeatList(c){
   if (g.shield) bits.push('shields');
   if (g.towerShield) bits.push('tower shields');
   if (g.weaponsDisp.length) bits.push('specific: ' + g.weaponsDisp.join(', '));
-  let grantBanner = `<div class="rounded-3 p-6-10 mb-6 fs-11 c-tb85" style="border:1px solid rgba(120,175,205,.25);">
+  let grantBanner = `<div class="rounded-3 p-6-10 mb-6 fs-11 c-tb85" style="border:1px solid rgb(var(--line-sky) / .25);">
     <b>Class &amp; racial proficiencies</b> <span class="o-60 c-dim">(granted on entry — no feat slots used)</span>: ${escapeHTML(bits.join(' · '))}</div>`;
   // v8.71.0 (Adam's grooming pass): the Sheet's assigned-state Gift banner
   // retired — the ⬟ honor now sits on the occupying feat itself, read off
@@ -202,7 +202,7 @@ function renderFeatList(c){
   const _anyGiftTag = _giftAssigned && feats.some(_giftTagged);
   const GIFT_CHIP_TIP = "Hero's Gift — this feat fills the Hero-class Gift slot (+1 bonus feat, Hero feat list). To reassign the Gift (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.";
   if (_giftAssigned && !_anyGiftTag) {
-    grantBanner += `<div class="rounded-3 p-5-10 mb-6 fs-11 c-vio" style="border:1px solid rgba(196,153,212,.3);" title="${escapeHTML(GIFT_CHIP_TIP)} 1st-level picks fill the slot automatically; feats taken at higher levels count against the budget without a slot tag (cosmetic only).">⬟ <b>Hero's Gift (feat)</b> — +1 feat budget; no feat tagged to the slot yet.</div>`;
+    grantBanner += `<div class="rounded-3 p-5-10 mb-6 fs-11 c-vio" style="border:1px solid rgb(var(--line-violet) / .3);" title="${escapeHTML(GIFT_CHIP_TIP)} 1st-level picks fill the slot automatically; feats taken at higher levels count against the budget without a slot tag (cosmetic only).">⬟ <b>Hero's Gift (feat)</b> — +1 feat budget; no feat tagged to the slot yet.</div>`;
   }
   // v9.19.0 (old-boys #3): the UNCLAIMED Gift gets its claim card HERE — the
   // attention dot pointed at this tab, but the only chooser hid inside
@@ -210,7 +210,7 @@ function renderFeatList(c){
   // bonus all session. One click each way; the fold reconciler has already
   // absorbed over-budget cases before this renders.
   if (!isLegacyCharacter(c) && c.heroesGiftChoice === null && (c.classes || []).some(e => e.tier === 'hero')) {
-    grantBanner += `<div class="rounded-3 p-7-10 mb-6 fs-11_5 c-gold" style="border:1px solid rgba(200,151,30,.45);background:rgba(200,151,30,.04);">
+    grantBanner += `<div class="rounded-3 p-7-10 mb-6 fs-11_5 c-gold" style="border:1px solid rgb(var(--line-gold) / .45);background:rgb(var(--tint-gold) / .04);">
       🎁 <b>Hero's Gift unclaimed</b> — your Hero class owes you ONE bonus pick: a feat or a talent, chosen once (retcon later via ✎ Edit).
       <span class="nowrap"><button class="fs-10 ml-8 btn btn-sm btn-pri" onclick="assignHerosGiftAsFeat()">Claim as Feat (+1 feat slot)</button>
       <button class="fs-10 ml-4 btn btn-sm" onclick="assignHerosGiftAsTalent()">Claim as Talent (+1 talent slot)</button></span>
@@ -224,7 +224,7 @@ function renderFeatList(c){
     // v8.71.0: ⬟ chip on the feat occupying the Hero's Gift slot.
     const _isGiftFeat = _giftAssigned && _giftTagged(f);
     const giftChip = _isGiftFeat
-      ? ` <span class="rounded-2 fs-9 c-vio p-1-5 ml-6 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);" title="${escapeHTML(GIFT_CHIP_TIP)}">⬟ Hero's Gift</span>`
+      ? ` <span class="rounded-2 fs-9 c-vio p-1-5 ml-6 cursor-help" style="border:1px solid rgb(var(--line-violet) / .45);background:rgb(var(--tint-violet) / .1);" title="${escapeHTML(GIFT_CHIP_TIP)}">⬟ Hero's Gift</span>`
       : '';
     const data = getFeatData(f.name);
     if (!data) {
@@ -245,7 +245,7 @@ function renderFeatList(c){
     const prereq = checkFeatPrereqs(f.name, c);
     let badge = '';
     if (prereq.met) {
-      badge = `<span class="fs-10 ml-6" style="color:#6dba88;">✓ prereqs met</span>`;
+      badge = `<span class="fs-10 ml-6" style="color:rgb(var(--text-green));">✓ prereqs met</span>`;
     } else {
       const unverify = prereq.missing.every(m => m.includes('(GM-verify)'));
       const lbl = unverify ? '⚠ GM-verify' : '⚠ missing prereqs';
@@ -257,7 +257,7 @@ function renderFeatList(c){
     // (the Heritage feats are the motivating case — their class choice landed
     // long after players took them). Generic: any paramful feat qualifies.
     const paramFixBtn = (data.param && !f.param && !f.grantedBy)
-      ? ` <button class="fs-9 p-1-6 c-vio btn btn-sm" style="background:rgba(196,153,212,.12);border-color:rgba(196,153,212,.45);" onclick="setFeatParamAt(${i})" title="This feat needs a ${escapeHTML((data.param.param_label||'parameter').toLowerCase())} — added before the picker existed. Choose now; no re-add needed.">⬦ choose ${escapeHTML((data.param.param_label||'parameter').toLowerCase())}</button>`
+      ? ` <button class="fs-9 p-1-6 c-vio btn btn-sm" style="background:rgb(var(--tint-violet) / .12);border-color:rgb(var(--line-violet) / .45);" onclick="setFeatParamAt(${i})" title="This feat needs a ${escapeHTML((data.param.param_label||'parameter').toLowerCase())} — added before the picker existed. Choose now; no re-add needed.">⬦ choose ${escapeHTML((data.param.param_label||'parameter').toLowerCase())}</button>`
       : '';
     const fam = data.family || 'General';
     // v8.3.2: surface slot source if this feat consumed a class-bonus slot.
@@ -266,14 +266,14 @@ function renderFeatList(c){
     if (f.slotSource && typeof f.slotSource === 'string') {
       const m = f.slotSource.match(/^classFeature:([^:]+):(.+)$/);
       if (m) {
-        slotTag = ` <span style="font-size:9px;color:var(--vio);border:1px solid rgba(196,153,212,.35);padding:1px 5px;border-radius:2px;margin-left:6px;" title="Filled the ${escapeHTML(m[1])} class-feature slot: ${escapeHTML(m[2])}">${escapeHTML(m[1])} bonus</span>`;
+        slotTag = ` <span style="font-size:9px;color:var(--vio);border:1px solid rgb(var(--line-violet) / .35);padding:1px 5px;border-radius:2px;margin-left:6px;" title="Filled the ${escapeHTML(m[1])} class-feature slot: ${escapeHTML(m[2])}">${escapeHTML(m[1])} bonus</span>`;
       }
     }
     // v8.6.1: class-entry granted feats (Monk's CMA/DMA) show provenance and
     // no remove button — removal follows the class levels, not a click
     // (reconcileGrantedFeats would re-add it on the next sync anyway).
     const grantTag = f.grantedBy
-      ? ` <span style="font-size:9px;color:var(--pb90);border:1px solid rgba(120,175,205,.35);padding:1px 5px;border-radius:2px;margin-left:6px;" title="Granted on class entry — no feat slot used; removed automatically if the class goes.">granted by ${escapeHTML(f.grantedBy)}</span>`
+      ? ` <span style="font-size:9px;color:var(--pb90);border:1px solid rgb(var(--line-sky) / .35);padding:1px 5px;border-radius:2px;margin-left:6px;" title="Granted on class entry — no feat slot used; removed automatically if the class goes.">granted by ${escapeHTML(f.grantedBy)}</span>`
       : '';
     return `<div class="feat-entry">
       <div>
@@ -452,10 +452,10 @@ function renderFeatBrowser(filter='',famF='',qualF=''){
         for (let i = 0; i < open.length; i++) {
           const s = open[i];
           const isActive = _activeBrowserSlot && _activeBrowserSlot.sourceTag === s.sourceTag && _activeBrowserSlot.slotIndex === s.slotIndex;
-          bannerHtml += `<button class="btn btn-sm" onclick="setActiveBrowserSlot(${i})" style="font-size:10px;padding:3px 8px;${isActive?'background:rgba(196,153,212,.25);border-color:var(--vio);':''}">${isActive?'▼ ':''}${escapeHTML(s.className)} #${s.slotIndex+1}</button>`;
+          bannerHtml += `<button class="btn btn-sm" onclick="setActiveBrowserSlot(${i})" style="font-size:10px;padding:3px 8px;${isActive?'background:rgb(var(--tint-violet) / .25);border-color:var(--vio);':''}">${isActive?'▼ ':''}${escapeHTML(s.className)} #${s.slotIndex+1}</button>`;
         }
         const noSlotActive = !_activeBrowserSlot;
-        bannerHtml += `<button class="btn btn-sm" onclick="setActiveBrowserSlot(null)" style="font-size:10px;padding:3px 8px;${noSlotActive?'background:rgba(200,151,30,.15);':''}">${noSlotActive?'▼ ':''}Browse without slot</button>`;
+        bannerHtml += `<button class="btn btn-sm" onclick="setActiveBrowserSlot(null)" style="font-size:10px;padding:3px 8px;${noSlotActive?'background:rgb(var(--tint-gold) / .15);':''}">${noSlotActive?'▼ ':''}Browse without slot</button>`;
         bannerHtml += `</div>`;
         banner.innerHTML = bannerHtml;
         banner.style.display = 'block';
@@ -536,7 +536,7 @@ function renderFeatBrowser(filter='',famF='',qualF=''){
     let _famHead = '';
     if (sortMode === 'family' && fam !== _lastFam) {
       _lastFam = fam;
-      _famHead = `<div class="p-5-10 font-serif fs-11 ls-0_08em uppercase c-gold" style="background:rgba(200,151,30,.1);border-top:1px solid rgba(200,151,30,.25);border-bottom:1px solid rgba(200,151,30,.18);">${escapeHTML(fam)} Feats</div>`;
+      _famHead = `<div class="p-5-10 font-serif fs-11 ls-0_08em uppercase c-gold" style="background:rgb(var(--tint-gold) / .1);border-top:1px solid rgb(var(--line-gold) / .25);border-bottom:1px solid rgb(var(--line-gold) / .18);">${escapeHTML(fam)} Feats</div>`;
     }
     let prereqStatus = '';
     let addBtn = '';
@@ -553,7 +553,7 @@ function renderFeatBrowser(filter='',famF='',qualF=''){
         prereqStatus = `<span class="fs-10 c-vio ml-6">⬟ 1st-level Heritage slot</span>
           <div class="fs-11 c-g60 mt-2 lh-1_4">Heritage feats are assigned during 1st-level creation. This character is past 1st level — adding it now requires GM approval (recorded as a GM exception). Use incremental Level Up to advance characters the canonical way.</div>`;
       } else if (r.met) {
-        prereqStatus = `<span class="fs-10 ml-6" style="color:#6dba88;">✓ qualifies</span>`;
+        prereqStatus = `<span class="fs-10 ml-6" style="color:rgb(var(--text-green));">✓ qualifies</span>`;
       } else {
         const unverify = r.missing.every(m => m.includes('(GM-verify)'));
         const lbl = unverify ? '⚠ GM-verify' : '✗ missing prereqs';
@@ -569,7 +569,7 @@ function renderFeatBrowser(filter='',famF='',qualF=''){
         // GM-exception override button — distinct styling so it reads as an
         // exceptional action, not a normal Add.
         const label = alreadyOwned ? 'GM Override (Add Again)' : 'GM Override';
-        addBtn = `<button class="c-vio fs-10 btn btn-sm" onclick="pickAndAddFeat('${(f.n||'').replace(/'/g,"\\'")}')" style="background:rgba(196,153,212,.15);border-color:var(--vio);" title="Adds this Heritage feat above 1st level as a GM-approved exception">⬟ ${label}</button>`;
+        addBtn = `<button class="c-vio fs-10 btn btn-sm" onclick="pickAndAddFeat('${(f.n||'').replace(/'/g,"\\'")}')" style="background:rgb(var(--tint-violet) / .15);border-color:var(--vio);" title="Adds this Heritage feat above 1st level as a GM-approved exception">⬟ ${label}</button>`;
       } else {
         const label = alreadyOwned ? '+ Add Again' : '+ Add';
         addBtn = `<button class="btn btn-sm btn-pri" onclick="pickAndAddFeat('${(f.n||'').replace(/'/g,"\\'")}')">${label}</button>`;

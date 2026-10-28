@@ -1,0 +1,109 @@
+/* ==========================================================================
+   css/colours.css
+   COLOUR TOKENS FOR THE PAGE CODE: ONE PER HUE *AND* PER JOB
+   ==========================================================================
+
+   WHY THIS EXISTS
+     The page code (js/ui/...) and index.html used to write colours as fixed
+     values (#d4b870, rgba(200,151,30,.3)): about 640 of them. Fixed values
+     ignore the colour theme, so Classic and High Contrast couldn't touch
+     them. Each one now names a token from this file instead.
+
+   ONE TOKEN PER JOB, NOT PER VALUE
+     The same colour often does different jobs: gold is a thin border in one
+     place and a faint background in another; amber is text here and a
+     border there. Those are NOT the same thing, so each job has its own
+     token, and a theme can change one without the other:
+       --text-NAME   the colour of text       (CSS color)
+       --line-NAME   borders, rules, outlines and glows
+       --tint-NAME   backgrounds, fills and bars
+     Which job a use is came from the CSS property it was written under, use
+     by use. Where one variable in the code fed two jobs (e.g. a vehicle's
+     HP colour was both the number and the bar), it was split in two.
+
+   HOW THEY ARE WRITTEN
+     A token holds the three numbers red green blue, so the transparency
+     stays at the place of use:
+       color: rgb(var(--text-amber))                  solid
+       border: 1px solid rgb(var(--line-gold) / .3)   30% opaque
+     The names are just colour names (gold, sky, amber, ...). Near-identical
+     colours (amber / amber2, spring / spring2) keep separate names for now:
+     merging them would change what's on screen.
+
+   THEMES
+     Every token below starts as exactly the colour that was written in the
+     code, in every theme. The theme blocks at the bottom change only what
+     a theme should change. css/app.css holds the main theme tokens.
+
+   NOT HERE ON PURPOSE
+     The print sheet (js/ui/print.js) keeps its fixed colours: it is printed
+     on white paper, the same whatever theme is on screen.
+   ========================================================================== */
+:root{
+  /* gold #c8971e */ --line-gold:200 151 30; --tint-gold:200 151 30;
+  /* sky #78afcd */ --text-sky:120 175 205; --line-sky:120 175 205; --tint-sky:120 175 205;
+  /* amber #d4b870 */ --text-amber:212 184 112; --line-amber:212 184 112; --tint-amber:212 184 112;
+  /* violet #c499d4 */ --text-violet:196 153 212; --line-violet:196 153 212; --tint-violet:196 153 212;
+  /* blue #7daadc */ --text-blue:125 170 220; --line-blue:125 170 220; --tint-blue:125 170 220;
+  /* green #6dba88 */ --text-green:109 186 136; --tint-green:109 186 136;
+  /* red #d47070 */ --line-red:212 112 112; --tint-red:212 112 112;
+  /* black #000000 */ --tint-black:0 0 0;
+  /* orange #d4865a */ --text-orange:212 134 90; --tint-orange:212 134 90;
+  /* khaki #dccd8a */ --text-khaki:220 205 138; --line-khaki:220 205 138; --tint-khaki:220 205 138;
+  /* mint #8cc896 */ --text-mint:140 200 150; --line-mint:140 200 150; --tint-mint:140 200 150;
+  /* salmon #e08080 */ --text-salmon:224 128 128;
+  /* lilac #b58fd4 */ --text-lilac:181 143 212; --line-lilac:181 143 212;
+  /* grey60 #999999 */ --text-grey60:153 153 153;
+  /* ice #9cc3da */ --text-ice:156 195 218;
+  /* copper #d48c46 */ --line-copper:212 140 70; --tint-copper:212 140 70;
+  /* tangerine #d98e4f */ --text-tangerine:217 142 79; --line-tangerine:217 142 79; --tint-tangerine:217 142 79;
+  /* peach #d49a70 */ --text-peach:212 154 112;
+  /* blood #8b1a1a */ --line-blood:139 26 26; --tint-blood:139 26 26;
+  /* sage #7db487 */ --line-sage:125 180 135; --tint-sage:125 180 135;
+  /* leaf #7dc98c */ --text-leaf:125 201 140;
+  /* olive #cccca0 */ --text-olive:204 204 160;
+  /* umber #1a140a */ --tint-umber:26 20 10;
+  /* steel #a0bed7 */ --line-steel:160 190 215;
+  /* amber2 #d4b070 */ --text-amber2:212 176 112;
+  /* cream #e8d9a0 */ --text-cream:232 217 160;
+  /* vellum #dccdaa */ --text-vellum:220 205 170;
+  /* ink #1a1408 */ --tint-ink:26 20 8;
+  /* coral #d6785c */ --text-coral:214 120 92; --line-coral:214 120 92;
+  /* forest #328c50 */ --line-forest:50 140 80; --tint-forest:50 140 80;
+  /* slate #7891aa */ --line-slate:120 145 170; --tint-slate:120 145 170;
+  /* taupe #a09678 */ --line-taupe:160 150 120; --tint-taupe:160 150 120;
+  /* jet #0a0a0a */ --text-jet:10 10 10;
+  /* marigold #e0a94a */ --text-marigold:224 169 74;
+  /* olive2 #c8c8a0 */ --text-olive2:200 200 160;
+  /* spring #78c88c */ --text-spring:120 200 140;
+  /* paper #fafafa */ --tint-paper:250 250 250;
+  /* brick #a05050 */ --line-brick:160 80 80;
+  /* grey71 #b4b4b4 */ --line-grey71:180 180 180;
+  /* iris #9696dc */ --line-iris:150 150 220;
+  /* spring2 #78cd8c */ --text-spring2:120 205 140; --line-spring2:120 205 140;
+  /* tan #c8b48c */ --line-tan:200 180 140;
+  /* apricot #eaa56d */ --text-apricot:234 165 109;
+  /* blush #f0c8c8 */ --text-blush:240 200 200;
+  /* cornflower #9bc2e8 */ --text-cornflower:155 194 232;
+  /* lavender #c8b3e0 */ --text-lavender:200 179 224;
+  /* mint2 #8fcf9a */ --text-mint2:143 207 154;
+  /* mustard #d6b85c */ --text-mustard:214 184 92;
+  /* pink #ec9595 */ --text-pink:236 149 149;
+  /* wheat #e5cb8a */ --text-wheat:229 203 138;
+  /* abyss #0e121a */ --tint-abyss:14 18 26;
+  /* grey59 #969696 */ --tint-grey59:150 150 150;
+  /* maroon #4a1a1a */ --tint-maroon:74 26 26;
+  /* midnight #141824 */ --tint-midnight:20 24 36;
+  /* night #140f0a */ --tint-night:20 15 10;
+  /* night2 #161210 */ --tint-night2:22 18 16;
+  /* umber2 #1a1208 */ --tint-umber2:26 18 8;
+  /* moss #4a7a52 */ --line-moss:74 122 82;
+  /* ochre #a08a40 */ --line-ochre:160 138 64;
+  /* periwinkle #8aa6dc */ --text-periwinkle:138 166 220; --line-periwinkle:138 166 220;
+  /* celadon #a8d4ae */ --text-celadon:168 212 174;
+  /* grey33 #555555 */ --text-grey33:85 85 85; --tint-grey33:85 85 85;
+  /* rose #e0a0a0 */ --text-rose:224 160 160;
+  /* sand #e8d49a */ --text-sand:232 212 154;
+  /* bistre #4a3a12 */ --tint-bistre:74 58 18;
+  /* pine #1d3320 */ --tint-pine:29 51 32;
+}

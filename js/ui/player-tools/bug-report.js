@@ -164,7 +164,7 @@ function renderBugList() {
   el.innerHTML = list.map(r => {
     const when = (r.ctx && r.ctx.timestamp || '').replace('T', ' ').slice(0, 16);
     const last = (r.sent || []).slice(-1)[0];
-    return `<div class="gap-8 items-center flex-wrap p-6-0" style="display:flex;border-bottom:1px solid rgba(200,151,30,.15);">
+    return `<div class="gap-8 items-center flex-wrap p-6-0" style="display:flex;border-bottom:1px solid rgb(var(--line-gold) / .15);">
       <span class="c-gold-soft nowrap">${escapeHTML(when)}</span>
       <span class="flex-1 c-parch" style="min-width:140px;">${escapeHTML((r.what || '').split('\n')[0].slice(0, 70) || '(no description)')}</span>
       <span class="c-gold-mute fs-11">${last ? escapeHTML(last.how === 'email' ? 'sent' : 'copied') : ''}${r.charJson ? ' · +JSON' : ''}</span>

@@ -35,7 +35,7 @@ function renderXPBar(c){
       <div class="xp-top"><span class="xp-lvl">Level ${c.totalLvl}</span><span class="font-serif fs-9 c-g50">ECL ${c.ecl}</span></div>
       <div class="bar-wrap"><div class="bar-fill bar-gold" style="width:${prog.pct}%;"></div></div>
       <div class="xp-txt">${prog.inLevel.toLocaleString()} / ${prog.bandSize.toLocaleString()} XP toward Lvl ${c.totalLvl + 1} <span class="c-g45 fs-10">(${c.xp.toLocaleString()} total)</span></div>
-      ${c.mcReserve && techsmithLvl(c) ? `<div style="font-size:10.5px;color:#78afcd;margin-top:3px;cursor:help;" title="Techsmith class feature (HH p.140): 250 XP × class level granted at every Techsmith level. Spendable ONLY on mastercraft items (the − Spend flow draws it first); unspent reserve is FORFEITED when a new level is gained. Separate from advancement XP — it never counts toward level gain.">🔧 Mastercraft XP Reserve: <b>${c.mcReserve.balance.toLocaleString()}</b> <span class="c-g45">(use-it-or-lose-it at level-up · mastercraft only)</span></div>` : ''}
+      ${c.mcReserve && techsmithLvl(c) ? `<div style="font-size:10.5px;color:rgb(var(--text-sky));margin-top:3px;cursor:help;" title="Techsmith class feature (HH p.140): 250 XP × class level granted at every Techsmith level. Spendable ONLY on mastercraft items (the − Spend flow draws it first); unspent reserve is FORFEITED when a new level is gained. Separate from advancement XP — it never counts toward level gain.">🔧 Mastercraft XP Reserve: <b>${c.mcReserve.balance.toLocaleString()}</b> <span class="c-g45">(use-it-or-lose-it at level-up · mastercraft only)</span></div>` : ''}
     </div>`;
 }
 function awardXP(){
