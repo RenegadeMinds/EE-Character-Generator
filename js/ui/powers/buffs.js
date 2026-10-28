@@ -25,7 +25,7 @@
 // =============================================================================
 
 function toggleBuffSuper(name) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const p = (c.powers || []).find(x => x.pool === 'super' && x.name === name);
   if (!p) return;
@@ -106,7 +106,7 @@ function applyWiredBuff(c, spellName, pool, extraPP, augPicks) {
   return true;
 }
 function dismissBuffAt(i) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c || !Array.isArray(c.activeEffects)) return;
   const a = c.activeEffects.splice(i, 1)[0];
   if (a) logAct(`✨ ${a.name} effect ended (dismissed).`);

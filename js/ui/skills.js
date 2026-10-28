@@ -29,7 +29,7 @@
 
 function addSkillSetPick(key, val) {
   if (!val) return;
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!c.skillSets) c.skillSets = {};
   if (!c.skillSets[key]) c.skillSets[key] = [];
   if (!c.skillSets[key].includes(val)) c.skillSets[key].push(val);
@@ -39,7 +39,7 @@ function addSkillSetPick(key, val) {
   save(); renderClassChoices(c);
 }
 function removeSkillSetPick(key, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const arr = (c.skillSets || {})[key]; if (!arr || idx < 0 || idx >= arr.length) return;
   const gone = arr.splice(idx, 1)[0];
   logAct(`🎓 ${key === 'shutItOut' ? 'Shut It Out' : 'Skill Mastery'}: ${gone} designation removed (GM retcon).`);
@@ -135,7 +135,7 @@ function formatSynergyMiscTooltip(autoEntries) {
 // edited in the first place.
 function _snapshotSkillInputsToChar() {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!c.skills) c.skills = {};
   for (const sk of SKILLS) {
@@ -150,7 +150,7 @@ function _snapshotSkillInputsToChar() {
 function renderSkills(){
   const prompt=document.getElementById('sk-prompt'),cont=document.getElementById('sk-content');
   if(!curId){prompt.style.display='block';cont.style.display='none';return;}
-  const c=chars.find(x=>x.id===curId);if(!c){prompt.style.display='block';cont.style.display='none';return;}
+  const c=currentChar();if(!c){prompt.style.display='block';cont.style.display='none';return;}
   prompt.style.display='none';cont.style.display='block';
   document.getElementById('sk-hero-nm').textContent=c.name+' — Skills';
   // v8.3.15: use the shared budget helper instead of the broken old formula
@@ -426,7 +426,7 @@ function updSkTot(inp, name, amod){
   // bonuses, mirroring renderSkills' Misc-column computation.
   let selfSyn = 0, selfFlat = 0;
   if (curId) {
-    const cc = chars.find(x => x.id === curId);
+    const cc = currentChar();
     if (cc) {
       const s = computeSkillSynergies(name, cc);
       selfSyn = s.auto.reduce((a, e) => a + e.value, 0);
@@ -442,7 +442,7 @@ function updSkTot(inp, name, amod){
   // Diplomacy, Intimidate, and Sleight of Hand. We walk SYNERGIES_DB once,
   // collect affected targets, and refresh their displays.
   if (curId) {
-    const cc = chars.find(x => x.id === curId);
+    const cc = currentChar();
     if (cc) {
       const affectedTargets = new Set(
         SYNERGIES_DB.filter(e => e.source === name && e.kind === 'auto').map(e => e.target)
@@ -474,7 +474,7 @@ function updSkTot(inp, name, amod){
   }
   // v8.2.2 (Issue 4): also recompute the running budget tally from live DOM.
   if (curId) {
-    const c = chars.find(x => x.id === curId);
+    const c = currentChar();
     if (c) recomputeSkillBudget(c);
   }
 }
@@ -485,7 +485,7 @@ function updSkTot(inp, name, amod){
 // taking 1+ ranks, prompt for GM exception. Decline → revert to 0.
 async function commitSkillRank(inp, name) {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const skill = SKILLS.find(sk => sk.n === name);
   if (!skill) return;
@@ -502,7 +502,7 @@ async function commitSkillRank(inp, name) {
   }
 }
 function saveSkills(){
-  if(!curId)return;const c=chars.find(x=>x.id===curId);if(!c)return;
+  if(!curId)return;const c=currentChar();if(!c)return;
   c.skills={};SKILLS.forEach(sk=>{const el=document.getElementById('skr-'+sk.n.replace(/[^a-z0-9]/gi,'_'));if(el)c.skills[sk.n]=parseInt(el.value)||0});
   save();_skMarkClean();toast('Skills saved!');
 }

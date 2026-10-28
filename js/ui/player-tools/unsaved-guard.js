@@ -29,7 +29,7 @@ var _skBaseline = null;           // {id, skills:{name:ranks}} — last saved/en
 var _cgSuppressUnload = false;    // set briefly while a mailto: hands off to the mail app
 
 function _skMarkClean() {
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   _skBaseline = c ? { id: c.id, skills: Object.assign({}, c.skills || {}) } : null;
 }
 function _skLiveRanks(c) {
@@ -42,7 +42,7 @@ function _skLiveRanks(c) {
 }
 function skillsDirty() {
   if (!_skBaseline || !curId || _skBaseline.id !== curId) return false;
-  const c = chars.find(x => x.id === curId); if (!c) return false;
+  const c = currentChar(); if (!c) return false;
   const live = _skLiveRanks(c);
   return SKILLS.some(sk => (live[sk.n] || 0) !== (_skBaseline.skills[sk.n] || 0));
 }

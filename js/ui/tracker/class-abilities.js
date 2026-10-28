@@ -28,7 +28,7 @@
 // =============================================================================
 
 function toggleEuphoric() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const b = euphoriacBonus(c); if (!b) return;
   c.euphoric = !c.euphoric;
   logAct(c.euphoric
@@ -37,7 +37,7 @@ function toggleEuphoric() {
   save(); renderSheet(); renderGear(); renderSkills();
 }
 function adjustAbilityUse(key, delta) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!c.abilityUses) c.abilityUses = {};
   const specs = computePerDiemAbilities(c);
   const spec = specs.find(s => s.key === key); if (!spec) return;
@@ -50,7 +50,7 @@ function adjustAbilityUse(key, delta) {
   save(); renderPerDiem(c);
 }
 function renewAbility(key) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.abilityUses) return;
+  const c = currentChar(); if (!c || !c.abilityUses) return;
   const spec = computePerDiemAbilities(c).find(s => s.key === key);
   c.abilityUses[key] = 0;
   logAct(`↻ ${spec ? spec.name : key} renewed (GM override — partial rejuvenation).`);
@@ -59,7 +59,7 @@ function renewAbility(key) {
 
 // ---- RAGE state machine (Adam: full toggle with baked modifiers) ----------
 function toggleRage() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const t = rageTier(c); if (!t) return;
   if (!c.raging) {
     const spec = { max: rageUsesPerDay(c) };
@@ -89,7 +89,7 @@ function toggleRage() {
   if (curId) { const p = document.getElementById('tr-content'); if (p && p.style.display !== 'none') renderTracker(); }
 }
 function clearFatigue() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.fatigued = false;
   if (c.conditions) c.conditions = c.conditions.filter(x => x !== 'Fatigued');
   logAct('Fatigue recovered (encounter over / 8 hours rest).');
@@ -100,7 +100,7 @@ function clearFatigue() {
 // prepared lists re-memorized), the super-PP pool refills. AP do NOT refresh
 // — those only return on level-up (Adam's ruling, 2026-06).
 function fullyRested() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const stats = computeCasterStats(c);
   for (const poolName of ['arcane', 'divine', 'psionic']) {
     if (stats[poolName] && stats[poolName].contributors.length) restPP(poolName);
@@ -198,13 +198,13 @@ function renderBattleFocus(c) {
     </div>`;
 }
 function toggleBattleFocus() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.battleFocused = !c.battleFocused;
   logActionEvent(c, 'battle-focus', 0, c.battleFocused ? 'Became focused' : 'Dropped focus', '');
   save(); renderBattleFocus(c);
 }
 function expendBattleFocus() {
-  const c = chars.find(x => x.id === curId); if (!c || !c.battleFocused) return;
+  const c = currentChar(); if (!c || !c.battleFocused) return;
   const mod = warmindBattleFocusMod(c);
   c.battleFocused = false;
   logActionEvent(c, 'battle-focus', 0, 'Expended focus', `Full Battle Focus modifier (+${mod}) applied to one roll`);

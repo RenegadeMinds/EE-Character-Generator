@@ -147,7 +147,7 @@ function renderAPBar(c){
 function toggleAPOpt(key) {
   if (!window._apOptToggle) window._apOptToggle = {ap:false, hap:false, fp:false};
   window._apOptToggle[key] = !window._apOptToggle[key];
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (c) renderAPBar(c);
 }
 
@@ -155,7 +155,7 @@ function toggleAPOpt(key) {
 // every discretionary AP event prompts for a canonical option + optional note.
 // Use adjustAPSilent() for non-discretionary events (full rest, level-up).
 function adjustAP(d){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (d < 0) {
     // Spend path — open the radio-list modal.
@@ -186,7 +186,7 @@ function adjustAPSilent(c, d, option, note) {
 }
 
 function resetAP(){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const oldAP = c.ap || 0;
   const delta = (c.apMax || 0) - oldAP;
@@ -208,7 +208,7 @@ function resetAP(){
 // radio list + optional note). The previous confirm() dialog is replaced by
 // the modal's own commit/cancel buttons.
 function spendFatePoint(){
-  const c=chars.find(x=>x.id===curId);
+  const c=currentChar();
   if(!c)return;
   if((c.ap||0)<1){toast('No AP available to spend as a Fate Point.');return;}
   const cap = getHeroicCapabilities(c);
@@ -224,7 +224,7 @@ function spendFatePoint(){
 //
 // v8.3.27: routed through openFPRestoreModal (optional-note modal).
 function restoreFatePoint(){
-  const c=chars.find(x=>x.id===curId);
+  const c=currentChar();
   if(!c)return;
   if((c.fatePoints||0)<1){toast('No Fate Points have been spent to restore.');return;}
   openFPRestoreModal(c);
@@ -361,7 +361,7 @@ function closeAPFPModal() {
 function commitAPFPModal() {
   const modal = document.getElementById('apfp-modal');
   if (!modal) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) { closeAPFPModal(); return; }
   const mode = modal.dataset.mode;
   const radio = document.querySelector('input[name="ap-modal-opt"]:checked');

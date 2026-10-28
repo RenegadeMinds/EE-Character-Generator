@@ -30,7 +30,7 @@ function renderLog(c){
   if(!(c.log||[]).length){el.innerHTML=`<div class="fs-12" style="color:var(--g30);padding:.75rem 0;">No entries yet.</div>`;return;}
   el.innerHTML=[...(c.log||[])].reverse().map(e=>`<div class="log-entry"><div class="log-time">${e.time}</div>${e.text}</div>`).join('');
 }
-function logAct(txt){const c=chars.find(x=>x.id===curId);if(!c)return;if(!c.log)c.log=[];c.log.push({time:new Date().toLocaleString(),text:txt});save();renderLog(c);}
+function logAct(txt){const c=currentChar();if(!c)return;if(!c.log)c.log=[];c.log.push({time:new Date().toLocaleString(),text:txt});save();renderLog(c);}
 
 // ============================================================================
 // v8.3.27: STRUCTURED AP/FP AUDIT LOG
@@ -88,7 +88,7 @@ function logActionEvent(c, kind, delta, option, note) {
 
 // Edit the note on a previous action-log entry. Called from the inline ✎ UI.
 function editActionLogNote(entryId, newNote) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c || !Array.isArray(c.actionLog)) return;
   const entry = c.actionLog.find(e => e.id === entryId);
   if (!entry) return;
@@ -99,7 +99,7 @@ function editActionLogNote(entryId, newNote) {
 
 // Clear the entire action log (with confirm). Player-initiated only.
 async function clearActionLog() {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!Array.isArray(c.actionLog) || c.actionLog.length === 0) {
     toast('No history to clear.');
@@ -176,12 +176,12 @@ function onActionLogNoteEditStart(entryId) {
   if (!entryEl) return;
   const noteRow = entryEl.querySelector('.al-note-row');
   if (!noteRow) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   const existing = (c && (c.actionLog || []).find(e => e.id === entryId)?.note) || '';
   noteRow.innerHTML = `
     <input type="text" class="rounded-2 flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgb(var(--tint-black) / .35);border:1px solid rgb(var(--line-gold) / .4);">
     <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="rounded-2 p-2-6 fs-10 cursor-pointer" style="background:rgb(var(--tint-sage) / .15);color:rgb(var(--text-green));border:1px solid rgb(var(--line-sage) / .5);">✓</button>
-    <button type="button" onclick="renderActionLog(chars.find(x=>x.id===curId))" style="background:rgb(var(--tint-gold) / .06);color:var(--g70);border:1px solid rgb(var(--line-gold) / .3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
+    <button type="button" onclick="renderActionLog(currentChar())" style="background:rgb(var(--tint-gold) / .06);color:var(--g70);border:1px solid rgb(var(--line-gold) / .3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
   `;
   const inp = noteRow.querySelector('input');
   if (inp) {
@@ -189,7 +189,7 @@ function onActionLogNoteEditStart(entryId) {
     inp.select();
     inp.addEventListener('keydown', function(ev){
       if (ev.key === 'Enter') { ev.preventDefault(); onActionLogNoteEditSave(entryId); }
-      else if (ev.key === 'Escape') { ev.preventDefault(); renderActionLog(chars.find(x => x.id === curId)); }
+      else if (ev.key === 'Escape') { ev.preventDefault(); renderActionLog(currentChar()); }
     });
   }
 }

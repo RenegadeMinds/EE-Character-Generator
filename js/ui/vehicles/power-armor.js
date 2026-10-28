@@ -24,7 +24,7 @@
 // =============================================================================
 
 function paCycleSlotState(itemId, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const lines = paLoadout(it); const line = lines[idx]; if (!line) return;
   line.state = PA_SLOT_STATES[(PA_SLOT_STATES.indexOf(line.state || 'ok') + 1) % 3];
@@ -32,7 +32,7 @@ function paCycleSlotState(itemId, idx) {
   save(); renderVehicles(); renderSheet(); renderSkills();
 }
 async function paAddLoadoutLine(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   // v8.17.0 Segment C: the weapons catalog joins the systems picker.
   // v8.18.0 Segment D: starship items draw from the starship catalogs.
@@ -131,7 +131,7 @@ async function paAddLoadoutLine(itemId) {
   });
 }
 function paRemoveLoadoutLine(itemId, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const lines = paLoadout(it); const line = lines[idx];
   if (!line || line.fixed) return;
@@ -194,7 +194,7 @@ function renderPowerArmorCards(c) {
   }).join('');
 }
 async function setSecondSkinLevel(lvl) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const row = SECOND_SKIN_TABLE.find(r => r.lvl === lvl); if (!row) return;
   if (!c.secondSkin) c.secondSkin = {};
   c.secondSkin.level = lvl; c.secondSkin.abilities = []; c.secondSkin.damage = 0;
@@ -220,7 +220,7 @@ async function setSecondSkinLevel(lvl) {
   toast(`Second Skin configured: level ${lvl} (${row.pp} PP) — ${chosen.join(', ') || 'no abilities'}.`);
 }
 function toggleSecondSkin() {
-  const c = chars.find(x => x.id === curId); if (!c || !c.secondSkin || !c.secondSkin.level) { toast('Configure a Second Skin level first.'); return; }
+  const c = currentChar(); if (!c || !c.secondSkin || !c.secondSkin.level) { toast('Configure a Second Skin level first.'); return; }
   if (!c.secondSkin.active) {
     if (getCharItems(c).some(i => i.catalogue === 'armor' && i.equipped && getCatalogueEntry('armor', i.ref) && getCatalogueEntry('armor', i.ref).type !== 'shield')) {
       toast('Second Skin cannot be manifested while wearing armor (HH p.241) — doff it first.'); return;
@@ -235,7 +235,7 @@ function toggleSecondSkin() {
   save(); renderVehicles(); renderSheet(); renderArmorIntegrity(c);
 }
 function ssIncomingHit() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const sk = activeSecondSkin(c); if (!sk) { toast('No active Second Skin.'); return; }
   openChoiceModal('⚔ Hit on the Second Skin — enter raw damage, optionally followed by hardness ignored', [], (val) => {
     const m = /^(\d+)(?:\s+(\d+))?$/.exec(String(val || '').trim());

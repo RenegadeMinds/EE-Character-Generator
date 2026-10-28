@@ -59,7 +59,7 @@ function renderAllPrereqChecks(){
   if(!root)return;
   let skills={},feats=[];
   if(editId){
-    const existing=chars.find(c=>c.id===editId);
+    const existing=editingChar();
     if(existing){skills=existing.skills||{};feats=existing.feats||[];}
   }
   const sl=getSixLevels();
@@ -215,7 +215,7 @@ function updateDerived(){
   const attrs = applyAttrBumps(baseAttrs, formAttrBumps);
   const conM=am(attrs[2]),dexM=am(attrs[1]),wisM=am(attrs[4]),strM=am(attrs[0]);
   const _formHeroic = parseInt(document.getElementById('c-sl-heroic')?.value) || 0;
-  const _formFP = (editId && chars.find(x=>x.id===editId)?.fatePoints) || 0;
+  const _formFP = (editId && editingChar()?.fatePoints) || 0;
   // v8.3.32: route the heroic level through effectiveHeroicLevelForAP so the
   // form preview correctly shows NO AP for a purely-Ordinary build. Pass a
   // synthetic {classes, sixLevels} so the helper can inspect the form's

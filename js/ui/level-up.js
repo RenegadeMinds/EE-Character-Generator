@@ -53,7 +53,7 @@
 let _pendingLevelUp = null;
 
 function checkLevelUp(){
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
   if(c.xp<c.xpNext){toast('Not enough XP yet.');return;}
   // Ensure we're operating on the array form
   if(!Array.isArray(c.classes)) c.classes = migrateLegacyClasses(c);
@@ -707,7 +707,7 @@ function lvlupCommit(skipBump) {
 // opens the Skills page. Families the player has no class skills in keep
 // their current state; nothing is force-collapsed.
 function goToSkillsForSpending(){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   try {
     for (const fam of COLLAPSIBLE_FAMILIES) {

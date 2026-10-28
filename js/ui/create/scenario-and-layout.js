@@ -401,7 +401,7 @@ function promptScenarioPresetChange(presetName, diffs, preset){
     presetName,
     diffs,
     preset,
-    priorPreset: (chars.find(c=>c.id===editId)||{}).scenarioPreset || 'Custom',
+    priorPreset: (editingChar()||{}).scenarioPreset || 'Custom',
   };
   const body = document.getElementById('six-levels-confirm-body');
   const diffLines = diffs.map(d => {

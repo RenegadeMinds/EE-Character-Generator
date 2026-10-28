@@ -39,6 +39,10 @@
 //   STYLES=1 CODE_CHANGED=1 OLD=... node _probe_split_parity.mjs
 //       (styling refactors: see STYLE MODE below)
 //   THEME=classic | hc   (run everything in that colour theme; default Parchment)
+//   OLD_REWRITE='[["regex","replacement"], ...]'
+//       For refactors that rename code which also appears INSIDE the markup
+//       (onclick="..." handlers): rewrite OLD's markup and print sheet the
+//       same way before comparing, so every other difference still fails.
 //
 // STYLE MODE (STYLES=1)
 //   For changes that rewrite the markup on purpose but must not change how
@@ -70,6 +74,8 @@ const NEW = process.env.NEW || resolve(__dir, '../index.html');
 // Style mode and theme: see the header.
 const STYLES = !!process.env.STYLES;
 const THEME = process.env.THEME || '';
+const OLD_REWRITE = JSON.parse(process.env.OLD_REWRITE || '[]').map(([re, to]) => [new RegExp(re, 'g'), to]);
+const rewriteOld = (s) => OLD_REWRITE.reduce((x, [re, to]) => x.replace(re, to), s);
 const STYLE_PROPS = process.env.STYLE_ALL ? null : [
   'display', 'visibility', 'opacity', 'cursor', 'position', 'top', 'left', 'right', 'bottom', 'z-index',
   'color', 'background-color', 'background-image', 'box-shadow', 'text-shadow', 'filter',
@@ -157,7 +163,8 @@ async function globalsSnapshot(page) {
 // In style mode (STYLES=1) class and style attributes are removed too, and
 // the computed style of every element is appended as one short hash per
 // element (tag, id and hash; see styleHashes).
-const markup = (page) => page.evaluate((STY) => {
+const markup = (page) => markupRaw(page).then(s => page.__isOld ? rewriteOld(s) : s);
+const markupRaw = (page) => page.evaluate((STY) => {
   let hashes = '';
   if (STY) hashes = '\n' + styleHashes(document.body);
   const b = document.body.cloneNode(true);
@@ -208,6 +215,7 @@ const ctx = (s, i) => JSON.stringify(s.slice(Math.max(0, i - 60), i + 80));
 
 console.log(`== SPLIT PARITY ==\n   OLD: ${OLD}\n   NEW: ${NEW}\n   ${names.size} top-level names` + (STYLES ? `\n   style mode, theme ${THEME || 'parchment'}` : ''));
 const A = await boot(OLD, 8801);
+A.page.__isOld = true;
 const B = await boot(NEW, 8802);
 
 // In refactor mode, names that exist in only ONE build are new or retired
@@ -346,7 +354,7 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
       await B.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
       same(`${s.name} / ${pg}`, await markup(A.page), await markup(B.page));
     }
-    same(`${s.name}: print sheet`, await A.page.evaluate(printOut, STYLES), await B.page.evaluate(printOut, STYLES));
+    same(`${s.name}: print sheet`, rewriteOld(await A.page.evaluate(printOut, STYLES)), await B.page.evaluate(printOut, STYLES));
     if (STYLES) same(`${s.name}: print sheet styles (print media)`, await printStyles(A.page), await printStyles(B.page));
     same(`${s.name}: weapon summaries`, await A.page.evaluate(weaponSums), await B.page.evaluate(weaponSums));
     same(`${s.name}: Edit -> Save`, await A.page.evaluate(editSave), await B.page.evaluate(editSave));

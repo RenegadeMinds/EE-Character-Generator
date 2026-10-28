@@ -39,7 +39,7 @@ function _bugStore(list) {
   }
 }
 function _bugContext() {
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   const pageKey = (document.querySelector('.page.active')?.id || '').replace(/^page-/, '');
   const tab = (document.querySelector('.tab-btn.active')?.textContent || '').trim();
   const theme = document.documentElement.getAttribute('data-theme') || 'parchment';
@@ -109,7 +109,7 @@ function _bugCurrent() {
   const ctx = _bugContext();
   let charJson = '';
   if (document.getElementById('bug-attach').checked) {
-    const c = curId ? chars.find(x => x.id === curId) : null;
+    const c = curId ? currentChar() : null;
     if (c) { try { charJson = JSON.stringify(c); } catch (e) { charJson = '[could not serialize]'; } }
   }
   return { id: 'bug-' + Date.now().toString(36), what, ctx, charJson, sent: [] };

@@ -26,7 +26,7 @@
 // =============================================================================
 
 function mindSet(field, val) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   m.calc[field] = (field === 'maim') ? !!val : val;
   save(); renderMindsLedger(c);
@@ -36,20 +36,20 @@ function mindSet(field, val) {
 // stays on the surface (load-bearing input to the DC; the v8.41.0 law:
 // hover may hold explanations, never decisions).
 function mindPerToggle() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   m.perOpen = !m.perOpen;
   save(); renderMindsLedger(c);
 }
 function mindPer(axis, d) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   m.per[axis] = Math.max(0, Math.min(6, (m.per[axis] || 0) + d));
   logAct(`🧠 Perceived ${axis} Scale is now ${m.per[axis]} (the ratchet turns).`);
   save(); renderMindsLedger(c);
 }
 function mindOutcome(kind) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c), pk = mindPackage(c);
   const nm = (m.calc.name || '').trim();
   // v8.46.1 (Adam's field report): each outcome RESOLVES the event — the
@@ -93,21 +93,21 @@ function mindOutcome(kind) {
   save(); renderSheet();  // v8.49.0: the pool moves effAttrs — full refresh
 }
 function mindLastDismiss() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   mindOf(c).last = null; save(); renderMindsLedger(c);
 }
 function mindFacedCycle(i) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c), f = m.faced[i]; if (!f) return;
   f.s = f.s === 'plus4' ? 'inured' : f.s === 'inured' ? 'immune' : 'plus4';
   save(); renderMindsLedger(c);
 }
 function mindFacedRemove(i) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   mindOf(c).faced.splice(i, 1); save(); renderMindsLedger(c);
 }
 function mindBreak() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   const k = mindZeroAttr(c, m), names = ['Int', 'Wis', 'Cha'];
   m.mdmg[k] = 0;  // the break relieves the pressure: the attribute refreshes in full
@@ -117,7 +117,7 @@ function mindBreak() {
   save(); renderSheet();
 }
 function mindSwoon() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   if (m.swoonLock) { toast('😵 No second swoon — the valve works once per full recovery. The Break is the only road now.'); return; }
   const k = mindZeroAttr(c, m), names = ['Int', 'Wis', 'Cha'];
@@ -135,7 +135,7 @@ function mindSwoon() {
 // One day of natural recovery: 1 point per day per damaged ability (HH);
 // the Full Rest button applies it too. The swoon valve re-arms at zero.
 function mindDailyRecovery(cArg, quiet) {
-  const c = cArg || chars.find(x => x.id === curId); if (!c || !c.mind) return;
+  const c = cArg || currentChar(); if (!c || !c.mind) return;
   const m = mindOf(c);
   if (!m.mdmg.some(d => d > 0)) return;
   m.mdmg = m.mdmg.map(d => Math.max(0, (d || 0) - 1));
@@ -147,7 +147,7 @@ function mindDailyRecovery(cArg, quiet) {
   save(); if (c.id === curId) renderSheet();
 }
 function mindBout() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c), tier = mindTier(m);
   if (!tier) { toast('No insanity tier — no bouts.'); return; }
   const ea = effAttrs(c);
@@ -158,7 +158,7 @@ function mindBout() {
   save(); renderMindsLedger(c);
 }
 function mindInsAdj(d) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const m = mindOf(c);
   const was = mindTier(m);
   m.ins = Math.max(0, m.ins + d);
@@ -180,7 +180,7 @@ function renderMindsLedger(c) {
   if (!expanded) {
     const tier = mindTier(m);
     slot.style.display = 'block';
-    slot.innerHTML = `<span class="fs-11_5 cursor-pointer" style="color:var(--ts80);" onclick="(function(){const c=chars.find(x=>x.id===curId); if(c){mindOf(c).open=true; save(); renderMindsLedger(c);}})()" title="Horror saves & sanity — open the panel">🧠 ${escapeHTML(c.name)}'s Sanity: <b style="color:${tier ? 'rgb(var(--text-peach))' : 'var(--ts80)'};cursor:help;" title="${MIND_TIERS[tier][1]}">${MIND_TIERS[tier][0]}</b>${m.faced.length ? ` <span class="o-60 c-dim">· ${m.faced.length} faced</span>` : ''} ▸</span>`;
+    slot.innerHTML = `<span class="fs-11_5 cursor-pointer" style="color:var(--ts80);" onclick="(function(){const c=currentChar(); if(c){mindOf(c).open=true; save(); renderMindsLedger(c);}})()" title="Horror saves & sanity — open the panel">🧠 ${escapeHTML(c.name)}'s Sanity: <b style="color:${tier ? 'rgb(var(--text-peach))' : 'var(--ts80)'};cursor:help;" title="${MIND_TIERS[tier][1]}">${MIND_TIERS[tier][0]}</b>${m.faced.length ? ` <span class="o-60 c-dim">· ${m.faced.length} faced</span>` : ''} ▸</span>`;
     return;
   }
   slot.style.display = 'block';
@@ -198,7 +198,7 @@ function renderMindsLedger(c) {
   <div class="rounded-3 p-7-10 fs-11_5 lh-1_65" style="background:rgb(var(--tint-abyss) / .55);border:1px solid rgb(var(--line-sky) / .28);">
     <div class="justify-between items-baseline" style="display:flex;">
       <b class="ls-0_04em" style="color:rgb(var(--text-ice));">🧠 ${escapeHTML(c.name)}'s Sanity: <span style="color:${mindTier(m) ? 'rgb(var(--text-peach))' : 'rgb(var(--text-ice))'};cursor:help;" title="${MIND_TIERS[mindTier(m)][1]}">${MIND_TIERS[mindTier(m)][0]}</span></b>
-      <b class="cursor-pointer c-red-text ml-8" onclick="(function(){const c=chars.find(x=>x.id===curId); if(c){mindOf(c).open=false; save(); renderMindsLedger(c);}})()" title="Collapse">▴</b>
+      <b class="cursor-pointer c-red-text ml-8" onclick="(function(){const c=currentChar(); if(c){mindOf(c).open=false; save(); renderMindsLedger(c);}})()" title="Collapse">▴</b>
     </div>
     <div class="fs-10_5" style="color:var(--ts60);" title="At most one row per category; categories stack; the insanity row stacks per insanity.">(Insanity and Horror rules, GMG pp.144-150; the Horror's Scale, Effective Level, Size, Gore Required for DC)</div>
     <div class="mt-6" style="padding-top:5px;border-top:1px dashed rgb(var(--line-sky) / .2);">

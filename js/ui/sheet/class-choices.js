@@ -23,7 +23,7 @@
 // =============================================================================
 
 function setClassChoice(key, value) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!c.classChoices) c.classChoices = {};
   if (value) c.classChoices[key] = value; else delete c.classChoices[key];
   reconcileClassAttrBakes(c);
@@ -72,7 +72,7 @@ function renderClassChoices(c) {
           ${over ? `<div class="c-red-text fs-10">⚠ ${picks.length - s.cap} over capacity — the base ${s.attrName} score dropped; the GM adjudicates which designations lapse (nothing auto-deletes).</div>` : ''}
         </div>` : '';
       return `<div class="fs-11_5 m-2-0">
-        <span class="cursor-pointer select-none" onclick="window._ssOpen['${s.key}']=!window._ssOpen['${s.key}'];renderClassChoices(chars.find(x=>x.id===curId))">${open ? '▾' : '▸'}</span>
+        <span class="cursor-pointer select-none" onclick="window._ssOpen['${s.key}']=!window._ssOpen['${s.key}'];renderClassChoices(currentChar())">${open ? '▾' : '▸'}</span>
         <span class="cursor-help c-g75" title="${escapeHTML(s.note)}">${s.className} — ${s.feature} <span class="o-50 c-dim">(L${s.atLvl} · Take 10)</span></span>
         <b style="color:rgb(var(--text-sky) / .95);">${picks.length}/${s.cap} designated</b>${slotsLeft ? ` <span class="fs-10" style="color:rgb(var(--text-amber));">⚑ ${slotsLeft} open</span>` : ''}${over ? ' <span class="c-red-text fs-10">⚠ over capacity</span>' : ''}
       </div>${body}`;

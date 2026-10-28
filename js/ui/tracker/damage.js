@@ -54,7 +54,7 @@ function mdtRender(stage) {
        <div class="fs-12_5 mb-10" style="color:var(--tw80);">Was this a <b>single attack</b>? Damage totaled from several smaller hits does not trigger a Massive Damage save (HH p.348).</div>
        <button onclick="mdtRender('save')" class="mr-8 c-red-text">A single attack</button>
        <button onclick="mdtResolve('aggregate')">Several smaller hits (no save)</button>
-       <div class="mt-10 fs-11" style="color:var(--tw60);">Misc threshold adjustment (Healer −3, enhancements, drawbacks…): <input type="number" value="${t.adj}" style="width:56px;padding:2px 4px;" onchange="(function(v){const c=chars.find(x=>x.id===curId); if(c){c.mdtAdj=parseInt(v)||0; save(); mdtRender();}})(this.value)"> <span class="op-0_7">(persists on this character)</span></div>`;
+       <div class="mt-10 fs-11" style="color:var(--tw60);">Misc threshold adjustment (Healer −3, enhancements, drawbacks…): <input type="number" value="${t.adj}" style="width:56px;padding:2px 4px;" onchange="(function(v){const c=currentChar(); if(c){c.mdtAdj=parseInt(v)||0; save(); mdtRender();}})(this.value)"> <span class="op-0_7">(persists on this character)</span></div>`;
   host.innerHTML = `<div class="items-center p-1rem" style="position:fixed;inset:0;background:rgb(var(--tint-black) / .72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)mdtClose()">
     <div class="max-w-560 lh-1_6" style="background:rgb(var(--tint-midnight));border:1px solid rgb(var(--line-red) / .5);border-radius:4px;padding:16px 18px;">
       <div class="ls-0_05em c-red-text mb-8" style="font-family:'Cinzel',Georgia,serif;">💥 MASSIVE DAMAGE</div>
@@ -115,7 +115,7 @@ function renderNLLine(c) {
     <span class="o-60 c-dim">· heals ${lvl}/hour (1/hr/level)</span></div>`;
 }
 function adjustAttrDmg(i, d) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!Array.isArray(c.attrDmg)) c.attrDmg = [0, 0, 0, 0, 0, 0];
   const wasZero = effAttrs(c)[i] <= 0;
   c.attrDmg[i] = Math.max(0, (c.attrDmg[i] || 0) + d);
@@ -131,7 +131,7 @@ function adjustAttrDmg(i, d) {
   save(); renderSheet();
 }
 function attrDmgDailyRecovery(cArg, quiet) {
-  const c = cArg || chars.find(x => x.id === curId); if (!c || !Array.isArray(c.attrDmg)) return;
+  const c = cArg || currentChar(); if (!c || !Array.isArray(c.attrDmg)) return;
   if (!c.attrDmg.some(v => v > 0)) return;
   c.attrDmg = c.attrDmg.map(v => Math.max(0, (v || 0) - 1));
   if (!quiet) logAct(`🌙 An evening of rest: attribute damage now ${['Str','Dex','Con','Int','Wis','Cha'].map((n, i) => c.attrDmg[i] ? n + ' ' + c.attrDmg[i] : null).filter(Boolean).join(' · ') || 'fully healed'}.`);
@@ -153,7 +153,7 @@ function renderAttrDmg(c) {
   </div>`;
 }
 function adjustNL(t) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const amt = parseInt(document.getElementById('tr-hp-adj').value) || 0;
   if (!amt) return;
   const before = nlStatus(c);

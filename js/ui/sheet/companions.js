@@ -23,14 +23,14 @@
 // =============================================================================
 
 function addCompanion(kind, species) {
-  const c = chars.find(x => x.id === curId); if (!c || !species) return;
+  const c = currentChar(); if (!c || !species) return;
   if (!c.companions) c.companions = [];
   c.companions.push({ id: 'comp_' + Math.random().toString(36).slice(2, 8), kind, species, name: '' });
   logAct(`🐾 Gained a ${kind === 'familiar' ? 'familiar' : kind === 'mount' ? 'special mount' : 'animal companion'}: ${species}.`);
   save(); renderSheet(); renderSkills();
 }
 function removeCompanion(id) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.companions) return;
+  const c = currentChar(); if (!c || !c.companions) return;
   const comp = c.companions.find(x => x.id === id);
   // v9.4.0: an owned animal's card and its Gear item go together (sold, lost, freed).
   if (comp && comp.kind === 'owned') { c.items = (c.items || []).filter(i => i.id !== comp.itemId); c.companions = c.companions.filter(x => x.id !== id); logAct(`🐴 ${comp.name || comp.species} — no longer owned.`); save(); renderSheet(); renderGear(); return; }
@@ -39,7 +39,7 @@ function removeCompanion(id) {
   save(); renderSheet(); renderSkills();
 }
 function renameCompanion(id) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.companions) return;
+  const c = currentChar(); if (!c || !c.companions) return;
   const comp = c.companions.find(x => x.id === id); if (!comp) return;
   const nm = prompt('Companion name:', comp.name || '');
   if (nm !== null) { comp.name = nm.trim(); save(); renderSheet(); }
@@ -87,7 +87,7 @@ function renderCompanions(c) {
 // v8.6.1: Ranger Combat Style choice (HH: picked at Ranger 2). Lazy field —
 // legacy characters simply show the picker until a style is chosen.
 function setRangerCombatStyle(v) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.rangerCombatStyle = v || null;
   save(); renderGear();
   if (v) toast(v === 'twf' ? 'Combat style: two-weapon — virtual TWF applies in light or no armor.' : 'Combat style: archery — virtual Rapid Shot in light or no armor.');

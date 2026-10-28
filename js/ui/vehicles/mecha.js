@@ -24,7 +24,7 @@
 // The custom-build flow: size → superstructure → armor type → name, priced
 // from the FF pp.630-631 tables, then the standard purchase/provenance door.
 async function openMechaBuilder() {
-  const c = chars.find(x => x.id === curId); if (!c) { toast('Select a hero first.'); return; }
+  const c = currentChar(); if (!c) { toast('Select a hero first.'); return; }
   const size = await new Promise(res => openChoiceModal('Custom mecha — frame size (sets base Str/Dex/HP/speed/slots)',
     Object.keys(MECHA_SIZE_STATS).map(s => { const z = MECHA_SIZE_STATS[s]; return `${s} — Str ${z.str}, ${z.hp} HP, ${z.speed} ft, ${z.slots} slots (${z.paSlots} as PA)`; }), res));
   if (!size) return;

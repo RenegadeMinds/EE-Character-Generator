@@ -63,7 +63,7 @@ function renderArmorIntegrity(c) {
 // the remainder is split — wearer's choice when proficient, attacker's when
 // not (either way the generator just applies whatever split is entered).
 function armorIncomingHit(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = armorItemIntegrity(it); if (!g) return;
   if (g.destroyed) { toast('That armor is destroyed — it no longer intercedes.'); return; }
@@ -107,7 +107,7 @@ function armorIncomingHit(itemId) {
   });
 }
 function armorRepair(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = armorItemIntegrity(it); if (!g) return;
   const name = enchantDisplayName(it);

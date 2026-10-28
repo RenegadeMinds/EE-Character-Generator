@@ -28,11 +28,11 @@ let _compassExpanded = null;
 function toggleCompass() {
   _compassExpanded = !_compassExp();
   try { localStorage.setItem('dxd20v2_ui_compassOpen', _compassExpanded ? '1' : '0'); } catch (e) {}
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (c) renderCareerCompass(c);
 }
 function setCareerGoal(name) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (name) { c.careerGoal = name; toast('⭐ Career goal set: ' + name); }
   else { delete c.careerGoal; }

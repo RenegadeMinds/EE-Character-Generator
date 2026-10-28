@@ -117,7 +117,7 @@ function renderTalents(){
   const prompt = document.getElementById('tl-prompt');
   const cont   = document.getElementById('tl-content');
   if (!curId) {prompt.style.display='block';cont.style.display='none';return;}
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) {prompt.style.display='block';cont.style.display='none';return;}
   // Entitlement check — should not happen since the nav-tab is hidden, but
   // defensively redirect to Sheet if somehow reached.
@@ -276,7 +276,7 @@ function _populateTalentTreeFilter() {
   if (!sel) return;
   // Find the current character (caller may invoke before curId is set on
   // fresh page, in which case fall back to "show all").
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   const classFilter = (document.getElementById('talent-class-filter')?.value) || '';
 
   // Resolve which Hero classes' trees should appear.
@@ -332,7 +332,7 @@ function _populateTalentTreeFilter() {
 
 function openTalentBrowser() {
   if (!curId) {toast('Select a hero first.'); return;}
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   _populateTalentTreeFilter();
   // Hide all other pages; show the browser as a faux-page.
@@ -390,7 +390,7 @@ function onTalentClassFilterChange() {
 function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
   const list = document.getElementById('talent-browser-list');
   if (!list) return;
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   const owned = new Set((c?.talents || []).map(t => t.name));
   const searchLow = (searchText || '').toLowerCase();
 
@@ -502,7 +502,7 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
 }
 
 async function addTalentFromBrowser(name) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   // v8.3.30: enforce the Talent budget. Previously the Talents screen showed
   // a counter ("3/2 picked") but the Add action wasn't gated on it — the
@@ -607,7 +607,7 @@ function grantEnergyImmunityPick(c) {
 // the spend lands in the action log with the talent as its reason; the AP
 // bar on the Tracker page refreshes automatically.
 function spendTalentAP(name, cost) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if ((c.ap || 0) < cost) {
     toast(`Not enough AP — ${name} costs ${cost}, you have ${c.ap || 0}.`);
@@ -618,7 +618,7 @@ function spendTalentAP(name, cost) {
 }
 
 async function removeTalentClick(name, param) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!(await confirmModal(`Remove ${name}${param ? ` (${param})` : ''}?`))) return;
   if (removeTalentFromChar(c, name, param)) {

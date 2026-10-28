@@ -35,7 +35,7 @@
 // ========== ATTRIBUTES ==========
 function renderAttrGrid(){
   const g=document.getElementById('attr-grid');
-  const scores=editId?chars.find(c=>c.id===editId)?.attrs||[10,10,10,10,10,10]:[10,10,10,10,10,10];
+  const scores=editId?editingChar()?.attrs||[10,10,10,10,10,10]:[10,10,10,10,10,10];
   g.innerHTML=ATTR_NAMES.map((a,i)=>`
     <div class="attr-box"><span class="attr-nm">${a}</span>
     <input class="attr-inp" type="number" id="a${i}" value="${scores[i]}" min="1" max="100" title="Theoretical ceiling 100 (the bonus progression extrapolates: modifier = (score &minus; 10) / 2, so 100 = +45; carrying capacity rides Tremendous Strength, HH p.263)" onchange="onAC(${i})" oninput="onAC(${i})">
@@ -302,7 +302,7 @@ function shouldShowSecondOccupation(){
   if (!row) return false;
   // No edit context = new character. Never show.
   if (!editId) return false;
-  const c = chars.find(x => x.id === editId);
+  const c = editingChar();
   if (!c) return false;
   // Legacy/persisted: if a second occupation is already saved, surface it
   // so the player can see (and re-edit if Moonlighter is also present).

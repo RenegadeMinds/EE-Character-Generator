@@ -57,7 +57,7 @@ const _pwExpandedBrowse = new Set();
 const _pwExpandedKnown = new Set();
 
 async function addPowerFromBrowse(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const spell = _pwBrowseList[idx]; if (!spell) return;
   if (!c.powers) c.powers = [];
   const poolsInfo = getCasterPoolsInfo(c);
@@ -141,7 +141,7 @@ async function finishAddPower(c, spell, opt) {
 }
 
 async function removePowerAt(idx) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.powers) return;
+  const c = currentChar(); if (!c || !c.powers) return;
   const p = c.powers[idx]; if (!p) return;
   // v8.13.0: an Expanded Knowledge grant is 1:1 with its feat instance — the
   // reconciler would just re-add it. Remove the feat to withdraw the power.
@@ -210,7 +210,7 @@ function spellStatLine(s) {
 function renderPowers() {
   const prompt = document.getElementById('pw-prompt'), cont = document.getElementById('pw-content');
   if (!curId) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
-  const c = chars.find(x => x.id === curId); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
+  const c = currentChar(); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
   prompt.style.display = 'none'; cont.style.display = 'block';
   // v8.6.0 split: self-heal the mode if the character lacks this side but has
   // the other (e.g. tab switch after a character change).
@@ -376,7 +376,7 @@ function renderPowers() {
 let _pwThemeSets = null;
 function renderPowersBrowse() {
   if (!_pwBrowseOpen) return;  // collapsed — skip the heaviest render (C1)
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const el = document.getElementById('pw-browse-list'); if (!el) return;
   const q = (document.getElementById('pw-search').value || '').toLowerCase();
   const poolF = document.getElementById('pw-pool-filter').value;

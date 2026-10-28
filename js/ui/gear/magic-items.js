@@ -93,7 +93,7 @@ async function addMagicFromBrowse(i) {
   // v8.7.0: specific arms/armor convert to real equippable items.
   const conv = SPECIFIC_ARMS_CONVERSIONS[m.name];
   if (conv) {
-    const c0 = chars.find(x => x.id === curId); if (!c0) return;
+    const c0 = currentChar(); if (!c0) return;
     let slot = 'main_hand';
     if (conv.cat === 'armor') {
       const adef = getCatalogueEntry('armor', conv.base);
@@ -123,7 +123,7 @@ async function addMagicFromBrowse(i) {
   // its family (psionic classes for powers, casting classes for spells);
   // the item records what it carries and takes the traditional name.
   if (m.vehicle) {
-    const c0 = chars.find(x => x.id === curId); if (!c0) return;
+    const c0 = currentChar(); if (!c0) return;
     const PSI_CLS = new Set(['Psi/Wld', 'War', 'Telepath', 'Nomad', 'Seer', 'Kineticist', 'Egoist', 'Shaper']);
     const famLvl = (sp) => {
       const ls = (sp.levels || []).filter(l => m.vehicle.kind === 'power' ? PSI_CLS.has(l.cls) : !PSI_CLS.has(l.cls));
@@ -153,7 +153,7 @@ async function addMagicFromBrowse(i) {
   // Protection +1..+5…) pick their tier at add time — stored as it.tier.
   const fx = MAGIC_ITEM_EFFECTS[m.name];
   const doAdd = async (tier) => {
-    const c = chars.find(x => x.id === curId); if (!c) return;
+    const c = currentChar(); if (!c) return;
     await addItemToChar('magic', m.name, magicItemDefaultSlot(m));
     const added = (c.items || []).filter(it => it.catalogue === 'magic' && it.ref === m.name).pop();
     if (tier && added) { added.tier = tier; save(); renderGear(); }

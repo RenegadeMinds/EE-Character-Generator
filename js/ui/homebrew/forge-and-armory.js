@@ -228,7 +228,7 @@ async function hbSave() {
 // hero in a single click (the chooser flow still interposes for
 // player-chosen attribute bonuses).
 async function hbSaveAndGrant() {
-  if (!curId || !chars.find(x => x.id === curId)) { toast('Select a hero first (Roster tab) — Establish alone still saves to the library.'); return; }
+  if (!curId || !currentChar()) { toast('Select a hero first (Roster tab) — Establish alone still saves to the library.'); return; }
   const name = await hbSave();
   if (!name) return;
   const i = homebrewFeats.findIndex(r => r.name === name);
@@ -237,7 +237,7 @@ async function hbSaveAndGrant() {
 function hbRenderList() {
   const el = document.getElementById('hb-list');
   if (!el) return;
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   el.innerHTML = homebrewFeats.length
     ? homebrewFeats.map((r, i) => {
         const has = c && (c.feats || []).some(f => (f.name || f.n) === r.name);
@@ -256,7 +256,7 @@ function hbRenderList() {
 }
 let _hbPendingGrant = null;
 function hbGrant(i) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   const r = homebrewFeats[i];
   if (!c || !r) return;
   if ((c.feats || []).some(f => (f.name || f.n) === r.name)) { toast(`${c.name} already has ${r.name}.`); return; }
@@ -272,7 +272,7 @@ function hbChoosePick(attrIdx) {
   const p = _hbPendingGrant; _hbPendingGrant = null;
   document.getElementById('hb-choose-panel').style.display = 'none';
   if (!p) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   const r = homebrewFeats[p.i];
   if (c && r) hbApplyGrant(c, r, attrIdx);
 }
@@ -312,7 +312,7 @@ function hbApplyGrant(c, r, choiceIdx) {
   toast(`🌍 ${r.name} → ${c.name}.`);
 }
 async function hbRevoke(i) {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   const r = homebrewFeats[i];
   if (!c || !r) return;
   const idx = (c.feats || []).findIndex(f => (f.name || f.n) === r.name && f._hb);

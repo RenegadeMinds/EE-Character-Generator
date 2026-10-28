@@ -26,7 +26,7 @@
 function renderTracker(){
   const prompt=document.getElementById('tr-prompt'),cont=document.getElementById('tr-content');
   if(!curId){prompt.style.display='block';cont.style.display='none';return;}
-  const c=chars.find(x=>x.id===curId);if(!c){prompt.style.display='block';cont.style.display='none';return;}
+  const c=currentChar();if(!c){prompt.style.display='block';cont.style.display='none';return;}
   if(reconcileMissingHP(c)){save();toast(`HP auto-assigned (${c.maxHP} — average Hit Dice); GM may override via ⚙ HP Mode.`);}  // v8.6.0 C5
   prompt.style.display='none';cont.style.display='block';
   document.getElementById('tr-nm').textContent=c.name+' — Combat Tracker';

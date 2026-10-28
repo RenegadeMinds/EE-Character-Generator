@@ -157,7 +157,7 @@ async function chooseMentalPinnacle() {
 }
 
 async function castPowerAt(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const p = getCharPowers(c)[idx]; if (!p) return;
   const spell = SPELLS_DB.find(s => s.name === p.name);
   if (!spell) { toast('Catalogue entry not found.'); return; }
@@ -347,7 +347,7 @@ function renderCastResult(r) {
   if (r.spontMeta) bits.push(`<b style="color:rgb(var(--text-amber));">Casting time escalates to a full-round action</b> (Magic feat on a spontaneous cast — HH p.340)`);
   // v8.5.4 EAL pass: feat/feature riders that modify the effective level or
   // its checks at cast time — surfaced so the table can apply them.
-  const cc = chars.find(x => x.id === curId);
+  const cc = currentChar();
   if (cc && r.spell) {
     const feats = new Set((cc.feats || []).map(f => f.name || f.n || f));
     if (r.spell.resistance && /yes/i.test(r.spell.resistance)) {

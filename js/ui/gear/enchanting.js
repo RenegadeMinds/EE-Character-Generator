@@ -27,7 +27,7 @@
 
 let _enchantState = null; // {itemId, enh, abilities:Set, imbued}
 function openEnchantBuilder(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const begin = () => {
     _enchantState = {
@@ -64,7 +64,7 @@ function enchantToggleAbility(name) {
 }
 function renderEnchantModal() {
   const st = _enchantState; if (!st) return;
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === st.itemId); if (!it) return;
   const def = getCatalogueEntry(it.catalogue, it.ref) || {};
   const cap = enchantTsCap(def.tl || 0);
@@ -123,7 +123,7 @@ function renderEnchantModal() {
 }
 async function saveEnchant() {
   const st = _enchantState; if (!st) return;
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === st.itemId); if (!it) return;
   const def = getCatalogueEntry(it.catalogue, it.ref) || {};
   const cap = enchantTsCap(def.tl || 0);
@@ -155,7 +155,7 @@ async function saveEnchant() {
 }
 async function clearEnchant() {
   const st = _enchantState; if (!st) return;
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === st.itemId); if (!it) return;
   if (!(await confirmModal(`Remove the enchantment from ${enchantDisplayName(it)}?`))) return;
   delete it.enchant;

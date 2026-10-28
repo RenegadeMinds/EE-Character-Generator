@@ -69,7 +69,7 @@ function toggleHpModePanel() {
 
 function renderSheetHpModePanel() {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const current = c.hpMode || 'hero';
   const radios = document.getElementById('tr-hp-mode-radios');
@@ -121,7 +121,7 @@ function renderSheetHpModePanel() {
 
 async function changeSheetHpMode(newMode) {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!(await confirmModal(`Change HP mode to "${newMode}"?\n\nMax HP will be recomputed using new per-level rolls. Current HP will scale proportionally to keep the wound percentage the same.`))) {
     // Revert radio
@@ -134,7 +134,7 @@ async function changeSheetHpMode(newMode) {
 
 async function rerollSheetHp() {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const mode = c.hpMode || 'hero';
   if (!(await confirmModal(`Re-roll HP under "${mode}" mode?\n\nMax HP will be recomputed using fresh per-level rolls. Current HP will scale proportionally to keep the wound percentage the same.`))) return;
@@ -168,7 +168,7 @@ function applyHpModeChangeToChar(c, newMode) {
   renderSheet(); // refresh derived stats / drilldowns
 }
 function adjustHP(t){
-  const c=chars.find(x=>x.id===curId);if(!c)return;const amt=parseInt(document.getElementById('tr-hp-adj').value)||0;
+  const c=currentChar();if(!c)return;const amt=parseInt(document.getElementById('tr-hp-adj').value)||0;
   const _hpWas = c.currentHP;
   const _nlWas = nlStatus(c);
   if(t==='heal'){c.currentHP=Math.min(c.maxHP,c.currentHP+amt);logAct(`Healed ${amt} HP → ${c.currentHP}/${c.maxHP}`);nlCheck(c,_nlWas);}

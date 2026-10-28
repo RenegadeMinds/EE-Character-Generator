@@ -34,13 +34,13 @@
 let gmExceptionsExpanded = false;
 function toggleGMExceptionsExpanded(){
   gmExceptionsExpanded = !gmExceptionsExpanded;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (c) renderGMExceptions(c);
 }
 
 // Clear a single GM exception from the character record.
 async function clearGMException(idx){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c || !c.gmExceptions) return;
   const ex = c.gmExceptions[idx];
   if (!ex) return;
@@ -95,7 +95,7 @@ function renderGMExceptions(c){
 // Used by the ⬦ button on Known Feats rows whose FEATS_DB entry defines a
 // param the record predates (Heritage class picks are the motivating case).
 function setFeatParamAt(i){
-  const c = chars.find(x => x.id === curId); if (!c || !c.feats || !c.feats[i]) return;
+  const c = currentChar(); if (!c || !c.feats || !c.feats[i]) return;
   const rec = c.feats[i];
   const data = getFeatData(rec.name); if (!data || !data.param) return;
   promptForFeatParam(data, param => {
@@ -107,7 +107,7 @@ function setFeatParamAt(i){
 function renderFeats(){
   const prompt=document.getElementById('ft-prompt'),cont=document.getElementById('ft-content');
   if(!curId){prompt.style.display='block';cont.style.display='none';return;}
-  const c=chars.find(x=>x.id===curId);if(!c){prompt.style.display='block';cont.style.display='none';return;}
+  const c=currentChar();if(!c){prompt.style.display='block';cont.style.display='none';return;}
   prompt.style.display='none';cont.style.display='block';
   if (migrateFeats(c)) save();
   // v8.6.1: sync class-entry feat grants (covers pre-existing characters —
@@ -295,7 +295,7 @@ function toggleCustomFeatForm(){
 function addCustomFeat(){
   const name=document.getElementById('ft-new-name').value.trim();
   if(!name){toast('Enter a feat name.');return;}
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
   if(!c.feats)c.feats=[];
   c.feats.push({
     name,
@@ -311,7 +311,7 @@ function addCustomFeat(){
 }
 
 function removeFeat(i){
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
   // v8.4.0: clear the L1 slot this feat was filling (if any) BEFORE removing
   // the feat. No-op for legacy characters or feats not tracked in a slot.
   const removed = c.feats[i];
@@ -355,7 +355,7 @@ function openFeatBrowser(){
   // fill via the banner UI. The default behavior — and what fires here —
   // is to focus the first open slot, with a "Browse without slot context"
   // escape so the player can pick general feats too.
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   if (c) {
     const open = getOpenClassBonusSlots(c);
     if (open.length > 0) {
@@ -383,7 +383,7 @@ function closeFeatBrowser(){
 // slot-context banner buttons when the player has multiple open slots
 // or wants to browse without a slot context.
 function setActiveBrowserSlot(idx) {
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   if (!c) return;
   const open = getOpenClassBonusSlots(c);
   if (idx == null || idx < 0 || idx >= open.length) {
@@ -403,7 +403,7 @@ function setActiveBrowserSlot(idx) {
 // Render the feat browser with live prereq validation badges.
 function renderFeatBrowser(filter='',famF='',qualF=''){
   const list=document.getElementById('feat-browser-list');
-  const c = curId ? chars.find(x=>x.id===curId) : null;
+  const c = curId ? currentChar() : null;
   // v8.3.2: render slot-context banner. Shows when there's an active slot
   // OR there are open class-bonus slots the player could choose to fill.
   // The banner explains the restriction and offers a "browse generally"
@@ -602,7 +602,7 @@ function filterFeats(){renderFeatBrowser(document.getElementById('feat-search').
 async function pickAndAddFeat(name){
   const data = getFeatData(name);
   if (!data) {toast('Feat not found.');return;}
-  const c = chars.find(x=>x.id===curId);
+  const c = currentChar();
   if (!c) {toast('Select a hero first.');return;}
   // Prereq check — non-blocking, but warn. If user overrides, log a GM exception.
   const r = checkFeatPrereqs(name, c);
@@ -683,7 +683,7 @@ function promptForFeatParam(feat, callback){
     // where the "with selected weapon" prereqs are actually enforced; the
     // browse-time badge only checks that the prereq feats are owned at all.
     let pool = WEAPONS;
-    const pc = chars.find(x => x.id === curId);
+    const pc = currentChar();
     // v8.59.1 (Adam's Weaponmaster report, §176): the proficiency filter is
     // CORRECT (Weapon Focus requires proficiency with the chosen weapon) but
     // it was SILENT — a partial list reads as missing data, and it fooled
@@ -730,7 +730,7 @@ function promptForFeatParam(feat, callback){
     options = ['Abjuration','Conjuration','Divination','Enchantment','Evocation','Illusion','Necromancy','Transmutation'];
     // v8.5.0: same-param filtering for school-parameterized chains (Greater
     // Spell Focus requires Spell Focus in the SAME school).
-    const sc = chars.find(x => x.id === curId);
+    const sc = currentChar();
     if (sc && Array.isArray(feat.prereqs)) {
       for (const o of feat.prereqs.flat().filter(o => o.type === 'featParam')) {
         const ownedParams = new Set((sc.feats || [])
@@ -762,7 +762,7 @@ function promptForFeatParam(feat, callback){
     // Expanded Knowledge (HH p.215) grants any PSIONIC power — any
     // discipline, any class's list — of level up to ONE BELOW the highest
     // the character can manifest.
-    const ekc = chars.find(x => x.id === curId);
+    const ekc = currentChar();
     const pi = ekc ? getCasterPoolsInfo(ekc).psionic : null;
     const capLvl = Math.max(1, ((pi && pi.maxPowerLvl) || 2) - 1);
     options = SPELLS_DB
@@ -795,7 +795,7 @@ function promptForFeatParam(feat, callback){
 
 // Actually add a feat to the character record.
 async function addFeatToChar(name, param){
-  const c=chars.find(x=>x.id===curId);if(!c)return;if(!c.feats)c.feats=[];
+  const c=currentChar();if(!c)return;if(!c.feats)c.feats=[];
   // Check duplicate. v8.3.30: feats explicitly marked `takeable:'multiple'`
   // (e.g. Expanded Knowledge — each instance grants a different power) are
   // NEVER rejected as duplicates; the whole point is they stack. The previous

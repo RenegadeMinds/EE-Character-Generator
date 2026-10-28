@@ -39,7 +39,7 @@ function shipBatteryChip(line) {
   return n < 2 ? '' : `⧉ battery ×${n}`;
 }
 async function openStarshipBuilder() {
-  const c = chars.find(x => x.id === curId); if (!c) { toast('Select a hero first.'); return; }
+  const c = currentChar(); if (!c) { toast('Select a hero first.'); return; }
   const sub = await new Promise(res => openChoiceModal('Starship — subtype (FF pp.664-683; base DC includes hull + trained crew)',
     Object.keys(STARSHIP_SUBTYPES).map(n => { const s = STARSHIP_SUBTYPES[n]; return `${n} — ${s.cls}, ${s.D}D (${s.D * 20} HP), crew ${s.crew}, DC ${s.dc}`; }), res));
   if (!sub) return;
@@ -72,7 +72,7 @@ async function openStarshipBuilder() {
   toast(`${ship.name} commissioned — fit her out on the 🕹 Vehicles tab.`);
 }
 function shipIncomingHit(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const def = shipDefOf(it); if (!def) return;
   openChoiceModal(`⚔ Hit on ${it.customName || it.ref} — which section takes it? (facing determines this at the table)`,
@@ -95,7 +95,7 @@ function shipIncomingHit(itemId) {
     });
 }
 function shipRepair(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it || !it.shipDamage) { toast('Undamaged.'); return; }
   openChoiceModal('🔧 Repair which section?', SHIP_SECTIONS.filter(s => (it.shipDamage[s] || 0) > 0), (section) => {
     if (!section) return;

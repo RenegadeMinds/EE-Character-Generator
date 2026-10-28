@@ -39,7 +39,7 @@ function renderXPBar(c){
     </div>`;
 }
 function awardXP(){
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
   // v8.20.0: awards are strictly positive — deductions go through spendXP(),
   // which enforces the book's no-level-loss floor and keeps a typed ledger.
   const amt=Math.max(0,parseInt(document.getElementById('tr-xp-adj').value)||0);
@@ -49,7 +49,7 @@ function awardXP(){
 }
 
 function spendXP(){
-  const c=chars.find(x=>x.id===curId);if(!c){toast('Select a character first.');return;}
+  const c=currentChar();if(!c){toast('Select a character first.');return;}
   reconcileMcReserve(c);
   const amt=Math.max(0,parseInt(document.getElementById('tr-xp-adj').value)||0);
   if(!amt){toast('Enter the XP cost in the amount field first.');return;}

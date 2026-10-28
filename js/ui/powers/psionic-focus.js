@@ -23,7 +23,7 @@
 // =============================================================================
 
 function gainPsiFocus() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin (HH p.241) — dismiss it first.'); return; }
   if (c.psiFocused) { toast('Already psionically focused.'); return; }
   const medit = (c.feats || []).some(f => f.name === 'Psionic Meditation');
@@ -33,7 +33,7 @@ function gainPsiFocus() {
   toast(`● Psionically focused (${medit ? 'move action' : 'full-round action'}, Concentration DC 20).`);
 }
 function expendPsiFocus(why) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin — it cannot be expended.'); return; }
   if (!c.psiFocused) { toast('Not currently focused — gaining focus is a full-round action (move with Psionic Meditation).'); return; }
   c.psiFocused = false;

@@ -70,7 +70,7 @@ async function chargeUpgradeDifference(c, it, oldDC, newDC, what) {
   return true;
 }
 function rollStartingWealth() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const parts = startingWealthBreakdown(c);
   const roll = (1 + Math.floor(Math.random() * 4)) + (1 + Math.floor(Math.random() * 4));
   parts.push({ label: '2d4 roll', v: roll });
@@ -83,7 +83,7 @@ function rollStartingWealth() {
   toast(`Wealth Score ${score} — ${fundsLabel(c.funds, scenarioTechScale(c))} to spend.`);
 }
 async function adjustFunds() {
-  const c = chars.find(x => x.id === curId); if (!c || c.funds == null) return;
+  const c = currentChar(); if (!c || c.funds == null) return;
   const v = await textModal('± Adjust funds', 'Signed amount — e.g. "+20gp", "-150 sp", "+$500", "-300" (bare numbers are $/credits/cp). GM adjudicates earnings, sales, and the ±20% market swings here.', '');
   if (v === null) return;
   const amt = parseFundsAmount(v);
@@ -164,7 +164,7 @@ function renderWealthPanel(c) {
 // successful Appraise check vs the item's Purchase DC upgrades to 2d20,
 // take the better (smaller deduction). Proceeds land in funds; item is sold.
 async function sellItem(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   if (c.wealthScore == null) { toast('Roll starting wealth first (Wealth panel) — selling needs a funds ledger.'); return; }
   const def = getCatalogueEntry(it.catalogue, it.ref);

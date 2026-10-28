@@ -117,7 +117,7 @@ function weaponStatStrip(def, it) {
   return bits.join(' · ');
 }
 async function toggleGearActive(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); const def = gearDef(it); if (!def || !def.active) return;
   const on = gearBoonOf(c, it);
   if (on) { c.activeEffects = c.activeEffects.filter(a => a !== on); logAct(`⏻ ${it.ref} deactivated.`); save(); renderGear(); renderSheet(); renderSkills(); return; }
@@ -133,14 +133,14 @@ async function toggleGearActive(itemId) {
   save(); renderGear(); renderSheet(); renderSkills();
 }
 function gearQty(itemId, d) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   it.qty = Math.max(0, (it.qty || 1) + d);
   if (it.qty === 0) c.items = c.items.filter(i => i !== it);
   save(); renderGear();
 }
 function useGearItem(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); const def = gearDef(it); if (!def || !def.use) return;
   const u = def.use;
   if (u.bane) {
@@ -170,7 +170,7 @@ function boostBaneRoll(c) {
   toast(`☠ Boost ends — d% ${roll}: ${hit ? 'Bane! −2 Dex, −1 Fort for 24 hours' : 'no Bane this time'}.`);
 }
 async function setEquipParam(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const def = getCatalogueEntry('equipment', it.ref); const P = def && def.effect && def.effect.param; if (!P) return;
   const pick = await new Promise(res => openChoiceModal(`${it.ref} — ${P.label}?`, P.options, res));
@@ -179,7 +179,7 @@ async function setEquipParam(itemId) {
 }
 async function addItemToChar(catalogue, ref, slot, opts) {
   opts = opts || {};
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!c.items) c.items = [];
   const entry = getCatalogueEntry(catalogue, ref);
   if (!entry) { toast('Unknown item: ' + ref); return; }
@@ -254,7 +254,7 @@ async function addItemToChar(catalogue, ref, slot, opts) {
 }
 
 function removeItemFromChar(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.items) return;
+  const c = currentChar(); if (!c || !c.items) return;
   // v9.3.0: removing a weapon frees its accessories; removing an accessory detaches it.
   for (const i of c.items) {
     if (i.mountedOn === itemId) i.mountedOn = null;
@@ -269,7 +269,7 @@ function removeItemFromChar(itemId) {
 // weapon (Adam's design: available only while the off hand is free).
 // Grants Str ×1.5 damage and double Power Attack; costs the off hand.
 function toggleTwoHandGrip(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   if (!it.twoHandedGrip) {
     const offBusy = getCharItems(c).some(o => o.id !== it.id && o.equipped && o.slot === 'off_hand');
@@ -292,7 +292,7 @@ function toggleTwoHandGrip(itemId) {
 // pre-existing quirk where the Off Hand picker equipped an item into its OWN
 // stored slot (i.e. the main hand) regardless of which row was clicked.
 function equipItemToSlot(itemId, slotId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const slotDef = ITEM_SLOTS.find(s => s.id === slotId); if (!slotDef) return;
   if (!it.equipped && slotDef.accepts && !slotDef.accepts.includes(it.catalogue === 'armor' ? (getCatalogueEntry('armor', it.ref) || {}).type === 'shield' ? 'shield' : 'armor' : it.catalogue)) {
@@ -306,7 +306,7 @@ function equipItemToSlot(itemId, slotId) {
 // occupancy checks by unequipping, moving, and re-equipping through the
 // normal path; restores the original slot if the destination refuses.
 function moveWeaponHand(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it || it.catalogue !== 'weapon') return;
   const dest = it.slot === 'main_hand' ? 'off_hand' : 'main_hand';
   const wasEquipped = it.equipped, origSlot = it.slot;
@@ -322,7 +322,7 @@ function moveWeaponHand(itemId) {
 // the mechanical name); the mechanical identity stays visible beside it and
 // in every tooltip — pure flavor, zero mechanical effect.
 async function renameItem(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const mech = it.enchant ? (() => { const cn = it.customName; delete it.customName; const n = enchantDisplayName(it); if (cn) it.customName = cn; return n; })() : it.ref;
   const v = await textModal(`✎ Name this item`, `Custom name for your ${mech} — shown everywhere it appears (the mechanical identity stays visible beside it). Leave blank to clear.`, it.customName || '');
@@ -334,7 +334,7 @@ async function renameItem(itemId) {
 }
 
 function toggleItemEquipped(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   if (it.catalogue === 'equipment') {
     // v9.2.0: wearable gear has a home body slot; everything else is owned.
@@ -484,12 +484,12 @@ function renderInventoryList(items, techScale, catalogue) {
     }
 
     const _gd = catalogue === 'equipment' ? def : null;
-    const _on = _gd && _gd.active ? !!gearBoonOf(chars.find(x => x.id === curId) || {}, it) : false;
+    const _on = _gd && _gd.active ? !!gearBoonOf(currentChar() || {}, it) : false;
     const equipToggle = catalogue !== 'equipment'
       ? `<button class="fs-10 btn btn-sm" onclick="toggleItemEquipped('${it.id}')">${it.equipped ? 'Unequip' : 'Equip'}</button>`
       : [ _gd && _gd.slot ? `<button class="btn btn-sm" style="font-size:10px;${it.equipped ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="toggleItemEquipped('${it.id}')" title="${it.equipped ? 'Worn in the ' : 'Wear in the '}${(ITEM_SLOTS.find(x => x.id === _gd.slot) || {}).label || _gd.slot} slot">${it.equipped ? '🎒 Remove' : '🎒 Wear'}</button>` : '',
           _gd && _gd.active ? `<button class="btn btn-sm" style="font-size:10px;${_on ? 'border-color:rgb(var(--line-mint) / .7);color:rgb(var(--text-mint));' : ''}${_gd.slot && !it.equipped ? 'opacity:.5;' : ''}" onclick="toggleGearActive('${it.id}')" title="${_gd.slot && !it.equipped ? 'Wear it first' : 'Toggle the device — its Boon shows on the Sheet'}">${_on ? '⏻ Turn off' : '⚡ Activate'}</button>` : '',
-          _gd && _gd.mount ? (() => { const w = it.mountedOn && (chars.find(x => x.id === curId) || {items: []}).items.find(i => i.id === it.mountedOn); return `<button class="btn btn-sm" style="font-size:10px;${w ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="mountAccessory('${it.id}')" title="${w ? 'Mounted on ' + escapeHTML(w.ref) + ' — click to detach' : 'Mount on an eligible weapon'}">🔧 ${w ? 'Mounted ✕' : 'Mount on…'}</button>`; })() : '',
+          _gd && _gd.mount ? (() => { const w = it.mountedOn && (currentChar() || {items: []}).items.find(i => i.id === it.mountedOn); return `<button class="btn btn-sm" style="font-size:10px;${w ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="mountAccessory('${it.id}')" title="${w ? 'Mounted on ' + escapeHTML(w.ref) + ' — click to detach' : 'Mount on an eligible weapon'}">🔧 ${w ? 'Mounted ✕' : 'Mount on…'}</button>`; })() : '',
           _gd && _gd.upgrade ? `<button class="btn btn-sm" style="font-size:10px;${it.upgraded ? 'border-color:rgb(var(--line-mint) / .6);color:rgb(var(--text-mint));' : ''}" onclick="toggleComputerUpgrade('${it.id}')" title="Processor upgrade: +1 equipment on Computer Use (Purchase DC +${_gd.upgrade.dc}; charge it with ± Adjust if tracking wealth)">⬆ ${it.upgraded ? 'Upgraded' : 'Upgrade'}</button>` : '',
           _gd && _gd.use ? `<span class="fs-10 mr-4">×${it.qty || 1}</span><button class="fs-9 p-0-5 btn btn-sm" onclick="gearQty('${it.id}',1)" title="Add one">+</button><button class="fs-10 btn btn-sm" onclick="useGearItem('${it.id}')" title="Use one${(_gd.use.effects || []).length ? ' — starts its Boon' : ''}">🧪 Use</button>` : '' ].join(' ');
     // v8.6.1 TWF pass: one-handed weapons can swap hands (dual-wield lives
@@ -531,7 +531,7 @@ function renderInventoryList(items, techScale, catalogue) {
     // the piece's armor check penalty hits attack rolls and Str/Dex checks
     // while it is EQUIPPED (merely owning it is penalty-free).
     let profFlag = '';
-    const curChar = chars.find(x => x.id === curId);
+    const curChar = currentChar();
     if (curChar && catalogue === 'weapon' && !isProficientWithWeapon(curChar, it.ref)) {
       profFlag = ' <span class="fs-10" style="color:rgb(var(--text-orange));" title="-4 on attack rolls while not proficient">⚠ not proficient</span>';
     } else if (curChar && catalogue === 'armor' && !isProficientWithArmor(curChar, it.ref)) {
@@ -579,7 +579,7 @@ function renderInventoryList(items, techScale, catalogue) {
 function renderGear() {
   const prompt = document.getElementById('gear-prompt'), cont = document.getElementById('gear-content');
   if (!curId) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
-  const c = chars.find(x => x.id === curId); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
+  const c = currentChar(); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
   prompt.style.display = 'none'; cont.style.display = 'block';
   document.getElementById('gear-hero-nm').textContent = c.name + ' — Gear';
   if (!c.items) c.items = [];

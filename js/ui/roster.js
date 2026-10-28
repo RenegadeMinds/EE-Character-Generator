@@ -88,7 +88,7 @@ function exportRosterDownload(json, fname) {
   toast(`⬇ Exported ${chars.length} hero${chars.length === 1 ? '' : 'es'} — the file imports on any browser's roster.`);
 }
 function exportCurrentHero() {
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) { toast('No hero selected.'); return; }
   const blob = new Blob([JSON.stringify(c, null, 1)], {type: 'application/json'});
   const a = document.createElement('a');

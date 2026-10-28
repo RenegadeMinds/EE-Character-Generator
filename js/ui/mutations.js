@@ -29,14 +29,14 @@
 // =============================================================================
 
 function restSuperPPClick() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.superPPCurrent = getSuperPPState(c).max;
   save(); renderMutations(); renderPowers();
   toast('Super-power points restored.');
 }
 
 async function buySuperPower(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const spell = _pwBrowseList[idx]; if (!spell) return;
   if (!c.powers) c.powers = [];
   if (c.powers.some(p => p.name === spell.name && p.pool === 'super')) { toast(`${spell.name} is already a super-power.`); return; }
@@ -134,7 +134,7 @@ function renderMutationEffects(c) {
 }
 
 async function addMutationFromBrowse(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const mut = _muBrowseList[idx]; if (!mut) return;
   if (!c.mutations) c.mutations = [];
   const finish = async (attr) => {
@@ -203,7 +203,7 @@ async function addMutationFromBrowse(idx) {
 }
 
 async function removeMutationAt(idx) {
-  const c = chars.find(x => x.id === curId); if (!c || !c.mutations) return;
+  const c = currentChar(); if (!c || !c.mutations) return;
   const m = c.mutations[idx]; if (!m) return;
   let warn = `Remove ${m.name}${m.attr ? ' (' + m.attr + ')' : ''}?`;
   if (m.kind === 'drawback') {
@@ -225,7 +225,7 @@ async function removeMutationAt(idx) {
 
 function addMPGrantClick() {
   openChoiceModal('GM Grant — enter MP amount and reason (e.g. "3 radiation exposure at the Akron Wastes")', [], (val) => {
-    const c = chars.find(x => x.id === curId); if (!c) return;
+    const c = currentChar(); if (!c) return;
     const m = val.match(/^(-?\d+)\s*(.*)$/);
     if (!m) { toast('Enter a number first, e.g. "3 reason".'); return; }
     if (!c.mpGrants) c.mpGrants = [];
@@ -237,7 +237,7 @@ function addMPGrantClick() {
 }
 
 function setSuperMutantTier(key) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.superMutantTier = key;
   delete c.superPPCurrent; // pool max changed — refill to new max
   refreshEclXp(c); // v8.12.4: reconcile + re-stamp c.ecl/xpNext
@@ -252,7 +252,7 @@ function toggleMuDetail(name) {
 function renderMutations() {
   const prompt = document.getElementById('mu-prompt'), cont = document.getElementById('mu-content');
   if (!curId) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
-  const c = chars.find(x => x.id === curId); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
+  const c = currentChar(); if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
   prompt.style.display = 'none'; cont.style.display = 'block';
   document.getElementById('mu-hero-nm').textContent = c.name + ' — Mutations';
 
@@ -375,11 +375,11 @@ function renderSuperTalentPanel(c) {
   const ownedBits = ownedNames.length ? ownedNames.map(escapeHTML).join(', ') : null;
   el.innerHTML = `<details class="hy-det"${window._suTalOpen ? ' open' : ''} ontoggle="window._suTalOpen=this.open"><summary><span class="c-vio bold">🎭 Super-Talents</span> <span class="cite cite-HH" title="Hero's Handbook Ch.XI p.669 (the Hero Classes and Super-Talents table — like Super-Powers, Super-Talents require the Supernatural Mutation feat) + the talent trees, pp.63-71. MP is the whole price: no Talent selection is consumed (Adam's ruling, v8.21.1).">HH 669</span>${ownedBits ? ` <span style="color:rgb(var(--text-olive2) / .9);">— ${ownedBits}</span>` : ` <span class="o-50 c-dim">— none yet · ${mine.filter(t => !ownedNames.includes(t.n)).length} available to your classes</span>`}</summary><div style="padding:4px 0 2px 14px;">
     <div class="fs-10 c-g55 mb-2">MP is the whole price — no Talent slot is consumed. Purchases record on the 🎭 Talents tab and bake into the Sheet. Banked: <b class="c-gold">${st.balance} MP</b>.</div>${body}
-    <div class="mt-4"><span class="fs-9 op-0_5 cursor-pointer" onclick="window._suTalGmAll=!window._suTalGmAll;renderSuperTalentPanel(chars.find(x=>x.id===curId))">⚿ ${gmAll ? 'hide' : 'show'} other classes' Super-Talents (GM)</span></div>
+    <div class="mt-4"><span class="fs-9 op-0_5 cursor-pointer" onclick="window._suTalGmAll=!window._suTalGmAll;renderSuperTalentPanel(currentChar())">⚿ ${gmAll ? 'hide' : 'show'} other classes' Super-Talents (GM)</span></div>
   </div></details>`;
 }
 async function buySuperTalent(name, gmException) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (gmException) {
     const pr = checkTalentPrereqs(name, c);
     const heroClasses = new Set(migrateLegacyClasses(c).filter(e => e.tier === 'hero' && (e.level || 0) > 0).map(e => e.name));
@@ -394,7 +394,7 @@ async function buySuperTalent(name, gmException) {
   renderPowers(); renderSheet();
 }
 async function buySuAttrStep(attrKey) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!c.mutations) c.mutations = [];
   const owned = SU_ATTR_LADDER.filter(nm => c.mutations.some(m => m.name === nm && m.attr === attrKey)).length;
   if (owned >= 5) return;
@@ -418,7 +418,7 @@ async function buySuAttrStep(attrKey) {
 }
 function renderMutationsBrowse() {
   if (!_muBrowseOpen) return;  // collapsed — skip the 65-entry render (v8.6.0)
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const el = document.getElementById('mu-browse-list'); if (!el) return;
   const q = (document.getElementById('mu-search').value || '').toLowerCase();
   const kindF = document.getElementById('mu-kind-filter').value;

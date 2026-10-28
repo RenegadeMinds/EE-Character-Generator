@@ -85,7 +85,7 @@ async function saveCharacter(){
   // the scenario's Heroic Scale. formClasses + sixLevels.heroic feed the
   // synthetic object the helper inspects.
   const _saveHeroic = sixLevels.heroic || 0;
-  const _existingFP = (editId && chars.find(x=>x.id===editId)?.fatePoints) || 0;
+  const _existingFP = (editId && editingChar()?.fatePoints) || 0;
   const _saveApHeroic = effectiveHeroicLevelForAP({classes: formClasses, sixLevels: {heroic: _saveHeroic}});
   const s=computeStatsFromClasses(formClasses, effAttrs[5], _saveApHeroic, _existingFP);
   // v8.1.7: per HH p.347, every +1 natural AC modifier grants +5 HP and +1 natural hardness.
@@ -178,7 +178,7 @@ function saveCheckClassPrereqs(effAttrs, sixLevels) {
   let warnings=[];
   let skills={},feats=[];
   let prevExceptions=[]; // GM exceptions previously recorded on this character (preserved across edits)
-  if(editId){const ex=chars.find(c=>c.id===editId);if(ex){skills=ex.skills||{};feats=ex.feats||[];prevExceptions=ex.gmExceptions||[];}}
+  if(editId){const ex=editingChar();if(ex){skills=ex.skills||{};feats=ex.feats||[];prevExceptions=ex.gmExceptions||[];}}
   const ctx={
     attrs:effAttrs,  // v8.2.3: effective attrs (base + bumps) for prereq checks
     allegiance:document.getElementById('c-allegiance')?.value||'',
@@ -242,7 +242,7 @@ function saveSchemaFields(race, classesCopy, occupations) {
   //       LINE per decision 9 — do NOT silently upgrade. The character stays
   //       legacy; no schemaVer set, no firstLevelSlots, no heroesGiftChoice.
   //       getFeatBudget and getTalentBudget continue to use the legacy path.
-  const existingChar = editId ? chars.find(x=>x.id===editId) : null;
+  const existingChar = editId ? editingChar() : null;
   const existingIsLegacy = existingChar ? isLegacyCharacter(existingChar) : false;
   let v840_schemaVer, v840_heroesGiftChoice, v840_firstLevelSlots;
   // v8.70.1: the Hybrid parent pair for the Human-bonus slot derivation —
@@ -361,7 +361,7 @@ function buildCharacterRecord(f) {
     // v8.3.27: structured AP/FP audit log. Preserved across edits — saveCharacter
     // doesn't mutate it. Tracker writes to it via logActionEvent() when the
     // player spends/restores AP or FP via the AP Bar buttons.
-    actionLog: ((editId && chars.find(x=>x.id===editId)?.actionLog) || []).slice(),
+    actionLog: ((editId && editingChar()?.actionLog) || []).slice(),
     heroicLevel:sixLevels.heroic, // older code references this directly
     // v8.2.3 (Issue B): c.attrs stores the EFFECTIVE attributes (base + bumps).
     // All downstream readers (HP, saves, skill mods, AC, etc.) use these.
@@ -381,11 +381,11 @@ function buildCharacterRecord(f) {
     // v8.3.19: Fate Points = permanent AP expenditures (HH p.55). Preserved
     // across edits — once spent, they reduce future AP pool replenishment.
     // The existing fatePoints (if any) is preserved by the assignment below.
-    fatePoints: ((editId && chars.find(x=>x.id===editId)?.fatePoints) || 0),
+    fatePoints: ((editId && editingChar()?.fatePoints) || 0),
     // v8.3.21: c.talents preserved across edits. The Talents tab/page is the
     // canonical authoring surface; saveCharacter does not modify the list,
     // just carries it through.
-    talents: ((editId && chars.find(x=>x.id===editId)?.talents) || []).slice(),
+    talents: ((editId && editingChar()?.talents) || []).slice(),
     // v8.3.28: XP at save respects the character's level floor. Previously
     // hardcoded to 0, which made wholecloth high-level characters appear to
     // need ALL their cumulative XP to reach the next level (e.g. a Level 10
@@ -399,7 +399,7 @@ function buildCharacterRecord(f) {
     // form, xp is bumped to the new level's floor (preserving in-band progress
     // would yield xp < floor, which is incoherent).
     xp: (function(){
-      const existingXp = (editId && chars.find(x=>x.id===editId)?.xp) || 0;
+      const existingXp = (editId && editingChar()?.xp) || 0;
       // v8.5.4: LA-aware floor per GMG p.38 — reaching class level L with a
       // race Level Adjustment means having crossed the T(L + LA) threshold
       // (the drow example: a wholecloth class-2 drow has ≥ 6,000 XP).
@@ -588,7 +588,7 @@ function mergeEditedCharacter(char, idx, v840_didRetcon, v840_retconOld, v840_re
 // lands on the copy — the original is never the one under the knife.
 async function cloneCurrentChar(){
   if(!curId){toast('Select a character to clone.');return;}
-  const src=chars.find(x=>x.id===curId); if(!src)return;
+  const src=currentChar(); if(!src)return;
   const suggested=`${src.name} — L${src.totalLvl} copy`;
   const v=await textModal('⧉ Clone Character',
     `Name for the copy of ${src.name}. Use a snapshot label ("${src.name} — Level ${src.totalLvl}") to archive this version, or a what-if tag ("${src.name} (grenadier build)") to experiment freely. Cancel aborts.`,
@@ -605,7 +605,7 @@ async function cloneCurrentChar(){
   toast(`⧉ "${copy.name}" created — now viewing the copy. The original is safe in the roster.`);
 }
 function editCurrentChar(){
-  if(!curId)return;const c=chars.find(x=>x.id===curId);if(!c)return;
+  if(!curId)return;const c=currentChar();if(!c)return;
   editId=c.id;
   _createDirty=false;  // v9.16.0 (§276): the loaded form matches the saved hero
   // v8.5.4 ergo C2: never hide populated sections when editing.
@@ -829,7 +829,7 @@ function editCurrentChar(){
   showPage('create');
 }
 async function deleteCurrentChar(){
-  if(!curId)return;const c=chars.find(x=>x.id===curId);if(!c||!(await confirmModal('Delete '+c.name+'?')))return;
+  if(!curId)return;const c=currentChar();if(!c||!(await confirmModal('Delete '+c.name+'?')))return;
   chars=chars.filter(x=>x.id!==curId);curId=null;save();renderRoster();showPage('roster');toast('Deleted.');
 }
 function clearForm(){

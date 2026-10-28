@@ -172,6 +172,6 @@ function renderSheetConditionBanner(c){
     }).join('')}
   `;
 }
-function addCond(co){const c=chars.find(x=>x.id===curId);if(!c)return;if(!c.conditions)c.conditions=[];if(!c.conditions.includes(co)){c.conditions.push(co);save();renderConds(c);}}
-function rmCond(co){const c=chars.find(x=>x.id===curId);if(!c||!c.conditions)return;c.conditions=c.conditions.filter(x=>x!==co);save();renderConds(c);}
-function clearConds(){const c=chars.find(x=>x.id===curId);if(!c)return;c.conditions=[];save();renderConds(c);}
+function addCond(co){const c=currentChar();if(!c)return;if(!c.conditions)c.conditions=[];if(!c.conditions.includes(co)){c.conditions.push(co);save();renderConds(c);}}
+function rmCond(co){const c=currentChar();if(!c||!c.conditions)return;c.conditions=c.conditions.filter(x=>x!==co);save();renderConds(c);}
+function clearConds(){const c=currentChar();if(!c)return;c.conditions=[];save();renderConds(c);}

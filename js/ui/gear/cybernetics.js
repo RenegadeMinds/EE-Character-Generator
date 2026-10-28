@@ -74,7 +74,7 @@ function renderCybernetics(c) {
 }
 
 function addCyberFromSel() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const sel = document.getElementById('gear-cyber-sel'); if (!sel) return;
   const def = CYBERNETICS_DB[Number(sel.value)]; if (!def) return;
   // Lost Arm interlock: arm-mounted implants need the prosthetic arm first.
@@ -104,7 +104,7 @@ function addCyberFromSel() {
 }
 
 function removeCyber(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const r = getCyber(c)[idx]; if (!r) return;
   c.cybernetics = getCyber(c).filter((_, i) => i !== idx);
   syncCyberFeats(c);  // v8.99.0: granted feats cascade away (HH p.337)

@@ -54,7 +54,7 @@
 // Clamps to [0, contributor budget].
 function adjustPP(ctrIdSafe, poolName, ctrKey, delta) {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!c.ppCurrent) c.ppCurrent = {};
   if (!c.ppCurrent[poolName]) c.ppCurrent[poolName] = {};
@@ -78,7 +78,7 @@ function adjustPP(ctrIdSafe, poolName, ctrKey, delta) {
 // Also clears the "Prepared Today" textareas for prep casters in this pool.
 function restPP(poolName) {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (!c.ppCurrent) c.ppCurrent = {};
   if (!c.ppCurrent[poolName]) c.ppCurrent[poolName] = {};
@@ -172,7 +172,7 @@ async function instantGateOK(c, spell, pool) {
 let _prepCtrs = [];
 
 async function prepPickAndAdd(pi) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const pc = _prepCtrs[pi]; if (!pc) return;
   const elig = prepEligibleFor(c, pc);
   if (!elig.length) { toast(pc.poolName === 'divine' ? "No list spell is reachable at this class's castable levels yet." : 'No known spells this class can prepare — add some from the catalogue below first.'); return; }
@@ -210,7 +210,7 @@ async function prepPickAndAdd(pi) {
 // spent in the memorization, the memorized spell is spent in the casting."
 // Multi-tier family entries ask which tier; multi-class preps ask which class.
 function memorizeKnownAt(idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const p = getCharPowers(c)[idx]; if (!p) return;
   const s = SPELLS_DB.find(x => x.name === p.name); if (!s) { toast('Catalogue entry not found.'); return; }
   _prepCtrs = prepContributorsOf(c);
@@ -315,7 +315,7 @@ async function doPrepare(c, pc, e, free) {
 // ('GM exception?') let's make it theoretically possible" — dawn memorization
 // is RAW-fixed until the next rest, so unpreparing confirms as a GM exception.
 async function unprepareAt(pi, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const pc = _prepCtrs[pi]; if (!pc) return;
   const list = getPreparedList(c, pc.poolName, pc.ctrKey);
   const rec = list[idx]; if (!rec) return;
@@ -360,7 +360,7 @@ function finishPrepCast(c, pc, rec, spell, element) {
 }
 
 async function castPreparedAt(pi, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const pc = _prepCtrs[pi]; if (!pc) return;
   const list = getPreparedList(c, pc.poolName, pc.ctrKey);
   const rec = list[idx]; if (!rec) return;
@@ -383,7 +383,7 @@ async function castPreparedAt(pi, idx) {
 // Cleric spontaneous conversion: burn an uncast prepared instance to cast
 // Cure/Inflict Wounds (Druid Option: Summon Nature's Ally) at ≤ its level.
 function convertPreparedAt(pi, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const pc = _prepCtrs[pi]; if (!pc) return;
   const list = getPreparedList(c, pc.poolName, pc.ctrKey);
   const rec = list[idx]; if (!rec) return;
@@ -430,7 +430,7 @@ function renderPrepPanel(c) {
   let html = `<div class="sec-head sm">Prepared Spells <span class="fw-400 fs-10 o-60 c-dim">(memorized at dawn — PP, Magic-feat and augment costs ALL paid at preparation, per instance; casting is free)</span></div>`;
   html += `<div class="rounded-3 mb-1rem" style="border:1px solid rgb(var(--line-khaki) / .25);">`;
   _prepCtrs.forEach((pc, pi) => {
-    const c2 = chars.find(x => x.id === curId);
+    const c2 = currentChar();
     const list = getPreparedList(c2, pc.poolName, pc.ctrKey);
     const cur = c2.ppCurrent?.[pc.poolName]?.[pc.ctrKey] ?? pc.budget;
     const committed = list.reduce((t, r) => t + (r.free ? 0 : (r.cost || 0) * (r.qty || 0)), 0);

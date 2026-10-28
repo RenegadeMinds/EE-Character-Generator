@@ -25,7 +25,7 @@
 // =============================================================================
 
 function togglePiloted(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = vehicleIntegrity(it);
   if (!it.piloted && g && (g.broken || g.destroyed)) { toast(`${enchantDisplayName(it)} is ${g.destroyed ? 'destroyed' : 'disabled (0 HP)'} — it cannot be piloted.`); return; }
@@ -36,7 +36,7 @@ function togglePiloted(itemId) {
   save(); renderVehicles(); renderSheet();
 }
 async function setJointOwners(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const v = await textModal('✎ Registered owners', `Joint owners of ${enchantDisplayName(it)} — a "legal" record for the table (bookkeeping stays with ${c.name}). Leave blank to clear.`, it.jointOwners || '');
   if (v === null) return;
@@ -44,7 +44,7 @@ async function setJointOwners(itemId) {
   save(); renderVehicles();
 }
 function vehicleIncomingHit(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = vehicleIntegrity(it); if (!g) return;
   if (g.destroyed) { toast('That vehicle is destroyed.'); return; }
@@ -65,7 +65,7 @@ function vehicleIncomingHit(itemId) {
   });
 }
 function vehicleRepair(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = getCharItems(c).find(x => x.id === itemId); if (!it) return;
   const g = vehicleIntegrity(it); if (!g) return;
   if (g.destroyed) toast(`${g.def.name} is beyond repair (HH p.181: negative HP past half max = salvage only). Repairing past that is a GM override — logged as such.`);
@@ -108,7 +108,7 @@ function renderVehicleInventory(c, techScale) {
 function renderVehicles() {
   const prompt = document.getElementById('vh-prompt'), cont = document.getElementById('vh-content');
   if (!prompt || !cont) return;
-  const c = curId ? chars.find(x => x.id === curId) : null;
+  const c = curId ? currentChar() : null;
   if (!c) { prompt.style.display = 'block'; cont.style.display = 'none'; return; }
   prompt.style.display = 'none'; cont.style.display = 'block';
   document.getElementById('vh-hero-nm').textContent = `${c.name} — Motor Pool`;

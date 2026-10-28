@@ -27,7 +27,7 @@
 // =============================================================================
 
 async function mountAccessory(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); const ad = it && getCatalogueEntry('equipment', it.ref); if (!ad || !ad.mount) return;
   if (it.mountedOn) {   // detach
     const w = c.items.find(i => i.id === it.mountedOn);
@@ -49,7 +49,7 @@ async function mountAccessory(itemId) {
   save(); renderGear(); renderSheet();
 }
 function toggleComputerUpgrade(itemId) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   it.upgraded = !it.upgraded;
   logAct(`⬆ ${it.ref} ${it.upgraded ? 'upgraded (+1 equipment on Computer Use)' : 'upgrade removed'}.`);
@@ -57,7 +57,7 @@ function toggleComputerUpgrade(itemId) {
 }
 
 async function setItemMastercraft(itemId, bonus, target) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const cap = maxMastercraftBonus(scenarioTechScale(c));
   bonus = Math.max(0, Math.min(bonus, cap));
@@ -95,7 +95,7 @@ async function setItemMastercraft(itemId, bonus, target) {
 }
 
 async function addGadgetToItem(itemId, gadgetName) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it) return;
   const cap = gadgetSlotCount(it, scenarioTechScale(c));
   if (!it.gadgets) it.gadgets = [];
@@ -159,7 +159,7 @@ async function addGadgetToItem(itemId, gadgetName) {
 }
 
 function removeGadgetFromItem(itemId, idx) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const it = (c.items || []).find(i => i.id === itemId); if (!it || !it.gadgets) return;
   it.gadgets.splice(idx, 1);
   save(); renderGear(); renderSheet(); renderSkills();

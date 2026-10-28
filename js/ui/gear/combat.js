@@ -25,7 +25,7 @@
 
 // Free-action adjust, the baDeclAdjust idiom (single modifier — no modal).
 function bdDeclAdjust(dir) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const cap = bestDefenseCap(c); if (cap <= 0) return;
   const d = combatDecl(c);
   if (dir > 0) {
@@ -45,7 +45,7 @@ function declWhichModal(title, labels) {
   });
 }
 async function baDeclAdjust(dir) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   const hasPA = ownsFeatN(c, 'Power Attack'), hasCE = ownsFeatN(c, 'Combat Expertise');
   if (!hasPA && !hasCE) return;
   const d = combatDecl(c), caps = combatDeclCaps(c);
@@ -88,7 +88,7 @@ async function baDeclAdjust(dir) {
   save(); renderSheet();
 }
 async function weaponSpikeUse(feat, dice, path) {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (path === 'held') {
     if (psiFocusLocked(c)) { toast('🧿 Focus is locked sustaining the Second Skin.'); return; }
     if (!c.psiFocused) { toast('○ Not psionically focused — gain focus first.'); return; }
@@ -109,7 +109,7 @@ function toggleMeleeOpts() {
 
 // v8.8.0 (Adam): toggle the Null Power Field state.
 function toggleNullified() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   c.nullified = !c.nullified;
   logAct(c.nullified ? '⊘ NULLIFIED — all Supernatural modifiers suppressed (Null Power Field).' : '✦ Nullification lifted — Supernatural modifiers restored.');
   save(); renderSheet(); renderGear(); renderSkills();
@@ -124,7 +124,7 @@ function toggleNullified() {
 // Grapple rides the +2 — a grapple check is like a melee attack roll, and
 // starting one requires a successful melee attack roll (HH grapple rules).
 function toggleRecklessOffense() {
-  const c = chars.find(x => x.id === curId); if (!c) return;
+  const c = currentChar(); if (!c) return;
   if (!ownsFeatN(c, 'Reckless Offense')) { toast('Reckless Offense requires the feat.'); return; }
   if (!c.combatDecl) c.combatDecl = {};
   c.combatDecl.ro = !c.combatDecl.ro;

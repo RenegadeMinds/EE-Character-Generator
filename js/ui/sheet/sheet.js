@@ -64,7 +64,7 @@ function renderSourcedValueProvenance(breakdown, opts) {
 // Stat keys: 'bab', 'def', 'fort', 'ref', 'will', 'rep', 'ac'.
 function showStatBreakdown(statKey){
   if(!curId)return;
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
 
   // v8.1.7: T/ACtical Combat System drilldowns. AC tiers, Parry, and Dodge are
   // computed from the existing stat block plus equipment fields, not from the
@@ -242,7 +242,7 @@ function closeDrilldown(){
 // HP-percent ratio for currentHP, logs the change, saves, and re-renders.
 function applyRacialNatAC() {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const target = racialNatACOf(c);
   // v8.3.5: read the effective current value via the source-aware computer,
@@ -290,7 +290,7 @@ function applyRacialNatAC() {
 // no longer matches and the banner re-fires.
 function dismissNatACBanner() {
   if (!curId) return;
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   const racialNatAC = racialNatACOf(c);
   c._natACDismissed = `${c.race}:${racialNatAC}`;
@@ -301,7 +301,7 @@ function dismissNatACBanner() {
 function renderSheet(){
   const prompt=document.getElementById('sh-prompt'),cont=document.getElementById('sh-content');
   if(!curId){prompt.style.display='block';cont.style.display='none';return;}
-  const c=chars.find(x=>x.id===curId);if(!c){prompt.style.display='block';cont.style.display='none';return;}
+  const c=currentChar();if(!c){prompt.style.display='block';cont.style.display='none';return;}
   prompt.style.display='none';cont.style.display='block';
   // Repairs that keep older or partly-built records consistent. Each one
   // saves only if it actually changed something.
@@ -1349,7 +1349,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
         }
       } else {
         poolHtml += `<br><span class="fs-11 c-tx65 pl-12">Prepared today (memorized at morning prep, PP-cost deducted from budget):</span>`;
-        poolHtml += `<br><textarea id="prep-${ctrIdSafe}" placeholder="e.g. 4× Magic Missile (4 PP), 2× Fireball (10 PP), 1× Mage Armor (1 PP)... — or use the structured Prepared Spells panel on the Powers & Spells tab" rows="3" onblur="snapshotPowerTextareas(chars.find(x=>x.id===curId));save();" style="width:95%;margin-left:12px;font-size:11px;background:rgb(var(--tint-black) / .2);color:rgb(var(--text-olive));border:1px solid rgb(var(--line-gold) / .2);padding:4px;">${escapeHTML((c.preparedToday && c.preparedToday[poolName] && c.preparedToday[poolName][ctrKey]) || '')}</textarea>`;
+        poolHtml += `<br><textarea id="prep-${ctrIdSafe}" placeholder="e.g. 4× Magic Missile (4 PP), 2× Fireball (10 PP), 1× Mage Armor (1 PP)... — or use the structured Prepared Spells panel on the Powers & Spells tab" rows="3" onblur="snapshotPowerTextareas(currentChar());save();" style="width:95%;margin-left:12px;font-size:11px;background:rgb(var(--tint-black) / .2);color:rgb(var(--text-olive));border:1px solid rgb(var(--line-gold) / .2);padding:4px;">${escapeHTML((c.preparedToday && c.preparedToday[poolName] && c.preparedToday[poolName][ctrKey]) || '')}</textarea>`;
         poolHtml += `<br><span class="fs-10 c-g50 pl-12">During play, cross off instances as they’re cast. PP budget stays empty until next Rest.</span>`;
       }
     } else {
@@ -1381,7 +1381,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
       } else {
         const knownList = (c.powersKnownList && c.powersKnownList[poolName] && c.powersKnownList[poolName][ctrKey]) || '';
         poolHtml += `<br><span class="fs-11 c-tx65 pl-12">${ctr.class} ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'Spells' : 'Powers'} Known:</span>`;
-        poolHtml += `<br><textarea id="known-${ctrIdSafe}" placeholder="Type your known ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'spells' : 'powers'} here, one per line... — or use the structured catalogue on the Spells/Powers tab" rows="3" onblur="snapshotPowerTextareas(chars.find(x=>x.id===curId));save();" style="width:95%;margin-left:12px;font-size:11px;background:rgb(var(--tint-black) / .2);color:rgb(var(--text-olive));border:1px solid rgb(var(--line-gold) / .2);padding:4px;">${escapeHTML(knownList)}</textarea>`;
+        poolHtml += `<br><textarea id="known-${ctrIdSafe}" placeholder="Type your known ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'spells' : 'powers'} here, one per line... — or use the structured catalogue on the Spells/Powers tab" rows="3" onblur="snapshotPowerTextareas(currentChar());save();" style="width:95%;margin-left:12px;font-size:11px;background:rgb(var(--tint-black) / .2);color:rgb(var(--text-olive));border:1px solid rgb(var(--line-gold) / .2);padding:4px;">${escapeHTML(knownList)}</textarea>`;
       }
       poolHtml += `<br><span class="fs-10 c-g50 pl-12">Spend PP from this budget when ${poolName === 'psionic' ? 'manifesting' : 'casting'} (1/3/5/7/9/11/13/15/17 by ${poolNoun.toLowerCase()} level, HH p.404).</span>`;
     }

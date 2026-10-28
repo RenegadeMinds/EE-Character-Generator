@@ -63,6 +63,12 @@ function migrateTs13Vehicles(c) {
   return c;
 }
 let curId = null, editId = null, pbMode = false;
+// The character currently open (Sheet, Gear, Tracker, ...): the one whose id
+// is curId, or undefined if none. Use this instead of writing out
+// chars.find(x => x.id === curId) each time.
+function currentChar() { return chars.find(x => x.id === curId); }
+// The character being edited on the Create page (editId), or undefined.
+function editingChar() { return chars.find(x => x.id === editId); }
 
 // ========== UTILS ==========
 const am = s=>Math.floor((s-10)/2);
@@ -76,7 +82,7 @@ const save = ()=>{
   // v8.32.0: refresh the nav attention dots on every persist — budgets can
   // change from any page (spend a skill point, take a talent, pick a spell).
   try {
-    const c = (curId) ? chars.find(x => x.id === curId) : null;
+    const c = (curId) ? currentChar() : null;
     if (c) renderNavTabs(c);
   } catch (e) {}
 };

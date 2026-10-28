@@ -24,7 +24,7 @@
 // ========== PDF EXPORT ==========
 function printSheet(){
   if(!curId){toast('Select a character first.');return;}
-  const c=chars.find(x=>x.id===curId);if(!c)return;
+  const c=currentChar();if(!c)return;
   const cM=effAm(c,2),dM=effAm(c,1),wM=effAm(c,4);  // v8.6.0 firm-wire: effective mods
   const acDisp = computeACDisplay(c);
   const parry  = computeParryBonus(c);

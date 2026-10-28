@@ -82,7 +82,7 @@ function renderHerosGiftPanel(c){
 // adds a herosGift entry to c.firstLevelSlots so a future feat add can fill
 // it, and re-renders everything that reads the budget.
 async function assignHerosGiftAsFeat(){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (isLegacyCharacter(c)) return;
   if (c.heroesGiftChoice !== null && c.heroesGiftChoice !== undefined) return;  // already assigned
@@ -109,7 +109,7 @@ async function assignHerosGiftAsFeat(){
 // — they live in c.talents, and the talent budget just reads heroesGiftChoice
 // directly via getTalentBudget).
 async function assignHerosGiftAsTalent(){
-  const c = chars.find(x => x.id === curId);
+  const c = currentChar();
   if (!c) return;
   if (isLegacyCharacter(c)) return;
   if (c.heroesGiftChoice !== null && c.heroesGiftChoice !== undefined) return;  // already assigned
