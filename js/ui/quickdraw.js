@@ -101,7 +101,7 @@ function qdOccHint() {
   const gates = [];
   if (od.prereq_age) gates.push(`age ${od.prereq_age}+`);
   if (od.prereq_other) gates.push(od.prereq_other);
-  el.innerHTML = `🎁 ${bits.join(' · ') || 'see the book entry'}${gates.length ? ` <span style="opacity:var(--o60);color:var(--dim);">(requires: ${escapeHTML(gates.join(', '))} — GM confirms)</span>` : ''} — the picks stay yours, flagged on the sheet.`;
+  el.innerHTML = `🎁 ${bits.join(' · ') || 'see the book entry'}${gates.length ? ` <span class="o-60 c-dim">(requires: ${escapeHTML(gates.join(', '))} — GM confirms)</span>` : ''} — the picks stay yours, flagged on the sheet.`;
 }
 function qdScales() {
   const sl = {};

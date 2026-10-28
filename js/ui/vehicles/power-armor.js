@@ -163,31 +163,31 @@ function renderPowerArmorCards(c) {
       const sIcon = l.state === 'destroyed' ? '☠' : l.state === 'damaged' ? '⚑' : '●';
       const sColor = l.state === 'destroyed' ? '#999' : l.state === 'damaged' ? 'var(--red-text)' : '#6dba88';
       const sys = MECHA_SYSTEMS.find(s => l.gear.startsWith(s.name.replace(/ \(\+2\)$/, '')));
-      return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:1px 0;">
+      return `<div class="items-center gap-6 fs-11" style="display:flex;padding:1px 0;">
         <button class="btn btn-sm" style="font-size:9px;padding:0 4px;color:${sColor};" title="Cycle: ok → damaged (1 hr, Repair DC 20; slot DC 25) → destroyed (replace only) → ok" onclick="paCycleSlotState('${it.id}',${idx})">${sIcon}</button>
-        <span style="color:var(--g55);min-width:88px;">${escapeHTML(l.slot)}</span>
+        <span class="c-g55" style="min-width:88px;">${escapeHTML(l.slot)}</span>
         <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}" ${sys ? `title="${escapeHTML(sys.effect + ' (Slots: ' + sys.slots + ' · DC ' + sys.dc + ')')}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}</span>
-        ${l.fixed ? '' : `<button class="btn btn-sm" style="font-size:9px;padding:0 4px;" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
+        ${l.fixed ? '' : `<button class="fs-9 p-0-4 btn btn-sm" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
       </div>`;
     }).join('');
-    return `<div class="panel" style="margin-bottom:.8rem;border-color:rgba(120,175,205,.35);">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-        <div style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--gold);">${it.equipped ? '🤖 ' : ''}${escapeHTML(name)} <span style="font-size:10px;color:var(--g50);">${pa.size} TS ${pa.ts} Power Armor · ${escapeHTML(pa.book || 'FF')}</span></div>
-        <div style="white-space:nowrap;">
+    return `<div class="mb-0_8rem panel" style="border-color:rgba(120,175,205,.35);">
+      <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
+        <div class="font-serif fs-14 c-gold">${it.equipped ? '🤖 ' : ''}${escapeHTML(name)} <span class="fs-10 c-g50">${pa.size} TS ${pa.ts} Power Armor · ${escapeHTML(pa.book || 'FF')}</span></div>
+        <div class="nowrap">
           <button class="btn btn-sm" style="font-size:10px;${it.equipped ? 'border-color:rgba(120,175,205,.6);color:#78afcd;' : ''}" onclick="toggleItemEquipped('${it.id}');renderVehicles();" title="Worn as armor — the armor slot enforces exclusivity with body armor">${it.equipped ? '🤖 Doff' : '🤖 Don'}</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="armorIncomingHit('${it.id}')">⚔ Hit</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="armorRepair('${it.id}')">🔧 Repair</button>
+          <button class="fs-10 btn btn-sm" onclick="armorIncomingHit('${it.id}')">⚔ Hit</button>
+          <button class="fs-10 btn btn-sm" onclick="armorRepair('${it.id}')">🔧 Repair</button>
         </div>
       </div>
-      ${pa.note ? `<div style="font-size:10px;color:var(--g50);margin-top:3px;">${escapeHTML(pa.note)}</div>` : ''}
-      <div style="font-size:11px;color:var(--parch);margin-top:5px;">${statBits}</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:11.5px;">
+      ${pa.note ? `<div class="fs-10 c-g50 mt-3">${escapeHTML(pa.note)}</div>` : ''}
+      <div class="fs-11 c-parch mt-5">${statBits}</div>
+      <div class="items-center gap-8 mt-5 fs-11_5" style="display:flex;">
         <span style="cursor:help;" title="${escapeHTML(g.hardParts.join(' + ') + ' · HP: ' + g.hpParts.join(' + ') + '\nAlways intercedes (power armor): every hit applies hardness; full AC confirms crits only.')}">Frame HP <b style="color:${barColor};">${g.hp}</b>/${g.maxHP}</span>
-        <div class="bar-wrap" style="flex:1;height:6px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
-        <span style="cursor:help;color:#d4b870;font-size:10px;" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
+        <div class="flex-1 h-6 bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+        <span class="cursor-help fs-10" style="color:#d4b870;" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
       </div>
-      ${g.destroyed ? '<div style="color:#999;font-size:10.5px;margin-top:3px;">☠ DESTROYED — beyond repair (salvage); mecha upgrades lost (HH p.383).</div>' : g.broken ? '<div style="color:var(--red-text);font-size:10.5px;margin-top:3px;">⚑ BROKEN — 0 HP: no AC bonus, and power armor at 0 HP loses access to its mecha upgrades (HH p.383) — loadout systems inoperable until repaired.</div>' : ''}
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g55);margin-top:7px;">Equipment Slots (${sz.paSlots ?? '?'} usable of ${sz.slots ?? '?'} — Pilot's Cockpit takes the rest) <button class="btn btn-sm" style="font-size:9px;padding:0 5px;margin-left:6px;" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
+      ${g.destroyed ? '<div class="fs-10_5 mt-3" style="color:#999;">☠ DESTROYED — beyond repair (salvage); mecha upgrades lost (HH p.383).</div>' : g.broken ? '<div class="c-red-text fs-10_5 mt-3">⚑ BROKEN — 0 HP: no AC bonus, and power armor at 0 HP loses access to its mecha upgrades (HH p.383) — loadout systems inoperable until repaired.</div>' : ''}
+      <div class="fs-10 uppercase ls-0_08em c-g55 mt-7">Equipment Slots (${sz.paSlots ?? '?'} usable of ${sz.slots ?? '?'} — Pilot's Cockpit takes the rest) <button class="fs-9 p-0-5 ml-6 btn btn-sm" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
       ${loadout}
     </div>`;
   }).join('');
@@ -264,21 +264,21 @@ function renderSecondSkinCard(c) {
     return `<button class="btn btn-sm" style="font-size:9px;padding:0 5px;${st.level === r.lvl ? 'border-color:var(--gold);color:var(--gold);' : ''}${gated ? 'opacity:.4;' : ''}" title="${gated ? 'Requires a Psionic Scale 5+ scenario (HH p.241 footnote). ' : ''}AC +${r.ac} · Hardness ${r.hardness} · ${r.hp} HP · ${r.size} · Str ${r.str} / slam ${r.slam}${r.dr ? ' · DR ' + r.dr : ''} · ${r.pp} PP · ${r.picks} Menu ${r.menu} pick${r.picks > 1 ? 's' : ''}" onclick="setSecondSkinLevel(${r.lvl})">${r.lvl}</button>`;
   }).join('');
   const pct = sk ? Math.max(0, Math.min(100, Math.round(sk.hp / sk.maxHP * 100))) : 0;
-  return `<div class="panel" style="margin-bottom:.8rem;border-color:rgba(196,153,212,.4);">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--vio);">🧿 Second Skin <span style="font-size:10px;color:var(--g50);">ectoplasmic power armor · HH p.241</span></div>
-      <div style="white-space:nowrap;">
-        ${sk ? `<button class="btn btn-sm" style="font-size:10px;" onclick="ssIncomingHit()">⚔ Hit</button>` : ''}
+  return `<div class="mb-0_8rem panel" style="border-color:rgba(196,153,212,.4);">
+    <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
+      <div class="font-serif fs-14 c-vio">🧿 Second Skin <span class="fs-10 c-g50">ectoplasmic power armor · HH p.241</span></div>
+      <div class="nowrap">
+        ${sk ? `<button class="fs-10 btn btn-sm" onclick="ssIncomingHit()">⚔ Hit</button>` : ''}
         <button class="btn btn-sm" style="font-size:10px;${sk ? 'border-color:rgba(196,153,212,.6);color:var(--vio);' : ''}" onclick="toggleSecondSkin()">${sk ? '🧿 Dismiss' : '🧿 Manifest'}</button>
       </div>
     </div>
-    <div style="font-size:10.5px;color:var(--g60);margin-top:4px;">Level (sets menu picks): ${lvlBtns}</div>
-    ${row ? `<div style="font-size:11px;color:var(--parch);margin-top:4px;">Configured lvl ${row.lvl}: <b>AC +${row.ac}</b> (as armor — no stacking) · Hardness <b>${row.hardness}</b> · <b>${secondSkinMaxHP(row, st.abilities)}</b> HP · ${row.size} coverage · Str ${row.str} / slam <b>${row.slam}</b> (you count as armed)${row.dr ? ` · DR <b>${row.dr}</b>` : ''} · <b>${row.pp} PP</b><br><span style="color:var(--tv80);">Abilities: ${(st.abilities || []).join(', ') || '—'}</span></div>` : '<div style="font-size:11px;opacity:.6;margin-top:4px;">Pick a level to configure.</div>'}
-    ${sk ? `<div style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:11.5px;">
+    <div class="fs-10_5 c-g60 mt-4">Level (sets menu picks): ${lvlBtns}</div>
+    ${row ? `<div class="fs-11 c-parch mt-4">Configured lvl ${row.lvl}: <b>AC +${row.ac}</b> (as armor — no stacking) · Hardness <b>${row.hardness}</b> · <b>${secondSkinMaxHP(row, st.abilities)}</b> HP · ${row.size} coverage · Str ${row.str} / slam <b>${row.slam}</b> (you count as armed)${row.dr ? ` · DR <b>${row.dr}</b>` : ''} · <b>${row.pp} PP</b><br><span class="c-tv80">Abilities: ${(st.abilities || []).join(', ') || '—'}</span></div>` : '<div class="fs-11 op-0_6 mt-4">Pick a level to configure.</div>'}
+    ${sk ? `<div class="items-center gap-8 mt-5 fs-11_5" style="display:flex;">
       <span>Skin HP <b style="color:${sk.destroyed ? '#999' : '#c499d4'};">${Math.max(0, sk.hp)}</b>/${sk.maxHP}</span>
-      <div class="bar-wrap" style="flex:1;height:6px;"><div class="bar-fill" style="width:${pct}%;background:#c499d4;"></div></div>
+      <div class="flex-1 h-6 bar-wrap"><div class="bar-fill" style="width:${pct}%;background:#c499d4;"></div></div>
     </div>
-    <div style="font-size:10px;color:var(--g50);margin-top:3px;">Active: every hit strikes the skin first (hardness ${sk.row.hardness}); excess carries over to you. Counts as your Astral Construct manifestation — no separate construct, and your psionic focus stays committed. Cannot wear armor. Duration 1 rd./level unless a Lasting ability was picked.</div>` : ''}
+    <div class="fs-10 c-g50 mt-3">Active: every hit strikes the skin first (hardness ${sk.row.hardness}); excess carries over to you. Counts as your Astral Construct manifestation — no separate construct, and your psionic focus stays committed. Cannot wear armor. Duration 1 rd./level unless a Lasting ability was picked.</div>` : ''}
   </div>`;
 }
 

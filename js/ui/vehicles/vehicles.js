@@ -84,22 +84,22 @@ function vehicleRepair(itemId) {
 // mastercraft/gadget/equip machinery; that's the vehicle-gear pass later).
 function renderVehicleInventory(c, techScale) {
   const items = getCharItems(c).filter(i => i.catalogue === 'vehicle');
-  if (!items.length) return `<div style="opacity:var(--o50);color:var(--dim);font-size:11px;padding:6px 0;">None owned yet.</div>`;
+  if (!items.length) return `<div class="o-50 c-dim fs-11 p-6-0">None owned yet.</div>`;
   return items.map(it => {
     const def = getCatalogueEntry('vehicle', it.ref); if (!def) return '';
     const g = vehicleIntegrity(it);
     const name = enchantDisplayName(it);
-    const state = g.destroyed ? ' <span style="color:#999;font-size:10px;">☠ DESTROYED</span>' : g.broken ? ' <span style="color:var(--red-text);font-size:10px;">🛑 DISABLED</span>' : (it.piloted ? ' <span style="color:#78afcd;font-size:10px;">🕹 piloted</span>' : '');
-    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
+    const state = g.destroyed ? ' <span class="fs-10" style="color:#999;">☠ DESTROYED</span>' : g.broken ? ' <span class="c-red-text fs-10">🛑 DISABLED</span>' : (it.piloted ? ' <span class="fs-10" style="color:#78afcd;">🕹 piloted</span>' : '');
+    return `<div class="justify-between items-center gap-8 p-4-0 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
       <div>
-        <b>${escapeHTML(name)}</b>${it.customName ? ` <span style="opacity:var(--o55);color:var(--dim);font-size:10px;">(${escapeHTML(it.ref)})</span>` : ''}${state}
-        <div style="font-size:9.5px;color:var(--g55);">${escapeHTML(vehicleStatStripText(def))}${g.damage ? ` · <b style="color:#d4865a;">HP ${g.hp}/${g.maxHP}</b>` : ''}</div>
+        <b>${escapeHTML(name)}</b>${it.customName ? ` <span class="o-55 c-dim fs-10">(${escapeHTML(it.ref)})</span>` : ''}${state}
+        <div class="fs-9_5 c-g55">${escapeHTML(vehicleStatStripText(def))}${g.damage ? ` · <b style="color:#d4865a;">HP ${g.hp}/${g.maxHP}</b>` : ''}</div>
       </div>
-      <div style="white-space:nowrap;">
-        <button class="btn btn-sm" style="font-size:10px;" onclick="showPage('vehicles')" title="Operate on the Vehicles tab">🕹 Operate</button>
-        <button class="btn btn-sm" style="font-size:10px;" onclick="renameItem('${it.id}')" title="Custom name">✎</button>
-        <button class="btn btn-sm" style="font-size:10px;" onclick="sellItem('${it.id}')" title="Sell — into any market's Tech Scale (HH p.257 Sale Price rule)">💱</button>
-        <button class="btn btn-sm btn-danger" style="font-size:10px;" onclick="removeItemFromChar('${it.id}')">✕</button>
+      <div class="nowrap">
+        <button class="fs-10 btn btn-sm" onclick="showPage('vehicles')" title="Operate on the Vehicles tab">🕹 Operate</button>
+        <button class="fs-10 btn btn-sm" onclick="renameItem('${it.id}')" title="Custom name">✎</button>
+        <button class="fs-10 btn btn-sm" onclick="sellItem('${it.id}')" title="Sell — into any market's Tech Scale (HH p.257 Sale Price rule)">💱</button>
+        <button class="fs-10 btn btn-sm btn-danger" onclick="removeItemFromChar('${it.id}')">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -120,7 +120,7 @@ function renderVehicles() {
   const skinCard = renderSecondSkinCard(c);
   const mechaCards = renderMechaCards(c);
   const shipCards = renderStarshipCards(c);
-  if (!items.length && !paCards && !skinCard && !mechaCards && !shipCards) { list.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--g40);">Nothing pilotable owned — purchase vehicles, mecha, starships, or power armor on the ⚒ Gear tab.</div>`; return; }
+  if (!items.length && !paCards && !skinCard && !mechaCards && !shipCards) { list.innerHTML = `<div class="p-1rem fs-13 c-g40">Nothing pilotable owned — purchase vehicles, mecha, starships, or power armor on the ⚒ Gear tab.</div>`; return; }
   list.innerHTML = items.map(it => {
     const def = getCatalogueEntry('vehicle', it.ref); if (!def) return '';
     const g = vehicleIntegrity(it);
@@ -131,35 +131,35 @@ function renderVehicles() {
     const cells = [
       ['Crew / Pass', `${def.crew} / ${def.passengers}`], ['Cargo', def.cargo],
       ['Maneuver', `${def.maneuver_class} (${def.maneuver_mod >= 0 ? '+' : ''}${def.maneuver_mod})`],
-      ['Top Speed', `${def.top_speed} <span style="opacity:var(--o60);color:var(--dim);">(${def.chase_speed} chase)</span>`],
+      ['Top Speed', `${def.top_speed} <span class="o-60 c-dim">(${def.chase_speed} chase)</span>`],
       ['T/AC', `${def.touch_ac}/${def.total_ac}`], ['Hardness', def.hardness],
       ['Size', `${SIZE_FULL[def.size] || def.size}${def.polyhex ? ` (${def.polyhex})` : ''}`],
       ['Purchase', `DC ${def.purchase_dc} · ${def.restriction} (+${def.restriction_mod})`],
-    ].map(([l, v]) => `<div style="border:1px solid rgba(200,151,30,.15);padding:3px 7px;border-radius:2px;"><div style="font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--g55);">${l}</div><div style="font-size:12px;color:var(--parch);">${v}</div></div>`).join('');
+    ].map(([l, v]) => `<div style="border:1px solid rgba(200,151,30,.15);padding:3px 7px;border-radius:2px;"><div class="fs-8_5 uppercase ls-0_06em c-g55">${l}</div><div class="fs-12 c-parch">${v}</div></div>`).join('');
     const stateBanner = g.destroyed
-      ? `<div style="color:#999;font-size:11px;margin-top:4px;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max HP): beyond repair, salvage only (HH p.181).</div>`
+      ? `<div class="fs-11 mt-4" style="color:#999;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max HP): beyond repair, salvage only (HH p.181).</div>`
       : g.broken
-      ? `<div style="color:var(--red-text);font-size:11px;margin-top:4px;">🛑 DISABLED — 0 HP: inoperable until repaired (repairable up to ${g.destroyThreshold - 1 - g.maxHP} more damage before the wreck is total).</div>`
+      ? `<div class="c-red-text fs-11 mt-4">🛑 DISABLED — 0 HP: inoperable until repaired (repairable up to ${g.destroyThreshold - 1 - g.maxHP} more damage before the wreck is total).</div>`
       : '';
-    return `<div class="panel" style="margin-bottom:.8rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-        <div style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--gold);">${it.piloted ? '🕹 ' : ''}${escapeHTML(name)} <span style="font-size:10px;color:var(--g50);">TS ${def.ts} · ${escapeHTML(def.category)}</span></div>
-        <div style="white-space:nowrap;">
+    return `<div class="mb-0_8rem panel">
+      <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
+        <div class="font-serif fs-14 c-gold">${it.piloted ? '🕹 ' : ''}${escapeHTML(name)} <span class="fs-10 c-g50">TS ${def.ts} · ${escapeHTML(def.category)}</span></div>
+        <div class="nowrap">
           <button class="btn btn-sm" style="font-size:10px;${it.piloted ? 'border-color:rgba(120,175,205,.6);color:#78afcd;' : ''}" onclick="togglePiloted('${it.id}')">${it.piloted ? '🕹 Dismount' : '🕹 Pilot'}</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="vehicleIncomingHit('${it.id}')">⚔ Hit</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="vehicleRepair('${it.id}')">🔧 Repair</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="setJointOwners('${it.id}')" title="Joint owners — the 'legal' record; bookkeeping stays here">✎ Owners</button>
+          <button class="fs-10 btn btn-sm" onclick="vehicleIncomingHit('${it.id}')">⚔ Hit</button>
+          <button class="fs-10 btn btn-sm" onclick="vehicleRepair('${it.id}')">🔧 Repair</button>
+          <button class="fs-10 btn btn-sm" onclick="setJointOwners('${it.id}')" title="Joint owners — the 'legal' record; bookkeeping stays here">✎ Owners</button>
         </div>
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">${cells}</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11.5px;">
+      <div class="gap-5 flex-wrap mt-6" style="display:flex;">${cells}</div>
+      <div class="items-center gap-8 mt-6 fs-11_5" style="display:flex;">
         <span>HP <b style="color:${barColor};">${g.hp}</b>/${g.maxHP}</span>
-        <div class="bar-wrap" style="flex:1;height:6px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+        <div class="flex-1 h-6 bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
       </div>
       ${stateBanner}
-      ${def.note ? `<div style="font-size:10.5px;opacity:.7;margin-top:4px;">${escapeHTML(def.note)}</div>` : ''}
-      <div style="font-size:11px;color:var(--g70);margin-top:6px;" title="Ranks + effective ${chk.ability} + misc + synergies, then the vehicle's maneuver modifier. Maneuver penalties (not bonuses) also apply to Initiative — GMG p.92.">Your ${chk.skill} check in this vehicle: <b style="color:var(--gold);">${chk.withManeuver >= 0 ? '+' : ''}${chk.withManeuver}</b> <span style="opacity:var(--o60);color:var(--dim);">(${chk.base >= 0 ? '+' : ''}${chk.base} skill ${def.maneuver_mod >= 0 ? '+' : '−'} ${Math.abs(def.maneuver_mod)} maneuver)</span>${chk.initPenalty ? ` · Initiative ${chk.initPenalty} while piloting` : ''}</div>
-      <div style="font-size:10px;color:var(--g45);margin-top:3px;">Registered owners: ${it.jointOwners ? escapeHTML(it.jointOwners) : `${escapeHTML(c.name)} (sole)`} · Roles: driver (move action to drive) · copilot (aid another) · gunners · passengers — GMG p.473.</div>
+      ${def.note ? `<div class="fs-10_5 op-0_7 mt-4">${escapeHTML(def.note)}</div>` : ''}
+      <div class="fs-11 c-g70 mt-6" title="Ranks + effective ${chk.ability} + misc + synergies, then the vehicle's maneuver modifier. Maneuver penalties (not bonuses) also apply to Initiative — GMG p.92.">Your ${chk.skill} check in this vehicle: <b class="c-gold">${chk.withManeuver >= 0 ? '+' : ''}${chk.withManeuver}</b> <span class="o-60 c-dim">(${chk.base >= 0 ? '+' : ''}${chk.base} skill ${def.maneuver_mod >= 0 ? '+' : '−'} ${Math.abs(def.maneuver_mod)} maneuver)</span>${chk.initPenalty ? ` · Initiative ${chk.initPenalty} while piloting` : ''}</div>
+      <div class="fs-10 c-g45 mt-3">Registered owners: ${it.jointOwners ? escapeHTML(it.jointOwners) : `${escapeHTML(c.name)} (sole)`} · Roles: driver (move action to drive) · copilot (aid another) · gunners · passengers — GMG p.473.</div>
     </div>`;
   }).join('') + mechaCards + shipCards + paCards + skinCard;
 }

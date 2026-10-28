@@ -60,28 +60,28 @@ function renderCompanions(c) {
     const base = COMPANION_BASE_STATS[comp.species] || null;
     const d = companionDerived(comp, c);
     const baseLines = base ? (base.ref
-      ? `<div style="opacity:.7;">Base stats: ${escapeHTML(base.ref)}</div>`
-      : `<div style="opacity:.85;">${escapeHTML(base.size)} · HD ${escapeHTML(base.hd)} · AC ${escapeHTML(base.ac)} · Spd ${escapeHTML(base.spd || '—')}<br>
+      ? `<div class="op-0_7">Base stats: ${escapeHTML(base.ref)}</div>`
+      : `<div class="op-0_85">${escapeHTML(base.size)} · HD ${escapeHTML(base.hd)} · AC ${escapeHTML(base.ac)} · Spd ${escapeHTML(base.spd || '—')}<br>
          Atk ${escapeHTML(base.fatk || base.atk)} · Saves ${escapeHTML(base.saves || '—')}<br>
          ${escapeHTML(base.attrs || '')}${base.sq ? `<br>SQ: ${escapeHTML(base.sq)}` : ''}${base.carry ? `<br>Carrying: ${escapeHTML(base.carry)}` : ''}${base.sa && base.sa !== '—' && base.sa !== '-' ? ` · SA: ${escapeHTML(base.sa)}` : ''}
-         <span style="opacity:var(--o55);color:var(--dim);">(FF p.${base.page}${comp.kind === 'owned' ? '' : ' — base animal, before the adjustments below'})</span></div>`)
-      : `<div style="opacity:.6;">Base stats: see the Foe Folio.</div>`;
+         <span class="o-55 c-dim">(FF p.${base.page}${comp.kind === 'owned' ? '' : ' — base animal, before the adjustments below'})</span></div>`)
+      : `<div class="op-0_6">Base stats: see the Foe Folio.</div>`;
     const kindLbl = comp.kind === 'familiar' ? '🦉 Familiar' : comp.kind === 'mount' ? '🐎 Special Mount' : comp.kind === 'owned' ? '🐴 Owned animal' : '🐾 Animal Companion';
-    return `<div style="border:1px solid rgba(200,151,30,.25);border-radius:3px;padding:5px 8px;margin:4px 0;font-size:11px;line-height:1.5;">
-      <b style="color:rgba(120,175,205,.95);">${kindLbl}: ${escapeHTML(comp.name || comp.species)}</b>${comp.name ? ` <span style="opacity:var(--o60);color:var(--dim);">(${escapeHTML(comp.species)})</span>` : ''}
-      <span style="cursor:pointer;font-size:10px;opacity:.6;margin-left:6px;" onclick="renameCompanion('${comp.id}')" title="Name this companion">✎</span>
-      <span style="cursor:pointer;font-size:10px;opacity:.6;" onclick="removeCompanion('${comp.id}')" title="Remove">✕</span>
+    return `<div class="p-5-8 m-4-0 fs-11 lh-1_5" style="border:1px solid rgba(200,151,30,.25);border-radius:3px;">
+      <b style="color:rgba(120,175,205,.95);">${kindLbl}: ${escapeHTML(comp.name || comp.species)}</b>${comp.name ? ` <span class="o-60 c-dim">(${escapeHTML(comp.species)})</span>` : ''}
+      <span class="cursor-pointer fs-10 op-0_6 ml-6" onclick="renameCompanion('${comp.id}')" title="Name this companion">✎</span>
+      <span class="cursor-pointer fs-10 op-0_6" onclick="removeCompanion('${comp.id}')" title="Remove">✕</span>
       ${baseLines}
-      <div style="color:var(--g85);">${escapeHTML(d.line)}</div>
+      <div class="c-g85">${escapeHTML(d.line)}</div>
       ${d.specials ? `<div>Special: ${escapeHTML(d.specials)}</div>` : ''}
       ${d.perk ? `<div style="color:#78afcd;">${escapeHTML(d.perk)}</div>` : ''}
-      ${d.magicalBeast ? `<div style="opacity:.65;">${escapeHTML(d.magicalBeast)}</div>` : ''}
+      ${d.magicalBeast ? `<div class="op-0_65">${escapeHTML(d.magicalBeast)}</div>` : ''}
     </div>`;
   }).join('');
   const adderHTML = adders.map(([kind, lbl, species]) =>
-    `<span style="font-size:11px;">${lbl}: <select onchange="if(this.value){addCompanion('${kind}', this.value);this.value='';}" style="font-size:11px;"><option value="">— choose species —</option>${species.map(s => `<option>${escapeHTML(s)}</option>`).join('')}</select></span>`
+    `<span class="fs-11">${lbl}: <select onchange="if(this.value){addCompanion('${kind}', this.value);this.value='';}" class="fs-11"><option value="">— choose species —</option>${species.map(s => `<option>${escapeHTML(s)}</option>`).join('')}</select></span>`
   ).join(' · ');
-  host.innerHTML = `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);margin-bottom:4px;">🐾 Companions</div>${cards}${adderHTML ? `<div style="margin-top:4px;">${adderHTML}</div>` : ''}`;
+  host.innerHTML = `<div class="font-serif fs-10 c-bronze mb-4">🐾 Companions</div>${cards}${adderHTML ? `<div class="mt-4">${adderHTML}</div>` : ''}`;
 }
 
 // v8.6.1: Ranger Combat Style choice (HH: picked at Ranger 2). Lazy field —

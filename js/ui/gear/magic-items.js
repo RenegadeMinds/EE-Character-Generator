@@ -57,7 +57,7 @@ function renderMagicBrowse() {
     return true;
   });
   const propBanner = (typeF && MAGIC_PROPERTY_TYPES.has(typeF))
-    ? `<div style="padding:6px 9px;font-size:10.5px;color:var(--tb85);border-bottom:1px solid rgba(200,151,30,.1);">These are PROPERTIES, not items — reference reading for the ✨ Enchant / Imbue builder on a weapon or armor inventory row. They cannot be added directly.</div>`
+    ? `<div class="p-6-9 fs-10_5 c-tb85" style="border-bottom:1px solid rgba(200,151,30,.1);">These are PROPERTIES, not items — reference reading for the ✨ Enchant / Imbue builder on a weapon or armor inventory row. They cannot be added directly.</div>`
     : '';
   const CAP = 100;
   el.innerHTML = propBanner + _magicBrowseList.slice(0, CAP).map((m, i) => {
@@ -67,21 +67,21 @@ function renderMagicBrowse() {
     // potions/wands. A row with nothing to say loses the hand cursor.
     const desc = magicItemDesc(m);
     const addBtn = isProp
-      ? `<span style="font-size:9px;color:var(--g50);">property — apply via ✨ Enchant on a weapon/armor row (Gear inventory)</span>`
-      : `<button class="btn btn-sm btn-pri" style="font-size:10px;" onclick="addMagicFromBrowse(${i})">+ Add${m.type === 'artifact' ? ' (GM)' : ''}</button>`;
-    return `<div style="padding:6px 9px;border-bottom:1px solid rgba(200,151,30,.08);">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+      ? `<span class="fs-9 c-g50">property — apply via ✨ Enchant on a weapon/armor row (Gear inventory)</span>`
+      : `<button class="fs-10 btn btn-sm btn-pri" onclick="addMagicFromBrowse(${i})">+ Add${m.type === 'artifact' ? ' (GM)' : ''}</button>`;
+    return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
+      <div class="justify-between items-center gap-6" style="display:flex;">
         <div style="${desc ? 'cursor:pointer;' : ''}flex:1;" ${desc ? `onclick="toggleMagicDetail(${i})"` : ''}><b>${escapeHTML(m.name)}</b>
-          <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);margin-left:4px;">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
-          <span style="font-size:10px;opacity:var(--o55);color:var(--dim);margin-left:5px;">${m.cl ? (m.cl_kind || 'CL') + ' ' + m.cl + ' · ' : ''}${magicPriceLabel(m)}</span>
-          ${desc ? `<span style="font-size:10px;opacity:var(--o40);color:var(--dim);">${open ? '▾' : '▸'}</span>` : ''}</div>
+          <span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
+          <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${m.cl ? (m.cl_kind || 'CL') + ' ' + m.cl + ' · ' : ''}${magicPriceLabel(m)}</span>
+          ${desc ? `<span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span>` : ''}</div>
         ${addBtn}
       </div>
-      ${m.aura ? `<div style="font-size:10px;opacity:.5;">${escapeHTML(m.aura)}</div>` : ''}
-      ${open && desc ? `<div style="font-size:11.5px;margin-top:4px;line-height:1.5;color:var(--parch);">${escapeHTML(desc)}</div>${m.provenance ? `<div style="font-size:10px;opacity:.55;margin-top:3px;">${escapeHTML(m.provenance)}</div>` : ''}` : ''}
+      ${m.aura ? `<div class="fs-10 op-0_5">${escapeHTML(m.aura)}</div>` : ''}
+      ${open && desc ? `<div class="fs-11_5 mt-4 lh-1_5 c-parch">${escapeHTML(desc)}</div>${m.provenance ? `<div class="fs-10 op-0_55 mt-3">${escapeHTML(m.provenance)}</div>` : ''}` : ''}
     </div>`;
-  }).join('') + (_magicBrowseList.length > CAP ? `<div style="padding:6px 9px;font-size:11px;color:var(--g50);text-align:center;">…and ${_magicBrowseList.length - CAP} more — refine the filters.</div>` : '')
-  || `<div style="padding:.9rem;font-size:12px;color:var(--g45);text-align:center;">Nothing matches the filters.</div>`;
+  }).join('') + (_magicBrowseList.length > CAP ? `<div class="p-6-9 fs-11 c-g50 text-center">…and ${_magicBrowseList.length - CAP} more — refine the filters.</div>` : '')
+  || `<div class="p-0_9rem fs-12 c-g45 text-center">Nothing matches the filters.</div>`;
 }
 // Not converted (deliberately): Javelin of Lightning, Screaming Bolt,
 // Slaying/Sleep Arrow (one-shot ammunition), Shifter's Sorrow (no two-bladed
@@ -180,19 +180,19 @@ function renderMagicInventory(c) {
   host.innerHTML = owned.length ? owned.map(it => {
     const def = getCatalogueEntry('magic', it.ref) || {};
     const slotDef = ITEM_SLOTS.find(s => s.id === it.slot);
-    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
-      <div><b>${escapeHTML(it.customName || it.ref)}${it.tier ? ` +${it.tier}` : ''}</b>${it.customName ? ` <span style="font-size:9px;opacity:var(--o55);color:var(--dim);">(${escapeHTML(it.ref)})</span>` : ''}${(MAGIC_ITEM_EFFECTS[it.ref] && it.equipped) ? ' <span style="font-size:9px;color:var(--pb90);" title="firm-wired: effect applies while equipped">⚡wired</span>' : ''}
-        <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);margin-left:4px;">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
-        <span style="font-size:10px;opacity:var(--o55);color:var(--dim);margin-left:5px;">${slotDef ? slotDef.label : it.slot} · ${magicPriceLabel(def)}</span>
-        ${it.equipped ? '<span style="font-size:10px;color:#6dba88;margin-left:5px;">● equipped</span>' : ''}</div>
+    return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
+      <div><b>${escapeHTML(it.customName || it.ref)}${it.tier ? ` +${it.tier}` : ''}</b>${it.customName ? ` <span class="fs-9 o-55 c-dim">(${escapeHTML(it.ref)})</span>` : ''}${(MAGIC_ITEM_EFFECTS[it.ref] && it.equipped) ? ' <span class="fs-9 c-pb90" title="firm-wired: effect applies while equipped">⚡wired</span>' : ''}
+        <span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
+        <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${slotDef ? slotDef.label : it.slot} · ${magicPriceLabel(def)}</span>
+        ${it.equipped ? '<span class="fs-10" style="color:#6dba88;margin-left:5px;">● equipped</span>' : ''}</div>
       <div>
-        ${(slotDef && slotDef.category !== 'carried') ? `<button class="btn btn-sm" style="font-size:10px;" onclick="toggleItemEquipped('${it.id}')">${it.equipped ? 'Unequip' : 'Equip'}</button>` : ''}
-        <button class="btn btn-sm" style="font-size:10px;" onclick="renameItem('${it.id}')" title="Give this item a custom name (flavor only)">✎</button>
-        <button class="btn btn-sm" style="font-size:10px;" onclick="sellItem('${it.id}')" title="Sell — into any market's Tech Scale (cross-scalar; HH p.257 Sale Price rule applies)">💱</button>
-        <button class="btn btn-sm btn-danger" style="font-size:10px;" onclick="removeItemFromChar('${it.id}')">✕</button>
+        ${(slotDef && slotDef.category !== 'carried') ? `<button class="fs-10 btn btn-sm" onclick="toggleItemEquipped('${it.id}')">${it.equipped ? 'Unequip' : 'Equip'}</button>` : ''}
+        <button class="fs-10 btn btn-sm" onclick="renameItem('${it.id}')" title="Give this item a custom name (flavor only)">✎</button>
+        <button class="fs-10 btn btn-sm" onclick="sellItem('${it.id}')" title="Sell — into any market's Tech Scale (cross-scalar; HH p.257 Sale Price rule applies)">💱</button>
+        <button class="fs-10 btn btn-sm btn-danger" onclick="removeItemFromChar('${it.id}')">✕</button>
       </div>
     </div>`;
-  }).join('') : `<div style="opacity:var(--o50);color:var(--dim);font-size:11px;padding:6px 0;">None owned yet — browse the catalogue below.</div>`;
+  }).join('') : `<div class="o-50 c-dim fs-11 p-6-0">None owned yet — browse the catalogue below.</div>`;
 }
 // v8.56.0 (playtest issue #3d): the body-slot rows, buildable for the Gear
 // dashboard (interactive) OR the Sheet's read-only reference copy.
@@ -204,7 +204,7 @@ function magicSlotRowsHTML(c, interactive) {
   const slotById = (id) => ITEM_SLOTS.find(s => s.id === id) || {};
   const chipOf = (it) => interactive
     ? renderEquippedItemChip(it)
-    : `<span style="display:inline-flex;align-items:center;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);border-radius:3px;padding:2px 7px;font-size:11px;margin-right:4px;">${escapeHTML(itemDisplayName(it))}</span>`;
+    : `<span class="items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);border-radius:3px;">${escapeHTML(itemDisplayName(it))}</span>`;
   const rows = Object.keys(SLOT_GROUPS).map(gid => {
     const g = SLOT_GROUPS[gid];
     const inGroup = (i) => (i.catalogue === 'magic' && g.slots.includes(i.slot)) || (i.catalogue === 'equipment' && g.slots.includes((gearDef(i) || {}).slot));
@@ -213,14 +213,14 @@ function magicSlotRowsHTML(c, interactive) {
     const free = g.cap - equipped.length - (armorWorn ? 1 : 0);
     const unequipped = c.items.filter(i => inGroup(i) && !i.equipped);
     const chips = equipped.map(chipOf).join('')
-      + (armorWorn ? `<span style="display:inline-flex;align-items:center;background:rgba(120,145,170,.1);border:1px solid rgba(120,145,170,.3);border-radius:3px;padding:2px 7px;font-size:11px;margin-right:4px;" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
+      + (armorWorn ? `<span class="items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(120,145,170,.1);border:1px solid rgba(120,145,170,.3);border-radius:3px;" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
     const eqSel = (interactive && free > 0 && unequipped.length)
-      ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" style="font-size:11px;margin-left:6px;"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>`
+      ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" class="fs-11 ml-6"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>`
       : '';
     const empty = (!equipped.length && !unequipped.length && !armorWorn)
-      ? `<span style="opacity:.45;font-size:11px;font-style:italic;">${escapeHTML(g.slots.map(id => slotById(id).label || id).join(' / '))}</span>` : '';
+      ? `<span class="op-0_45 fs-11 italic">${escapeHTML(g.slots.map(id => slotById(id).label || id).join(' / '))}</span>` : '';
     const affin = g.slots.map(id => { const s = slotById(id); return s.affinity ? `${s.label}: ${s.affinity}` : s.label; }).filter(Boolean).join(' · ');
-    return `<tr><td style="color:var(--g70);${affin ? 'cursor:help;' : ''}" title="${escapeHTML(affin)}">${g.label}${g.cap > 1 ? ` <span style="opacity:.5;font-size:10px;">(×${g.cap})</span>` : ''}${g.house ? ' <span style="opacity:.5;font-size:9px;" title="House addendum — not in the canonical twelve.">†</span>' : ''}</td><td>${chips}${eqSel}${empty}</td></tr>`;
+    return `<tr><td style="color:var(--g70);${affin ? 'cursor:help;' : ''}" title="${escapeHTML(affin)}">${g.label}${g.cap > 1 ? ` <span class="op-0_5 fs-10">(×${g.cap})</span>` : ''}${g.house ? ' <span class="op-0_5 fs-9" title="House addendum — not in the canonical twelve.">†</span>' : ''}</td><td>${chips}${eqSel}${empty}</td></tr>`;
   });
   // Imbued tattoos take no body slot (temporary; bodily limit) — their row rides below the groups.
   const t = ITEM_SLOTS.find(s => s.id === 'tattoo');
@@ -229,9 +229,9 @@ function magicSlotRowsHTML(c, interactive) {
     const equipped = c.items.filter(i => inSlot(i) && i.equipped);
     const unequipped = c.items.filter(i => inSlot(i) && !i.equipped);
     const eqSel = (interactive && equipped.length < (t.capacity || 1) && unequipped.length)
-      ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" style="font-size:11px;margin-left:6px;"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>` : '';
-    const empty = !equipped.length && !unequipped.length ? `<span style="opacity:.45;font-size:11px;font-style:italic;">${escapeHTML(t.affinity || '')}</span>` : '';
-    rows.push(`<tr><td style="color:var(--g70);" title="${escapeHTML(t.note || '')}">${t.label} <span style="opacity:.5;font-size:10px;">(×${t.capacity}, temporary — takes no body slot)</span></td><td>${equipped.map(chipOf).join('')}${eqSel}${empty}</td></tr>`);
+      ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" class="fs-11 ml-6"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>` : '';
+    const empty = !equipped.length && !unequipped.length ? `<span class="op-0_45 fs-11 italic">${escapeHTML(t.affinity || '')}</span>` : '';
+    rows.push(`<tr><td class="c-g70" title="${escapeHTML(t.note || '')}">${t.label} <span class="op-0_5 fs-10">(×${t.capacity}, temporary — takes no body slot)</span></td><td>${equipped.map(chipOf).join('')}${eqSel}${empty}</td></tr>`);
   }
   return rows.join('');
 }

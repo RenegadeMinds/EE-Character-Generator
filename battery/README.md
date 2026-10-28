@@ -62,6 +62,12 @@ The generator is no longer one file: `index.html` loads `css/`, `js/` and
   built characters, and every page rendered for each. Use it for any change
   that should change nothing:
   `OLD=path/to/previous/index.html node _probe_split_parity.mjs`
+  For styling changes that rewrite the markup on purpose (moving
+  `style="..."` into classes), add `STYLES=1 CODE_CHANGED=1`: markup is then
+  compared without class/style attributes, and every element's final
+  computed style (colours, fonts, spacing, laid-out sizes) must match, plus
+  the print sheet under print media. Run it per theme: no `THEME`,
+  `THEME=classic`, `THEME=hc`.
 
 ## Load-order check (since the code was regrouped by topic and page)
 **`_check_load_order.mjs`** parses every script `index.html` loads (no browser)

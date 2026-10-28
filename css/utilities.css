@@ -1,0 +1,262 @@
+/* ==========================================================================
+   css/utilities.css
+   SMALL SINGLE-PURPOSE CLASSES THAT REPLACE INLINE style="..." ATTRIBUTES
+   ==========================================================================
+
+   WHAT THIS IS
+     Each class here sets exactly one CSS property to one value, e.g.
+       .fs-10        font-size:10px
+       .c-gold       color:var(--gold)
+       .items-center align-items:center
+     They replace style="..." attributes that the page code (js/ui/...) and
+     index.html used to repeat by hand: about 3,900 declarations on 1,780
+     elements were moved here, so the same look is now written once.
+
+   NAMING
+     fs-N      font-size N px (fs-10-5 = 10.5px, fs-7-5pt = 7.5pt)
+     c-NAME    color: var(--NAME), a theme token from css/app.css
+     o-NN      opacity: var(--oNN), a theme token; op-N = a fixed opacity
+     m/mt/mb/ml/mr-N   margin (all / top / bottom / left / right), N px
+     p/pt/pb/pl/pr-N   padding, the same way
+                       (0_6rem = .6rem, n1 = -1px, a-b = "a b")
+     gap-N, w-N, min-w-N, max-w-N, lh-N (line-height), ls-N (letter-spacing),
+     rounded-N (border-radius), fw-N (font-weight)
+     Words for the rest: items-center, justify-between, flex-wrap, nowrap,
+     cursor-help (things with a hover explanation), font-serif (the
+     'Epics Serif' heading face), span-all (a grid cell across all columns) ...
+
+   WHY THESE ALWAYS WIN OVER css/app.css
+     An inline style beats every rule in a stylesheet. So that moving a
+     style into a class changes nothing on screen, app.css is wrapped in a
+     cascade layer (@layer app { ... }) and this file is NOT: unlayered rules
+     beat layered ones whatever their selectors. These classes therefore
+     win over app.css exactly as the inline styles did. (!important rules in
+     app.css still win, just as they did over inline styles.)
+
+   WHAT STAYED INLINE, ON PURPOSE
+     - display:...   The page code shows and hides things by setting
+                     element.style.display, often back to '' ("whatever
+                     the markup said"); a class would change that answer.
+     - On elements with an id, the properties the code also sets directly
+       (colour, opacity, background, border, font-weight, ...).
+     - Hard-coded colours (#d4b870, rgba(...)): they ignore the theme, which
+       is a separate fix, not a move.
+     - Values used fewer than 4 times, and styles built from variables.
+
+   ADDING ONE
+     Put it in the right group below, one property per class, and name it
+     by the scheme above. If you find yourself adding a 5th near-identical
+     size or colour, that is a sign to use an existing one instead.
+   ========================================================================== */
+
+
+/* ---- TEXT SIZE ---- */
+.fs-10{font-size:10px}
+.fs-10_5{font-size:10.5px}
+.fs-11{font-size:11px}
+.fs-11_5{font-size:11.5px}
+.fs-12{font-size:12px}
+.fs-12_5{font-size:12.5px}
+.fs-13{font-size:13px}
+.fs-14{font-size:14px}
+.fs-17{font-size:17px}
+.fs-6_5pt{font-size:6.5pt}
+.fs-6pt{font-size:6pt}
+.fs-7_5pt{font-size:7.5pt}
+.fs-7pt{font-size:7pt}
+.fs-8_5{font-size:8.5px}
+.fs-8_5pt{font-size:8.5pt}
+.fs-8pt{font-size:8pt}
+.fs-9{font-size:9px}
+.fs-9_5{font-size:9.5px}
+
+/* ---- TEXT COLOUR (theme tokens only; each theme defines the token, so these follow the theme) ---- */
+.c-bronze{color:var(--bronze)}
+.c-dim{color:var(--dim)}
+.c-g35{color:var(--g35)}
+.c-g40{color:var(--g40)}
+.c-g45{color:var(--g45)}
+.c-g50{color:var(--g50)}
+.c-g55{color:var(--g55)}
+.c-g60{color:var(--g60)}
+.c-g65{color:var(--g65)}
+.c-g70{color:var(--g70)}
+.c-g75{color:var(--g75)}
+.c-g80{color:var(--g80)}
+.c-g85{color:var(--g85)}
+.c-gold{color:var(--gold)}
+.c-gold-mute{color:var(--gold-mute)}
+.c-gold-soft{color:var(--gold-soft)}
+.c-parch{color:var(--parch)}
+.c-pb90{color:var(--pb90)}
+.c-red-text{color:var(--red-text)}
+.c-tb85{color:var(--tb85)}
+.c-tc85{color:var(--tc85)}
+.c-ts75{color:var(--ts75)}
+.c-tv80{color:var(--tv80)}
+.c-tv85{color:var(--tv85)}
+.c-tx65{color:var(--tx65)}
+.c-tx80{color:var(--tx80)}
+.c-tx85{color:var(--tx85)}
+.c-vio{color:var(--vio)}
+
+/* ---- OPACITY ---- */
+.o-40{opacity:var(--o40)}
+.o-50{opacity:var(--o50)}
+.o-55{opacity:var(--o55)}
+.o-60{opacity:var(--o60)}
+.o-65{opacity:var(--o65)}
+.op-0_4{opacity:.4}
+.op-0_45{opacity:.45}
+.op-0_5{opacity:.5}
+.op-0_55{opacity:.55}
+.op-0_6{opacity:.6}
+.op-0_65{opacity:.65}
+.op-0_7{opacity:.7}
+.op-0_75{opacity:.75}
+.op-0_8{opacity:.8}
+.op-0_85{opacity:.85}
+
+/* ---- TEXT STYLE ---- */
+.font-serif{font-family:'Epics Serif','Cinzel',serif}
+.bold{font-weight:bold}
+.fw-400{font-weight:400}
+.fw-600{font-weight:600}
+.fw-normal{font-weight:normal}
+.italic{font-style:italic}
+.normal-case{text-transform:none}
+.uppercase{text-transform:uppercase}
+.ls-0{letter-spacing:0}
+.ls-0_04em{letter-spacing:.04em}
+.ls-0_05em{letter-spacing:.05em}
+.ls-0_06em{letter-spacing:.06em}
+.ls-0_08em{letter-spacing:.08em}
+.ls-0_1em{letter-spacing:.1em}
+.lh-1_4{line-height:1.4}
+.lh-1_45{line-height:1.45}
+.lh-1_5{line-height:1.5}
+.lh-1_55{line-height:1.55}
+.lh-1_6{line-height:1.6}
+.lh-1_65{line-height:1.65}
+.lh-1_7{line-height:1.7}
+.lh-1_9{line-height:1.9}
+.text-center{text-align:center}
+.nowrap{white-space:nowrap}
+
+/* ---- SPACING: MARGIN ---- */
+.m-0{margin:0}
+.m-0-0-0_75rem-0{margin:0 0 .75rem 0}
+.m-2-0{margin:2px 0}
+.m-3-0{margin:3px 0}
+.m-4-0{margin:4px 0}
+.m-5vh-auto{margin:5vh auto}
+.mt-0_6rem{margin-top:.6rem}
+.mt-0_7rem{margin-top:.7rem}
+.mt-0_8rem{margin-top:.8rem}
+.mt-10{margin-top:10px}
+.mt-12{margin-top:12px}
+.mt-1_25rem{margin-top:1.25rem}
+.mt-1rem{margin-top:1rem}
+.mt-2{margin-top:2px}
+.mt-3{margin-top:3px}
+.mt-4{margin-top:4px}
+.mt-5{margin-top:5px}
+.mt-6{margin-top:6px}
+.mt-7{margin-top:7px}
+.mt-8{margin-top:8px}
+.mb-0_5rem{margin-bottom:.5rem}
+.mb-0_6rem{margin-bottom:.6rem}
+.mb-0_75rem{margin-bottom:.75rem}
+.mb-0_8rem{margin-bottom:.8rem}
+.mb-0_9rem{margin-bottom:.9rem}
+.mb-10{margin-bottom:10px}
+.mb-1rem{margin-bottom:1rem}
+.mb-2{margin-bottom:2px}
+.mb-3{margin-bottom:3px}
+.mb-4{margin-bottom:4px}
+.mb-5{margin-bottom:5px}
+.mb-6{margin-bottom:6px}
+.mb-8{margin-bottom:8px}
+.ml-10{margin-left:10px}
+.ml-4{margin-left:4px}
+.ml-6{margin-left:6px}
+.ml-8{margin-left:8px}
+.ml-auto{margin-left:auto}
+.mr-4{margin-right:4px}
+.mr-8{margin-right:8px}
+
+/* ---- SPACING: PADDING ---- */
+.p-0{padding:0}
+.p-0-4{padding:0 4px}
+.p-0-5{padding:0 5px}
+.p-0-6{padding:0 6px}
+.p-0_9rem{padding:.9rem}
+.p-1-5{padding:1px 5px}
+.p-1-6{padding:1px 6px}
+.p-1-7{padding:1px 7px}
+.p-1-8{padding:1px 8px}
+.p-18-20{padding:18px 20px}
+.p-1rem{padding:1rem}
+.p-2-0{padding:2px 0}
+.p-2-6{padding:2px 6px}
+.p-2-7{padding:2px 7px}
+.p-3-0-2-14{padding:3px 0 2px 14px}
+.p-3-8{padding:3px 8px}
+.p-3-9{padding:3px 9px}
+.p-4-0{padding:4px 0}
+.p-4-8{padding:4px 8px}
+.p-5-10{padding:5px 10px}
+.p-5-7{padding:5px 7px}
+.p-5-8{padding:5px 8px}
+.p-6-0{padding:6px 0}
+.p-6-10{padding:6px 10px}
+.p-6-14{padding:6px 14px}
+.p-6-8{padding:6px 8px}
+.p-6-9{padding:6px 9px}
+.p-7-10{padding:7px 10px}
+.p-8-10{padding:8px 10px}
+.p-8-12{padding:8px 12px}
+.pt-1rem{padding-top:1rem}
+.pl-12{padding-left:12px}
+
+/* ---- FLEX AND GRID LAYOUT ---- */
+.items-baseline{align-items:baseline}
+.items-center{align-items:center}
+.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.justify-end{justify-content:flex-end}
+.flex-wrap{flex-wrap:wrap}
+.flex-col{flex-direction:column}
+.flex-1{flex:1}
+.gap-10{gap:10px}
+.gap-4{gap:4px}
+.gap-5{gap:5px}
+.gap-6{gap:6px}
+.gap-7{gap:7px}
+.gap-8{gap:8px}
+.span-all{grid-column:1 / -1}
+
+/* ---- SIZE ---- */
+.w-52{width:52px}
+.w-60{width:60px}
+.w-auto{width:auto}
+.w-full{width:100%}
+.min-w-160{min-width:160px}
+.min-w-18{min-width:18px}
+.min-w-180{min-width:180px}
+.max-w-260{max-width:260px}
+.max-w-480{max-width:480px}
+.max-w-560{max-width:560px}
+.h-6{height:6px}
+.overflow-x-auto{overflow-x:auto}
+.overflow-y-auto{overflow-y:auto}
+
+/* ---- BORDERS AND BACKGROUND ---- */
+.border-none{border:none}
+.rounded-2{border-radius:2px}
+.rounded-3{border-radius:3px}
+
+/* ---- BEHAVIOUR ---- */
+.cursor-help{cursor:help}
+.cursor-pointer{cursor:pointer}
+.select-none{user-select:none}

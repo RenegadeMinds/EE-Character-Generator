@@ -64,7 +64,7 @@ function renderConds(c){
   }
 
   if(!conds.length){
-    el.innerHTML=`<span style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g35);">No conditions</span>`;
+    el.innerHTML=`<span class="font-serif fs-11 c-g35">No conditions</span>`;
     if(effectsEl){effectsEl.style.display='none';effectsEl.innerHTML='';}
     // Also refresh the Sheet's persistent banner (in case the player is back
     // and forth between Tracker and Sheet)
@@ -90,14 +90,14 @@ function renderConds(c){
   if(effectsEl){
     effectsEl.style.display='block';
     effectsEl.innerHTML = `
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">Mechanical Effects</div>
+      <div class="font-serif fs-10 c-g55 ls-0_05em uppercase mb-6">Mechanical Effects</div>
       ${conds.map(co => {
         const data = CONDITIONS_DATA[co];
         if(!data){
           // Unrecognized condition — preserve it, but flag it
-          return `<div style="margin-bottom:8px;padding:8px 10px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;">
-            <div style="font-weight:600;color:var(--gold);font-size:12px;margin-bottom:3px;">${escapeHTML(co)}</div>
-            <div style="font-size:11px;color:var(--g55);font-style:italic;">No reference data found for this condition. See the Hero's Handbook condition appendix.</div>
+          return `<div class="mb-8 p-8-10 rounded-2" style="background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);">
+            <div class="fw-600 c-gold fs-12 mb-3">${escapeHTML(co)}</div>
+            <div class="fs-11 c-g55 italic">No reference data found for this condition. See the Hero's Handbook condition appendix.</div>
           </div>`;
         }
         const style = CONDITION_TIER_STYLE[data.tier] || CONDITION_TIER_STYLE.moderate;
@@ -115,10 +115,10 @@ function renderConds(c){
         const paraCSS = 'margin:0;font-size:11.5px;color:var(--g78);line-height:1.55;';
         const paraCSSNext = 'margin:6px 0 0 0;font-size:11.5px;color:var(--g78);line-height:1.55;';
         const descHtml = escapeHTML(data.desc).replace(/\n\n/g, `</p><p style="${paraCSSNext}">`);
-        const cit = data.citation ? `<span style="font-size:10px;color:var(--g40);font-style:italic;margin-left:6px;">(${data.citation.book} p.${data.citation.page})</span>` : '';
+        const cit = data.citation ? `<span class="fs-10 c-g40 italic ml-6">(${data.citation.book} p.${data.citation.page})</span>` : '';
         return `
           <div style="margin-bottom:8px;padding:9px 11px;background:rgba(200,151,30,.04);border-left:3px solid ${style.border};border-radius:2px;">
-            <div style="margin-bottom:5px;font-size:12px;"><span style="${titleCSS}">${escapeHTML(co)}</span> <span style="font-size:10px;color:var(--g45);text-transform:uppercase;letter-spacing:.04em;margin-left:4px;">${style.label}</span>${cit}</div>
+            <div class="mb-5 fs-12"><span style="${titleCSS}">${escapeHTML(co)}</span> <span class="fs-10 c-g45 uppercase ls-0_04em ml-4">${style.label}</span>${cit}</div>
             <p style="${paraCSS}">${descHtml}</p>
           </div>`;
       }).join('')}
@@ -150,7 +150,7 @@ function renderSheetConditionBanner(c){
   if(!conds.length){el.innerHTML='';el.style.display='none';return;}
   el.style.display='block';
   el.innerHTML=`
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;">Active Conditions</div>
+    <div class="font-serif fs-10 c-g55 ls-0_05em uppercase mb-5">Active Conditions</div>
     ${conds.map(co=>{
       const data=CONDITIONS_DATA[co];
       const tier=(data && data.tier)||'moderate';
@@ -166,8 +166,8 @@ function renderSheetConditionBanner(c){
       return `
         <div style="${containerCSS}">
           <span style="${nameCSS}">${escapeHTML(co)}</span>
-          <span style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.04em;margin-left:6px;">${style.label}</span>
-          <div style="font-size:11px;margin-top:2px;opacity:.85;line-height:1.5;">${escapeHTML(gloss)}</div>
+          <span class="fs-10 op-0_75 uppercase ls-0_04em ml-6">${style.label}</span>
+          <div class="fs-11 mt-2 op-0_85 lh-1_5">${escapeHTML(gloss)}</div>
         </div>`;
     }).join('')}
   `;

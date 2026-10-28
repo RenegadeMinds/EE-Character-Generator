@@ -140,14 +140,14 @@ function renderAttrBudget(){
   if (target == null) {
     // No method established yet — show a quiet hint
     div.style.display = 'block';
-    div.innerHTML = `<span style="opacity:var(--o60);color:var(--dim);">No attribute budget set — pick a method above (Roll or Point Buy) to enable budget tracking.</span>`;
+    div.innerHTML = `<span class="o-60 c-dim">No attribute budget set — pick a method above (Roll or Point Buy) to enable budget tracking.</span>`;
   } else {
     const delta = baseSum - target;
     const deltaColor = delta === 0 ? '#6dba88' : (Math.abs(delta) <= 2 ? 'var(--g85)' : 'var(--red-text)');
     const deltaText = delta === 0 ? 'Δ 0' : `Δ ${delta>0?'+':''}${delta}`;
-    const racialLine = formBudget.racialApplied ? ` &nbsp;·&nbsp; <span style="opacity:.7;">racial (${formBudget.racialApplied}): ${adj.map((v,i) => v!==0?`${v>0?'+':''}${v} ${ATTR_NAMES[i]}`:null).filter(Boolean).join(', ')||'none'}</span>` : '';
+    const racialLine = formBudget.racialApplied ? ` &nbsp;·&nbsp; <span class="op-0_7">racial (${formBudget.racialApplied}): ${adj.map((v,i) => v!==0?`${v>0?'+':''}${v} ${ATTR_NAMES[i]}`:null).filter(Boolean).join(', ')||'none'}</span>` : '';
     div.style.display = 'block';
-    div.innerHTML = `<span style="opacity:.7;">${methodLabel} budget:</span> base total <b>${baseSum}</b> / ${target} <span style="color:${deltaColor};font-weight:bold;">${deltaText}</span>${racialLine}`;
+    div.innerHTML = `<span class="op-0_7">${methodLabel} budget:</span> base total <b>${baseSum}</b> / ${target} <span style="color:${deltaColor};font-weight:bold;">${deltaText}</span>${racialLine}`;
   }
   // Per-attribute floor check: displayed − racial must be ≥ 1
   const violations = [];
@@ -188,10 +188,10 @@ function updateHybridForm() {
   // v9.0.0: 'Half-Again' is exempt — not an ancestry, a stature (the egg).
   if (info && a && b) {
     const bad = [a, b].filter(x => !HYBRID_HUMANOID_RACES.includes(x) && x !== 'Half-Again');
-    if (bad.length) info.innerHTML += ` <span style="color:var(--red-text);font-size:10px;" title="Only Humanoid races can interbreed (Adam's ruling 2026-10-02). A non-Humanoid parent on a legacy record stands only as an explicit GM exception.">⚠ ${bad.join(' & ')}: not Humanoid — GM exception territory</span>`;
-    if (a === 'Half-Again' && b === 'Half-Again') info.innerHTML += ` <span style="color:var(--red-text);font-size:10px;">⚠ Half-Again × Half-Again is no hybrid at all — pick a real race for one parent.</span>`;
-    else if (a === 'Half-Again') info.innerHTML += ` <span style="color:#d4b870;font-size:10px;">💡 Half-Again serves as Parent B — size, speed, and racial abilities follow the real parent either way.</span>`;
-    else if (b === 'Half-Again') info.innerHTML += ` <span style="color:var(--tg85);font-size:10px;" title="A half-again-sized specimen of Parent A: +2 Str/+2 Con/−2 Dex, Powerful Build (one size larger where advantageous — Grapple, larger weapons, carry ×2). Formal rules in the UCS.">🥚 found it — ${escapeHTML(a || 'the parent')}, and Half-Again!</span>`;
+    if (bad.length) info.innerHTML += ` <span class="c-red-text fs-10" title="Only Humanoid races can interbreed (Adam's ruling 2026-10-02). A non-Humanoid parent on a legacy record stands only as an explicit GM exception.">⚠ ${bad.join(' & ')}: not Humanoid — GM exception territory</span>`;
+    if (a === 'Half-Again' && b === 'Half-Again') info.innerHTML += ` <span class="c-red-text fs-10">⚠ Half-Again × Half-Again is no hybrid at all — pick a real race for one parent.</span>`;
+    else if (a === 'Half-Again') info.innerHTML += ` <span class="fs-10" style="color:#d4b870;">💡 Half-Again serves as Parent B — size, speed, and racial abilities follow the real parent either way.</span>`;
+    else if (b === 'Half-Again') info.innerHTML += ` <span class="fs-10" style="color:var(--tg85);" title="A half-again-sized specimen of Parent A: +2 Str/+2 Con/−2 Dex, Powerful Build (one size larger where advantageous — Grapple, larger weapons, carry ×2). Formal rules in the UCS.">🥚 found it — ${escapeHTML(a || 'the parent')}, and Half-Again!</span>`;
   }
   }
   applyRaceAdjustments('Hybrid');
@@ -219,7 +219,7 @@ function updateRaceInfo(){
     : (Object.entries(r.adj||{}).map(([k,v])=>(v>0?'+':'')+v+' '+k).join(', ')||'None');
   const eclShown = raceName === 'Hybrid' ? _formHybridRlm() : (r.ecl || 0);
   const cite = citeHTML('races', raceName);
-  document.getElementById('race-info').innerHTML=`<b style="color:var(--gold);font-family:'Epics Serif','Cinzel',serif;font-size:9px;letter-spacing:.1em;">ABILITY ADJUSTMENTS</b> ${cite}<br>${adjs} &nbsp;|&nbsp; <b style="color:var(--gold);font-family:'Epics Serif','Cinzel',serif;font-size:9px;">ECL MOD</b> +${eclShown}<br><span style="font-size:12px;">${r.notes||''}</span>`;
+  document.getElementById('race-info').innerHTML=`<b class="c-gold font-serif fs-9 ls-0_1em">ABILITY ADJUSTMENTS</b> ${cite}<br>${adjs} &nbsp;|&nbsp; <b class="c-gold font-serif fs-9">ECL MOD</b> +${eclShown}<br><span class="fs-12">${r.notes||''}</span>`;
   // v8.1.1: apply the race's attribute adjustments to the input fields,
   // reversing any previously-applied racial mod first to keep base scores stable.
   applyRaceAdjustments(raceName);
@@ -366,7 +366,7 @@ function renderOccupationPicker(slot){
   const occ = getOccupationData(occName);
   if (!occ) {
     picker.style.display = 'block';
-    picker.innerHTML = `<div style="font-size:11px;color:var(--red-text);padding:6px 8px;background:rgba(212,112,112,.08);border-radius:3px;">No occupation data for "${escapeHTML(occName)}".</div>`;
+    picker.innerHTML = `<div class="fs-11 c-red-text p-6-8 rounded-3" style="background:rgba(212,112,112,.08);">No occupation data for "${escapeHTML(occName)}".</div>`;
     return;
   }
   const picks = formOccupationPicks[slot] || (formOccupationPicks[slot] = {skills:[], bonusFeat:null});
@@ -438,7 +438,7 @@ function renderOccupationPicker(slot){
   // are disabled), treat like sandbox.
   const sl = getSixLevels();
   const enforceGate = (gateState === 'locked');
-  rows.push(`<div style="font-size:11px;color:var(--g70);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;">Choose ${skillCount} skill${skillCount===1?'':'s'} from the list <span style="color:var(--g45);font-size:10px;text-transform:none;letter-spacing:0;">(if already a class skill via another route, +1 competence bonus instead)</span></div>`);
+  rows.push(`<div class="fs-11 c-g70 mb-4 ls-0_04em uppercase">Choose ${skillCount} skill${skillCount===1?'':'s'} from the list <span class="c-g45 fs-10 normal-case ls-0">(if already a class skill via another route, +1 competence bonus instead)</span></div>`);
   // v8.5.4: live class-overlap annotation. With Occupation ahead of Classes
   // in the flow (Adam's chronological ordering), the picker marks options
   // that are ALREADY class skills through the currently-chosen classes
@@ -471,7 +471,7 @@ function renderOccupationPicker(slot){
         return `<option value="${escapeHTML(s)}" ${sel} ${disabled}>${escapeHTML(label)}</option>`;
       })
     ).join('');
-    rows.push(`<div style="margin-bottom:5px;"><select onchange="onOccupationPickChange('${slot}','skill',${i},this.value)" style="width:100%;font-size:12px;">${opts}</select></div>`);
+    rows.push(`<div class="mb-5"><select onchange="onOccupationPickChange('${slot}','skill',${i},this.value)" class="w-full fs-12">${opts}</select></div>`);
   }
   // Bonus feat picker, if applicable
   if (occ.bonus_feat_options && occ.bonus_feat_options.length) {
@@ -506,19 +506,19 @@ function renderOccupationPicker(slot){
         return `<option value="${escapeHTML(f)}" ${sel} ${disabled}>${escapeHTML(label)}</option>`;
       })
     ).join('');
-    rows.push(`<div style="font-size:11px;color:var(--g70);margin:8px 0 4px 0;letter-spacing:.04em;text-transform:uppercase;">Bonus Feat — pick one</div>`);
-    rows.push(`<div><select onchange="onOccupationPickChange('${slot}','feat',null,this.value)" style="width:100%;font-size:12px;">${opts}</select></div>`);
+    rows.push(`<div class="fs-11 c-g70 ls-0_04em uppercase" style="margin:8px 0 4px 0;">Bonus Feat — pick one</div>`);
+    rows.push(`<div><select onchange="onOccupationPickChange('${slot}','feat',null,this.value)" class="w-full fs-12">${opts}</select></div>`);
   }
   // Wealth + Reputation summary
   const meta = [];
   if (occ.wealth != null) meta.push(`Wealth ${occ.wealth>=0?'+':''}${occ.wealth}`);
   if (occ.reputation != null) meta.push(`Reputation ${occ.reputation>=0?'+':''}${occ.reputation}`);
-  if (occ.prereq_other) meta.push(`<span style="color:var(--g55);">requires ${escapeHTML(occ.prereq_other)}</span>`);
+  if (occ.prereq_other) meta.push(`<span class="c-g55">requires ${escapeHTML(occ.prereq_other)}</span>`);
   if (meta.length) {
-    rows.push(`<div style="font-size:10px;color:var(--g55);margin-top:6px;letter-spacing:.02em;">${meta.join(' &middot; ')}</div>`);
+    rows.push(`<div class="fs-10 c-g55 mt-6" style="letter-spacing:.02em;">${meta.join(' &middot; ')}</div>`);
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div style="padding:8px 10px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
 }
 
 // Read-only display of an occupation's picks. Used when the occupation is
@@ -529,14 +529,14 @@ function renderOccupationPickerReadonly(slot, occ, picks){
   const rows = [];
   const skillsPicked = (picks.skills||[]).filter(s => !!s);
   if (skillsPicked.length) {
-    rows.push(`<div style="font-size:11px;color:var(--g65);"><b style="color:var(--gold);">Class Skills:</b> ${escapeHTML(skillsPicked.join(', '))}</div>`);
+    rows.push(`<div class="fs-11 c-g65"><b class="c-gold">Class Skills:</b> ${escapeHTML(skillsPicked.join(', '))}</div>`);
   } else if (occ.skill_count) {
-    rows.push(`<div style="font-size:11px;color:#d4b870;"><b>⚠ Skill picks pending</b> — ${occ.skill_count} skill${occ.skill_count===1?'':'s'} not yet selected from the ${occ.n} occupation list. Unlock with ⚿ Edit (GM) to fill them in.</div>`);
+    rows.push(`<div class="fs-11" style="color:#d4b870;"><b>⚠ Skill picks pending</b> — ${occ.skill_count} skill${occ.skill_count===1?'':'s'} not yet selected from the ${occ.n} occupation list. Unlock with ⚿ Edit (GM) to fill them in.</div>`);
   }
   if (picks.bonusFeat) {
-    rows.push(`<div style="font-size:11px;color:var(--g65);margin-top:4px;"><b style="color:var(--gold);">Bonus Feat:</b> ${escapeHTML(picks.bonusFeat)}</div>`);
+    rows.push(`<div class="fs-11 c-g65 mt-4"><b class="c-gold">Bonus Feat:</b> ${escapeHTML(picks.bonusFeat)}</div>`);
   } else if (occ.bonus_feat_options && occ.bonus_feat_options.length) {
-    rows.push(`<div style="font-size:11px;color:#d4b870;margin-top:4px;"><b>⚠ Bonus feat pending</b> — pick one from: ${occ.bonus_feat_options.map(escapeHTML).join(', ')}. Unlock with ⚿ Edit (GM) to choose.</div>`);
+    rows.push(`<div class="fs-11 mt-4" style="color:#d4b870;"><b>⚠ Bonus feat pending</b> — pick one from: ${occ.bonus_feat_options.map(escapeHTML).join(', ')}. Unlock with ⚿ Edit (GM) to choose.</div>`);
   }
   if (!rows.length) {
     picker.style.display = 'none';
@@ -544,7 +544,7 @@ function renderOccupationPickerReadonly(slot, occ, picks){
     return;
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div style="padding:7px 10px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="p-7-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
 }
 
 // Called by each pick-select's onchange.

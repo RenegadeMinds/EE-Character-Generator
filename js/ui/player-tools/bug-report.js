@@ -160,14 +160,14 @@ async function bugCopy() {
 function renderBugList() {
   const el = document.getElementById('bug-list'); if (!el) return;
   const list = _bugLoad().slice().reverse();
-  if (!list.length) { el.innerHTML = '<div style="color:var(--gold-mute);">No reports yet. Reports you send or copy are kept here on this device.</div>'; return; }
+  if (!list.length) { el.innerHTML = '<div class="c-gold-mute">No reports yet. Reports you send or copy are kept here on this device.</div>'; return; }
   el.innerHTML = list.map(r => {
     const when = (r.ctx && r.ctx.timestamp || '').replace('T', ' ').slice(0, 16);
     const last = (r.sent || []).slice(-1)[0];
-    return `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid rgba(200,151,30,.15);">
-      <span style="color:var(--gold-soft);white-space:nowrap;">${escapeHTML(when)}</span>
-      <span style="flex:1;min-width:140px;color:var(--parch);">${escapeHTML((r.what || '').split('\n')[0].slice(0, 70) || '(no description)')}</span>
-      <span style="color:var(--gold-mute);font-size:11px;">${last ? escapeHTML(last.how === 'email' ? 'sent' : 'copied') : ''}${r.charJson ? ' · +JSON' : ''}</span>
+    return `<div class="gap-8 items-center flex-wrap p-6-0" style="display:flex;border-bottom:1px solid rgba(200,151,30,.15);">
+      <span class="c-gold-soft nowrap">${escapeHTML(when)}</span>
+      <span class="flex-1 c-parch" style="min-width:140px;">${escapeHTML((r.what || '').split('\n')[0].slice(0, 70) || '(no description)')}</span>
+      <span class="c-gold-mute fs-11">${last ? escapeHTML(last.how === 'email' ? 'sent' : 'copied') : ''}${r.charJson ? ' · +JSON' : ''}</span>
       <button type="button" class="btn btn-sm" onclick="bugView('${r.id}')">View</button>
       <button type="button" class="btn btn-sm" onclick="bugResend('${r.id}')">Resend</button>
       <button type="button" class="btn btn-sm" onclick="bugCopyStored('${r.id}')">Copy</button>

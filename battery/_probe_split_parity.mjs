@@ -36,6 +36,21 @@
 // USAGE
 //   OLD=path/to/old/index.html node _probe_split_parity.mjs
 //   CODE_CHANGED=1 OLD=... node _probe_split_parity.mjs   (refactors: ignore function source text)
+//   STYLES=1 CODE_CHANGED=1 OLD=... node _probe_split_parity.mjs
+//       (styling refactors: see STYLE MODE below)
+//   THEME=classic | hc   (run everything in that colour theme; default Parchment)
+//
+// STYLE MODE (STYLES=1)
+//   For changes that rewrite the markup on purpose but must not change how
+//   anything LOOKS, e.g. moving style="..." attributes into CSS classes.
+//   Markup is then compared with every class and style attribute removed,
+//   and, element by element, the browser's final computed style must match:
+//   the ~70 visual properties in STYLE_PROPS (colours, fonts, spacing,
+//   borders, sizes, flex/grid layout, visibility). Sizes are the laid-out
+//   pixel values, so a layout shift anywhere shows up too. STYLE_ALL=1
+//   checks all ~350 CSS properties instead (much slower).
+//   The print sheet is also compared as it would print (print media).
+//   Run it once per theme (no THEME, THEME=classic, THEME=hc).
 //   (NEW defaults to ../index.html; set NEW=... to compare something else)
 
 import { readFileSync } from 'node:fs';
@@ -52,6 +67,23 @@ const OLD = process.env.OLD;
 // Data, character records and every rendered page must still match exactly.
 const CODE_CHANGED = !!process.env.CODE_CHANGED;
 const NEW = process.env.NEW || resolve(__dir, '../index.html');
+// Style mode and theme: see the header.
+const STYLES = !!process.env.STYLES;
+const THEME = process.env.THEME || '';
+const STYLE_PROPS = process.env.STYLE_ALL ? null : [
+  'display', 'visibility', 'opacity', 'cursor', 'position', 'top', 'left', 'right', 'bottom', 'z-index',
+  'color', 'background-color', 'background-image', 'box-shadow', 'text-shadow', 'filter',
+  'font-family', 'font-size', 'font-weight', 'font-style', 'font-variant-caps', 'line-height', 'letter-spacing',
+  'text-transform', 'text-align', 'text-decoration-line', 'text-indent', 'white-space', 'word-break', 'vertical-align',
+  'margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+  'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+  'border-top-style', 'border-bottom-style', 'border-left-style', 'border-right-style',
+  'border-top-color', 'border-bottom-color', 'border-left-color', 'border-right-color',
+  'border-top-left-radius', 'border-bottom-right-radius', 'outline-style',
+  'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height', 'box-sizing', 'overflow-x', 'overflow-y',
+  'flex-direction', 'flex-wrap', 'flex-grow', 'flex-shrink', 'flex-basis', 'align-items', 'align-self', 'justify-content',
+  'row-gap', 'column-gap', 'grid-template-columns', 'grid-column-start', 'grid-column-end', 'list-style-type', 'pointer-events', 'user-select',
+];
 if (!OLD) { console.error('Set OLD=path/to/the/previous/index.html'); process.exit(2); }
 
 const results = [];
@@ -88,8 +120,14 @@ async function boot(file, port) {
   page.on('pageerror', e => errors.push('pageerror: ' + String(e).slice(0, 200)));
   page.on('dialog', d => d.dismiss().catch(() => {}));
   await page.evaluateOnNewDocument(pinRandomAndClock);
+  await page.evaluateOnNewDocument(installStyleHashes, STYLE_PROPS);
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'load', timeout: 120000 });
   await page.waitForFunction('typeof chars !== "undefined" && typeof qdBespokeBuild === "function"', { timeout: 60000 });
+  // Same switch js/boot.js makes for a saved theme choice.
+  if (THEME) await page.evaluate((th) => document.documentElement.setAttribute('data-theme', th), THEME);
+  // Style mode: switch off fades and animations (in both builds alike), so a
+  // colour caught halfway through a transition can't look like a difference.
+  if (STYLES) await page.addStyleTag({ content: '*,*::before,*::after{transition:none !important;animation:none !important}' });
   return { server, browser, page, errors };
 }
 
@@ -115,7 +153,13 @@ async function globalsSnapshot(page) {
 // script tags, HTML comments (the split added explanatory ones), blank
 // text at the top level of <body> (where the script tags were), and the
 // logo's src (inline data vs. a file).
-const markup = (page) => page.evaluate(() => {
+//
+// In style mode (STYLES=1) class and style attributes are removed too, and
+// the computed style of every element is appended as one short hash per
+// element (tag, id and hash; see styleHashes).
+const markup = (page) => page.evaluate((STY) => {
+  let hashes = '';
+  if (STY) hashes = '\n' + styleHashes(document.body);
   const b = document.body.cloneNode(true);
   b.querySelectorAll('script').forEach(s => s.remove());
   const w = document.createTreeWalker(b, NodeFilter.SHOW_COMMENT); const cs = []; while (w.nextNode()) cs.push(w.currentNode); cs.forEach(c => c.remove());
@@ -124,13 +168,45 @@ const markup = (page) => page.evaluate(() => {
   b.querySelectorAll('#site-logo, #site-logo-r, .ps-logo').forEach(i => i.removeAttribute('src'));
   // The toast message is transient: whether it is still showing depends on timing.
   b.querySelectorAll('#toast').forEach(t => t.remove());
-  return b.innerHTML;
-});
+  if (STY) b.querySelectorAll('[class],[style]').forEach(e => { e.removeAttribute('class'); e.removeAttribute('style'); });
+  return b.innerHTML + hashes;
+}, STYLES);
+
+// Style mode: one line per element under root, "TAG#id hash", where the
+// hash covers every computed CSS property. Installed in each page as a
+// global so markup() and the print check can both call it. Script tags and
+// the transient toast are skipped, as in markup().
+function installStyleHashes(PROPS) {
+  window.styleHashes = (root) => {
+    const out = [];
+    for (const el of root.querySelectorAll('*')) {
+      if (el.tagName === 'SCRIPT' || el.closest('#toast')) continue;
+      const cs = getComputedStyle(el);
+      let s = '';
+      if (PROPS) for (const p of PROPS) s += cs.getPropertyValue(p) + '|';
+      else for (let i = 0; i < cs.length; i++) s += cs.getPropertyValue(cs[i]) + '|';
+      let h = 0; for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;
+      out.push(el.tagName + (el.id ? '#' + el.id : '') + ' ' + (h >>> 0).toString(36));
+    }
+    return out.join('\n');
+  };
+  // For investigating a difference: every computed property of element i.
+  window.styleDump = (root, i) => { const el = root.querySelectorAll('*')[i]; const cs = getComputedStyle(el); const o = {}; for (let k = 0; k < cs.length; k++) o[cs[k]] = cs.getPropertyValue(cs[k]); return o; };
+}
+
+// Style mode: the print sheet's computed styles as it would PRINT (the
+// @media print rules apply only then).
+const printStyles = async (page) => {
+  await page.emulateMediaType('print');
+  const h = await page.evaluate(() => styleHashes(document.getElementById('print-sheet')));
+  await page.emulateMediaType('screen');
+  return h;
+};
 
 const firstDiff = (a, b) => { let i = 0; while (i < a.length && a[i] === b[i]) i++; return i >= a.length && a.length === b.length ? -1 : i; };
 const ctx = (s, i) => JSON.stringify(s.slice(Math.max(0, i - 60), i + 80));
 
-console.log(`== SPLIT PARITY ==\n   OLD: ${OLD}\n   NEW: ${NEW}\n   ${names.size} top-level names`);
+console.log(`== SPLIT PARITY ==\n   OLD: ${OLD}\n   NEW: ${NEW}\n   ${names.size} top-level names` + (STYLES ? `\n   style mode, theme ${THEME || 'parchment'}` : ''));
 const A = await boot(OLD, 8801);
 const B = await boot(NEW, 8802);
 
@@ -241,7 +317,8 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
     } catch (e) { return { ok: false, reason: String(e) }; }
   };
   // (the test server's address differs between the two builds: strip it)
-  const printOut = () => { try { printSheet(); return document.getElementById('print-sheet').innerHTML.split(location.origin).join(''); } catch (e) { return 'THREW ' + e; } };
+  // In style mode class and style attributes are compared through printStyles instead.
+  const printOut = (STY) => { try { printSheet(); const ps = document.getElementById('print-sheet').cloneNode(true); if (STY) ps.querySelectorAll('[class],[style]').forEach(e => { e.removeAttribute('class'); e.removeAttribute('style'); }); return ps.innerHTML.split(location.origin).join(''); } catch (e) { return 'THREW ' + e; } };
   const weaponSums = () => { try { return JSON.stringify(computeEquippedWeaponSummaries(chars.find(x => x.id === curId))); } catch (e) { return 'THREW ' + e; } };
   const editSave = async () => {
     try { editCurrentChar(); await saveCharacter(); return JSON.stringify(chars.find(x => x.id === curId)); }
@@ -266,7 +343,8 @@ mark('EVERY-PAGE-IDENTICAL', pageFails === 0 && compared > 0, `${compared} page 
       await B.page.evaluate((n) => { try { showPage(n); } catch (e) {} }, pg);
       same(`${s.name} / ${pg}`, await markup(A.page), await markup(B.page));
     }
-    same(`${s.name}: print sheet`, await A.page.evaluate(printOut), await B.page.evaluate(printOut));
+    same(`${s.name}: print sheet`, await A.page.evaluate(printOut, STYLES), await B.page.evaluate(printOut, STYLES));
+    if (STYLES) same(`${s.name}: print sheet styles (print media)`, await printStyles(A.page), await printStyles(B.page));
     same(`${s.name}: weapon summaries`, await A.page.evaluate(weaponSums), await B.page.evaluate(weaponSums));
     same(`${s.name}: Edit -> Save`, await A.page.evaluate(editSave), await B.page.evaluate(editSave));
   }

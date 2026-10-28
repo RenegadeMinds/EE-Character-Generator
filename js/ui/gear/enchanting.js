@@ -91,30 +91,30 @@ function renderEnchantModal() {
     const grey = !sel && d.price_bonus && (wouldMod > 5 || st.enh + wouldMod > cap);
     return `<label style="display:flex;gap:7px;align-items:baseline;padding:3px 2px;border-bottom:1px solid rgba(200,151,30,.06);${grey ? 'opacity:.38;' : 'cursor:pointer;'}" title="${escapeHTML((d.d || '').slice(0, 400))}">
       <input type="checkbox" ${sel ? 'checked' : ''} ${grey ? 'disabled' : ''} onchange="enchantToggleAbility('${escapeHTML(d.name).replace(/'/g, "\\'")}')">
-      <b style="flex:1;">${escapeHTML(d.name)}</b>
+      <b class="flex-1">${escapeHTML(d.name)}</b>
       <span style="font-size:10px;color:${d.price_bonus ? '#d4b870' : 'var(--pb90)'};">${costLbl}</span>
     </label>`;
   }).join('');
   document.getElementById('enchant-modal-body').innerHTML = `
-    <div style="font-size:11.5px;line-height:1.5;color:var(--g75);margin-bottom:.6rem;">
+    <div class="fs-11_5 lh-1_5 c-g75 mb-0_6rem">
       ${escapeHTML(it.ref)} is TS${def.tl || 0} — <b>max aggregate modifier +${cap}</b>. Mastercraft +${(it.mastercraft && it.mastercraft.bonus) || 0} (${(it.mastercraft && it.mastercraft.target) || '—'}) — the better of mastercraft vs enhancement applies per stat, no stacking.
     </div>
-    <div style="display:flex;gap:14px;align-items:center;margin-bottom:.6rem;flex-wrap:wrap;">
-      <label style="font-size:12px;">Type:
-        <select onchange="enchantSetImbued(this.value)" style="font-size:11px;">
+    <div class="items-center mb-0_6rem flex-wrap" style="display:flex;gap:14px;">
+      <label class="fs-12">Type:
+        <select onchange="enchantSetImbued(this.value)" class="fs-11">
           <option value="enchanted" ${!st.imbued ? 'selected' : ''}>Enchanted (arcane/divine)</option>
           <option value="imbued" ${st.imbued ? 'selected' : ''}>Imbued (psionic)</option>
         </select></label>
-      <label style="font-size:12px;">Enhancement bonus:
-        <select onchange="enchantSetEnh(this.value)" style="font-size:11px;">
+      <label class="fs-12">Enhancement bonus:
+        <select onchange="enchantSetEnh(this.value)" class="fs-11">
           ${[1,2,3,4,5].map(v => `<option value="${v}" ${st.enh === v ? 'selected' : ''}>+${v}</option>`).join('')}
         </select></label>
     </div>
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g60);margin-bottom:3px;">Special abilities <span style="text-transform:none;letter-spacing:0;">(bonus-equivalents ≤ +5; flat-gp abilities don't consume the budget)</span></div>
-    <div style="max-height:34vh;overflow-y:auto;border:1px solid rgba(200,151,30,.15);border-radius:3px;padding:2px 6px;">${rows || '<div style="opacity:.5;font-size:11px;padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
-    <div style="margin-top:.7rem;font-size:12px;line-height:1.6;">
+    <div class="fs-10 uppercase ls-0_08em c-g60 mb-3">Special abilities <span class="normal-case ls-0">(bonus-equivalents ≤ +5; flat-gp abilities don't consume the budget)</span></div>
+    <div class="overflow-y-auto p-2-6" style="max-height:34vh;border:1px solid rgba(200,151,30,.15);border-radius:3px;">${rows || '<div class="op-0_5 fs-11" style="padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
+    <div class="mt-0_7rem fs-12 lh-1_6">
       Aggregate modifier: <b style="color:${overCap || overAbility ? 'var(--red-text)' : 'var(--gold)'};">+${totalMod}</b> (enhancement +${st.enh} · abilities +${abilityMod}${flatGp ? ` · flat ${flatGp.toLocaleString()} gp` : ''})<br>
-      ${word} value: <b>${cost.toLocaleString()} gp</b> <span style="opacity:.6;cursor:help;" title="${escapeHTML(PRICE_FLUX_NOTE)}">(${escapeHTML(priceLabel(dcForDollars(cost * 100), scenarioTechScale(c)))})</span>${prev ? ` — upgrade cost <b>${delta.toLocaleString()} gp</b> (current value ${prev.cost.toLocaleString()} gp)` : ''} · crafting time ≈ <b>${days} day${days === 1 ? '' : 's'}</b> <span style="opacity:var(--o55);color:var(--dim);">(RP only)</span>
+      ${word} value: <b>${cost.toLocaleString()} gp</b> <span class="op-0_6 cursor-help" title="${escapeHTML(PRICE_FLUX_NOTE)}">(${escapeHTML(priceLabel(dcForDollars(cost * 100), scenarioTechScale(c)))})</span>${prev ? ` — upgrade cost <b>${delta.toLocaleString()} gp</b> (current value ${prev.cost.toLocaleString()} gp)` : ''} · crafting time ≈ <b>${days} day${days === 1 ? '' : 's'}</b> <span class="o-55 c-dim">(RP only)</span>
     </div>`;
   document.getElementById('enchant-modal-warn').textContent =
     overAbility ? `Ability bonus-equivalents total +${abilityMod} — the book caps them at +5.`

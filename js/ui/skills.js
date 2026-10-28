@@ -248,12 +248,12 @@ function renderSkills(){
       // Collapsed families keep their trained sub-skills visible below the
       // header (v8.6.0) — say so, so the rows underneath aren't a surprise.
       const trainedSubset = ranksInFam > 0
-        ? ` &nbsp;<span style="color:var(--gold);">(${ranksInFam} trained${skillFamilyCollapsed[fam] ? ' — shown below' : ''})</span>`
+        ? ` &nbsp;<span class="c-gold">(${ranksInFam} trained${skillFamilyCollapsed[fam] ? ' — shown below' : ''})</span>`
         : '';
       const arrow = skillFamilyCollapsed[fam] ? '▸' : '▾';
-      rows.push(`<tr class="sk-fam-header" onclick="toggleSkillFamily('${fam}')" style="cursor:pointer;">
-        <td colspan="6" style="padding:6px 7px 4px;font-family:'Epics Serif','Cinzel',serif;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--g70);border-top:1px solid rgba(200,151,30,.15);background:rgba(200,151,30,.04);">
-          ${arrow} ${fam} Skills <span style="opacity:var(--o55);color:var(--dim);">(${totalInFam})</span>${trainedSubset}
+      rows.push(`<tr class="cursor-pointer sk-fam-header" onclick="toggleSkillFamily('${fam}')">
+        <td colspan="6" class="font-serif fs-10 uppercase ls-0_1em c-g70" style="padding:6px 7px 4px;border-top:1px solid rgba(200,151,30,.15);background:rgba(200,151,30,.04);">
+          ${arrow} ${fam} Skills <span class="o-55 c-dim">(${totalInFam})</span>${trainedSubset}
         </td>
       </tr>`);
       prevFam = fam;
@@ -324,7 +324,7 @@ function renderSkills(){
       ? `${baseTitle}\n\n${condNotes.join('\n')}`
       : baseTitle;
     const condIndicator = condNotes.length > 0
-      ? `<span style="font-size:10px;color:var(--tv70);margin-left:4px;cursor:help;" title="${escapeHTML(condNotes.join('\n'))}">⚜${condNotes.length}</span>`
+      ? `<span class="fs-10 ml-4 cursor-help" style="color:var(--tv70);" title="${escapeHTML(condNotes.join('\n'))}">⚜${condNotes.length}</span>`
       : '';
     // v8.5.1/v8.5.2: toolkit-dependency advisory marker. v8.5.2 makes it
     // ownership-aware via the Gear tab's c.items (⚒✓ = satisfying kit owned,
@@ -335,7 +335,7 @@ function renderSkills(){
         ? `<span style="font-size:10px;color:rgba(120,200,140,.9);margin-left:4px;cursor:help;" title="${escapeHTML('Satisfied by: ' + _tkSat.by.join(', ') + ' — no penalty.')}">⚒✓</span>`
         : _tkSat.partial != null
         ? `<span style="font-size:10px;color:rgba(214,184,92,.9);margin-left:4px;cursor:help;" title="${escapeHTML('Minimally equipped: ' + _tkSat.by.join(', ') + ' — the penalty drops to ' + _tkSat.partial + ' instead of −4.')}">⚒${_tkSat.partial}</span>`
-        : `<span style="font-size:10px;color:var(--tb85);margin-left:4px;cursor:help;" title="May suffer up to a -4 penalty without the appropriate tool/skill kit. Add one on the Gear tab.">⚒</span>`)
+        : `<span class="fs-10 c-tb85 ml-4 cursor-help" title="May suffer up to a -4 penalty without the appropriate tool/skill kit. Add one on the Gear tab.">⚒</span>`)
       : '';
     // v8.8.2 (Adam's Jump wiring): vertical-reach chip on the Jump row —
     // reach follows the EFFECTIVE size (HH p.173 table), so the Strong
@@ -374,10 +374,10 @@ function renderSkills(){
     const dispNm = displaySkillName(c, sk.n);
     const dossier = skillHoverText(c, sk);
     const nameHTML = dossier
-      ? `<span style="cursor:help;border-bottom:1px dotted rgba(200,151,30,.45);" title="${escapeHTML(dossier)}">${dispNm}</span>`
+      ? `<span class="cursor-help" style="border-bottom:1px dotted rgba(200,151,30,.45);" title="${escapeHTML(dossier)}">${dispNm}</span>`
       : dispNm;
     rows.push(`<tr title="${escapeHTML(provTitle)}">
-      <td style="${indent}">${nameHTML}${cls ? `<span class="sk-cls" title="${escapeHTML(provTitle)}" style="cursor:help;">class</span>` : ''}${reqAnnotation}${condIndicator}${toolkitIndicator}${jumpIndicator}</td>
+      <td style="${indent}">${nameHTML}${cls ? `<span class="cursor-help sk-cls" title="${escapeHTML(provTitle)}">class</span>` : ''}${reqAnnotation}${condIndicator}${toolkitIndicator}${jumpIndicator}</td>
       <td>${sk.k}</td><td>${amod>=0?'+':''}${amod}</td>
       <td><input type="number" class="sk-rank-inp" id="skr-${sk.n.replace(/[^a-z0-9]/gi,'_')}" value="${ranks}" min="0" max="${capMax}" oninput="updSkTot(this,'${sk.n.replace(/'/g,"\\'")}',${amod})" onchange="updSkTot(this,'${sk.n.replace(/'/g,"\\'")}',${amod});commitSkillRank(this,'${sk.n.replace(/'/g,"\\'")}')">${capChip}${costIndicator}</td>
       <td id="skm-${sk.n.replace(/[^a-z0-9]/gi,'_')}" title="${escapeHTML(miscTitle)}">${miscDisplay}</td>
@@ -386,7 +386,7 @@ function renderSkills(){
   }
 
   if (rows.length === 0) {
-    rows.push(`<tr><td colspan="6" style="padding:1.5rem;text-align:center;color:var(--g45);font-size:13px;">No skills match the current filter.</td></tr>`);
+    rows.push(`<tr><td colspan="6" class="text-center c-g45 fs-13" style="padding:1.5rem;">No skills match the current filter.</td></tr>`);
   }
   document.getElementById('sk-tbody').innerHTML = rows.join('');
 }

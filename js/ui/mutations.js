@@ -116,18 +116,18 @@ function renderMutationEffects(c) {
     for (const b of bon[target]) {
       const label = target.startsWith('skill:') ? target.slice(6)
         : ({fort:'Fort save', ref:'Reflex save', will:'Will save', naturalAC:'Natural AC'})[target] || target;
-      wired.push(`${b.value > 0 ? '+' : ''}${b.value} ${label}${b.condition ? ' (' + b.condition + ')' : ''} <span style="opacity:var(--o55);color:var(--dim);">— ${escapeHTML(b.label.replace(' (Ex)',''))}</span>`);
+      wired.push(`${b.value > 0 ? '+' : ''}${b.value} ${label}${b.condition ? ' (' + b.condition + ')' : ''} <span class="o-55 c-dim">— ${escapeHTML(b.label.replace(' (Ex)',''))}</span>`);
     }
   }
   if (!fx.length && !wired.length) { host.innerHTML = ''; return; }
   const groups = {};
   for (const e of fx) (groups[e.group] = groups[e.group] || []).push(e);
-  let html = `<div style="margin-bottom:1rem;padding:7px 10px;background:rgba(0,0,0,.18);border:1px solid rgba(196,153,212,.25);border-radius:3px;">
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--tv80);margin-bottom:4px;">Mutation Effects</div>`;
-  if (wired.length) html += `<div style="font-size:11px;color:var(--tx85);line-height:1.5;margin-bottom:3px;"><b style="color:var(--tv75);font-size:10px;">WIRED INTO STATS:</b> ${wired.join(' · ')}</div>`;
+  let html = `<div class="mb-1rem p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(196,153,212,.25);border-radius:3px;">
+    <div class="font-serif fs-10 uppercase ls-0_08em c-tv80 mb-4">Mutation Effects</div>`;
+  if (wired.length) html += `<div class="fs-11 c-tx85 lh-1_5 mb-3"><b class="fs-10" style="color:var(--tv75);">WIRED INTO STATS:</b> ${wired.join(' · ')}</div>`;
   for (const g of ['Senses & Movement', 'Natural Attacks', 'Activated', 'Notes']) {
     if (!groups[g]) continue;
-    html += `<div style="font-size:11px;color:var(--g70);line-height:1.5;"><b style="color:var(--tv75);font-size:10px;">${g.toUpperCase()}:</b> ${groups[g].map(e => `${escapeHTML(e.text)} <span style="opacity:var(--o50);color:var(--dim);">(${escapeHTML(e.from)})</span>`).join(' · ')}</div>`;
+    html += `<div class="fs-11 c-g70 lh-1_5"><b class="fs-10" style="color:var(--tv75);">${g.toUpperCase()}:</b> ${groups[g].map(e => `${escapeHTML(e.text)} <span class="o-50 c-dim">(${escapeHTML(e.from)})</span>`).join(' · ')}</div>`;
   }
   html += `</div>`;
   host.innerHTML = html;
@@ -273,30 +273,30 @@ function renderMutations() {
       + ` · package <select onchange="setSuperMutantTier(this.value)" style="font-size:10px;" title="The starting MP package chosen when Supernatural Mutation was taken (HH p.249: 'choose a mutation level with your GM's permission'; the Mutation Scale caps it). Your classification then tracks total MP — this picker only sets the grant.">${MUTATION_RULES.super_mutant_tiers.map(t => `<option value="${t.tier.toLowerCase()}" ${st.pkgKey === t.tier.toLowerCase() ? 'selected' : ''}>${t.tier} (${t.mp_grant} MP)</option>`).join('')}</select>`
     : '';
   const ppBit = st.isSuperMutant
-    ? ` · <b style="color:var(--tv90);">${pp.current}/${pp.max} super-PP</b> (<span title="Effective Super Level — the HH prints this as ‘Effective Manifester Level (EML)’, p.423: character level + Mutant racial level modifier. Super-powers manifest at this level; super-PP/day = MP + ESL² + ceil(Wis mod × ESL / 2)." style="cursor:help;">ESL ${st.eml}</span>) <button class="btn btn-sm" style="font-size:9px;padding:1px 6px;" onclick="restSuperPPClick()">Rest</button>`
+    ? ` · <b style="color:var(--tv90);">${pp.current}/${pp.max} super-PP</b> (<span title="Effective Super Level — the HH prints this as ‘Effective Manifester Level (EML)’, p.423: character level + Mutant racial level modifier. Super-powers manifest at this level; super-PP/day = MP + ESL² + ceil(Wis mod × ESL / 2)." class="cursor-help">ESL ${st.eml}</span>) <button class="fs-9 p-1-6 btn btn-sm" onclick="restSuperPPClick()">Rest</button>`
     : '';
   document.getElementById('mu-ledger').innerHTML =
-    `<span title="${escapeHTML(st.sources.join('\n') || 'no MP sources yet')}" style="cursor:help;">earned <b>${st.totalEarned}</b></span> · spent <b>${st.totalSpent}</b> · banked <b style="color:${st.balance < 0 ? 'var(--red-text)' : 'var(--gold)'};">${st.balance}</b> MP`
+    `<span title="${escapeHTML(st.sources.join('\n') || 'no MP sources yet')}" class="cursor-help">earned <b>${st.totalEarned}</b></span> · spent <b>${st.totalSpent}</b> · banked <b style="color:${st.balance < 0 ? 'var(--red-text)' : 'var(--gold)'};">${st.balance}</b> MP`
     + ` · Mutant level <b>+${st.mutantLevel}</b>${st.mutantLevel ? ' (+' + st.mutantLevel + ' ECL)' : ''}${tierSel}${ppBit}`
-    + ` <button class="btn btn-sm" style="font-size:9px;padding:1px 6px;" onclick="addMPGrantClick()">+ GM Grant</button>`
+    + ` <button class="fs-9 p-1-6 btn btn-sm" onclick="addMPGrantClick()">+ GM Grant</button>`
     // v8.67.0 (Mutant sync): the subtype's racial ability block — baked live.
-    + (st.mutantLevel > 0 ? `<div style="margin-top:4px;font-size:10.5px;color:var(--tv85);" title="HH p.29 — the Mutant subtype's racial abilities, all EXTRAORDINARY (fundamental physiology: a Null Power Field does not suppress them). Baked live from your Mutant level: Base Attack and Defense reach the cards, rows, Grapple and iteratives; HP adjusts max; saves ride the drilldowns; the skill points join the Skills-tab budget (Tech Scale 0 skills only — table-enforced).">🧬 <b>Mutant subtype (Ex):</b> Unnatural Prowess +${Math.floor(st.mutantLevel / 2)} Base Attack · +${Math.floor(st.mutantLevel / 3)} Defense · +${2 * st.mutantLevel} skill pts (Tech-0) — Unnatural Resilience +${st.mutantLevel * (5 + am(((c.attrs) || [10,10,10,10,10,10])[2]))} HP · +${Math.floor(st.mutantLevel / 2)} all saves — wired, baked live ⓘ</div>` : '');
+    + (st.mutantLevel > 0 ? `<div class="mt-4 fs-10_5 c-tv85" title="HH p.29 — the Mutant subtype's racial abilities, all EXTRAORDINARY (fundamental physiology: a Null Power Field does not suppress them). Baked live from your Mutant level: Base Attack and Defense reach the cards, rows, Grapple and iteratives; HP adjusts max; saves ride the drilldowns; the skill points join the Skills-tab budget (Tech Scale 0 skills only — table-enforced).">🧬 <b>Mutant subtype (Ex):</b> Unnatural Prowess +${Math.floor(st.mutantLevel / 2)} Base Attack · +${Math.floor(st.mutantLevel / 3)} Defense · +${2 * st.mutantLevel} skill pts (Tech-0) — Unnatural Resilience +${st.mutantLevel * (5 + am(((c.attrs) || [10,10,10,10,10,10])[2]))} HP · +${Math.floor(st.mutantLevel / 2)} all saves — wired, baked live ⓘ</div>` : '');
 
   const owned = getCharMutations(c);
   const gmGrantRows = ((c.mpGrants) || []).map((g, gi) =>
-    `<div style="padding:4px 9px;border-bottom:1px solid rgba(200,151,30,.08);font-size:11px;opacity:.75;">GM grant: <b>${g.amount > 0 ? '+' : ''}${g.amount} MP</b> — ${escapeHTML(g.reason)} <span style="opacity:var(--o50);color:var(--dim);">(${g.atDate})</span></div>`).join('');
+    `<div class="fs-11 op-0_75" style="padding:4px 9px;border-bottom:1px solid rgba(200,151,30,.08);">GM grant: <b>${g.amount > 0 ? '+' : ''}${g.amount} MP</b> — ${escapeHTML(g.reason)} <span class="o-50 c-dim">(${g.atDate})</span></div>`).join('');
   document.getElementById('mu-known-list').innerHTML = (owned.length || gmGrantRows)
     ? owned.map((m, i) => {
         const def = MUTATIONS_DB.find(x => x.name === m.name);
         const sign = m.kind === 'drawback' ? '+' : '−';
         const kindTag = m.kind === 'drawback' ? 'drawback' : (m.kind === 'attribute' ? 'attribute' : (def && def.category) || 'advantage');
-        const obv = def && def.obvious ? ` <span style="font-size:10px;color:#d4b870;cursor:help;" title="Obvious mutation — cumulative -2 Disguise to conceal">👁</span>` : '';
-        return `<div style="padding:6px 9px;border-bottom:1px solid rgba(200,151,30,.08);display:flex;justify-content:space-between;align-items:center;gap:6px;">
-          <div><b>${escapeHTML(m.name)}</b>${m.attr ? ` <span style="color:var(--gold);">(${m.attr})</span>` : ''} <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">${kindTag} · ${sign}${m.mp} MP</span>${obv}</div>
-          <button class="btn btn-sm btn-danger" style="font-size:10px;" onclick="removeMutationAt(${i})">✕</button>
+        const obv = def && def.obvious ? ` <span class="fs-10 cursor-help" style="color:#d4b870;" title="Obvious mutation — cumulative -2 Disguise to conceal">👁</span>` : '';
+        return `<div class="p-6-9 justify-between items-center gap-6" style="border-bottom:1px solid rgba(200,151,30,.08);display:flex;">
+          <div><b>${escapeHTML(m.name)}</b>${m.attr ? ` <span class="c-gold">(${m.attr})</span>` : ''} <span class="fs-10 o-60 c-dim">${kindTag} · ${sign}${m.mp} MP</span>${obv}</div>
+          <button class="fs-10 btn btn-sm btn-danger" onclick="removeMutationAt(${i})">✕</button>
         </div>`;
       }).join('') + gmGrantRows
-    : `<div style="padding:.9rem;font-size:12px;color:var(--g45);text-align:center;">No mutations yet — take Drawbacks below to earn MP, then spend it on Advantages.</div>`;
+    : `<div class="p-0_9rem fs-12 c-g45 text-center">No mutations yet — take Drawbacks below to earn MP, then spend it on Advantages.</div>`;
 
   renderMutationEffects(c);  // v8.6.0: live mechanical-effects panel
   renderMutationsBrowse();
@@ -320,18 +320,18 @@ function renderSuAttrPanel(c) {
     const bonus = owned * 4;
     const next = owned < 5 ? SU_ATTR_LADDER[owned] : null;
     const nextMp = next ? (MUTATIONS_DB.find(m => m.name === next) || {}).mp : null;
-    const state = owned === 0 ? `<span style="opacity:.45;">—</span>`
-      : `<b style="color:${owned > 1 ? '#c499d4' : 'var(--gold)'};">+${bonus}</b> <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(Ex +4${owned > 1 ? ` · Su +${(owned - 1) * 4}` : ''})</span>`;
+    const state = owned === 0 ? `<span class="op-0_45">—</span>`
+      : `<b style="color:${owned > 1 ? '#c499d4' : 'var(--gold)'};">+${bonus}</b> <span class="fs-9 o-60 c-dim">(Ex +4${owned > 1 ? ` · Su +${(owned - 1) * 4}` : ''})</span>`;
     const btn = next
       ? `<button class="btn btn-sm" style="font-size:9px;padding:1px 6px;${owned === 0 ? '' : 'border-color:rgba(196,153,212,.5);color:var(--vio);'}" title="${owned === 0
           ? `Extraordinary [${a}] — +4 EXTRAORDINARY bonus (never suppressed; an Advantage: the record lands on the 🧬 Mutations tab and bakes into the Sheet). 2 MP.`
           : `${next} (${a}) — a further +4 SUPERNATURAL bonus (total +${bonus + 4}; suppressed by a Null Power Field). Step cost ${nextMp} MP — cumulative investment ${cum[owned]} MP (HH p.424). Requires the previous tier on the same attribute.`}" onclick="buySuAttrStep('${a}')">${owned === 0 ? `+ Ex [${a}] · 2 MP` : `◈ ${next.replace('Supernatural [Attribute] ', 'Su ')} · ${nextMp} MP`}</button>`
-      : `<span style="font-size:9px;color:var(--vio);">+20 — ladder complete</span>`;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;border-bottom:1px solid rgba(200,151,30,.06);font-size:11.5px;"><span style="width:34px;font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);">${a}</span><span style="width:120px;">${state}</span>${btn}</div>`;
+      : `<span class="fs-9 c-vio">+20 — ladder complete</span>`;
+    return `<div class="items-center gap-8 p-2-0 fs-11_5" style="display:flex;border-bottom:1px solid rgba(200,151,30,.06);"><span class="font-serif fs-10 c-bronze" style="width:34px;">${a}</span><span style="width:120px;">${state}</span>${btn}</div>`;
   }).join('');
   if (typeof window._suAttrsOpen === 'undefined') window._suAttrsOpen = false;
-  el.innerHTML = `<details class="hy-det"${window._suAttrsOpen ? ' open' : ''} ontoggle="window._suAttrsOpen=this.open"><summary><span style="color:var(--vio);font-weight:bold;">✨ Extraordinary / Supernatural Attributes</span> <span class="cite cite-HH" title="Hero's Handbook pp.420-421 (the Extraordinary/Supernatural [Attribute] ladder) + p.669 (Supernatural [Attribute] I-IV as super-powers; the Extraordinary base is never suppressed, the Su tiers are)">HH 420</span>${sumBits ? ` <span style="color:rgba(200,200,160,.9);">— ${sumBits}</span>` : ' <span style="opacity:var(--o50);color:var(--dim);">— none yet</span>'}</summary><div style="padding:4px 0 2px 14px;">
-    <div style="font-size:10px;color:var(--g55);margin-bottom:4px;">Purchases record as mutations — they appear on the 🧬 Mutations tab and bake into the Sheet. The Ex base (+4) is never suppressed; the Su tiers (+4 each, to +20 total) fall to a Null Power Field. Banked: <b style="color:var(--gold);">${st.balance} MP</b>.</div>${rows}
+  el.innerHTML = `<details class="hy-det"${window._suAttrsOpen ? ' open' : ''} ontoggle="window._suAttrsOpen=this.open"><summary><span class="c-vio bold">✨ Extraordinary / Supernatural Attributes</span> <span class="cite cite-HH" title="Hero's Handbook pp.420-421 (the Extraordinary/Supernatural [Attribute] ladder) + p.669 (Supernatural [Attribute] I-IV as super-powers; the Extraordinary base is never suppressed, the Su tiers are)">HH 420</span>${sumBits ? ` <span style="color:rgba(200,200,160,.9);">— ${sumBits}</span>` : ' <span class="o-50 c-dim">— none yet</span>'}</summary><div style="padding:4px 0 2px 14px;">
+    <div class="fs-10 c-g55 mb-4">Purchases record as mutations — they appear on the 🧬 Mutations tab and bake into the Sheet. The Ex base (+4) is never suppressed; the Su tiers (+4 each, to +20 total) fall to a Null Power Field. Banked: <b class="c-gold">${st.balance} MP</b>.</div>${rows}
   </div></details>`;
 }
 // v8.83.0 (Adam's Rhad playtest): 🎭 SUPER-TALENTS on the Powers side — the
@@ -357,25 +357,25 @@ function renderSuperTalentPanel(c) {
   for (const t of shown) { (byClass[t.hero_class] = byClass[t.hero_class] || []).push(t); }
   let body = '';
   for (const hc of Object.keys(byClass).sort()) {
-    body += `<div style="font-size:10px;color:var(--g55);text-transform:uppercase;letter-spacing:.07em;margin-top:4px;">${escapeHTML(hc)}${heroClasses.has(hc) ? '' : ' <span style="color:var(--vio);">(⚿ off-class — GM territory)</span>'}</div>`;
+    body += `<div class="fs-10 c-g55 uppercase mt-4" style="letter-spacing:.07em;">${escapeHTML(hc)}${heroClasses.has(hc) ? '' : ' <span class="c-vio">(⚿ off-class — GM territory)</span>'}</div>`;
     for (const t of byClass[hc]) {
       const owned = ownedNames.includes(t.n);
       const pr = checkTalentPrereqs(t.n, c);
-      const apex = t.is_apex ? ` <span style="font-size:8px;color:var(--vio);border:1px solid rgba(196,153,212,.4);padding:0 4px;border-radius:2px;">APEX</span>` : '';
+      const apex = t.is_apex ? ` <span class="c-vio p-0-4" style="font-size:8px;border:1px solid rgba(196,153,212,.4);border-radius:2px;">APEX</span>` : '';
       const offClass = !heroClasses.has(hc);
       const buy = owned
-        ? `<span style="font-size:10px;color:#6dba88;">✓ owned</span>`
+        ? `<span class="fs-10" style="color:#6dba88;">✓ owned</span>`
         : (pr.met && !offClass)
-          ? `<button class="btn btn-sm" style="font-size:9px;padding:1px 6px;border-color:rgba(196,153,212,.5);color:var(--vio);" onclick="buySuperTalent('${escapeHTML(t.n).replace(/'/g, "\\'")}')">◈ Buy ${t.mp_cost || 0} MP</button>`
+          ? `<button class="fs-9 p-1-6 c-vio btn btn-sm" style="border-color:rgba(196,153,212,.5);" onclick="buySuperTalent('${escapeHTML(t.n).replace(/'/g, "\\'")}')">◈ Buy ${t.mp_cost || 0} MP</button>`
           : `<button class="btn btn-sm" style="font-size:9px;padding:1px 6px;opacity:.65;" title="${escapeHTML((offClass ? 'Off-class acquisition — GM territory. ' : '') + (pr.met ? '' : 'Missing: ' + pr.missing.join('; ')))}" onclick="buySuperTalent('${escapeHTML(t.n).replace(/'/g, "\\'")}', true)">⚿ GM · ${t.mp_cost || 0} MP</button>`;
-      body += `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;border-bottom:1px solid rgba(200,151,30,.06);font-size:11.5px;">
-        <span style="flex:1;cursor:help;" title="${escapeHTML((t.d || '') + (t.prereqs_text ? ' — Prerequisites: ' + t.prereqs_text : ''))}"><b style="color:${owned ? '#6dba88' : 'var(--parch)'};">${escapeHTML(t.n)}</b>${apex} <span style="font-size:9px;opacity:var(--o55);color:var(--dim);">${escapeHTML(t.tree || '')}</span></span>${buy}</div>`;
+      body += `<div class="items-center gap-8 p-2-0 fs-11_5" style="display:flex;border-bottom:1px solid rgba(200,151,30,.06);">
+        <span style="flex:1;cursor:help;" title="${escapeHTML((t.d || '') + (t.prereqs_text ? ' — Prerequisites: ' + t.prereqs_text : ''))}"><b style="color:${owned ? '#6dba88' : 'var(--parch)'};">${escapeHTML(t.n)}</b>${apex} <span class="fs-9 o-55 c-dim">${escapeHTML(t.tree || '')}</span></span>${buy}</div>`;
     }
   }
   const ownedBits = ownedNames.length ? ownedNames.map(escapeHTML).join(', ') : null;
-  el.innerHTML = `<details class="hy-det"${window._suTalOpen ? ' open' : ''} ontoggle="window._suTalOpen=this.open"><summary><span style="color:var(--vio);font-weight:bold;">🎭 Super-Talents</span> <span class="cite cite-HH" title="Hero's Handbook Ch.XI p.669 (the Hero Classes and Super-Talents table — like Super-Powers, Super-Talents require the Supernatural Mutation feat) + the talent trees, pp.63-71. MP is the whole price: no Talent selection is consumed (Adam's ruling, v8.21.1).">HH 669</span>${ownedBits ? ` <span style="color:rgba(200,200,160,.9);">— ${ownedBits}</span>` : ` <span style="opacity:var(--o50);color:var(--dim);">— none yet · ${mine.filter(t => !ownedNames.includes(t.n)).length} available to your classes</span>`}</summary><div style="padding:4px 0 2px 14px;">
-    <div style="font-size:10px;color:var(--g55);margin-bottom:2px;">MP is the whole price — no Talent slot is consumed. Purchases record on the 🎭 Talents tab and bake into the Sheet. Banked: <b style="color:var(--gold);">${st.balance} MP</b>.</div>${body}
-    <div style="margin-top:4px;"><span style="font-size:9px;opacity:.5;cursor:pointer;" onclick="window._suTalGmAll=!window._suTalGmAll;renderSuperTalentPanel(chars.find(x=>x.id===curId))">⚿ ${gmAll ? 'hide' : 'show'} other classes' Super-Talents (GM)</span></div>
+  el.innerHTML = `<details class="hy-det"${window._suTalOpen ? ' open' : ''} ontoggle="window._suTalOpen=this.open"><summary><span class="c-vio bold">🎭 Super-Talents</span> <span class="cite cite-HH" title="Hero's Handbook Ch.XI p.669 (the Hero Classes and Super-Talents table — like Super-Powers, Super-Talents require the Supernatural Mutation feat) + the talent trees, pp.63-71. MP is the whole price: no Talent selection is consumed (Adam's ruling, v8.21.1).">HH 669</span>${ownedBits ? ` <span style="color:rgba(200,200,160,.9);">— ${ownedBits}</span>` : ` <span class="o-50 c-dim">— none yet · ${mine.filter(t => !ownedNames.includes(t.n)).length} available to your classes</span>`}</summary><div style="padding:4px 0 2px 14px;">
+    <div class="fs-10 c-g55 mb-2">MP is the whole price — no Talent slot is consumed. Purchases record on the 🎭 Talents tab and bake into the Sheet. Banked: <b class="c-gold">${st.balance} MP</b>.</div>${body}
+    <div class="mt-4"><span class="fs-9 op-0_5 cursor-pointer" onclick="window._suTalGmAll=!window._suTalGmAll;renderSuperTalentPanel(chars.find(x=>x.id===curId))">⚿ ${gmAll ? 'hide' : 'show'} other classes' Super-Talents (GM)</span></div>
   </div></details>`;
 }
 async function buySuperTalent(name, gmException) {
@@ -433,15 +433,15 @@ function renderMutationsBrowse() {
     const tags = [
       m.kind === 'drawback' ? 'drawback' : (m.kind === 'attribute' ? 'attribute' : m.category),
       m.obvious ? 'obvious' : null, m.multi ? 'multi' : null, m.techMin ? 'tech-gated' : null,
-    ].filter(Boolean).map(t => `<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);margin-left:4px;">${t}</span>`).join('');
-    return `<div style="padding:6px 9px;border-bottom:1px solid rgba(200,151,30,.08);">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-        <div style="cursor:pointer;flex:1;" onclick="toggleMuDetail('${escapeHTML(m.name).replace(/'/g, "\\'")}')"><b>${escapeHTML(m.name)}</b> <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">${sign}${m.mp} MP</span>${tags} <span style="font-size:10px;opacity:var(--o40);color:var(--dim);">${open ? '▾' : '▸'}</span></div>
+    ].filter(Boolean).map(t => `<span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${t}</span>`).join('');
+    return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
+      <div class="justify-between items-center gap-6" style="display:flex;">
+        <div class="cursor-pointer flex-1" onclick="toggleMuDetail('${escapeHTML(m.name).replace(/'/g, "\\'")}')"><b>${escapeHTML(m.name)}</b> <span class="fs-10 o-60 c-dim">${sign}${m.mp} MP</span>${tags} <span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span></div>
         ${/^Supernatural \[Attribute\]/.test(m.name)
-          ? `<span style="font-size:9px;color:var(--vio);border:1px dashed rgba(196,153,212,.35);padding:2px 6px;border-radius:2px;white-space:nowrap;cursor:help;" title="v8.82.0 (Adam's taxonomy ruling): the Supernatural [Attribute] ladder is SUPERNATURAL — it shops in the ✨ Supernatural Attributes panel on the ◈ Powers tab (its records still live here and on the Sheet).">↗ ✨ Powers tab</span>`
-          : `<button class="btn btn-sm btn-pri" style="font-size:10px;" onclick="addMutationFromBrowse(${i})">+ ${m.kind === 'drawback' ? 'Take' : 'Add'}</button>`}
+          ? `<span class="fs-9 c-vio p-2-6 nowrap cursor-help" style="border:1px dashed rgba(196,153,212,.35);border-radius:2px;" title="v8.82.0 (Adam's taxonomy ruling): the Supernatural [Attribute] ladder is SUPERNATURAL — it shops in the ✨ Supernatural Attributes panel on the ◈ Powers tab (its records still live here and on the Sheet).">↗ ✨ Powers tab</span>`
+          : `<button class="fs-10 btn btn-sm btn-pri" onclick="addMutationFromBrowse(${i})">+ ${m.kind === 'drawback' ? 'Take' : 'Add'}</button>`}
       </div>
-      ${open ? `<div style="font-size:11.5px;margin-top:5px;line-height:1.55;color:var(--parch);">${m.flavor ? '<i>' + escapeHTML(m.flavor) + '</i><br>' : ''}${escapeHTML(m.benefit || m.drawback || '')}${m.special ? '<br><b>Special:</b> ' + escapeHTML(m.special) : ''}${m.prerequisite ? '<br><b>Prerequisite:</b> ' + escapeHTML(m.prerequisite) : ''}</div>` : ''}
+      ${open ? `<div class="fs-11_5 mt-5 lh-1_55 c-parch">${m.flavor ? '<i>' + escapeHTML(m.flavor) + '</i><br>' : ''}${escapeHTML(m.benefit || m.drawback || '')}${m.special ? '<br><b>Special:</b> ' + escapeHTML(m.special) : ''}${m.prerequisite ? '<br><b>Prerequisite:</b> ' + escapeHTML(m.prerequisite) : ''}</div>` : ''}
     </div>`;
-  }).join('') || `<div style="padding:.9rem;font-size:12px;color:var(--g45);text-align:center;">Nothing matches the filters.</div>`;
+  }).join('') || `<div class="p-0_9rem fs-12 c-g45 text-center">Nothing matches the filters.</div>`;
 }

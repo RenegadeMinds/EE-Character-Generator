@@ -163,10 +163,10 @@ function renderTalents(){
   const budgetEl = document.getElementById('tl-budget');
   const sources = [];
   for (const heroCls in budget.byHeroClass) {
-    sources.push(`<div>${escapeHTML(heroCls)}: <span style="color:var(--gold);">${budget.byHeroClass[heroCls]}</span> talent${budget.byHeroClass[heroCls]===1?'':'s'} <span style="font-size:11px;color:var(--g50);">(granted at L1/3/5/7/9 of this class)</span></div>`);
+    sources.push(`<div>${escapeHTML(heroCls)}: <span class="c-gold">${budget.byHeroClass[heroCls]}</span> talent${budget.byHeroClass[heroCls]===1?'':'s'} <span class="fs-11 c-g50">(granted at L1/3/5/7/9 of this class)</span></div>`);
   }
   if (budget.bonusGrants > 0) {
-    sources.push(`<div>Multi-Talented bonus: <span style="color:var(--gold);">${budget.bonusGrants}</span> talent</div>`);
+    sources.push(`<div>Multi-Talented bonus: <span class="c-gold">${budget.bonusGrants}</span> talent</div>`);
   }
   // Visual pip strip. v8.3.30: when over budget, draw the excess as
   // warning-colored filled pips beyond the entitled count.
@@ -176,24 +176,24 @@ function renderTalents(){
     if (i < budget.totalOwed) {
       // Within entitled budget: filled if picked, hollow if open.
       pips.push(i < budget.totalPicked
-        ? `<span style="color:var(--gold);">◆</span>`
-        : `<span style="color:var(--g35);">◇</span>`);
+        ? `<span class="c-gold">◆</span>`
+        : `<span class="c-g35">◇</span>`);
     } else {
       // Beyond entitled budget — these are GM-exception talents.
       pips.push(`<span style="color:#e08080;" title="Over budget — GM exception">◆</span>`);
     }
   }
   budgetEl.innerHTML =
-    (sources.length ? sources.join('') : '<div style="color:var(--g55);font-style:italic;">No talent slots earned yet.</div>') +
+    (sources.length ? sources.join('') : '<div class="c-g55 italic">No talent slots earned yet.</div>') +
     (pipMax > 0
-      ? `<div style="margin-top:6px;font-size:14px;letter-spacing:.18em;">${pips.join('')}</div>`
+      ? `<div class="mt-6 fs-14" style="letter-spacing:.18em;">${pips.join('')}</div>`
       : '');
 
   // Owned list — each talent with citation, tree, source, and Remove button
   const list = document.getElementById('tl-list');
   const owned = c.talents || [];
   if (!owned.length) {
-    list.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--g40);">No talents selected yet. Click "Browse Talents" above to add one.</div>`;
+    list.innerHTML = `<div class="p-1rem fs-13 c-g40">No talents selected yet. Click "Browse Talents" above to add one.</div>`;
   } else {
     list.innerHTML = owned.map(t => {
       const data = TALENTS_DB.find(x => x.n === t.name);
@@ -207,13 +207,13 @@ function renderTalents(){
       // v8.87.0: a grantedBy record is Energy Immunity's free pick — the tag
       // outranks the generic source label (no slot was consumed for it).
       const sourceLabel = t.grantedBy
-        ? `<span style="font-size:10px;color:#7daadc;margin-left:6px;" title="Granted free by ${escapeHTML(t.grantedBy)} — no Talent slot consumed; removed automatically if ${escapeHTML(t.grantedBy)} is removed.">◈ granted by ${escapeHTML(t.grantedBy)}</span>`
+        ? `<span class="fs-10 ml-6" style="color:#7daadc;" title="Granted free by ${escapeHTML(t.grantedBy)} — no Talent slot consumed; removed automatically if ${escapeHTML(t.grantedBy)} is removed.">◈ granted by ${escapeHTML(t.grantedBy)}</span>`
         : (t.grantedAt?.source
-        ? `<span style="font-size:10px;color:var(--g50);margin-left:6px;">from ${escapeHTML(t.grantedAt.source)}</span>`
+        ? `<span class="fs-10 c-g50 ml-6">from ${escapeHTML(t.grantedAt.source)}</span>`
         : '');
       // v8.5.0: parameterized talents display their chosen skill and remove
       // the specific name+param instance.
-      const paramText = t.param ? ` <span style="color:var(--gold);">(${escapeHTML(t.param)})</span>` : '';
+      const paramText = t.param ? ` <span class="c-gold">(${escapeHTML(t.param)})</span>` : '';
       const removeArgs = `'${t.name.replace(/'/g,"\\'")}'` + (t.param ? `, '${String(t.param).replace(/'/g,"\\'")}'` : '');
       // v8.5.0 Layer 2: Spend-AP button on AP-SPEND talents (ap_cost field),
       // wired to the existing AP pool with structured logging. A waiver from
@@ -224,16 +224,16 @@ function renderTalents(){
         const waivedBy = owned.map(o => TALENTS_DB.find(x => x.n === o.name))
           .find(o => o && Array.isArray(o.waivesApCost) && o.waivesApCost.includes(t.name));
         apButton = waivedBy
-          ? `<span style="font-size:10px;color:#6dba88;margin-right:8px;" title="AP cost waived by ${escapeHTML(waivedBy.n)}">⚡ free (${escapeHTML(waivedBy.n)})</span>`
+          ? `<span class="fs-10 mr-8" style="color:#6dba88;" title="AP cost waived by ${escapeHTML(waivedBy.n)}">⚡ free (${escapeHTML(waivedBy.n)})</span>`
           : `<button class="btn btn-sm" style="margin-right:6px;" title="Spend ${data.ap_cost} Action Point${data.ap_cost===1?'':'s'} to activate" onclick="spendTalentAP('${t.name.replace(/'/g,"\\'")}', ${data.ap_cost})">⚡ Spend ${data.ap_cost} AP</button>`;
       }
       return `<div class="feat-entry">
         <div>
           <div class="feat-nm">${escapeHTML(t.name)}${paramText}${cit} <span style="font-size:10px;color:${tierColor};margin-left:6px;text-transform:uppercase;letter-spacing:.04em;">${escapeHTML(tier)}</span>${sourceLabel}</div>
-          ${fam ? `<div style="font-size:11px;color:var(--g60);margin-top:2px;">${escapeHTML(fam)}</div>` : ''}
+          ${fam ? `<div class="fs-11 c-g60 mt-2">${escapeHTML(fam)}</div>` : ''}
           ${desc ? `<div class="feat-desc">${escapeHTML(desc)}</div>` : ''}
         </div>
-        <div style="display:flex;align-items:center;white-space:nowrap;">${apButton}<button class="btn btn-sm btn-danger" onclick="removeTalentClick(${removeArgs})">✕ Remove</button></div>
+        <div class="items-center nowrap" style="display:flex;">${apButton}<button class="btn btn-sm btn-danger" onclick="removeTalentClick(${removeArgs})">✕ Remove</button></div>
       </div>`;
     }).join('');
   }
@@ -248,12 +248,12 @@ function renderTalents(){
   const fx = computeTalentEffects(c);
   if (fx.length) {
     const fxRows = fx.map(e =>
-      `<div style="display:flex;justify-content:space-between;gap:12px;padding:2px 0;">
-        <span>${escapeHTML(e.stat)}: <b style="color:var(--gold);">${escapeHTML(e.text)}</b></span>
-        <span style="font-size:11px;color:var(--g55);text-align:right;">${escapeHTML(e.from)}</span>
+      `<div class="justify-between p-2-0" style="display:flex;gap:12px;">
+        <span>${escapeHTML(e.stat)}: <b class="c-gold">${escapeHTML(e.text)}</b></span>
+        <span class="fs-11 c-g55" style="text-align:right;">${escapeHTML(e.from)}</span>
       </div>`).join('');
-    list.innerHTML = `<div style="border:1px solid rgba(200,151,30,.25);background:rgba(200,151,30,.05);padding:8px 12px;margin-bottom:10px;font-size:13px;">
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--g70);margin-bottom:4px;">Active Talent Effects</div>
+    list.innerHTML = `<div class="p-8-12 mb-10 fs-13" style="border:1px solid rgba(200,151,30,.25);background:rgba(200,151,30,.05);">
+      <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-4">Active Talent Effects</div>
       ${fxRows}
     </div>` + list.innerHTML;
   }
@@ -441,14 +441,14 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
     }).length;
   }
   const superNote = hiddenSuper
-    ? `<div style="padding:8px 12px;font-size:12px;color:var(--tk85);border-bottom:1px solid rgba(200,151,30,.15);background:rgba(125,170,220,.05);">
+    ? `<div class="p-8-12 fs-12" style="color:var(--tk85);border-bottom:1px solid rgba(200,151,30,.15);background:rgba(125,170,220,.05);">
         <b>${hiddenSuper}</b> Super-Talent${hiddenSuper===1?'':'s'} hidden by the "Qualifies Only" filter. Super-Talents are purchased right here — they require the <b>Supernatural Mutation</b> feat and enough banked MP (adding one spends the MP automatically).
-        <button class="btn btn-sm" style="margin-left:8px;" onclick="const q=document.getElementById('talent-qual-filter'); if(q){q.value='';} filterTalents();">Show them</button>
+        <button class="ml-8 btn btn-sm" onclick="const q=document.getElementById('talent-qual-filter'); if(q){q.value='';} filterTalents();">Show them</button>
       </div>`
     : '';
 
   if (!filtered.length) {
-    list.innerHTML = `<div style="padding:1rem;font-size:13px;color:var(--g40);">No matching talents. Adjust filters or search.</div>` + superNote;
+    list.innerHTML = `<div class="p-1rem fs-13 c-g40">No matching talents. Adjust filters or search.</div>` + superNote;
     return;
   }
 
@@ -463,36 +463,36 @@ function renderTalentBrowser(searchText, classFilter, treeFilter, qualFilter) {
     // Status indicator + add button state
     let statusBadge, addBtn;
     if (cur === 'owned') {
-      statusBadge = `<span style="font-size:10px;color:var(--g65);margin-left:6px;">⚿ owned</span>`;
+      statusBadge = `<span class="fs-10 c-g65 ml-6">⚿ owned</span>`;
       addBtn = t.takeable === 'multiple'
         ? `<button class="btn btn-sm btn-pri" onclick="addTalentFromBrowser('${t.n.replace(/'/g,"\\'")}')">+ Add Again</button>`
-        : `<button class="btn btn-sm" disabled style="opacity:.5;">Owned</button>`;
+        : `<button class="op-0_5 btn btn-sm" disabled>Owned</button>`;
     } else if (cur === 'qualifies') {
-      statusBadge = `<span style="font-size:10px;color:#6dba88;margin-left:6px;">✓ qualifies</span>`;
+      statusBadge = `<span class="fs-10 ml-6" style="color:#6dba88;">✓ qualifies</span>`;
       addBtn = `<button class="btn btn-sm btn-pri" onclick="addTalentFromBrowser('${t.n.replace(/'/g,"\\'")}')">+ Add</button>`;
     } else if (cur === 'gmverify') {
-      statusBadge = `<span style="font-size:10px;color:var(--g65);margin-left:6px;">⚠ GM-verify</span>
-        <div style="font-size:11px;color:var(--g55);margin-top:2px;">${escapeHTML(r.missing.join(' · '))}</div>`;
+      statusBadge = `<span class="fs-10 c-g65 ml-6">⚠ GM-verify</span>
+        <div class="fs-11 c-g55 mt-2">${escapeHTML(r.missing.join(' · '))}</div>`;
       addBtn = `<button class="btn btn-sm btn-pri" onclick="addTalentFromBrowser('${t.n.replace(/'/g,"\\'")}')">+ Add</button>`;
     } else {
-      statusBadge = `<span style="font-size:10px;color:var(--red-text);margin-left:6px;">✗ missing prereqs</span>
-        <div style="font-size:11px;color:var(--g55);margin-top:2px;">${escapeHTML(r.missing.join(' · '))}</div>`;
-      addBtn = `<button class="btn btn-sm" disabled style="opacity:.5;">Locked</button>`;
+      statusBadge = `<span class="fs-10 c-red-text ml-6">✗ missing prereqs</span>
+        <div class="fs-11 c-g55 mt-2">${escapeHTML(r.missing.join(' · '))}</div>`;
+      addBtn = `<button class="op-0_5 btn btn-sm" disabled>Locked</button>`;
     }
 
     const tierColor = tier === 'Apex Super-Talent' ? '#c499d4'
                     : tier === 'Super-Talent' ? '#7daadc'
                     : 'var(--g65)';
     const tierTag = `<span style="font-size:10px;color:${tierColor};margin-left:6px;text-transform:uppercase;letter-spacing:.04em;">${escapeHTML(tier)}</span>`;
-    const mpTag = t.mp_cost ? `<span style="font-size:10px;color:var(--tv70);margin-left:4px;">${t.mp_cost} MP</span>` : '';
+    const mpTag = t.mp_cost ? `<span class="fs-10 ml-4" style="color:var(--tv70);">${t.mp_cost} MP</span>` : '';
     const prereqLine = prereqText
-      ? `<div class="feat-pre" style="font-size:11px;color:var(--g60);margin-top:2px;">Prereq: ${escapeHTML(prereqText)}</div>`
+      ? `<div class="fs-11 c-g60 mt-2 feat-pre">Prereq: ${escapeHTML(prereqText)}</div>`
       : '';
 
     return `<div class="feat-entry">
       <div>
         <div class="feat-nm">${escapeHTML(t.n)}${citeHTML('talents', t.n)}${tierTag}${mpTag}${statusBadge}</div>
-        ${fam ? `<div style="font-size:11px;color:var(--g55);margin-top:2px;">${escapeHTML(fam)}</div>` : ''}
+        ${fam ? `<div class="fs-11 c-g55 mt-2">${escapeHTML(fam)}</div>` : ''}
         ${prereqLine}
         ${desc ? `<div class="feat-desc">${escapeHTML(desc)}</div>` : ''}
       </div>

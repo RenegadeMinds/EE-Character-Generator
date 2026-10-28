@@ -39,23 +39,23 @@ function renderArmorIntegrity(c) {
       + (prof ? '\nProficient: the WEARER chooses how remaining damage is split.' : '\n⚠ NOT proficient: the ATTACKER chooses the split (hardness still applies first).')
       + (g.selfRepairing ? '\nSelf-Repairing gadget: 1 HP/minute; fully restored by a night’s rest.' : '\nArmor does not heal on its own — repairs need the Repair skill (tool kit; task table HH p.181) or services.');
     const state = g.destroyed
-      ? `<span style="color:#999;font-size:10px;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max): beyond repair, salvage only (HH p.181 rule). GM may adjudicate restoration.</span>`
+      ? `<span class="fs-10" style="color:#999;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max): beyond repair, salvage only (HH p.181 rule). GM may adjudicate restoration.</span>`
       : g.broken
-      ? `<span style="color:var(--red-text);font-size:10px;">⚑ BROKEN — 0 HP: no AC bonus (penalties remain); enchantment suppressed (book: lost permanently — GM adjudicates). Repairable up to ${g.destroyThreshold - 1 - g.maxHP} more damage.</span>`
+      ? `<span class="c-red-text fs-10">⚑ BROKEN — 0 HP: no AC bonus (penalties remain); enchantment suppressed (book: lost permanently — GM adjudicates). Repairable up to ${g.destroyThreshold - 1 - g.maxHP} more damage.</span>`
       : '';
-    return `<div style="margin:5px 0;padding:4px 0;border-top:1px solid rgba(200,151,30,.12);">
-      <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;">
-        <span style="flex:1;cursor:help;" title="${escapeHTML(hardTip)}">${g.isShield ? '🛡' : '⛨'} ${escapeHTML(name)}${g.alwaysIntercede ? ' <span style="color:#78afcd;font-size:9px;" title="Power armor / Environmental Seal: always intercedes">◈</span>' : ''}${prof ? '' : ' <span style="color:#d4b870;font-size:9px;">⚠ non-proficient</span>'}</span>
-        <span style="font-size:10.5px;color:var(--g70);">Hardness <b style="color:var(--gold);">${g.hardness}</b></span>
-        <b style="color:${barColor};">${g.hp}</b><span style="opacity:var(--o55);color:var(--dim);">/${g.maxHP}</span>
-        <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" title="Incoming hit — enter the damage; the generator applies hardness and offers the split" onclick="armorIncomingHit('${it.id}')">⚔ Hit</button>
-        <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" title="Repair points of damage (Repair skill / services / GM)" onclick="armorRepair('${it.id}')">🔧</button>
+    return `<div class="p-4-0" style="margin:5px 0;border-top:1px solid rgba(200,151,30,.12);">
+      <div class="items-center gap-6 fs-11_5" style="display:flex;">
+        <span class="flex-1 cursor-help" title="${escapeHTML(hardTip)}">${g.isShield ? '🛡' : '⛨'} ${escapeHTML(name)}${g.alwaysIntercede ? ' <span class="fs-9" style="color:#78afcd;" title="Power armor / Environmental Seal: always intercedes">◈</span>' : ''}${prof ? '' : ' <span class="fs-9" style="color:#d4b870;">⚠ non-proficient</span>'}</span>
+        <span class="fs-10_5 c-g70">Hardness <b class="c-gold">${g.hardness}</b></span>
+        <b style="color:${barColor};">${g.hp}</b><span class="o-55 c-dim">/${g.maxHP}</span>
+        <button class="fs-10 p-0-6 btn btn-sm" title="Incoming hit — enter the damage; the generator applies hardness and offers the split" onclick="armorIncomingHit('${it.id}')">⚔ Hit</button>
+        <button class="fs-10 p-0-6 btn btn-sm" title="Repair points of damage (Repair skill / services / GM)" onclick="armorRepair('${it.id}')">🔧</button>
       </div>
-      <div class="bar-wrap" style="height:5px;margin-top:2px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+      <div class="mt-2 bar-wrap" style="height:5px;"><div class="bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
       ${state}
     </div>`;
   }).join('');
-  host.innerHTML = `<div class="sec-head sm">Armor Integrity <span style="font-size:9px;color:var(--g45);text-transform:none;letter-spacing:0;">· T/ACtical (HH p.382)</span></div>` + rows;
+  host.innerHTML = `<div class="sec-head sm">Armor Integrity <span class="fs-9 c-g45 normal-case ls-0">· T/ACtical (HH p.382)</span></div>` + rows;
 }
 // The incoming-hit calculator. Input "damage [hardness-ignored]" (a magic
 // weapon ignores 5/enh point, vibro-blades all); hardness reduces first, then

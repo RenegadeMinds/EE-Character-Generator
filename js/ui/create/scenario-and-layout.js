@@ -330,7 +330,7 @@ function initCreateAccordion(){
   if(page&&!document.getElementById('create-mini-nav')){
     const nav=document.createElement('div');
     nav.id='create-mini-nav';
-    nav.innerHTML='<span style="font-family:\'Epics Serif\',\'Cinzel\',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g55);margin-right:4px;">Sections</span>'
+    nav.innerHTML='<span class="fs-9 uppercase ls-0_1em c-g55 mr-4" style="font-family:\'Epics Serif\',\'Cinzel\',serif;">Sections</span>'
       +CREATE_SECTIONS.map(s=>`<button type="button" onclick="gotoCreateSection('${s.id}')" title="${s.label}">${s.num}. ${s.label}</button>`).join('');
     page.insertBefore(nav, page.firstElementChild);
   }
@@ -406,13 +406,13 @@ function promptScenarioPresetChange(presetName, diffs, preset){
   const body = document.getElementById('six-levels-confirm-body');
   const diffLines = diffs.map(d => {
     const def = SIX_LEVELS[d.axis];
-    return `<div><b style="color:var(--gold);">${def?.label||d.axis}</b>: ${d.oldVal} → ${d.newVal}</div>`;
+    return `<div><b class="c-gold">${def?.label||d.axis}</b>: ${d.oldVal} → ${d.newVal}</div>`;
   }).join('');
   body.innerHTML = `
-    <p style="margin:0 0 .75rem 0;">You're switching to the
-      <b style="color:var(--gold);">${escapeHTML(presetName)}</b> scenario preset,
+    <p class="m-0-0-0_75rem-0">You're switching to the
+      <b class="c-gold">${escapeHTML(presetName)}</b> scenario preset,
       which changes ${diffs.length} Six Scales axis${diffs.length===1?'':'es'}:</p>
-    <div style="font-size:11.5px;padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);margin:0 0 .75rem 0;">
+    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);">
       ${diffLines}
     </div>
     <p style="margin:0 0 .5rem 0;">The Six Scales axes define the scenario's
@@ -420,11 +420,11 @@ function promptScenarioPresetChange(presetName, diffs, preset){
       normally reserved for plot-driven moments — a campaign moving from one
       setting to another, a GM retconning the scenario, or a major in-fiction
       shift.</p>
-    <p style="margin:0;font-size:12px;color:var(--g70);"><b>Note:</b>
+    <p class="m-0 fs-12 c-g70"><b>Note:</b>
       Existing feats, classes, talents, and other choices that were gated by
       the old values won't be automatically reviewed. You (or your GM) should
       audit the character for newly-invalid choices.</p>
-    <p style="margin:.75rem 0 0 0;font-size:12px;color:var(--g85);">
+    <p class="fs-12 c-g85" style="margin:.75rem 0 0 0;">
       Confirming will save the character immediately with the new preset.</p>
   `;
   document.getElementById('six-levels-confirm-modal').classList.add('open');
@@ -463,10 +463,10 @@ function promptSixLevelChange(change){
   const newDesc = (def?.tiers?.[change.newVal]) || '(unknown)';
   const body = document.getElementById('six-levels-confirm-body');
   body.innerHTML = `
-    <p style="margin:0 0 .75rem 0;">You're changing the
-      <b style="color:var(--gold);">${def?.label || change.axis}</b> axis from
+    <p class="m-0-0-0_75rem-0">You're changing the
+      <b class="c-gold">${def?.label || change.axis}</b> axis from
       <b>${change.oldVal}</b> to <b>${change.newVal}</b>.</p>
-    <div style="font-size:11.5px;padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);margin:0 0 .75rem 0;">
+    <div class="fs-11_5 m-0-0-0_75rem-0" style="padding:.5rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);">
       <div style="margin-bottom:.4rem;"><b>From ${change.oldVal}:</b> ${escapeHTML(oldDesc)}</div>
       <div><b>To ${change.newVal}:</b> ${escapeHTML(newDesc)}</div>
     </div>
@@ -475,11 +475,11 @@ function promptSixLevelChange(change){
       reserved for plot-driven moments — the emergence of magic, the awakening
       of psionics, a technological revolution, or a GM retconning a setting
       fact.</p>
-    <p style="margin:0;font-size:12px;color:var(--g70);"><b>Note:</b>
+    <p class="m-0 fs-12 c-g70"><b>Note:</b>
       Existing feats, classes, talents, and other choices that were gated by
       the old value won't be automatically reviewed. You (or your GM) should
       audit the character for newly-invalid choices.</p>
-    <p style="margin:.75rem 0 0 0;font-size:12px;color:var(--g85);">
+    <p class="fs-12 c-g85" style="margin:.75rem 0 0 0;">
       Confirming will save the character immediately with the new value.</p>
   `;
   document.getElementById('six-levels-confirm-modal').classList.add('open');
@@ -544,8 +544,8 @@ function promptFirstSaveSixLevels(){
     const lvl = sl[a]||0;
     const desc = def?.tiers?.[lvl] || '(unknown)';
     return `<div style="margin-bottom:.35rem;">
-      <b style="color:var(--gold);">${def?.label || a} ${lvl}</b>
-      <span style="color:var(--g70);"> — ${escapeHTML(desc)}</span>
+      <b class="c-gold">${def?.label || a} ${lvl}</b>
+      <span class="c-g70"> — ${escapeHTML(desc)}</span>
     </div>`;
   }).join('');
   document.getElementById('six-levels-firstsave-recap').innerHTML = recap;
@@ -574,7 +574,7 @@ function updateSixLevelsSummary(){
   const lines=axes.map(a=>{
     const def=SIX_LEVELS[a];
     const lvl=sl[a];
-    return`<b style="color:var(--gold);">${def.short} ${lvl}</b>: ${def.tiers[lvl]}`;
+    return`<b class="c-gold">${def.short} ${lvl}</b>: ${def.tiers[lvl]}`;
   });
   document.getElementById('six-levels-summary').innerHTML=lines.join('<br>');
   // v8.3.24: also refresh the Scenario Title display from current axes.

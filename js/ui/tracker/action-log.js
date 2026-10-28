@@ -27,7 +27,7 @@
 
 function renderLog(c){
   const el=document.getElementById('tr-log');
-  if(!(c.log||[]).length){el.innerHTML=`<div style="font-size:12px;color:var(--g30);padding:.75rem 0;">No entries yet.</div>`;return;}
+  if(!(c.log||[]).length){el.innerHTML=`<div class="fs-12" style="color:var(--g30);padding:.75rem 0;">No entries yet.</div>`;return;}
   el.innerHTML=[...(c.log||[])].reverse().map(e=>`<div class="log-entry"><div class="log-time">${e.time}</div>${e.text}</div>`).join('');
 }
 function logAct(txt){const c=chars.find(x=>x.id===curId);if(!c)return;if(!c.log)c.log=[];c.log.push({time:new Date().toLocaleString(),text:txt});save();renderLog(c);}
@@ -121,7 +121,7 @@ function renderActionLog(c) {
   if (!el) return;
   const entries = (c.actionLog || []).slice().reverse(); // newest first
   if (entries.length === 0) {
-    el.innerHTML = `<div style="font-size:11px;color:var(--g35);padding:.5rem 0;font-style:italic;">No AP/FP events logged yet. Spends and manual restores will appear here.</div>`;
+    el.innerHTML = `<div class="fs-11 c-g35 italic" style="padding:.5rem 0;">No AP/FP events logged yet. Spends and manual restores will appear here.</div>`;
     return;
   }
   el.innerHTML = entries.map(e => {
@@ -147,24 +147,24 @@ function renderActionLog(c) {
       ? `<span style="font-size:10.5px;color:${kindLabel.color};font-weight:600;">${escapeHTML(e.option)}</span>`
       : '';
     const noteText = e.note
-      ? `<span style="font-size:10.5px;color:var(--g65);font-style:italic;">"${escapeHTML(e.note)}"</span>`
-      : `<button type="button" style="background:none;border:none;color:var(--g45);font-size:10px;cursor:pointer;padding:0;text-decoration:underline;" onclick="onActionLogNoteEditStart('${escapeHTML(e.id)}')">✎ add note</button>`;
+      ? `<span class="fs-10_5 c-g65 italic">"${escapeHTML(e.note)}"</span>`
+      : `<button type="button" class="border-none c-g45 fs-10 cursor-pointer p-0" style="background:none;text-decoration:underline;" onclick="onActionLogNoteEditStart('${escapeHTML(e.id)}')">✎ add note</button>`;
     const editBtn = e.note
-      ? `<button type="button" style="background:none;border:none;color:var(--g40);font-size:10px;cursor:pointer;padding:0 0 0 4px;" onclick="onActionLogNoteEditStart('${escapeHTML(e.id)}')" title="Edit note">✎</button>`
+      ? `<button type="button" class="border-none c-g40 fs-10 cursor-pointer" style="background:none;padding:0 0 0 4px;" onclick="onActionLogNoteEditStart('${escapeHTML(e.id)}')" title="Edit note">✎</button>`
       : '';
     const bgTint = isFP ? 'rgba(196,153,212,.04)' : 'rgba(200,151,30,.03)';
     const borderTint = isFP ? 'rgba(196,153,212,.3)' : 'rgba(200,151,30,.2)';
     const deltaAbs = Math.abs(e.delta || 1);
     return `<div class="al-entry" data-entry-id="${escapeHTML(e.id)}" style="margin:5px 0;padding:6px 9px;background:${bgTint};border-left:2px solid ${borderTint};border-radius:2px;">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:var(--g55);">
-        <span>${escapeHTML(e.time)} <span style="color:var(--g40);">· L${e.level||1}</span></span>
+      <div class="justify-between items-baseline fs-10_5 c-g55" style="display:flex;">
+        <span>${escapeHTML(e.time)} <span class="c-g40">· L${e.level||1}</span></span>
         <span style="font-weight:600;color:${kindLabel.color};">${kindLabel.sign}${deltaAbs} ${kindLabel.text}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;gap:8px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:120px;">${optionTag}</div>
-        <div style="font-size:10.5px;color:var(--g45);">${balanceText}</div>
+      <div class="justify-between items-baseline mt-3 gap-8 flex-wrap" style="display:flex;">
+        <div class="flex-1" style="min-width:120px;">${optionTag}</div>
+        <div class="fs-10_5 c-g45">${balanceText}</div>
       </div>
-      <div class="al-note-row" style="margin-top:3px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <div class="mt-3 items-center gap-4 flex-wrap al-note-row" style="display:flex;">
         ${noteText}${editBtn}
       </div>
     </div>`;
@@ -179,8 +179,8 @@ function onActionLogNoteEditStart(entryId) {
   const c = chars.find(x => x.id === curId);
   const existing = (c && (c.actionLog || []).find(e => e.id === entryId)?.note) || '';
   noteRow.innerHTML = `
-    <input type="text" class="al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="flex:1;min-width:160px;font-size:11px;background:rgba(0,0,0,.35);color:var(--gold);border:1px solid rgba(200,151,30,.4);border-radius:2px;padding:2px 6px;">
-    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" style="background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✓</button>
+    <input type="text" class="flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.4);border-radius:2px;">
+    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="p-2-6 fs-10 cursor-pointer" style="background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);border-radius:2px;">✓</button>
     <button type="button" onclick="renderActionLog(chars.find(x=>x.id===curId))" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
   `;
   const inp = noteRow.querySelector('input');

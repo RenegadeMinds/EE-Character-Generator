@@ -156,13 +156,13 @@ function hbgRenderList() {
           : `+${r.ac_bonus} AC · ${r.type}${r.hb_substance ? ` · ${r.hb_substance} (hardness ${r.hb_hardness})` : ''} · ${r.weight}`)
           + (r.hb_gadget ? ` · ⚙ ${r.hb_gadget} (standard feature)` : '')
           + (r.hb_tech ? [r.hb_tech.aa ? (r.hb_tech.aa === 4 ? ' · ⚡⛏ Power Wpn' : ` · ⛏ AA ${['','I','II','III'][r.hb_tech.aa]}`) : '', r.hb_tech.stun ? ' · Stun Pulse' : '', r.hb_tech.emp ? ' · EMP' : '', r.hb_tech.reach ? ' · Reach +5′' : '', r.hb_tech.heavyCrit ? ' · ×3' : '', r.hb_tech.powerPack ? ' · ⚡pack' : ''].join('') : '');
-        return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid rgba(200,151,30,.08);font-size:12px;">
-          <div><b>${escapeHTML(r.name)}</b> <span style="font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
-            <div style="font-size:10.5px;opacity:.6;">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
-          <button class="btn btn-sm btn-danger" style="font-size:10px;" onclick="hbgDelete(${i})">✕</button>
+        return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
+          <div><b>${escapeHTML(r.name)}</b> <span class="fs-9 p-1-5" style="border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
+            <div class="fs-10_5 op-0_6">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
+          <button class="fs-10 btn btn-sm btn-danger" onclick="hbgDelete(${i})">✕</button>
         </div>`;
       }).join('')
-    : '<div style="padding:5px 6px;font-size:11px;opacity:var(--o50);color:var(--dim);">Nothing forged yet — weapons and armor you author here join the shop catalogues and export as a file for your players.</div>';
+    : '<div class="fs-11 o-50 c-dim" style="padding:5px 6px;">Nothing forged yet — weapons and armor you author here join the shop catalogues and export as a file for your players.</div>';
 }
 function hbgExport() {
   const blob = new Blob([JSON.stringify({ _kind: 'ee-homebrew-gear', v: 1, gear: homebrewGear }, null, 1)], { type: 'application/json' });
@@ -241,18 +241,18 @@ function hbRenderList() {
   el.innerHTML = homebrewFeats.length
     ? homebrewFeats.map((r, i) => {
         const has = c && (c.feats || []).some(f => (f.name || f.n) === r.name);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-top:1px solid rgba(200,151,30,.12);font-size:11.5px;">
-          <span>🌍 <b>${escapeHTML(r.name)}</b> <span style="opacity:var(--o60);color:var(--dim);">[${escapeHTML(r.family)}] ${escapeHTML(hbAdjSummary(r))}</span>${r.desc ? ` <span style="opacity:.45;cursor:help;" title="${escapeHTML(r.desc)}">✎</span>` : ''}</span>
-          <span style="margin-left:auto;display:inline-flex;gap:5px;">
+        return `<div class="items-center gap-8 fs-11_5" style="display:flex;padding:4px 6px;border-top:1px solid rgba(200,151,30,.12);">
+          <span>🌍 <b>${escapeHTML(r.name)}</b> <span class="o-60 c-dim">[${escapeHTML(r.family)}] ${escapeHTML(hbAdjSummary(r))}</span>${r.desc ? ` <span class="op-0_45 cursor-help" title="${escapeHTML(r.desc)}">✎</span>` : ''}</span>
+          <span class="ml-auto gap-5" style="display:inline-flex;">
             ${c ? (has
-              ? `<button class="btn btn-sm" style="font-size:10px;padding:1px 7px;" onclick="hbRevoke(${i})" title="Remove from ${escapeHTML(c.name)} — reverses the attribute bake (and its HP effect) and withdraws the granted feats this grant added.">↩ Revoke</button>`
-              : `<button class="btn btn-sm btn-pri" style="font-size:10px;padding:1px 7px;" onclick="hbGrant(${i})" title="Grant to ${escapeHTML(c.name)} — free: no slot, no budget, prereqs waived.">＋ Grant</button>`)
-              : '<span style="font-size:10px;opacity:var(--o40);color:var(--dim);">select a hero</span>'}
-            <button class="btn btn-sm" style="font-size:10px;padding:1px 7px;" onclick="hbExport(${i})" title="Download this feat as a file.">⬇</button>
-            <button class="btn btn-sm" style="font-size:10px;padding:1px 7px;" onclick="hbDelete(${i})" title="Remove from the library. Heroes already carrying it are untouched (their snapshot is self-contained).">✕</button>
+              ? `<button class="fs-10 p-1-7 btn btn-sm" onclick="hbRevoke(${i})" title="Remove from ${escapeHTML(c.name)} — reverses the attribute bake (and its HP effect) and withdraws the granted feats this grant added.">↩ Revoke</button>`
+              : `<button class="fs-10 p-1-7 btn btn-sm btn-pri" onclick="hbGrant(${i})" title="Grant to ${escapeHTML(c.name)} — free: no slot, no budget, prereqs waived.">＋ Grant</button>`)
+              : '<span class="fs-10 o-40 c-dim">select a hero</span>'}
+            <button class="fs-10 p-1-7 btn btn-sm" onclick="hbExport(${i})" title="Download this feat as a file.">⬇</button>
+            <button class="fs-10 p-1-7 btn btn-sm" onclick="hbDelete(${i})" title="Remove from the library. Heroes already carrying it are untouched (their snapshot is self-contained).">✕</button>
           </span></div>`;
       }).join('')
-    : '<div style="padding:5px 6px;font-size:11px;opacity:var(--o50);color:var(--dim);">Nothing established yet — homebrew feats you author here can be granted to any hero and exported as a file for your players.</div>';
+    : '<div class="fs-11 o-50 c-dim" style="padding:5px 6px;">Nothing established yet — homebrew feats you author here can be granted to any hero and exported as a file for your players.</div>';
 }
 let _hbPendingGrant = null;
 function hbGrant(i) {

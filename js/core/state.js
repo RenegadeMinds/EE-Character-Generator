@@ -46,7 +46,7 @@ function storageBannerCheck() {
     const d = document.createElement('div');
     d.id = 'storage-warn';
     d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:600;background:#4a1a1a;color:#f0c8c8;padding:8px 14px;font-size:12.5px;line-height:1.4;text-align:center;border-top:2px solid #a05050;font-family:sans-serif;';
-    d.innerHTML = '⚠ <b>Saving is unavailable in this viewer.</b> The generator is running in demo mode — characters will NOT persist. For the full experience, download the file and open it directly in your browser, or use a hosted copy. <button onclick="this.parentElement.remove()" style="margin-left:8px;font-size:11px;">✕</button>';
+    d.innerHTML = '⚠ <b>Saving is unavailable in this viewer.</b> The generator is running in demo mode — characters will NOT persist. For the full experience, download the file and open it directly in your browser, or use a hosted copy. <button onclick="this.parentElement.remove()" class="ml-8 fs-11">✕</button>';
     document.body.appendChild(d);
   } catch (e) {}
 }

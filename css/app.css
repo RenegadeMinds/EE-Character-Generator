@@ -14,6 +14,11 @@
      (commit 1c1044b), moved here unchanged by
      tools/split_index.py.
    ========================================================================== */
+
+/* Everything below is in the cascade layer "app", so that the single-purpose
+   classes in css/utilities.css (not layered) win over it, the way the inline
+   style="..." attributes they replace did. See css/utilities.css. */
+@layer app {
 /* ---- verbatim from index.html v9.19.0, lines 75-449; unchanged below this line ---- */
 :root{--parch:#f5eed8;--parch-dk:#e8dbb8;--parch-deep:#d4c490;--ink:#1a1408;--ink-mid:#3d2f0e;--ink-lt:#6b5320;--gold:#c8971e;--bronze:#a0722a;--red:#8b1a1a;--panel:#2a1f0a;--panel-lt:#3d2e10;--shadow:rgba(26,20,8,.5);--state-surplus:#8ab87a;--state-exact:#7ba8c4;--state-warning:#d4b870;--state-error:#d47070}
 /* ===== v9.17.0 (§277): THREE THEMES, ONE SET OF TOKENS ==================
@@ -390,3 +395,4 @@ details.race-det>summary:hover{background:rgba(200,151,30,.19)}
 .site-logo{height:78px;border-radius:9px;border:1px solid rgba(200,151,30,.55);box-shadow:0 2px 12px rgba(0,0,0,.55)}
 .ps-logo{height:48px;align-self:center;border-radius:4px}
 @media (max-width:560px){.site-logo{height:56px}}
+} /* end @layer app */

@@ -48,12 +48,12 @@ function psiFocusChipHTML(c) {
   const locked = psiFocusLocked(c);
   const medit = (c.feats || []).some(f => f.name === 'Psionic Meditation');
   const state = locked
-    ? `<b style="color:var(--vio);">🧿 locked</b> <span style="opacity:var(--o60);color:var(--dim);">(sustaining the Second Skin)</span>`
+    ? `<b class="c-vio">🧿 locked</b> <span class="o-60 c-dim">(sustaining the Second Skin)</span>`
     : c.psiFocused
     ? `<b style="color:#6dba88;">● focused</b>`
-    : `<b style="opacity:.6;">○ unfocused</b>`;
+    : `<b class="op-0_6">○ unfocused</b>`;
   const btn = locked ? '' : c.psiFocused
-    ? `<button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="expendPsiFocus('manual (declared at the table)')" title="Expend the focus (Power feats, Power Penetration, Slippery Mind, ki features...)">Expend</button>`
-    : `<button class="btn btn-sm" style="font-size:10px;padding:4px 8px;min-height:24px;" onclick="gainPsiFocus()" title="${medit ? 'Move action (Psionic Meditation)' : 'Full-round action'} — Concentration DC 20">Gain focus</button>`;
-  return `<div style="font-size:11.5px;margin:3px 0;display:flex;align-items:center;gap:6px;"><span style="cursor:help;" title="Psionic focus (HH p.354): a full-round action to gain (move action with Psionic Meditation), held until expended. While focused: Still Mind (+2 Will vs mind-affecting, Monk 3+), Speed of Thought (+10′ out of heavy armor), Up the Wall... Expending powers Power feats, Power Penetration, Slippery Mind, and the Monk's ki riders.">Psionic focus:</span> ${state} ${btn}</div>`;
+    ? `<button class="fs-10 p-0-6 btn btn-sm" onclick="expendPsiFocus('manual (declared at the table)')" title="Expend the focus (Power feats, Power Penetration, Slippery Mind, ki features...)">Expend</button>`
+    : `<button class="fs-10 p-4-8 btn btn-sm" style="min-height:24px;" onclick="gainPsiFocus()" title="${medit ? 'Move action (Psionic Meditation)' : 'Full-round action'} — Concentration DC 20">Gain focus</button>`;
+  return `<div class="fs-11_5 m-3-0 items-center gap-6" style="display:flex;"><span class="cursor-help" title="Psionic focus (HH p.354): a full-round action to gain (move action with Psionic Meditation), held until expended. While focused: Still Mind (+2 Will vs mind-affecting, Monk 3+), Speed of Thought (+10′ out of heavy armor), Up the Wall... Expending powers Power feats, Power Penetration, Slippery Mind, and the Monk's ki riders.">Psionic focus:</span> ${state} ${btn}</div>`;
 }

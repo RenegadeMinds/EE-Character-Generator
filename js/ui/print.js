@@ -71,7 +71,7 @@ function printSheet(){
   const psSpdCell = `<div class="ps-stat"><span class="ps-stat-lbl">Speed</span><span class="ps-stat-val">${psSpd.walk}′</span></div>`;
   const psSR = computeSR(c);
   const psSRCell = psSR ? `<div class="ps-stat"><span class="ps-stat-lbl">Spell Resist</span><span class="ps-stat-val">${psSR.total}</span></div>` : '';
-  const psSpdFoot = `<div style="font-size:6.5pt;color:#888;margin-top:2px;">Speed: ${psSpd.parts.join(' · ')} · Run ${psSpd.run}${psSpd.modes.map(m=>` · ${m.type} ${m.speed}′ (${m.note})`).join('')}${psSR?` &nbsp;·&nbsp; SR: ${psSR.note}`:''}</div>`;
+  const psSpdFoot = `<div class="fs-6_5pt mt-2" style="color:#888;">Speed: ${psSpd.parts.join(' · ')} · Run ${psSpd.run}${psSpd.modes.map(m=>` · ${m.type} ${m.speed}′ (${m.note})`).join('')}${psSR?` &nbsp;·&nbsp; SR: ${psSR.note}`:''}</div>`;
   const psDefLine = printDefensesLine(c);
   const perDiemBlock = printPerDiemBlock(c);
   const psChoiceRows = printClassChoiceRows(c);
@@ -90,7 +90,7 @@ function printSheet(){
   // Hero level table (5 levels on print) — uses the first Hero entry, if any
   let lvlTable='';
   if(hc && firstHero){
-    lvlTable=`<table class="ps-skill-tbl" style="margin-top:4px;"><thead><tr><th>Lvl</th><th>BAB</th><th>Fort</th><th>Ref</th><th>Will</th><th>Def</th></tr></thead><tbody>
+    lvlTable=`<table class="mt-4 ps-skill-tbl"><thead><tr><th>Lvl</th><th>BAB</th><th>Fort</th><th>Ref</th><th>Will</th><th>Def</th></tr></thead><tbody>
     ${[1,2,3,4,5].map(l=>{const i=l-1;return`<tr style="${l===firstHero.level?'font-weight:bold;background:#f0ebe0;':''}""><td>${l}</td><td>+${hc.bab[i]}</td><td>+${hc.fort[i]}</td><td>+${hc.ref[i]}</td><td>+${hc.will[i]}</td><td>+${hc.def[i]}</td></tr>`}).join('')}
     </tbody></table>`;
   }
@@ -165,7 +165,7 @@ function printFeatList(c) {
       ? summarizePrereqs(data.prereqs)
       : '';
     const desc = data?.d || '';
-    return `<li><span class="ft">${displayName}</span> <span class="ftype">[${family}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span style="color:#555;font-size:7.5pt;">'+desc+'</span>':''}</li>`;
+    return `<li><span class="ft">${displayName}</span> <span class="ftype">[${family}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span class="fs-7_5pt" style="color:#555;">'+desc+'</span>':''}</li>`;
   }).join('');
   return featList;
 }
@@ -184,7 +184,7 @@ function printTalentList(c) {
     const treeLabel = tree ? `${tree.replace(/\s*Tree\s*$/, '')}` : '';
     const prereqSummary = data.prereqs_text || '';
     const desc = data.d || '';
-    return `<li><span class="ft">${t.name}${t.param?' ('+t.param+')':''}</span> <span class="ftype">[${tier}${treeLabel?'; '+treeLabel:''}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span style="color:#555;font-size:7.5pt;">'+desc+'</span>':''}</li>`;
+    return `<li><span class="ft">${t.name}${t.param?' ('+t.param+')':''}</span> <span class="ftype">[${tier}${treeLabel?'; '+treeLabel:''}${prereqSummary?'; '+prereqSummary:''}]</span>${desc?'<br><span class="fs-7_5pt" style="color:#555;">'+desc+'</span>':''}</li>`;
   }).join('');
   return talentList;
 }
@@ -219,23 +219,23 @@ function printSpellsBlock(c) {
     const slots = c.preparedSlots && c.preparedSlots[poolName];
     if (slots) for (const key in slots) {
       if (!slots[key].length) continue;
-      prepLines += `<div style="font-size:7.5pt;color:#555;"><b>Prepared (${key.replace(':',' ')}):</b> ${slots[key].map(r=>`${r.qty}× ${r.dispName||r.name} (lvl ${r.lvl}${r.free?', free':', '+r.cost+' PP'})`).join('; ')}</div>`;
+      prepLines += `<div class="fs-7_5pt" style="color:#555;"><b>Prepared (${key.replace(':',' ')}):</b> ${slots[key].map(r=>`${r.qty}× ${r.dispName||r.name} (lvl ${r.lvl}${r.free?', free':', '+r.cost+' PP'})`).join('; ')}</div>`;
     }
-    parts.push(`<div style="margin-bottom:5px;">
-        <div style="font-size:8.5pt;"><b>${eff.abbr} ${pool.cl}</b> · ${poolName} · max ${poolName === 'psionic' ? 'power' : 'spell'} lvl ${pool.maxPowerLvl} · PP ${pp.max}/day${pool.saveDcBase!=null?` · base DC ${pool.saveDcBase}+lvl`:''}${sub.length?' · '+sub.join(' · '):''}</div>
-        ${known.length?`<div style="font-size:7.5pt;color:#555;"><b>Known:</b> ${known.join(', ')}</div>`:''}
+    parts.push(`<div class="mb-5">
+        <div class="fs-8_5pt"><b>${eff.abbr} ${pool.cl}</b> · ${poolName} · max ${poolName === 'psionic' ? 'power' : 'spell'} lvl ${pool.maxPowerLvl} · PP ${pp.max}/day${pool.saveDcBase!=null?` · base DC ${pool.saveDcBase}+lvl`:''}${sub.length?' · '+sub.join(' · '):''}</div>
+        ${known.length?`<div class="fs-7_5pt" style="color:#555;"><b>Known:</b> ${known.join(', ')}</div>`:''}
         ${prepLines}
       </div>`);
   }
   if (mpSt.isSuperMutant) {
     const spp = getSuperPPState(c);
     const owned = getCharPowers(c).filter(p=>p.pool==='super').map(p=>p.name+(p.buff?' (Buff)':''));
-    parts.push(`<div style="margin-bottom:5px;">
-        <div style="font-size:8.5pt;"><b>ESL ${mpSt.eml}</b> · super (${mpSt.tier?mpSt.tier.tier:'?'}) · ${mpSt.balance} MP banked · super-PP ${spp.max}/day</div>
-        ${owned.length?`<div style="font-size:7.5pt;color:#555;"><b>Super-powers:</b> ${owned.join(', ')}</div>`:''}
+    parts.push(`<div class="mb-5">
+        <div class="fs-8_5pt"><b>ESL ${mpSt.eml}</b> · super (${mpSt.tier?mpSt.tier.tier:'?'}) · ${mpSt.balance} MP banked · super-PP ${spp.max}/day</div>
+        ${owned.length?`<div class="fs-7_5pt" style="color:#555;"><b>Super-powers:</b> ${owned.join(', ')}</div>`:''}
       </div>`);
   }
-  if (parts.length) spellsBlock = `<div class="ps-sec"><div class="ps-sec-head">Spells &amp; Powers</div><div class="ps-sec-body">${parts.join('')}<div style="font-size:6.5pt;color:#888;">PP by spell level: 0/1/3/5/7/9/11/13/15/17 (HH p.404). Prepared casters pay PP at dawn; casting a prepared spell is free. ✦ = Saint Personal Domain pick.</div></div></div>`;
+  if (parts.length) spellsBlock = `<div class="ps-sec"><div class="ps-sec-head">Spells &amp; Powers</div><div class="ps-sec-body">${parts.join('')}<div class="fs-6_5pt" style="color:#888;">PP by spell level: 0/1/3/5/7/9/11/13/15/17 (HH p.404). Prepared casters pay PP at dawn; casting a prepared spell is free. ✦ = Saint Personal Domain pick.</div></div></div>`;
   return spellsBlock;
 }
 
@@ -254,10 +254,10 @@ function printMutationsBlock(c) {
     for (const sv in (fx.saves||{})) bits.push(`${fx.saves[sv]>0?'+':''}${fx.saves[sv]} ${({fort:'Fort',ref:'Ref',will:'Will'})[sv]}`);
     if (fx.naturalAC) bits.push(`+${fx.naturalAC} natural AC`);
     for (const g of ['senses','natural','active','notes']) for (const t of (fx[g]||[])) bits.push(t);
-    return `<li><span class="ft">${m.name}${m.attr?' ('+m.attr+')':''}</span> <span class="ftype">[${m.kind}]</span>${bits.length?'<br><span style="color:#555;font-size:7.5pt;">'+bits.join(' · ')+'</span>':''}</li>`;
+    return `<li><span class="ft">${m.name}${m.attr?' ('+m.attr+')':''}</span> <span class="ftype">[${m.kind}]</span>${bits.length?'<br><span class="fs-7_5pt" style="color:#555;">'+bits.join(' · ')+'</span>':''}</li>`;
   }).join('');
   mutBlock = `<div class="ps-sec"><div class="ps-sec-head">Mutations &amp; MP</div><div class="ps-sec-body">
-      <div style="font-size:8pt;color:#555;margin-bottom:3px;">MP: earned ${st.totalEarned} · spent ${st.totalSpent} · banked ${st.balance} · Mutant Level +${st.mutantLevel}${st.mutantLevel?` (ECL +${st.mutantLevel})`:''}</div>
+      <div class="fs-8pt mb-3" style="color:#555;">MP: earned ${st.totalEarned} · spent ${st.totalSpent} · banked ${st.balance} · Mutant Level +${st.mutantLevel}${st.mutantLevel?` (ECL +${st.mutantLevel})`:''}</div>
       ${rows?`<ul class="ps-feat-list">${rows}</ul>`:''}
     </div></div>`;
   return mutBlock;
@@ -279,10 +279,10 @@ function printGearBlock(c) {
         ? `${w.fullAttack[0]>=0?'+':''}${w.fullAttack[0]} (${w.fullAttack.slice(1).map(a=>`${a>=0?'+':''}${a}`).join('/')})`
         : `${w.attackBonus>=0?'+':''}${w.attackBonus}`;
     const wAlt = (w) => (w.altModes||[]).map(m=>m.display?`${m.name}: ${m.display}`:`${m.name} ${m.atk>=0?'+':''}${m.atk}/×${m.dmgMult}`).join(', ');
-    const wRows = weapons.map(w=>`<tr><td>${w.name}${w.integratedIn?` <span style="font-size:6pt;color:#888;">(integrated in ${w.integratedIn}${w.detachable?', detachable':''})</span>`:''}${w.hand?` <span style="font-size:6pt;color:#888;">(${w.hand==='main'?'main':'off'} hand)</span>`:''}${w.ignoreHardness?` <span style="font-size:6pt;color:#888;">(ignores ${w.ignoreHardness} hardness${w.ihBane?', +10 bane':''}; GMG p.253)</span>`:''}${w.proficient?'':' ⚠'}${w.statStrip?`<div style="font-size:6pt;color:#888;">${w.statStrip}</div>`:''}${wAlt(w)?`<div style="font-size:6pt;color:#888;">${wAlt(w)}</div>`:''}</td><td class="attr">${wAtk(w)}</td><td>${w.damage||'—'}</td><td class="attr" style="font-size:6.5pt;">${w.typeLabel||(w.damageTypes||[]).join('/')||'—'}</td></tr>`).join('');
+    const wRows = weapons.map(w=>`<tr><td>${w.name}${w.integratedIn?` <span class="fs-6pt" style="color:#888;">(integrated in ${w.integratedIn}${w.detachable?', detachable':''})</span>`:''}${w.hand?` <span class="fs-6pt" style="color:#888;">(${w.hand==='main'?'main':'off'} hand)</span>`:''}${w.ignoreHardness?` <span class="fs-6pt" style="color:#888;">(ignores ${w.ignoreHardness} hardness${w.ihBane?', +10 bane':''}; GMG p.253)</span>`:''}${w.proficient?'':' ⚠'}${w.statStrip?`<div class="fs-6pt" style="color:#888;">${w.statStrip}</div>`:''}${wAlt(w)?`<div class="fs-6pt" style="color:#888;">${wAlt(w)}</div>`:''}</td><td class="attr">${wAtk(w)}</td><td>${w.damage||'—'}</td><td class="fs-6_5pt attr">${w.typeLabel||(w.damageTypes||[]).join('/')||'—'}</td></tr>`).join('');
     gearBlock = `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">
-        ${weapons.length?`<table class="ps-skill-tbl"><thead><tr><th>Weapon</th><th>Atk</th><th>Damage</th><th>Type</th></tr></thead><tbody>${wRows}</tbody></table><div style="font-size:6.5pt;color:#888;">⚠ = not proficient (−4 already included). Alternate fire modes and conditional gadget bonuses: see the Gear tab.</div>`:''}
-        ${worn.length?`<div style="font-size:8pt;margin-top:3px;"><b>Worn / held:</b> ${worn.join(', ')}</div>`:''}
+        ${weapons.length?`<table class="ps-skill-tbl"><thead><tr><th>Weapon</th><th>Atk</th><th>Damage</th><th>Type</th></tr></thead><tbody>${wRows}</tbody></table><div class="fs-6_5pt" style="color:#888;">⚠ = not proficient (−4 already included). Alternate fire modes and conditional gadget bonuses: see the Gear tab.</div>`:''}
+        ${worn.length?`<div class="fs-8pt mt-3"><b>Worn / held:</b> ${worn.join(', ')}</div>`:''}
       </div></div>`;
   }
   // v8.8.2 (Adam's Carry/Jump wiring): print parity for the table-relevant
@@ -295,7 +295,7 @@ function printGearBlock(c) {
     const pSz = SIZE_LADDER[effectiveSizeIndex(c)];
     // v8.88.0: tons past the 5-ton line (fmtCarry) + the 💥 demolition line.
     const pHi = computeHardnessIgnore(c);
-    carryBlock = `<div style="font-size:7.5pt;margin-top:3px;"><b>Carry:</b> light ≤${fmtCarry(pcc.light)} · med ≤${fmtCarry(pcc.medium)} · heavy ≤${fmtCarry(pcc.heavy)} · lift over head ${fmtCarry(pcc.liftOverHead)} · off ground ${fmtCarry(pcc.liftOffGround)} · push/drag ${fmtCarry(pcc.pushDrag)} · <b>Grapple</b> ${pgr.total>=0?'+':''}${pgr.total}${pcc.superTalents.length?` · 🦾 ×${Math.pow(4,pcc.superTalents.length)} carry, ${pSz} for natural dice/grapple/Jump (Su)`:''}${pcc.supremeEffortOwned?' · Supreme Effort: ×4 carry &amp; +1 size while performing':''}${pHi && pHi.mode === 'mangler' ? ` · 💥 ignore ${pHi.ignore} hardness, break DC −${pHi.breakDC}${pHi.instances > 1 ? ' (Mangler ×2: Titanic echo)' : ''}` : ''}</div>`;
+    carryBlock = `<div class="fs-7_5pt mt-3"><b>Carry:</b> light ≤${fmtCarry(pcc.light)} · med ≤${fmtCarry(pcc.medium)} · heavy ≤${fmtCarry(pcc.heavy)} · lift over head ${fmtCarry(pcc.liftOverHead)} · off ground ${fmtCarry(pcc.liftOffGround)} · push/drag ${fmtCarry(pcc.pushDrag)} · <b>Grapple</b> ${pgr.total>=0?'+':''}${pgr.total}${pcc.superTalents.length?` · 🦾 ×${Math.pow(4,pcc.superTalents.length)} carry, ${pSz} for natural dice/grapple/Jump (Su)`:''}${pcc.supremeEffortOwned?' · Supreme Effort: ×4 carry &amp; +1 size while performing':''}${pHi && pHi.mode === 'mangler' ? ` · 💥 ignore ${pHi.ignore} hardness, break DC −${pHi.breakDC}${pHi.instances > 1 ? ' (Mangler ×2: Titanic echo)' : ''}` : ''}</div>`;
     gearBlock = gearBlock
       ? gearBlock.replace('</div></div>', carryBlock + '</div></div>')
       : `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">${carryBlock}</div></div>`;
@@ -305,12 +305,12 @@ function printGearBlock(c) {
   {
     const extraLines = [];
     if (c.wealthScore != null && c.funds != null) {
-      extraLines.push(`<div style="font-size:7.5pt;margin-top:3px;"><b>Wealth:</b> Score ${c.wealthScore} · ${escapeHTML(fundsLabel(c.funds, scenarioTechScale(c)))}${c.funds < 0 ? ' (in debt)' : ''} <span style="color:#888;">(score tracks funds — HH p.45)</span></div>`);
+      extraLines.push(`<div class="fs-7_5pt mt-3"><b>Wealth:</b> Score ${c.wealthScore} · ${escapeHTML(fundsLabel(c.funds, scenarioTechScale(c)))}${c.funds < 0 ? ' (in debt)' : ''} <span style="color:#888;">(score tracks funds — HH p.45)</span></div>`);
     }
     if (getCyber(c).length) {
       const cyb = getCyber(c).map(r => r.n + (r.param ? ` (${r.param})` : '')).join(', ');
       const exc = cyberExcess(c);
-      extraLines.push(`<div style="font-size:7.5pt;margin-top:2px;"><b>🦾 Cybernetics:</b> ${escapeHTML(cyb)} — ${cyberCount(c)} of ${cyberMax(c)} attachments${exc ? ` · ⚠ ${exc} negative level${exc > 1 ? 's' : ''}` : ''}${getCyber(c).some(r => r.n === 'Anti-Shock Implant') ? '' : ' · ⚡ +50% electricity damage'}</div>`);
+      extraLines.push(`<div class="fs-7_5pt mt-2"><b>🦾 Cybernetics:</b> ${escapeHTML(cyb)} — ${cyberCount(c)} of ${cyberMax(c)} attachments${exc ? ` · ⚠ ${exc} negative level${exc > 1 ? 's' : ''}` : ''}${getCyber(c).some(r => r.n === 'Anti-Shock Implant') ? '' : ' · ⚡ +50% electricity damage'}</div>`);
     }
     if (extraLines.length) {
       gearBlock = gearBlock
@@ -336,7 +336,7 @@ function printDefensesLine(c) {
   const dr = computeDR(c);
   if (dr.length) bits.push(`<b>DR:</b> ${dr.map(d=>`${d.value}/${d.bypass}${d.conditional?'*':''} (${d.source})`).join(', ')}`);
   if (ri.universal) bits.push('◈ universal energy resistance');
-  if (bits.length) psDefLine = `<div style="font-size:7.5pt;margin-top:3px;">${bits.join(' &nbsp;·&nbsp; ')}${dr.some(d=>d.conditional)?'<div style="font-size:6.5pt;color:#888;">* conditional — see the Sheet for the condition. Best applicable instance applies per attack; instances never stack across sources.</div>':''}</div>`;
+  if (bits.length) psDefLine = `<div class="fs-7_5pt mt-3">${bits.join(' &nbsp;·&nbsp; ')}${dr.some(d=>d.conditional)?'<div class="fs-6_5pt" style="color:#888;">* conditional — see the Sheet for the condition. Best applicable instance applies per attack; instances never stack across sources.</div>':''}</div>`;
   return psDefLine;
 }
 
@@ -347,7 +347,7 @@ function printPerDiemBlock(c) {
   let perDiemBlock = '';
   const pdSpecs = computePerDiemAbilities(c);
   if (pdSpecs.length) {
-    const rows = pdSpecs.map(s => `<div style="font-size:8pt;margin:2px 0;"><b>${s.name}</b>${s.weekly?' <span style="font-size:6.5pt;color:#888;">(per WEEK)</span>':''} — ${s.kind==='pool'?`pool of ${s.max} pts · spent: ________`:`${s.max}/day ${psChk(s.max)}`}${s.note?`<div style="font-size:6.5pt;color:#888;">${s.note}</div>`:''}</div>`).join('');
+    const rows = pdSpecs.map(s => `<div class="fs-8pt m-2-0"><b>${s.name}</b>${s.weekly?' <span class="fs-6_5pt" style="color:#888;">(per WEEK)</span>':''} — ${s.kind==='pool'?`pool of ${s.max} pts · spent: ________`:`${s.max}/day ${psChk(s.max)}`}${s.note?`<div class="fs-6_5pt" style="color:#888;">${s.note}</div>`:''}</div>`).join('');
     perDiemBlock = `<div class="ps-sec"><div class="ps-sec-head">Per-Diem Abilities</div><div class="ps-sec-body">${rows}</div></div>`;
   }
   return perDiemBlock;
@@ -363,9 +363,9 @@ function printClassChoiceRows(c) {
   const ccPending = ccSpecs.filter(s => !s.chosen).length;
   const fe = computeFavoredEnemies(c);
   if (ccPending || fe.length) {
-    psChoiceRows = `<div style="margin-top:6px;padding-top:4px;border-top:1px solid #c8a02d;">
-      ${ccPending?`<div style="font-size:7.5pt;color:#7a5c00;"><b>⚑ ${ccPending} class choice${ccPending===1?'':'s'} pending</b> — pick in 🎓 Class Choices on the Sheet.</div>`:''}
-      ${fe.length?`<div style="font-size:7.5pt;color:#555;"><b>Favored Enemies:</b> ${fe.map(f=>`${f.type} +${f.bonus}`).join(', ')} (damage &amp; Bluff/Listen/Sense Motive/Spot/Survival vs the type)</div>`:''}</div>`;
+    psChoiceRows = `<div class="mt-6" style="padding-top:4px;border-top:1px solid #c8a02d;">
+      ${ccPending?`<div class="fs-7_5pt" style="color:#7a5c00;"><b>⚑ ${ccPending} class choice${ccPending===1?'':'s'} pending</b> — pick in 🎓 Class Choices on the Sheet.</div>`:''}
+      ${fe.length?`<div class="fs-7_5pt" style="color:#555;"><b>Favored Enemies:</b> ${fe.map(f=>`${f.type} +${f.bonus}`).join(', ')} (damage &amp; Bluff/Listen/Sense Motive/Spot/Survival vs the type)</div>`:''}</div>`;
   }
   return psChoiceRows;
 }
@@ -380,10 +380,10 @@ function printCompanionsBlock(c) {
     const d = companionDerived(comp, c);
     const kindLbl = comp.kind==='familiar'?'🦉 Familiar':comp.kind==='mount'?'🐎 Special Mount':'🐾 Animal Companion';
     const baseLine = base ? (base.ref ? `Base stats: ${base.ref}` : `${base.size} · HD ${base.hd} · AC ${base.ac} · Spd ${base.spd||'—'} · Atk ${base.fatk||base.atk} · Saves ${base.saves||'—'} · ${base.attrs||''}${base.sq?` · SQ: ${base.sq}`:''} (FF p.${base.page})`) : 'Base stats: see the Foe Folio.';
-    return `<div style="margin:3px 0;"><b style="font-size:8.5pt;">${kindLbl}: ${comp.name||comp.species}</b>${comp.name?` <span style="font-size:7pt;color:#888;">(${comp.species})</span>`:''}
-      <div style="font-size:7pt;color:#555;">${baseLine}</div>
-      <div style="font-size:7.5pt;">${d.line}</div>
-      ${d.specials?`<div style="font-size:7pt;color:#555;">Special: ${d.specials}</div>`:''}${d.perk?`<div style="font-size:7pt;color:#555;">${d.perk}</div>`:''}${d.magicalBeast?`<div style="font-size:7pt;color:#888;">${d.magicalBeast}</div>`:''}</div>`;
+    return `<div class="m-3-0"><b class="fs-8_5pt">${kindLbl}: ${comp.name||comp.species}</b>${comp.name?` <span class="fs-7pt" style="color:#888;">(${comp.species})</span>`:''}
+      <div class="fs-7pt" style="color:#555;">${baseLine}</div>
+      <div class="fs-7_5pt">${d.line}</div>
+      ${d.specials?`<div class="fs-7pt" style="color:#555;">Special: ${d.specials}</div>`:''}${d.perk?`<div class="fs-7pt" style="color:#555;">${d.perk}</div>`:''}${d.magicalBeast?`<div class="fs-7pt" style="color:#888;">${d.magicalBeast}</div>`:''}</div>`;
   }).join('');
   companionsBlock = `<div class="ps-sec"><div class="ps-sec-head">Companions</div><div class="ps-sec-body">${compCards}</div></div>`;
   return companionsBlock;
@@ -400,9 +400,9 @@ function printAddArmorIntegrity(c, gearBlock) {
       const nm = enchantDisplayName(it);
       const prof = isProficientWithArmor(c, it.ref);
       const state = g.destroyed?' · ☠ DESTROYED (salvage only)':g.broken?' · ⚑ BROKEN (no AC bonus; enchantment suppressed)':'';
-      return `<div style="font-size:7.5pt;margin:2px 0;">${g.isShield?'🛡':'⛨'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.alwaysIntercede?' · ◈ always intercedes':''}${prof?'':' · ⚠ non-proficient (ATTACKER chooses the split)'}${g.selfRepairing?' · Self-Repairing (1 HP/min; full overnight)':''}${state} · damage tally: ____________</div>`;
+      return `<div class="fs-7_5pt m-2-0">${g.isShield?'🛡':'⛨'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.alwaysIntercede?' · ◈ always intercedes':''}${prof?'':' · ⚠ non-proficient (ATTACKER chooses the split)'}${g.selfRepairing?' · Self-Repairing (1 HP/min; full overnight)':''}${state} · damage tally: ____________</div>`;
     }).join('');
-    const integ = `<div style="margin-top:4px;padding-top:3px;border-top:1px solid #ddd;"><div style="font-size:7pt;font-weight:700;color:#6b5320;">Armor Integrity (T/ACtical — HH p.382)</div>${aRows}<div style="font-size:6.5pt;color:#888;">Hits landing in [Touch AC, Total AC) strike the armor: hardness soaks first, the remainder splits (wearer's choice when proficient). Armor does not heal — Repair skill or services (HH p.181).</div></div>`;
+    const integ = `<div class="mt-4" style="padding-top:3px;border-top:1px solid #ddd;"><div class="fs-7pt" style="font-weight:700;color:#6b5320;">Armor Integrity (T/ACtical — HH p.382)</div>${aRows}<div class="fs-6_5pt" style="color:#888;">Hits landing in [Touch AC, Total AC) strike the armor: hardness soaks first, the remainder splits (wearer's choice when proficient). Armor does not heal — Repair skill or services (HH p.181).</div></div>`;
     gearBlock = gearBlock ? gearBlock.replace('</div></div>', integ + '</div></div>') : `<div class="ps-sec"><div class="ps-sec-head">Equipped Gear</div><div class="ps-sec-body">${integ}</div></div>`;
   }
   return gearBlock;
@@ -417,45 +417,45 @@ function printMachinesBlock(c) {
   const mParts = [];
   const loadoutLines = (it) => {
     const ll = paLoadout(it);
-    return ll.length?`<div style="font-size:7pt;color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
+    return ll.length?`<div class="fs-7pt" style="color:#555;">${ll.map(l=>`${l.slot}: ${l.gear}${l.mount&&l.mount!=='turret'?` [${l.mount} ${(l.arcs||[]).map(a=>a[0]).join('/')}]`:''}${(shipLinkOf(l)>=2)?` <b>[${shipLinkOf(l)>=8?`main cannon ×${shipLinkOf(l)}`:`×${shipLinkOf(l)} link${l.variable?', variable':''}`}]</b>`:''}${(shipBatteryOf(l)>=2)?` <b>[battery ×${shipBatteryOf(l)}]</b>`:''}${l.state&&l.state!=='ok'?` <b>[${l.state.toUpperCase()}]</b>`:''}`).join(' · ')}</div>`:'';
   };
   const pv = pilotedVehicle(c);
   const pvG = (pv)?vehicleIntegrity(pv):null;
   if (pv && pvG && pv.catalogue==='mecha') {
     const mg = pvG, md = mg.def, mT = mechaTouchAC(md);
     const mName = pv.custom?pv.custom.name:(pv.customName||pv.ref);
-    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🦿 Piloting: ${mName}</b> <span style="font-size:7pt;color:#888;">${md.size} TS ${md.ts} mecha${md.superstructure?` · ${md.superstructure}${md.armorType?' / '+md.armorType:''}`:''}</span>
-      <div style="font-size:7.5pt;">T/AC ${mT}/${mT+(md.equipAC||0)+(paShieldBonus(pv))} · Hardness ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} (drives melee; your BAB attacks) · your Dex caps at ${md.dexMax} · speed ${md.speed}′${md.fly?' · fly':''}</div>${loadoutLines(pv)}</div>`);
+    mParts.push(`<div class="m-3-0"><b class="fs-8_5pt">🦿 Piloting: ${mName}</b> <span class="fs-7pt" style="color:#888;">${md.size} TS ${md.ts} mecha${md.superstructure?` · ${md.superstructure}${md.armorType?' / '+md.armorType:''}`:''}</span>
+      <div class="fs-7_5pt">T/AC ${mT}/${mT+(md.equipAC||0)+(paShieldBonus(pv))} · Hardness ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} (drives melee; your BAB attacks) · your Dex caps at ${md.dexMax} · speed ${md.speed}′${md.fly?' · fly':''}</div>${loadoutLines(pv)}</div>`);
   } else if (pv && pvG) {
     const vg = pvG, vd = vg.def, vchk = vehicleOperatorCheck(c, vd);
-    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🕹 Piloting: ${enchantDisplayName(pv)}</b> <span style="font-size:7pt;color:#888;">${vd.maneuver_class} maneuver</span>
-      <div style="font-size:7.5pt;">T/AC ${vd.touch_ac}/${vd.total_ac} · Hardness ${vg.hardness} · HP ${vg.hp}/${vg.maxHP} · ${vd.skill} ${vchk.withManeuver>=0?'+':''}${vchk.withManeuver}${vchk.initPenalty?` · ${vchk.initPenalty} Initiative`:''} · speed ${vd.top_speed} (${vd.chase_speed})</div></div>`);
+    mParts.push(`<div class="m-3-0"><b class="fs-8_5pt">🕹 Piloting: ${enchantDisplayName(pv)}</b> <span class="fs-7pt" style="color:#888;">${vd.maneuver_class} maneuver</span>
+      <div class="fs-7_5pt">T/AC ${vd.touch_ac}/${vd.total_ac} · Hardness ${vg.hardness} · HP ${vg.hp}/${vg.maxHP} · ${vd.skill} ${vchk.withManeuver>=0?'+':''}${vchk.withManeuver}${vchk.initPenalty?` · ${vchk.initPenalty} Initiative`:''} · speed ${vd.top_speed} (${vd.chase_speed})</div></div>`);
   }
   const paW = equippedPowerArmor(c);
   if (paW) {
     const paG = armorItemIntegrity(paW), paD = POWER_ARMOR_DB[paW.ref];
-    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🤖 Power Armor: ${enchantDisplayName(paW)}</b> <span style="font-size:7pt;color:#888;">${paD.size} TS ${paD.ts} — a mecha your size (FF Ch.III)</span>
-      <div style="font-size:7.5pt;">Hardness ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin?` · Str floors at ${paD.strMin}`:''}${paD.equipStrMod?` · +${paD.equipStrMod} equipment Str`:''}${paD.dexMax?` · Dex caps at ${paD.dexMax}`:''}${paD.fly?` · fly ${paD.fly}`:''} · ◈ always intercedes (full AC confirms crits only)</div>${loadoutLines(paW)}</div>`);
+    mParts.push(`<div class="m-3-0"><b class="fs-8_5pt">🤖 Power Armor: ${enchantDisplayName(paW)}</b> <span class="fs-7pt" style="color:#888;">${paD.size} TS ${paD.ts} — a mecha your size (FF Ch.III)</span>
+      <div class="fs-7_5pt">Hardness ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin?` · Str floors at ${paD.strMin}`:''}${paD.equipStrMod?` · +${paD.equipStrMod} equipment Str`:''}${paD.dexMax?` · Dex caps at ${paD.dexMax}`:''}${paD.fly?` · fly ${paD.fly}`:''} · ◈ always intercedes (full AC confirms crits only)</div>${loadoutLines(paW)}</div>`);
   }
   const skW = activeSecondSkin(c);
   if (skW && !skW.destroyed) {
-    mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🧿 Second Skin</b> <span style="font-size:7pt;color:#888;">lvl ${skW.row.lvl} ectoplasmic sheath — HH p.241</span>
-      <div style="font-size:7.5pt;">AC +${skW.row.ac} (as armor) · Hardness ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr?` · DR ${skW.row.dr}`:''}${(skW.state.abilities||[]).length?` · ${skW.state.abilities.join(', ')}`:''}</div>
-      <div style="font-size:7pt;color:#555;">Every hit strikes the skin first; excess carries over to you (HH p.242). Psionic focus locked; no worn armor.</div></div>`);
+    mParts.push(`<div class="m-3-0"><b class="fs-8_5pt">🧿 Second Skin</b> <span class="fs-7pt" style="color:#888;">lvl ${skW.row.lvl} ectoplasmic sheath — HH p.241</span>
+      <div class="fs-7_5pt">AC +${skW.row.ac} (as armor) · Hardness ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr?` · DR ${skW.row.dr}`:''}${(skW.state.abilities||[]).length?` · ${skW.state.abilities.join(', ')}`:''}</div>
+      <div class="fs-7pt" style="color:#555;">Every hit strikes the skin first; excess carries over to you (HH p.242). Psionic focus locked; no worn armor.</div></div>`);
   }
   for (const it of getCharItems(c)) {
     if (it.catalogue==='starship') {
       const sd = shipDefOf(it);
       const secs = sd?shipSections(it):null;
-      if (sd && secs) mParts.push(`<div style="margin:3px 0;"><b style="font-size:8.5pt;">🚀 ${it.customName||it.ref}</b> <span style="font-size:7pt;color:#888;">${sd.cls} ${it.ship.subtype} · ${it.ship.engine} · ${it.ship.armor} armor · crew ${sd.crew}</span>
-        <div style="font-size:7.5pt;">${secs.map(s=>`${s.section} ${s.hp}/${s.maxHP}${s.disabled?' <b>[DISABLED]</b>':''}`).join(' · ')}</div>${loadoutLines(it)}</div>`);
+      if (sd && secs) mParts.push(`<div class="m-3-0"><b class="fs-8_5pt">🚀 ${it.customName||it.ref}</b> <span class="fs-7pt" style="color:#888;">${sd.cls} ${it.ship.subtype} · ${it.ship.engine} · ${it.ship.armor} armor · crew ${sd.crew}</span>
+        <div class="fs-7_5pt">${secs.map(s=>`${s.section} ${s.hp}/${s.maxHP}${s.disabled?' <b>[DISABLED]</b>':''}`).join(' · ')}</div>${loadoutLines(it)}</div>`);
     } else if ((it.catalogue==='vehicle'||it.catalogue==='mecha') && !it.piloted) {
       const g = vehicleIntegrity(it); if (!g) continue;
       const nm = it.custom?it.custom.name:(it.customName||(enchantDisplayName(it)));
-      mParts.push(`<div style="font-size:7.5pt;margin:2px 0;">${it.catalogue==='mecha'?'🦿':'🚗'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed?' · ☠ DESTROYED':g.broken?' · 🛑 DISABLED':''}${it.jointOwners?` · owners: ${it.jointOwners}`:''}</div>`);
+      mParts.push(`<div class="fs-7_5pt m-2-0">${it.catalogue==='mecha'?'🦿':'🚗'} <b>${nm}</b> — Hardness ${g.hardness} · HP ${g.hp}/${g.maxHP}${g.destroyed?' · ☠ DESTROYED':g.broken?' · 🛑 DISABLED':''}${it.jointOwners?` · owners: ${it.jointOwners}`:''}</div>`);
     }
   }
-  if (mParts.length) machinesBlock = `<div class="ps-sec"><div class="ps-sec-head">Machines &amp; Loadouts</div><div class="ps-sec-body">${mParts.join('')}<div style="font-size:6.5pt;color:#888;">Operation math lives on the 🕹 Vehicles tab; loadout slots cycle ok → damaged → destroyed per the mecha crit table.</div></div></div>`;
+  if (mParts.length) machinesBlock = `<div class="ps-sec"><div class="ps-sec-head">Machines &amp; Loadouts</div><div class="ps-sec-body">${mParts.join('')}<div class="fs-6_5pt" style="color:#888;">Operation math lives on the 🕹 Vehicles tab; loadout slots cycle ok → damaged → destroyed per the mecha crit table.</div></div></div>`;
   return machinesBlock;
 }
 
@@ -479,14 +479,14 @@ function printClassDetailRows(c, classArr) {
     const presMax = e && e.tier==='prestige'?`, max ${cls.maxLvl||10}`:'';
     const _hiero = e && e.name === 'Ecclesiarch' && (c.druidOption || migrateLegacyClasses(c).some(x => x._heritageChoice === 'Cleric (Druid Option)'));
     let out = e
-      ? `<div class="ps-class-row"><span class="ps-class-nm">${_hiero ? 'Ecclesiarch (Hierophant)' : e.name}</span><span class="ps-class-det">Lvl ${e.level} · d${cls.hd}${tierLabels[e.tier]}${presMax}</span></div><div style="font-size:8pt;color:#555;">Key Attr: ${cls.attr} · ${cls.sp}+Int SP/lvl${apHint}</div>`
+      ? `<div class="ps-class-row"><span class="ps-class-nm">${_hiero ? 'Ecclesiarch (Hierophant)' : e.name}</span><span class="ps-class-det">Lvl ${e.level} · d${cls.hd}${tierLabels[e.tier]}${presMax}</span></div><div class="fs-8pt" style="color:#555;">Key Attr: ${cls.attr} · ${cls.sp}+Int SP/lvl${apHint}</div>`
       : `<div class="ps-class-row"><span class="ps-class-nm">${escapeHTML(name)}</span><span class="ps-class-det">granted abilities</span></div>`;
     if (e && e.tier === 'hero') {
       const tl2 = (c.talents||[]).filter(t => { const td = TALENTS_DB.find(x => x.n === (t.name||t.n)); return td && td.hero_class === e.name; }).map(t => (t.name||t.n) + (t.param?` (${t.param})`:''));
-      if (tl2.length) out += `<div style="font-size:7.5pt;color:#555;">🎭 Talents (this class's trees): <b>${tl2.map(escapeHTML).join(', ')}</b></div>`;
+      if (tl2.length) out += `<div class="fs-7_5pt" style="color:#555;">🎭 Talents (this class's trees): <b>${tl2.map(escapeHTML).join(', ')}</b></div>`;
     }
     const bf = (c.feats||[]).filter(f => typeof f.slotSource === 'string' && f.slotSource.startsWith(`classFeature:${name}:`)).map(f => f.name + (f.param?` (${f.param})`:''));
-    if (bf.length) out += `<div style="font-size:7.5pt;color:#555;">★ Bonus feats (this class's slots): <b>${bf.map(escapeHTML).join(', ')}</b></div>`;
+    if (bf.length) out += `<div class="fs-7_5pt" style="color:#555;">★ Bonus feats (this class's slots): <b>${bf.map(escapeHTML).join(', ')}</b></div>`;
     const byLvl = {};
     for (const f of (psByClass[name]||[])) { (byLvl[f.feature.lvl] = byLvl[f.feature.lvl] || []).push(f); }
     for (const lvl of Object.keys(byLvl).map(Number).sort((a,b)=>a-b)) {
@@ -496,11 +496,11 @@ function printClassDetailRows(c, classArr) {
         const pk = myPicks.map(s => s.chosen ? `<b>${escapeHTML(s.chosen)}</b>` : '<i>unchosen</i>').join(', ');
         return escapeHTML(f.name) + (pk ? ` — ${pk}` : '');
       });
-      out += `<div style="font-size:7.5pt;color:#555;"><span style="color:#8a6d1f;">L${lvl}:</span> ${bits.join(' · ')}</div>`;
+      out += `<div class="fs-7_5pt" style="color:#555;"><span style="color:#8a6d1f;">L${lvl}:</span> ${bits.join(' · ')}</div>`;
     }
     const strays = psSpecs.filter(s => !psConsumed.has(s.key) && s.className === name);
-    for (const s of strays) { psConsumed.add(s.key); out += `<div style="font-size:7.5pt;color:#555;"><span style="color:#8a6d1f;">L${s.atLvl}:</span> ${escapeHTML(s.feature)}${s.idx>1?` #${s.idx}`:''} — ${s.chosen?`<b>${escapeHTML(s.chosen)}</b>`:'<i>unchosen</i>'}</div>`; }
-    return out + `<div style="margin-bottom:4px;"></div>`;
+    for (const s of strays) { psConsumed.add(s.key); out += `<div class="fs-7_5pt" style="color:#555;"><span style="color:#8a6d1f;">L${s.atLvl}:</span> ${escapeHTML(s.feature)}${s.idx>1?` #${s.idx}`:''} — ${s.chosen?`<b>${escapeHTML(s.chosen)}</b>`:'<i>unchosen</i>'}</div>`; }
+    return out + `<div class="mb-4"></div>`;
   };
   let classDetailRows = classArr.map(e => {
     const cls = getClassEntry(e); if (!cls) return '';
@@ -526,7 +526,7 @@ function printOutstandingStrip(c) {
       for (const n of (attn[tab] || [])) allNotes.push(n);
     }
     if (allNotes.length) {
-      psOutstanding = `<div style="border:1.5px solid #b8860b;background:#faf3dd;padding:5px 10px;margin-bottom:6px;font-size:8.5pt;color:#7a5c00;">
+      psOutstanding = `<div class="p-5-10 mb-6 fs-8_5pt" style="border:1.5px solid #b8860b;background:#faf3dd;color:#7a5c00;">
         <b>⚠ OUTSTANDING SELECTIONS</b> — ${allNotes.map(n=>escapeHTML(n)).join(' · ')}</div>`;
     }
   } catch (e) {}
@@ -537,7 +537,7 @@ function printOutstandingStrip(c) {
     const aeList = c.activeEffects || [];
     if (aeList.length) {
       const bits = aeList.map(a => `${a.name}${a.durText ? ` [${a.durText}]` : ''}${a.augSpent ? ` (+${a.augSpent} PP)` : ''}`);
-      psOutstanding += `<div style="border:1.5px solid #78afcd;background:#eef5fa;padding:5px 10px;margin-bottom:6px;font-size:8.5pt;color:#2a5a7a;">
+      psOutstanding += `<div class="p-5-10 mb-6 fs-8_5pt" style="border:1.5px solid #78afcd;background:#eef5fa;color:#2a5a7a;">
         <b>✨ ACTIVE POWER EFFECTS${c.nullified ? ' — ⊘ SUPPRESSED (Null Power Field)' : ' (baked into the numbers below; end on rest)'}</b> — ${bits.map(escapeHTML).join(' · ')}</div>`;
     }
   } catch (e) {}
@@ -575,9 +575,9 @@ function printAbilityScoresHtml(c, psAttrNotes, psItemAttrB) {
         <div class="ps-sec-head">Ability Scores</div>
         <div class="ps-sec-body">
           <div class="ps-attrs">
-            ${ATTR_NAMES.map((a,i)=>{const iB=psItemAttrB.best[i]||0;const effV=c.attrs[i]+iB;return `<div class="ps-attr-box"><span class="ps-attr-nm">${a}</span><span class="ps-attr-score">${c.attrs[i]}${iB>0?` <span style="font-size:8pt;color:#4a6d8c;">(${effV})</span>`:''}</span><span class="ps-attr-mod">${ms(effV)}</span></div>`;}).join('')}
+            ${ATTR_NAMES.map((a,i)=>{const iB=psItemAttrB.best[i]||0;const effV=c.attrs[i]+iB;return `<div class="ps-attr-box"><span class="ps-attr-nm">${a}</span><span class="ps-attr-score">${c.attrs[i]}${iB>0?` <span class="fs-8pt" style="color:#4a6d8c;">(${effV})</span>`:''}</span><span class="ps-attr-mod">${ms(effV)}</span></div>`;}).join('')}
           </div>
-          ${psAttrNotes.length?`<div style="font-size:6.5pt;color:#888;margin-top:2px;">Includes: ${psAttrNotes.join(' · ')}</div>`:''}
+          ${psAttrNotes.length?`<div class="fs-6_5pt mt-2" style="color:#888;">Includes: ${psAttrNotes.join(' · ')}</div>`:''}
         </div>
       </div>
 `;
@@ -630,13 +630,13 @@ function printXPHtml(c, xpProg, hc, firstHero, lvlTable) {
   return `      <div class="ps-sec">
         <div class="ps-sec-head">Experience & Level</div>
         <div class="ps-sec-body">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div class="justify-between items-baseline" style="display:flex;">
             <span style="font-size:14pt;font-weight:700;">Level ${c.totalLvl}</span>
             ${c.ecl!==c.totalLvl?`<span style="font-size:9pt;color:#6b5320;">ECL ${c.ecl}</span>`:''}
           </div>
           <div class="ps-xp-bar"><div class="ps-xp-fill" style="width:${xpProg.pct}%;"></div></div>
-          <div style="font-size:8pt;color:#555;margin-top:2px;">${xpProg.inLevel.toLocaleString()} / ${xpProg.bandSize.toLocaleString()} XP this level (${xpProg.pct}%) &middot; ${c.xp.toLocaleString()} total</div>
-          ${hc?`<div style="margin-top:6px;"><div style="font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#6b5320;margin-bottom:2px;">${firstHero.name} Table (Levels 1–5)</div>${lvlTable}</div>`:''}
+          <div class="fs-8pt mt-2" style="color:#555;">${xpProg.inLevel.toLocaleString()} / ${xpProg.bandSize.toLocaleString()} XP this level (${xpProg.pct}%) &middot; ${c.xp.toLocaleString()} total</div>
+          ${hc?`<div class="mt-6"><div class="fs-7pt uppercase ls-0_06em mb-2" style="font-family:'Cinzel',Georgia,serif;color:#6b5320;">${firstHero.name} Table (Levels 1–5)</div>${lvlTable}</div>`:''}
         </div>
       </div>
 `;
@@ -647,14 +647,14 @@ function printFeatsAndTalentsHtml(c, featList, talentList) {
   return `      <div class="ps-sec">
         <div class="ps-sec-head">Feats</div>
         <div class="ps-sec-body">
-          ${(c.feats||[]).length?`<ul class="ps-feat-list">${featList}</ul>`:'<div style="font-size:8.5pt;color:#aaa;">No feats recorded.</div>'}
+          ${(c.feats||[]).length?`<ul class="ps-feat-list">${featList}</ul>`:'<div class="fs-8_5pt" style="color:#aaa;">No feats recorded.</div>'}
         </div>
       </div>
 
       <div class="ps-sec">
         <div class="ps-sec-head">Talents</div>
         <div class="ps-sec-body">
-          ${(c.talents||[]).length?`<ul class="ps-feat-list">${talentList}</ul>`:'<div style="font-size:8.5pt;color:#aaa;">No talents recorded.</div>'}
+          ${(c.talents||[]).length?`<ul class="ps-feat-list">${talentList}</ul>`:'<div class="fs-8_5pt" style="color:#aaa;">No talents recorded.</div>'}
         </div>
       </div>
 `;
@@ -669,7 +669,7 @@ function printSkillsHtml(skillRows) {
             <thead><tr><th style="min-width:120px;">Skill</th><th>Key</th><th>Mod</th><th>Rnk</th><th>Misc</th><th>Total</th></tr></thead>
             <tbody>${skillRows}</tbody>
           </table>
-          <div style="font-size:7pt;color:#888;margin-top:4px;">Shaded rows = class skills. All skills shown have ranks > 0 or are key combat skills.</div>
+          <div class="fs-7pt mt-4" style="color:#888;">Shaded rows = class skills. All skills shown have ranks > 0 or are key combat skills.</div>
         </div>
       </div>
 `;
@@ -684,19 +684,19 @@ function printScenarioRaceOccupationHtml(c) {
       <div class="ps-sec">
         <div class="ps-sec-head">Scenario, Racial Features, &amp; Starting Occupation</div>
         <div class="ps-sec-body ps-classes">
-          ${c.sixLevels?`<div style="margin-bottom:5px;"><div style="font-family:'Cinzel',Georgia,serif;font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#6b5320;margin-bottom:2px;">Scenario: ${normalizePresetName(c.scenarioPreset||'Custom')}</div><div style="font-size:8pt;color:#555;">${['arcane','divine','heroic','mutation','psionic','tech'].map(a=>`${SIX_LEVELS[a].short} ${c.sixLevels[a]||0}`).join(' · ')}</div></div>`:''}
+          ${c.sixLevels?`<div class="mb-5"><div class="fs-7pt uppercase ls-0_06em mb-2" style="font-family:'Cinzel',Georgia,serif;color:#6b5320;">Scenario: ${normalizePresetName(c.scenarioPreset||'Custom')}</div><div class="fs-8pt" style="color:#555;">${['arcane','divine','heroic','mutation','psionic','tech'].map(a=>`${SIX_LEVELS[a].short} ${c.sixLevels[a]||0}`).join(' · ')}</div></div>`:''}
           ${(() => { const mpP = getMPState(c);
             const templ = !!(mpP && mpP.isMutantTemplated);
             const rn = (raceDisplayOf(c)) + (templ ? ' Mutant' : '');
             return `<div class="ps-class-row"><span class="ps-class-nm">${rn}</span><span class="ps-class-det">${(hybridInfo(c))?'RLM':'ECL'} +${raceEclOf(c)}${templ && mpP.mutantLevel ? ` (+${mpP.mutantLevel} Mutant)` : ''}</span></div>`; })()}
           ${(() => { const hy = hybridInfo(c);
-            if (!hy) return `<div style="font-size:8pt;color:#555;">${RACES[c.race]?.notes||''}</div>`;
-            return `<div style="font-size:7.5pt;color:#555;"><b>${escapeHTML(hy.a)}:</b> ${hy.A.notes||'—'}</div><div style="font-size:7.5pt;color:#555;"><b>${escapeHTML(hy.b)}:</b> ${hy.B.notes||'—'}</div>`; })()}
+            if (!hy) return `<div class="fs-8pt" style="color:#555;">${RACES[c.race]?.notes||''}</div>`;
+            return `<div class="fs-7_5pt" style="color:#555;"><b>${escapeHTML(hy.a)}:</b> ${hy.A.notes||'—'}</div><div class="fs-7_5pt" style="color:#555;"><b>${escapeHTML(hy.b)}:</b> ${hy.B.notes||'—'}</div>`; })()}
           ${(() => { const mpP = getMPState(c);
             if (!mpP || !mpP.isMutantTemplated) return '';
             const ml = mpP.mutantLevel, conM = am(((c.attrs)||[10,10,10,10,10,10])[2]);
             const spp = mpP.isSuperMutant ? getSuperPPState(c) : null;
-            return `<div style="font-size:7.5pt;color:#555;">🧬 <b>${mpP.tier.tier} ${mpP.isSuperMutant ? 'Super-Mutant' : 'Mutant'}</b> (RLM +${ml} · ${mpP.totalEarned} MP): Unnatural Prowess +${Math.floor(ml/2)} BA / +${Math.floor(ml/3)} Def / +${2*ml} SP (Tech-0) · Resilience +${ml*(5+conM)} HP / +${Math.floor(ml/2)} saves${mpP.isSuperMutant ? ` · ESL ${mpP.eml} · ${spp?spp.max:'—'} super-PP/day` : ''}</div>`; })()}
+            return `<div class="fs-7_5pt" style="color:#555;">🧬 <b>${mpP.tier.tier} ${mpP.isSuperMutant ? 'Super-Mutant' : 'Mutant'}</b> (RLM +${ml} · ${mpP.totalEarned} MP): Unnatural Prowess +${Math.floor(ml/2)} BA / +${Math.floor(ml/3)} Def / +${2*ml} SP (Tech-0) · Resilience +${ml*(5+conM)} HP / +${Math.floor(ml/2)} saves${mpP.isSuperMutant ? ` · ESL ${mpP.eml} · ${spp?spp.max:'—'} super-PP/day` : ''}</div>`; })()}
           ${(() => { // v8.96.1 (print parity for §240): the Starting Occupation on paper.
             const pOccs = (c.occupations && c.occupations.length ? c.occupations : (c.occ ? [c.occ] : [])).filter(Boolean);
             if (!pOccs.length) return '';
@@ -709,7 +709,7 @@ function printScenarioRaceOccupationHtml(c) {
               if (picks.feat) bits.push(`bonus feat: ${picks.feat}`);
               else if (od && od.bonus_feat_options && od.bonus_feat_options.length) bits.push('bonus feat unchosen');
               if (od && od.wealth != null) bits.push(`Wealth +${od.wealth}`);
-              return `<div style="font-size:7.5pt;color:#555;margin-top:2px;">💼 <b>${escapeHTML(o)}</b>${oi === 1 ? ' (2nd)' : ''} — ${escapeHTML(bits.join(' · '))}</div>`;
+              return `<div class="fs-7_5pt mt-2" style="color:#555;">💼 <b>${escapeHTML(o)}</b>${oi === 1 ? ' (2nd)' : ''} — ${escapeHTML(bits.join(' · '))}</div>`;
             }).join('');
           })()}
         </div>
@@ -739,10 +739,10 @@ function printNotesTrackerLanguagesHtml(c) {
       <div class="ps-sec">
         <div class="ps-sec-head">HP / Condition Tracker</div>
         <div class="ps-sec-body">
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px;">
+          <div class="gap-4 mb-6" style="display:grid;grid-template-columns:repeat(4,1fr);">
             ${[1,2,3,4,5,6,7,8].map(()=>'<div style="height:14px;border:1px solid #888;border-radius:2px;"></div>').join('')}
           </div>
-          <div style="font-size:8pt;">Current HP: _______ / ${c.maxHP} &nbsp;&nbsp; Conditions: _______________________</div>
+          <div class="fs-8pt">Current HP: _______ / ${c.maxHP} &nbsp;&nbsp; Conditions: _______________________</div>
         </div>
       </div>
 
@@ -750,7 +750,7 @@ function printNotesTrackerLanguagesHtml(c) {
         <div class="ps-sec-head">Languages &amp; Allegiances</div>
         <div class="ps-sec-body">
           <div style="font-size:9pt;"><b>Languages:</b> ${c.langs||'Common'}</div>
-          <div style="font-size:9pt;margin-top:3px;"><b>Allegiances:</b> ${c.allegiance||'—'}</div>
+          <div class="mt-3" style="font-size:9pt;"><b>Allegiances:</b> ${c.allegiance||'—'}</div>
         </div>
       </div>
 `;

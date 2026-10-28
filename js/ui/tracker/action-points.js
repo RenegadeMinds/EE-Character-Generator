@@ -47,11 +47,11 @@ function renderAPBar(c){
   // Heroic 0: AP unavailable. Show explanatory text in place of the bar.
   if (cap.heroicLevel === 0) {
     document.getElementById('tr-ap').innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);">Action Points</span>
-        <span style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;font-weight:600;color:var(--g45);font-style:italic;">— Unavailable —</span>
+      <div class="justify-between items-center mb-6" style="display:flex;">
+        <span class="font-serif fs-10 c-bronze">Action Points</span>
+        <span class="font-serif fs-14 fw-600 c-g45 italic">— Unavailable —</span>
       </div>
-      <div style="font-size:11px;color:var(--g55);line-height:1.5;padding:8px 10px;background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;">
+      <div class="fs-11 c-g55 lh-1_5 p-8-10 rounded-2" style="background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);">
         <b style="color:#d4b870;">Heroic 0 — ${escapeHTML(cap.heroicLevelName)}.</b>
         No Action Points, Heroic Action Points, or Fate Points are available in this scenario.
         Feats or class abilities that normally require AP become usable 1/day instead.
@@ -66,10 +66,10 @@ function renderAPBar(c){
   // and (when applicable) the FP-spent counter.
   let fpIndicator = '';
   if (cap.hasFP || fpSpent > 0) {
-    fpIndicator = ` &middot; <span style="color:var(--red-text);" title="Fate Points are permanent AP expenditures. Each FP reduces your max AP pool by 1 at every future level-up.">${fpSpent} FP spent</span>`;
+    fpIndicator = ` &middot; <span class="c-red-text" title="Fate Points are permanent AP expenditures. Each FP reduces your max AP pool by 1 at every future level-up.">${fpSpent} FP spent</span>`;
   }
   const heroicCaption = `
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g65);margin-bottom:4px;letter-spacing:.03em;">
+    <div class="font-serif fs-10 c-g65 mb-4" style="letter-spacing:.03em;">
       Heroic ${cap.heroicLevel} &mdash; ${escapeHTML(cap.heroicLevelName)} &middot; ${escapeHTML(cap.apPerRound)} &middot; rolls ${apDice}${fpIndicator}
     </div>`;
 
@@ -79,7 +79,7 @@ function renderAPBar(c){
   const tog = window._apOptToggle;
   const optSection = (key, title, items, available, gateMsg) => {
     if (!available) {
-      return `<div style="margin-top:6px;font-size:10px;color:var(--g35);font-style:italic;padding:4px 8px;">${title} &mdash; ${gateMsg}</div>`;
+      return `<div class="mt-6 fs-10 c-g35 italic p-4-8">${title} &mdash; ${gateMsg}</div>`;
     }
     const arrow = tog[key] ? '▼' : '▶';
     const itemsHTML = tog[key] ? items.map(it => {
@@ -89,14 +89,14 @@ function renderAPBar(c){
       // HTML is trusted (built locally from controlled values); the
       // description proper is always escaped.
       const annot = it.annotationHTML ? `${it.annotationHTML} ` : '';
-      return `<div style="margin:6px 0;padding:6px 9px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;">
-         <div style="font-weight:600;color:var(--gold);font-size:11px;margin-bottom:2px;">${escapeHTML(it.name)}</div>
-         <div style="font-size:10.5px;color:var(--g75);line-height:1.45;">${annot}${escapeHTML(it.desc)}</div>
+      return `<div class="p-6-9 rounded-2" style="margin:6px 0;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);">
+         <div class="fw-600 c-gold fs-11 mb-2">${escapeHTML(it.name)}</div>
+         <div class="fs-10_5 c-g75 lh-1_45">${annot}${escapeHTML(it.desc)}</div>
        </div>`;
     }).join('') : '';
     return `
-      <div style="margin-top:6px;">
-        <div onclick="toggleAPOpt('${key}')" style="cursor:pointer;font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g70);padding:3px 6px;background:rgba(200,151,30,.03);border-radius:2px;user-select:none;letter-spacing:.04em;text-transform:uppercase;">${arrow} ${escapeHTML(title)}</div>
+      <div class="mt-6">
+        <div onclick="toggleAPOpt('${key}')" class="cursor-pointer font-serif fs-10 c-g70 rounded-2 select-none ls-0_04em uppercase" style="padding:3px 6px;background:rgba(200,151,30,.03);">${arrow} ${escapeHTML(title)}</div>
         <div>${itemsHTML}</div>
       </div>`;
   };
@@ -111,8 +111,8 @@ function renderAPBar(c){
     if (!baseOpt) continue;
     const owns = cap.ownedTalentNames.has(baseOpt.talent);
     const annotationHTML = owns
-      ? `<span style="color:#6dba88;font-weight:600;">[✓ ${escapeHTML(baseOpt.talent)} owned]</span>`
-      : `<span style="color:var(--red-text);font-weight:600;">[⚠ Requires Talent: ${escapeHTML(baseOpt.talent)} — not owned]</span>`;
+      ? `<span class="fw-600" style="color:#6dba88;">[✓ ${escapeHTML(baseOpt.talent)} owned]</span>`
+      : `<span class="c-red-text fw-600">[⚠ Requires Talent: ${escapeHTML(baseOpt.talent)} — not owned]</span>`;
     fpItems.push({
       name: baseOpt.name,
       desc: baseOpt.desc,
@@ -124,9 +124,9 @@ function renderAPBar(c){
 
   document.getElementById('tr-ap').innerHTML = `
     ${heroicCaption}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);">Action Points</span>
-      <span style="font-family:'Epics Serif','Cinzel',serif;font-size:16px;font-weight:600;color:var(--gold);">${c.ap||0} / ${c.apMax||0}</span>
+    <div class="justify-between items-center mb-6" style="display:flex;">
+      <span class="font-serif fs-10 c-bronze">Action Points</span>
+      <span class="font-serif fw-600 c-gold" style="font-size:16px;">${c.ap||0} / ${c.apMax||0}</span>
     </div>
     <div class="bar-wrap"><div class="bar-fill bar-purple" style="width:${pct}%;"></div></div>
     ${optSection('ap',  'Action Point Options',          AP_OPTIONS,  cap.hasAP,  'requires Heroic 1+')}
@@ -251,10 +251,10 @@ function _buildOptionRadios(options, defaultValue) {
   return options.map((opt, i) => {
     const id = 'apopt-' + i + '-' + (opt.name||'opt').replace(/\W+/g, '_');
     const checked = (opt.name === defaultValue) ? 'checked' : '';
-    const descText = opt.desc ? `<span style="font-size:10.5px;color:var(--g60);">${escapeHTML(opt.desc)}</span>` : '';
-    return `<label for="${id}" style="display:block;margin:4px 0;padding:6px 9px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.25);border-radius:2px;cursor:pointer;font-size:11.5px;line-height:1.4;">
-      <input type="radio" name="ap-modal-opt" id="${id}" value="${escapeHTML(opt.name)}" ${checked} style="margin-right:6px;vertical-align:top;margin-top:2px;">
-      <span style="font-weight:600;color:var(--gold);">${escapeHTML(opt.name)}</span>${descText ? '<br>' + descText : ''}
+    const descText = opt.desc ? `<span class="fs-10_5 c-g60">${escapeHTML(opt.desc)}</span>` : '';
+    return `<label for="${id}" class="m-4-0 p-6-9 rounded-2 cursor-pointer fs-11_5 lh-1_4" style="display:block;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.25);">
+      <input type="radio" name="ap-modal-opt" id="${id}" value="${escapeHTML(opt.name)}" ${checked} class="mt-2" style="margin-right:6px;vertical-align:top;">
+      <span class="fw-600 c-gold">${escapeHTML(opt.name)}</span>${descText ? '<br>' + descText : ''}
     </label>`;
   }).join('');
 }
@@ -262,12 +262,12 @@ function _buildOptionRadios(options, defaultValue) {
 function _buildAPSpendRadios(c) {
   const cap = getHeroicCapabilities(c);
   let html = '';
-  html += `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px;">Rules-defined Options</div>`;
+  html += `<div class="font-serif fs-10 c-g55 uppercase ls-0_06em" style="margin:8px 0 4px;">Rules-defined Options</div>`;
   html += _buildOptionRadios(AP_OPTIONS, null);
   if (cap.hasHAP) {
     html += _buildOptionRadios(HAP_OPTIONS, null);
   }
-  html += `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px;">Special / GM</div>`;
+  html += `<div class="font-serif fs-10 c-g55 uppercase ls-0_06em" style="margin:10px 0 4px;">Special / GM</div>`;
   // "Class ability activation" — generic for now. Future v8.3.28+ work: drill
   // down into class-specific AP-cost abilities for the character (when the
   // character has multiple class features that cost AP).
@@ -281,7 +281,7 @@ function _buildAPSpendRadios(c) {
 function _buildFPSpendRadios(c) {
   const cap = getHeroicCapabilities(c);
   let html = '';
-  html += `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px;">Rules-defined Options</div>`;
+  html += `<div class="font-serif fs-10 c-g55 uppercase ls-0_06em" style="margin:8px 0 4px;">Rules-defined Options</div>`;
   html += _buildOptionRadios(FP_OPTIONS_UNIVERSAL, null);
   for (const heroCls of cap.heroClassNames || []) {
     const baseOpt = FP_OPTIONS_BY_HERO_CLASS[heroCls];
@@ -292,7 +292,7 @@ function _buildFPSpendRadios(c) {
       : `[⚠ Requires Talent: ${baseOpt.talent} — not owned] ${baseOpt.desc}`;
     html += _buildOptionRadios([{name: baseOpt.name, desc: desc}], null);
   }
-  html += `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g55);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px;">Special / GM</div>`;
+  html += `<div class="font-serif fs-10 c-g55 uppercase ls-0_06em" style="margin:10px 0 4px;">Special / GM</div>`;
   html += _buildOptionRadios([
     {name: 'Class ability activation', desc: 'A class feature that costs Fate Points to invoke.'},
     {name: 'Other (GM-approved)', desc: 'An unorthodox expenditure approved by the GM. Please explain in the note below.'},
@@ -318,7 +318,7 @@ function openAPRestoreModal(c) {
   document.getElementById('apfp-modal-title').textContent = 'Restore 1 Action Point (manual)';
   document.getElementById('apfp-modal-ctx').innerHTML =
     `Current: <b>${c.ap||0}</b> AP / ${c.apMax||0} max. After: <b>${(c.ap||0)+1}</b> / ${c.apMax||0}.<br>` +
-    `<span style="font-size:11px;color:var(--g50);">Manual restore — used for GM rewards or session-pacing grants. Encounter and full-rest refreshes are silent.</span>`;
+    `<span class="fs-11 c-g50">Manual restore — used for GM rewards or session-pacing grants. Encounter and full-rest refreshes are silent.</span>`;
   document.getElementById('apfp-modal-radios').innerHTML = '';
   document.getElementById('apfp-modal-note').value = '';
   modal.dataset.mode = 'ap-restore';
@@ -332,7 +332,7 @@ function openFPSpendModal(c) {
   document.getElementById('apfp-modal-ctx').innerHTML =
     `Current: <b>${c.ap||0}</b> AP / ${c.apMax||0} max, <b>${c.fatePoints||0}</b> FP spent.<br>` +
     `After: <b>${(c.ap||0)-1}</b> AP / <b>${(c.apMax||0)-1}</b> max, <b>${(c.fatePoints||0)+1}</b> FP spent.<br>` +
-    `<span style="font-size:11px;color:var(--red-text);">⚠ Permanent — your maximum AP pool will be reduced by 1 at every future level-up.</span>`;
+    `<span class="fs-11 c-red-text">⚠ Permanent — your maximum AP pool will be reduced by 1 at every future level-up.</span>`;
   document.getElementById('apfp-modal-radios').innerHTML = _buildFPSpendRadios(c);
   document.getElementById('apfp-modal-note').value = '';
   modal.dataset.mode = 'fp-spend';
@@ -346,7 +346,7 @@ function openFPRestoreModal(c) {
   document.getElementById('apfp-modal-ctx').innerHTML =
     `Current: <b>${c.ap||0}</b> AP / ${c.apMax||0} max, <b>${c.fatePoints||0}</b> FP spent.<br>` +
     `After: <b>${(c.ap||0)+1}</b> AP / <b>${(c.apMax||0)+1}</b> max, <b>${(c.fatePoints||0)-1}</b> FP spent.<br>` +
-    `<span style="font-size:11px;color:var(--g50);">GM grant — restores a previously-spent Fate Point. Use sparingly.</span>`;
+    `<span class="fs-11 c-g50">GM grant — restores a previously-spent Fate Point. Use sparingly.</span>`;
   document.getElementById('apfp-modal-radios').innerHTML = '';
   document.getElementById('apfp-modal-note').value = '';
   modal.dataset.mode = 'fp-restore';

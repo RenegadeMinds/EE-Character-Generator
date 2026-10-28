@@ -61,64 +61,64 @@ function renderCareerCompass(c) {
     }
     const st = careerCompassState(c);
     const esc = escapeHTML;
-    const selHTML = `<select onchange="onCareerGoalSelect(this)" style="font-size:11px;max-width:220px;">
+    const selHTML = `<select onchange="onCareerGoalSelect(this)" class="fs-11" style="max-width:220px;">
       <option value="">— set a goal —</option>
       ${goalable.map(([label, names]) => `<optgroup label="${label}">${names.map(n =>
         `<option value="${esc(n)}"${st && st.goal === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</optgroup>`).join('')}
     </select>`;
     if (!st) {
-      slot.innerHTML = `<div style="display:inline-flex;align-items:center;gap:8px;padding:5px 10px;border:1px dashed rgba(200,151,30,.3);border-radius:3px;font-size:11px;color:var(--g60);">
+      slot.innerHTML = `<div class="items-center gap-8 p-5-10 fs-11 c-g60" style="display:inline-flex;border:1px dashed rgba(200,151,30,.3);border-radius:3px;">
         ⭐ Career Compass ${selHTML}</div>`;
       return;
     }
     if (st.invalid) {
-      slot.innerHTML = `<div style="padding:5px 10px;border:1px solid rgba(212,112,112,.3);border-radius:3px;font-size:11px;color:var(--red-text);">
-        ⭐ Career goal "${esc(st.goal)}" not found (renamed?). <button class="btn btn-sm" onclick="setCareerGoal('')" style="font-size:10px;">Clear</button></div>`;
+      slot.innerHTML = `<div class="p-5-10 fs-11 c-red-text" style="border:1px solid rgba(212,112,112,.3);border-radius:3px;">
+        ⭐ Career goal "${esc(st.goal)}" not found (renamed?). <button class="fs-10 btn btn-sm" onclick="setCareerGoal('')">Clear</button></div>`;
       return;
     }
     const tierLabel = {advanced:'Advanced', prestige:'Prestige', hero:'Hero', basic:'Basic', ordinary:'Ordinary'}[st.tier] || st.tier;
     let statusChip;
-    if (st.owned) statusChip = `<span style="color:#6dba88;font-weight:bold;">🎉 ACHIEVED</span>`;
-    else if (st.met) statusChip = `<span style="color:#6dba88;font-weight:bold;">✓ UNLOCKED — take your first level!</span>`;
-    else statusChip = `<span style="color:var(--g85);">${st.metCount}/${st.totalCount} met · earliest entry ~level ${st.earliest}${st.gmGated ? ' + GM gate' : ''} <span style="opacity:var(--o55);color:var(--dim);">(best case)</span></span>`;
+    if (st.owned) statusChip = `<span class="bold" style="color:#6dba88;">🎉 ACHIEVED</span>`;
+    else if (st.met) statusChip = `<span class="bold" style="color:#6dba88;">✓ UNLOCKED — take your first level!</span>`;
+    else statusChip = `<span class="c-g85">${st.metCount}/${st.totalCount} met · earliest entry ~level ${st.earliest}${st.gmGated ? ' + GM gate' : ''} <span class="o-55 c-dim">(best case)</span></span>`;
     const arrow = _compassExp() ? '▾' : '▸';
-    let html = `<div style="border:1px solid rgba(125,170,220,.35);border-radius:3px;background:rgba(125,170,220,.05);font-size:12px;">
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;flex-wrap:wrap;">
-        <span onclick="toggleCompass()" style="cursor:pointer;color:#7daadc;font-family:'Epics Serif','Cinzel',serif;letter-spacing:.05em;">${arrow} ⭐ Career Compass:</span>
-        <b style="color:var(--gold);">${esc(st.goal)}</b>
-        <span style="font-size:10px;color:var(--tk80);text-transform:uppercase;letter-spacing:.04em;">${tierLabel}</span>
+    let html = `<div class="fs-12" style="border:1px solid rgba(125,170,220,.35);border-radius:3px;background:rgba(125,170,220,.05);">
+      <div class="items-center gap-8 p-6-10 flex-wrap" style="display:flex;">
+        <span onclick="toggleCompass()" class="cursor-pointer font-serif ls-0_05em" style="color:#7daadc;">${arrow} ⭐ Career Compass:</span>
+        <b class="c-gold">${esc(st.goal)}</b>
+        <span class="fs-10 uppercase ls-0_04em" style="color:var(--tk80);">${tierLabel}</span>
         ${statusChip}
-        <button class="btn btn-sm" onclick="setCareerGoal('')" title="Clear the career goal" style="font-size:10px;padding:2px 7px;margin-left:auto;">✕ Clear</button>
+        <button class="fs-10 p-2-7 ml-auto btn btn-sm" onclick="setCareerGoal('')" title="Clear the career goal">✕ Clear</button>
       </div>`;
     if (_compassExp()) {
-      html += `<div style="border-top:1px solid rgba(125,170,220,.2);padding:8px 12px;">`;
+      html += `<div class="p-8-12" style="border-top:1px solid rgba(125,170,220,.2);">`;
       if (st.owned) {
         html += `<div style="color:#6dba88;">The path is walked — <b>${esc(st.goal)}</b> is on your class list. Set a new goal whenever the next horizon calls.</div>`;
       } else {
         for (const g of st.groups) {
           if (g.met) {
-            html += `<div style="padding:2px 0;color:#6dba88;">✓ <span style="opacity:.75;">${esc(g.options.map(o => o.desc).join(' or '))}</span></div>`;
+            html += `<div class="p-2-0" style="color:#6dba88;">✓ <span class="op-0_75">${esc(g.options.map(o => o.desc).join(' or '))}</span></div>`;
             continue;
           }
           const allGM = g.options.every(o => o.kind !== 'build');
-          const icon = allGM ? '<span style="color:var(--vio);">◈</span>' : '<span style="color:var(--g90);">○</span>';
-          const parts = g.options.map(o => esc(o.desc) + (o.prog ? ` <span style="opacity:var(--o65);color:var(--dim);">(${esc(o.prog)})</span>` : ''));
+          const icon = allGM ? '<span class="c-vio">◈</span>' : '<span style="color:var(--g90);">○</span>';
+          const parts = g.options.map(o => esc(o.desc) + (o.prog ? ` <span class="o-65 c-dim">(${esc(o.prog)})</span>` : ''));
           // advice: from the soonest buildable option, else the first option's
           const best = g.options.filter(o => o.kind === 'build' && o.earliest !== null).sort((a, b) => a.earliest - b.earliest)[0] || g.options[0];
-          html += `<div style="padding:2px 0;">${icon} ${parts.join(' <span style="opacity:var(--o50);color:var(--dim);">or</span> ')}
-            ${best && best.advice ? `<div style="font-size:10.5px;color:var(--g55);margin-left:16px;">↳ ${esc(best.advice)}</div>` : ''}</div>`;
+          html += `<div class="p-2-0">${icon} ${parts.join(' <span class="o-50 c-dim">or</span> ')}
+            ${best && best.advice ? `<div class="fs-10_5 c-g55" style="margin-left:16px;">↳ ${esc(best.advice)}</div>` : ''}</div>`;
         }
         // Advisor line — greedy, one step, reasons shown.
         const adv = careerNextStep(c, st);
         if (adv && adv.top) {
-          html += `<div style="margin-top:8px;padding:6px 8px;background:rgba(125,170,220,.08);border-radius:3px;font-size:11.5px;">
-            <span style="color:#7daadc;">Suggested next step:</span> <b style="color:var(--gold);">${esc(adv.top.name)}</b>
-            <span style="opacity:.75;">— ${esc(adv.top.reasons.join('; '))}</span>
-            ${adv.runnerUp ? `<div style="font-size:10.5px;opacity:.6;margin-top:2px;">Runner-up: ${esc(adv.runnerUp.name)} — ${esc(adv.runnerUp.reasons.join('; '))}</div>` : ''}
-            <div style="font-size:10px;opacity:.45;margin-top:2px;">Most direct progression suggestion — it optimizes your next level for the most direct route, not necessarily the most optimized one. Rarely is there only one way to build a character.</div>
+          html += `<div class="mt-8 p-6-8 rounded-3 fs-11_5" style="background:rgba(125,170,220,.08);">
+            <span style="color:#7daadc;">Suggested next step:</span> <b class="c-gold">${esc(adv.top.name)}</b>
+            <span class="op-0_75">— ${esc(adv.top.reasons.join('; '))}</span>
+            ${adv.runnerUp ? `<div class="fs-10_5 op-0_6 mt-2">Runner-up: ${esc(adv.runnerUp.name)} — ${esc(adv.runnerUp.reasons.join('; '))}</div>` : ''}
+            <div class="fs-10 op-0_45 mt-2">Most direct progression suggestion — it optimizes your next level for the most direct route, not necessarily the most optimized one. Rarely is there only one way to build a character.</div>
           </div>`;
         } else if (!st.met) {
-          html += `<div style="margin-top:8px;font-size:11px;opacity:.6;">No class choice materially speeds this up — the remaining gates are attribute-, feat-slot-, or story-timed.</div>`;
+          html += `<div class="mt-8 fs-11 op-0_6">No class choice materially speeds this up — the remaining gates are attribute-, feat-slot-, or story-timed.</div>`;
         }
       }
       html += `</div>`;

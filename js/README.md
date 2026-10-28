@@ -11,7 +11,9 @@ each one, including the original version notes, travelled with it.
 ```
 index.html          the page markup + the tags that load everything below
 js/boot.js          runs first, in <head>: error capture for 🐞 Report, theme + text size
-css/                styles (app.css) and the @font-face rule (fonts.css)
+css/                styles: app.css (themes, components, print), utilities.css
+                    (one-property classes like fs-10, c-gold that replaced
+                    inline style="..."), fonts.css (the @font-face rule)
 assets/             the font file and the logo
 
 js/core/            app plumbing used everywhere: the roster in memory, saving,
@@ -38,6 +40,7 @@ beside it.
 | a calculation or a change to a character record | `js/rules/<topic>.js` |
 | something that draws part of a page or handles a click | `js/ui/<page>...` |
 | something that should happen automatically when the page opens | `js/main.js` |
+| a look (size, colour, spacing) for markup you're writing | a class: an existing one in `css/utilities.css`, or a component rule in `css/app.css`; not `style="..."` |
 | something every page needs (saving, tabs, dialogs) | `js/core/` |
 
 If you create a new file, add a `<script src="...">` line for it to

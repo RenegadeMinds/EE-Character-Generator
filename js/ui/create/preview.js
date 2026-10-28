@@ -36,16 +36,16 @@ function updateClassPreview(){
   let html='';
   for(const e of formClasses){
     const cls=getClassEntry(e);
-    if(!cls){html+=`<span style="color:var(--red-text);">${e.name} (${e.tier}) — class data not found</span><br>`;continue;}
+    if(!cls){html+=`<span class="c-red-text">${e.name} (${e.tier}) — class data not found</span><br>`;continue;}
     const tierLabel={hero:'',basic:' (Basic)',advanced:' (Advanced)',prestige:` (Prestige, max ${cls.maxLvl||10})`}[e.tier]||'';
     const apHint=e.tier==='hero'?` · AP ${cls.apB}+½lvl`:'';
-    const flag=dis.has(e.name)?' <span style="color:var(--red-text);">⚠ scenario-disallowed</span>':'';
-    html+=`<span style="color:var(--gold);">${e.name}</span> Lvl ${e.level} · d${cls.hd} · ${cls.sp}+Int SP/lvl${apHint}<span style="color:var(--g50);">${tierLabel}</span>${flag}<br>`;
+    const flag=dis.has(e.name)?' <span class="c-red-text">⚠ scenario-disallowed</span>':'';
+    html+=`<span class="c-gold">${e.name}</span> Lvl ${e.level} · d${cls.hd} · ${cls.sp}+Int SP/lvl${apHint}<span class="c-g50">${tierLabel}</span>${flag}<br>`;
   }
   const totalLvl=formClasses.reduce((s,e)=>s+(e.level||0),0);
   const _eclRace=document.getElementById('c-race').value;
   const eclMod=_eclRace==='Hybrid'?(_formHybridRlm()):(RACES[_eclRace]?.ecl||0);  // v8.68.0: Hybrid-aware
-  html+=`<span style="color:var(--g50);">Total Level: ${totalLvl} &nbsp;|&nbsp; ECL: ${totalLvl+eclMod}</span>`;
+  html+=`<span class="c-g50">Total Level: ${totalLvl} &nbsp;|&nbsp; ECL: ${totalLvl+eclMod}</span>`;
   prev.innerHTML=html;
   renderAllPrereqChecks();
   // v8.2.3 (Issue B): re-render the bumps panel since totalLvl may have changed.
@@ -81,9 +81,9 @@ function renderAllPrereqChecks(){
     // Advanced/Prestige (where the all-met state is informative). For Hero/Basic
     // classes with no violation, suppress the noise.
     if(!result.met){
-      panels.push(`<div style="color:var(--red-text);border:1px solid rgba(139,26,26,.3);background:rgba(139,26,26,.08);padding:7px 10px;border-radius:3px;font-size:12px;"><b>⚠ Missing prerequisites</b> for ${e.name} (${tierLabel}):<ul style="margin:4px 0 0 1.2em;padding:0;">${result.missing.map(m=>`<li>${m}</li>`).join('')}</ul><div style="font-size:11px;margin-top:4px;color:var(--g55);">Items marked "GM-verify" can't be auto-checked — confirm with your GM. Save anyway if granted an exception.</div></div>`);
+      panels.push(`<div class="c-red-text p-7-10 fs-12" style="border:1px solid rgba(139,26,26,.3);background:rgba(139,26,26,.08);border-radius:3px;"><b>⚠ Missing prerequisites</b> for ${e.name} (${tierLabel}):<ul class="p-0" style="margin:4px 0 0 1.2em;">${result.missing.map(m=>`<li>${m}</li>`).join('')}</ul><div class="fs-11 mt-4 c-g55">Items marked "GM-verify" can't be auto-checked — confirm with your GM. Save anyway if granted an exception.</div></div>`);
     } else if(e.tier==='advanced' || e.tier==='prestige'){
-      panels.push(`<div style="color:#6dba88;border:1px solid rgba(50,140,80,.3);background:rgba(50,140,80,.08);padding:7px 10px;border-radius:3px;font-size:12px;"><b>✓ Prerequisites met</b> for ${e.name} (${tierLabel}).</div>`);
+      panels.push(`<div class="p-7-10 fs-12" style="color:#6dba88;border:1px solid rgba(50,140,80,.3);background:rgba(50,140,80,.08);border-radius:3px;"><b>✓ Prerequisites met</b> for ${e.name} (${tierLabel}).</div>`);
     }
   }
   root.innerHTML=panels.join('');
@@ -128,11 +128,11 @@ function renderAttrBumpsPanel() {
       ATTR_NAMES.map(a => `<option value="${a}" ${a===sel?'selected':''}>${a}</option>`)
     ).join('');
     const status = sel
-      ? `<span style="color:var(--g65);font-size:10px;">→ +1 ${sel}</span>`
-      : `<span style="color:#d4b870;font-size:10px;">⚠ pending</span>`;
-    rows.push(`<div style="display:flex;gap:8px;align-items:center;">
-      <span style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g75);min-width:75px;">Level ${level}:</span>
-      <select onchange="onAttrBumpChange(${i}, this.value)" style="flex:1;max-width:160px;font-size:12px;">${opts}</select>
+      ? `<span class="c-g65 fs-10">→ +1 ${sel}</span>`
+      : `<span class="fs-10" style="color:#d4b870;">⚠ pending</span>`;
+    rows.push(`<div class="gap-8 items-center" style="display:flex;">
+      <span class="font-serif fs-11 c-g75" style="min-width:75px;">Level ${level}:</span>
+      <select onchange="onAttrBumpChange(${i}, this.value)" class="flex-1 fs-12" style="max-width:160px;">${opts}</select>
       ${status}
     </div>`);
   }

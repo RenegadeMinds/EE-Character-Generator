@@ -35,21 +35,21 @@ function renderHPBar(c){
   const hasRolls = Array.isArray(c.hpRolls) && c.hpRolls.length > 0;
   const legacyTag = hasRolls ? '' : ' <span style="color:#d4b870;" title="This character was created before v8.2.3 and uses the legacy HP formula. Open the HP Mode panel to regenerate.">(legacy)</span>';
   // v8.6.0 C5: self-healed HP wears its flag until the GM re-rolls.
-  const autoTag = c.hpAutoAssigned ? ` <span style="color:#7daadc;cursor:help;" title="HP was missing from this record and auto-assigned on ${escapeHTML(c.hpAutoAssigned.atDate||'')} (${escapeHTML(c.hpAutoAssigned.how||'average')}). GM may override via ⚙ HP Mode — re-rolling clears this flag.">(auto-assigned)</span>` : '';
+  const autoTag = c.hpAutoAssigned ? ` <span class="cursor-help" style="color:#7daadc;" title="HP was missing from this record and auto-assigned on ${escapeHTML(c.hpAutoAssigned.atDate||'')} (${escapeHTML(c.hpAutoAssigned.how||'average')}). GM may override via ⚙ HP Mode — re-rolling clears this flag.">(auto-assigned)</span>` : '';
   document.getElementById('tr-hp-bar').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);">HP <span style="color:var(--g45);font-size:9px;font-weight:normal;text-transform:none;letter-spacing:0;font-family:'Epics Serif','Crimson Pro',serif;">· ${escapeHTML(modeLabel)}${legacyTag}${autoTag}</span></span>
+    <div class="justify-between items-center mb-6" style="display:flex;">
+      <span class="font-serif fs-10 c-bronze">HP <span class="c-g45 fs-9 fw-normal normal-case ls-0" style="font-family:'Epics Serif','Crimson Pro',serif;">· ${escapeHTML(modeLabel)}${legacyTag}${autoTag}</span></span>
       <span class="hp-nums">${c.currentHP} / ${c.maxHP}</span>
     </div>
     <div class="bar-wrap"><div class="bar-fill ${col}" style="width:${pct}%;"></div></div>
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-align:center;color:var(--g50);margin-top:3px;">${pct}% · ${c.currentHP<=0?'DISABLED/DYING':pct<=25?'Critical':pct<=50?'Wounded':'Healthy'}</div>`;
+    <div class="font-serif fs-9 text-center c-g50 mt-3">${pct}% · ${c.currentHP<=0?'DISABLED/DYING':pct<=25?'Critical':pct<=50?'Wounded':'Healthy'}</div>`;
   // v8.6.0 (Adam's Scaly Armor question): natural hardness belongs where the
   // damage lands — the Tracker's HP panel. Full aggregation (racial + talent
   // + mutation + equipped-item NAC), with the application rule on hover.
   const natH = computeNaturalAC(c).total || 0;
   if (natH > 0) {
     document.getElementById('tr-hp-bar').innerHTML +=
-      `<div style="font-size:10px;text-align:center;color:var(--tv85);margin-top:3px;cursor:help;" title="Per HH p.347 / GG p.110: every damaging hit that reaches the body ignores the first ${natH} points of damage. Applies to physical and naturally-occurring damage — but NOT acid, and null-energy attacks ignore hardness entirely. Attacks at or above the NatCrit tier bypass it.">🛡 Natural Hardness ${natH} — first ${natH} damage of each hit ignored</div>`;
+      `<div class="fs-10 text-center c-tv85 mt-3 cursor-help" title="Per HH p.347 / GG p.110: every damaging hit that reaches the body ignores the first ${natH} points of damage. Applies to physical and naturally-occurring damage — but NOT acid, and null-energy attacks ignore hardness entirely. Attacks at or above the NatCrit tier bypass it.">🛡 Natural Hardness ${natH} — first ${natH} damage of each hit ignored</div>`;
   }
 }
 
@@ -82,7 +82,7 @@ function renderSheetHpModePanel() {
     {v:'max', label:'Maximum'},
   ];
   radios.innerHTML = opts.map(o => `
-    <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
+    <label class="items-center gap-4 cursor-pointer" style="display:inline-flex;">
       <input type="radio" name="tr-hp-mode" value="${o.v}" ${o.v===current?'checked':''} onchange="changeSheetHpMode('${o.v}')"> ${o.label}
     </label>
   `).join('');

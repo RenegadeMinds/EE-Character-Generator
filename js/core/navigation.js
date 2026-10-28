@@ -246,7 +246,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 function toastAction(msg, btnLabel, fn){
   const t = document.getElementById('toast');
   window._toastActionFn = () => { try { fn(); } catch(e){} t.classList.remove('show'); };
-  t.innerHTML = `${escapeHTML(msg)} <button class="btn btn-sm" onclick="window._toastActionFn()" style="margin-left:8px;font-size:11px;padding:2px 9px;border-color:var(--gold);color:var(--gold);">${escapeHTML(btnLabel)}</button>`;
+  t.innerHTML = `${escapeHTML(msg)} <button class="ml-8 fs-11 c-gold btn btn-sm" onclick="window._toastActionFn()" style="padding:2px 9px;border-color:var(--gold);">${escapeHTML(btnLabel)}</button>`;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 7000);
 }

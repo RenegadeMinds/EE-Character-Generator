@@ -41,36 +41,36 @@ function openCastOptions(ctx) {
       const powerKind = pool === 'psionic' || pool === 'super';
       return `<label style="display:flex;gap:6px;align-items:baseline;font-size:12px;margin:2px 0;${ok ? '' : 'opacity:.45;'}">
         <input type="${powerKind ? 'radio' : 'checkbox'}" name="co-meta${powerKind ? '-radio' : '-' + i}" data-i="${i}" ${ok ? '' : 'disabled'} onchange="__coUpdate()">
-        <span>${m.name} <b style="color:var(--gold);">${m.pp ? '+' + m.pp + ' PP' : 'no PP'}</b>${powerKind ? ' <span style="color:#78afcd;font-size:10px;">+ focus</span>' : ''}
-        <span style="opacity:.65;font-size:10.5px;"> — ${ok ? m.fx : '✗ ' + (m.why || 'not applicable')}</span></span></label>`;
+        <span>${m.name} <b class="c-gold">${m.pp ? '+' + m.pp + ' PP' : 'no PP'}</b>${powerKind ? ' <span class="fs-10" style="color:#78afcd;">+ focus</span>' : ''}
+        <span class="op-0_65 fs-10_5"> — ${ok ? m.fx : '✗ ' + (m.why || 'not applicable')}</span></span></label>`;
     }).join('');
-    const heightenRow = canHeighten ? `<div style="font-size:12px;margin:4px 0;">Heighten Spell to level
+    const heightenRow = canHeighten ? `<div class="fs-12 m-4-0">Heighten Spell to level
       <select id="co-heighten" onchange="__coUpdate()">${[0].concat(Array.from({length: 9 - lvl}, (_, k) => lvl + 1 + k)).map(v => `<option value="${v}">${v === 0 ? '— (off)' : v + ' (cost ' + Math.max(baseCost, PP_COST_BY_POWER_LEVEL[v]) + ' PP, DC scales)'}</option>`).join('')}</select></div>` : '';
-    const ocRow = canOverchannel ? `<div style="font-size:12px;margin:4px 0;">Overchannel
+    const ocRow = canOverchannel ? `<div class="fs-12 m-4-0">Overchannel
       <select id="co-oc" onchange="__coUpdate()">${[0, 1, 2, 3].filter(v => v <= ocMax).map(v => `<option value="${v}">${v === 0 ? '— (off)' : '+' + v + ' EPL (take ' + [0, '1d8', '3d8', '5d8'][v] + ')'}</option>`).join('')}</select>
-      <span style="opacity:.6;font-size:10.5px;">raises the augment cap; damage rolls on cast${(c.feats || []).some(f => f.name === 'Talented') ? ' (Talented: expend focus to avoid, powers ≤3rd)' : ''}</span></div>` : '';
+      <span class="op-0_6 fs-10_5">raises the augment cap; damage rolls on cast${(c.feats || []).some(f => f.name === 'Talented') ? ' (Talented: expend focus to avoid, powers ≤3rd)' : ''}</span></div>` : '';
     // v8.44.0 (Cut 3): option-aware augments — multi-option powers get one
     // stepper (or checkbox) PER printed option; the generic single stepper
     // survives for everything else.
     const augOpts = (AUGMENT_OPTIONS[spell.name]) || null;
-    const augRow = augOpts ? `<div style="margin:4px 0;font-size:12px;"><div style="font-size:10px;color:var(--bronze);text-transform:uppercase;letter-spacing:.05em;">Augment options (independent purchases)</div>
+    const augRow = augOpts ? `<div class="m-4-0 fs-12"><div class="fs-10 c-bronze uppercase ls-0_05em">Augment options (independent purchases)</div>
       ${augOpts.map((o, i) => o.once
-        ? `<label style="display:flex;gap:6px;align-items:baseline;margin:2px 0;"><input type="checkbox" id="co-opt-${i}" onchange="__coUpdate()"> <span>${escapeHTML(o.label)} <b style="color:var(--gold);">+${o.step} PP</b></span></label>`
-        : `<div style="margin:2px 0;">${escapeHTML(o.label)} <span style="opacity:var(--o65);color:var(--dim);">(per ${o.step} PP)</span> ×<input type="number" id="co-opt-${i}" value="0" min="0" style="width:56px;" oninput="__coUpdate()"></div>`).join('')}
-      <div style="font-size:10.5px;color:var(--g70);max-height:60px;overflow:auto;margin-top:2px;">${escapeHTML(aug ? aug.text : '')}</div></div>`
-    : aug ? `<div style="margin:4px 0;font-size:12px;">Augment: +<input type="number" id="co-aug" value="0" min="0" step="${aug.step || 1}" style="width:64px;" oninput="__coUpdate()"> PP
-      ${aug.step ? `<span style="opacity:.65;font-size:10.5px;">(steps of ${aug.step})</span>` : ''}
-      <div style="font-size:10.5px;color:var(--g70);max-height:70px;overflow:auto;margin-top:2px;">${escapeHTML(aug.text)}</div></div>` : '';
-    host.innerHTML = `<div style="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)__coDone(false)">
+        ? `<label class="gap-6 items-baseline m-2-0" style="display:flex;"><input type="checkbox" id="co-opt-${i}" onchange="__coUpdate()"> <span>${escapeHTML(o.label)} <b class="c-gold">+${o.step} PP</b></span></label>`
+        : `<div class="m-2-0">${escapeHTML(o.label)} <span class="o-65 c-dim">(per ${o.step} PP)</span> ×<input type="number" id="co-opt-${i}" value="0" min="0" style="width:56px;" oninput="__coUpdate()"></div>`).join('')}
+      <div class="fs-10_5 c-g70 mt-2" style="max-height:60px;overflow:auto;">${escapeHTML(aug ? aug.text : '')}</div></div>`
+    : aug ? `<div class="m-4-0 fs-12">Augment: +<input type="number" id="co-aug" value="0" min="0" step="${aug.step || 1}" style="width:64px;" oninput="__coUpdate()"> PP
+      ${aug.step ? `<span class="op-0_65 fs-10_5">(steps of ${aug.step})</span>` : ''}
+      <div class="fs-10_5 c-g70 mt-2" style="max-height:70px;overflow:auto;">${escapeHTML(aug.text)}</div></div>` : '';
+    host.innerHTML = `<div class="items-center" style="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)__coDone(false)">
       <div style="background:#161210;border:1px solid rgba(200,151,30,.5);border-radius:6px;padding:14px 18px;max-width:520px;width:92%;max-height:82vh;overflow:auto;">
-        <div style="font-family:'Epics Serif','Cinzel',serif;color:var(--gold);font-size:15px;margin-bottom:6px;">${prep ? '📜' : '⚡'} ${escapeHTML(spell.name)} — ${prep ? 'memorization options' : 'cast options'}</div>
-        <div style="font-size:11.5px;color:var(--g70);margin-bottom:6px;">Base ${baseCost} PP (level ${lvl}${isBuff ? ', Buff — 0 PP unaugmented' : ''}) · cap: total ≤ ${capLabel} ${cap}<span id="co-capnote"></span></div>
-        ${prep ? `<div style="font-size:10.5px;color:#d4b870;margin-bottom:6px;">Prepared casting: ALL Magic-feat and augment costs are paid NOW, at memorization — this particular instance then casts at no PP with everything baked in (a Quickened instance casts as a swift action). Other instances of the same spell memorize at their standard cost unless likewise declared.</div>` : ''}
-        ${augRow}${metaRows ? `<div style="margin:4px 0;"><div style="font-size:10px;color:var(--bronze);text-transform:uppercase;letter-spacing:.05em;">${pool === 'psionic' || pool === 'super' ? 'Power feats (one per manifestation — one focus)' : 'Magic feats'}</div>${metaRows}</div>` : ''}
+        <div class="font-serif c-gold mb-6" style="font-size:15px;">${prep ? '📜' : '⚡'} ${escapeHTML(spell.name)} — ${prep ? 'memorization options' : 'cast options'}</div>
+        <div class="fs-11_5 c-g70 mb-6">Base ${baseCost} PP (level ${lvl}${isBuff ? ', Buff — 0 PP unaugmented' : ''}) · cap: total ≤ ${capLabel} ${cap}<span id="co-capnote"></span></div>
+        ${prep ? `<div class="fs-10_5 mb-6" style="color:#d4b870;">Prepared casting: ALL Magic-feat and augment costs are paid NOW, at memorization — this particular instance then casts at no PP with everything baked in (a Quickened instance casts as a swift action). Other instances of the same spell memorize at their standard cost unless likewise declared.</div>` : ''}
+        ${augRow}${metaRows ? `<div class="m-4-0"><div class="fs-10 c-bronze uppercase ls-0_05em">${pool === 'psionic' || pool === 'super' ? 'Power feats (one per manifestation — one focus)' : 'Magic feats'}</div>${metaRows}</div>` : ''}
         ${heightenRow}${ocRow}
-        ${spont.any && (pool === 'arcane' || pool === 'divine') ? `<div style="font-size:10.5px;color:#d4b870;margin:4px 0;">Spontaneous casting (Saint/Sorcerer/Bard): any Magic feat escalates the cast to a full-round action; Quicken Spell is barred on spontaneous casts (HH pp.238/340).</div>` : ''}
-        <div id="co-total" style="font-size:13px;margin:8px 0 4px;color:var(--gold);"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
+        ${spont.any && (pool === 'arcane' || pool === 'divine') ? `<div class="fs-10_5 m-4-0" style="color:#d4b870;">Spontaneous casting (Saint/Sorcerer/Bard): any Magic feat escalates the cast to a full-round action; Quicken Spell is barred on spontaneous casts (HH pp.238/340).</div>` : ''}
+        <div id="co-total" class="fs-13" style="margin:8px 0 4px;color:var(--gold);"></div>
+        <div class="gap-8 justify-end" style="display:flex;">
           <button class="btn btn-sm" onclick="__coDone(false)">Cancel</button>
           <button class="btn btn-sm btn-pri" id="co-cast" onclick="__coDone(true)">${prep ? '📜 Memorize' : '⚡ Cast'}</button>
         </div>
@@ -127,7 +127,7 @@ function openCastOptions(ctx) {
         else if (aug.dcEveryStep) dc = steps;
         if (dc > 0) fxBits.push(`save DC +${dc}`);
       } else if (aug && s.extra > 0) fxBits.push('see Augment text');
-      document.getElementById('co-total').innerHTML = `Total: <b>${s.total} PP</b> vs cap ${capNow}${s.oc ? ' (incl. Overchannel +' + s.oc + ')' : ''}${fxBits.length ? ' · ' + fxBits.join(' · ') : ''}${over ? ' <b style="color:var(--red-text);">— OVER CAP (GM exception required)</b>' : ''}`;
+      document.getElementById('co-total').innerHTML = `Total: <b>${s.total} PP</b> vs cap ${capNow}${s.oc ? ' (incl. Overchannel +' + s.oc + ')' : ''}${fxBits.length ? ' · ' + fxBits.join(' · ') : ''}${over ? ' <b class="c-red-text">— OVER CAP (GM exception required)</b>' : ''}`;
     };
     window.__coDone = (go) => {
       const s = go ? state() : null;
@@ -328,7 +328,7 @@ function renderCastResult(r) {
   const bits = [];
   if (r.buff) bits.push(`<b>Buff super-power</b> — Personal / You / Permanent-or-at-will; 0 PP unaugmented; variable aspects manifest at your ESL`);
   bits.push(`<b>PP:</b> ${r.after.current}/${r.after.max} remaining (${r.pool})`);
-  if (r.saveDC !== null && r.saveDC !== undefined) bits.push(`<b>Save DC ${r.saveDC}</b>${r.dcBonus ? ` <span style="opacity:.7;">(incl. +${r.dcBonus} Spell Focus)</span>` : ''} — ${escapeHTML(r.spell.save)}`);
+  if (r.saveDC !== null && r.saveDC !== undefined) bits.push(`<b>Save DC ${r.saveDC}</b>${r.dcBonus ? ` <span class="op-0_7">(incl. +${r.dcBonus} Spell Focus)</span>` : ''} — ${escapeHTML(r.spell.save)}`);
   else if (r.spell.save) bits.push(`<b>Save:</b> ${escapeHTML(r.spell.save)}`);
   if (r.spell.resistance) bits.push(`<b>SR/PR:</b> ${escapeHTML(r.spell.resistance)}`);
   // v8.21.0 Segments B & C: what this cast actually applied.
@@ -336,12 +336,12 @@ function renderCastResult(r) {
   if (r.augFx) {
     // v8.44.0: itemized option receipt when the split was declared.
     const optTail = (r.augFx.optBits && r.augFx.optBits.length) ? ` · ${r.augFx.optBits.map(escapeHTML).join(' · ')}` : '';
-    bits.push(`<b style="color:#78afcd;">Augmented +${r.augFx.extra} PP</b>${r.augFx.dice ? ` — +${r.augFx.dice.n}d${r.augFx.dice.d} ${r.augFx.label}${r.augFx.dcAdd ? `, save DC +${r.augFx.dcAdd} (already included)` : ''}${optTail}` : (optTail ? ` —${optTail}` : ` — <span style="opacity:.8;">${escapeHTML(r.augFx.text.slice(0, 160))}${r.augFx.text.length > 160 ? '…' : ''}</span>`)}`);
+    bits.push(`<b style="color:#78afcd;">Augmented +${r.augFx.extra} PP</b>${r.augFx.dice ? ` — +${r.augFx.dice.n}d${r.augFx.dice.d} ${r.augFx.label}${r.augFx.dcAdd ? `, save DC +${r.augFx.dcAdd} (already included)` : ''}${optTail}` : (optTail ? ` —${optTail}` : ` — <span class="op-0_8">${escapeHTML(r.augFx.text.slice(0, 160))}${r.augFx.text.length > 160 ? '…' : ''}</span>`)}`);
   }
-  for (const m of (r.metasApplied || [])) bits.push(`<b style="color:var(--vio);">${m.name}</b> — ${escapeHTML(m.fx || '')}${m.pp ? ` (+${m.pp} PP, included)` : ''}`);
+  for (const m of (r.metasApplied || [])) bits.push(`<b class="c-vio">${m.name}</b> — ${escapeHTML(m.fx || '')}${m.pp ? ` (+${m.pp} PP, included)` : ''}`);
   // v8.25.0: Mental Pinnacle's chosen modes (HH p.574 — five attack/defense
   // pairs + one floater; the pairing guarantees at least one of each).
-  if (r.mpPicks) bits.push(`<b style="color:var(--vio);">🧠 Modes (6):</b> ${r.mpPicks.map(n => escapeHTML(n)).join(', ')}${r.buff ? ' <span style="opacity:.7;">(permanent — Super-Power)</span>' : ''} · +4 inherent Int/Wis/Cha (min 15 each) · +2 bonus PP per CL · manifest the modes as a Psion of your CL · Divine variant: other spellcasting locked (Mind domain excepted)`);
+  if (r.mpPicks) bits.push(`<b class="c-vio">🧠 Modes (6):</b> ${r.mpPicks.map(n => escapeHTML(n)).join(', ')}${r.buff ? ' <span class="op-0_7">(permanent — Super-Power)</span>' : ''} · +4 inherent Int/Wis/Cha (min 15 each) · +2 bonus PP per CL · manifest the modes as a Psion of your CL · Divine variant: other spellcasting locked (Mind domain excepted)`);
   if (r.focusNote) bits.push(`<b>Focus:</b> ${escapeHTML(r.focusNote)}`);
   if (r.ocBoost) bits.push(`<b style="color:#d4865a;">Overchannel +${r.ocBoost} EPL</b> — took ${r.ocResult.total} damage (${r.ocResult.rolls.join('+')})`);
   if (r.spontMeta) bits.push(`<b style="color:#d4b870;">Casting time escalates to a full-round action</b> (Magic feat on a spontaneous cast — HH p.340)`);

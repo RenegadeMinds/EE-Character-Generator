@@ -91,7 +91,7 @@ function scenAnnotate() {
   if (!dis.length) {
     el.innerHTML = '<span style="color:#6dba88;">✓ Every class in the catalogue is available under these dials.</span>';
   } else {
-    el.innerHTML = `<span style="color:#d4b870;">◌ ${dis.length} class${dis.length === 1 ? ' is' : 'es are'} unavailable under these dials:</span> <span style="opacity:.75;">${dis.join(', ')}</span>`;
+    el.innerHTML = `<span style="color:#d4b870;">◌ ${dis.length} class${dis.length === 1 ? ' is' : 'es are'} unavailable under these dials:</span> <span class="op-0_75">${dis.join(', ')}</span>`;
   }
 }
 async function scenSave() {
@@ -131,13 +131,13 @@ function scenRenderList() {
   const el = document.getElementById('scen-list');
   if (!el) return;
   el.innerHTML = customScenarios.length
-    ? customScenarios.map((s, i) => `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-top:1px solid rgba(200,151,30,.12);font-size:11.5px;">
-        <span>${s.locked ? '🔒 ' : ''}<b>${escapeHTML(s.name)}</b> <span style="opacity:var(--o60);color:var(--dim);">${scenarioSummaryStr(s.scales)}</span>${s.notes ? ` <span style="opacity:.45;cursor:help;" title="${escapeHTML(s.notes)}">✎</span>` : ''}</span>
-        <span style="margin-left:auto;display:inline-flex;gap:5px;">
-          <button class="btn btn-sm" style="font-size:10px;padding:1px 7px;" onclick="scenExport(${i})" title="Download this scenario as a small JSON file — hand it to your players; they Import it and their Create page carries your dials.">⬇</button>
-          <button class="btn btn-sm" style="font-size:10px;padding:1px 7px;" onclick="scenDelete(${i})" title="Remove this scenario from the list. Characters already created under it keep their dials and scenario title.">✕</button>
+    ? customScenarios.map((s, i) => `<div class="items-center gap-8 fs-11_5" style="display:flex;padding:4px 6px;border-top:1px solid rgba(200,151,30,.12);">
+        <span>${s.locked ? '🔒 ' : ''}<b>${escapeHTML(s.name)}</b> <span class="o-60 c-dim">${scenarioSummaryStr(s.scales)}</span>${s.notes ? ` <span class="op-0_45 cursor-help" title="${escapeHTML(s.notes)}">✎</span>` : ''}</span>
+        <span class="ml-auto gap-5" style="display:inline-flex;">
+          <button class="fs-10 p-1-7 btn btn-sm" onclick="scenExport(${i})" title="Download this scenario as a small JSON file — hand it to your players; they Import it and their Create page carries your dials.">⬇</button>
+          <button class="fs-10 p-1-7 btn btn-sm" onclick="scenDelete(${i})" title="Remove this scenario from the list. Characters already created under it keep their dials and scenario title.">✕</button>
         </span></div>`).join('')
-    : '<div style="padding:5px 6px;font-size:11px;opacity:var(--o50);color:var(--dim);">None established yet — the scenarios you save here appear in the Create page and Quickdraw dropdowns, and export as files your players can import.</div>';
+    : '<div class="fs-11 o-50 c-dim" style="padding:5px 6px;">None established yet — the scenarios you save here appear in the Create page and Quickdraw dropdowns, and export as files your players can import.</div>';
 }
 async function scenDelete(i) {
   const s = customScenarios[i];

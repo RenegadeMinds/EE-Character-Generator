@@ -53,25 +53,25 @@ function renderClassSubOptions(){
       // v8.5.4: availability-table footnote — at Tech 0 the base Cleric is
       // unavailable; only the Druid Option qualifies.
       blocks.push(`<div class="sub-opt-block" style="border-left-color:#d4b870;">
-        <div style="font-size:11px;color:#d4b870;">⚠ Tech Scale 0 scenario: the base Cleric is unavailable — only the <b>Druid Option</b> below qualifies (HH availability table). Enable it, or this will be recorded as a GM exception at save.</div>
+        <div class="fs-11" style="color:#d4b870;">⚠ Tech Scale 0 scenario: the base Cleric is unavailable — only the <b>Druid Option</b> below qualifies (HH availability table). Enable it, or this will be recorded as a GM exception at save.</div>
       </div>`);
     }
     blocks.push(`<div class="sub-opt-block">
       <div class="sub-opt-head">Cleric Options</div>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+      <label class="items-center gap-6 fs-12 cursor-pointer" style="display:flex;">
         <input type="checkbox" ${so.druidOption?'checked':''} onchange="onSubOptChange('druidOption', this.checked)">
         <b>The Druid Option</b> — trade Turn Undead + both Domains for the Druid spell list, Animal Companion, Wild Empathy, Woodland Stride (3rd), Wildshape (5th)
       </label>
       ${so.druidOption
-        ? `<div style="font-size:11px;color:var(--g60);margin-top:4px;">Adds Knowledge (Nature) &amp; Survival as class skills. No metal weapons/armor.${alignOk?'':' <span style="color:#d4b870;">⚠ Druids require a Neutral alignment component — current alignment doesn’t qualify (GM confirm).</span>'}</div>`
-        : `<div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap;">
-            <span style="font-size:11px;color:var(--g65);">Domains (choose 2):</span>
+        ? `<div class="fs-11 c-g60 mt-4">Adds Knowledge (Nature) &amp; Survival as class skills. No metal weapons/armor.${alignOk?'':' <span style="color:#d4b870;">⚠ Druids require a Neutral alignment component — current alignment doesn’t qualify (GM confirm).</span>'}</div>`
+        : `<div class="gap-8 mt-6 items-center flex-wrap" style="display:flex;">
+            <span class="fs-11 c-g65">Domains (choose 2):</span>
             <select onchange="onSubOptDomain('clericDomains', 0, this.value)">${domainOpts(so.clericDomains[0]||'')}</select>
             <select onchange="onSubOptDomain('clericDomains', 1, this.value)">${domainOpts(so.clericDomains[1]||'')}</select>
           </div>
           ${(so.clericDomains||[]).filter(Boolean).map(d => {
             const dd = DOMAINS_DB.find(x => x.name === d);
-            return dd ? `<div style="font-size:10.5px;color:var(--g50);margin-top:3px;"><b style="color:var(--g70);">${d}:</b> ${escapeHTML(dd.grantedPower.slice(0,180))}${dd.grantedPower.length>180?'…':''}${dd.prerequisite?` <span style="color:#d4b870;">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>`:''}</div>` : '';
+            return dd ? `<div class="fs-10_5 c-g50 mt-3"><b class="c-g70">${d}:</b> ${escapeHTML(dd.grantedPower.slice(0,180))}${dd.grantedPower.length>180?'…':''}${dd.prerequisite?` <span style="color:#d4b870;">[Prereq: ${escapeHTML(dd.prerequisite)}]</span>`:''}</div>` : '';
           }).join('')}`}
     </div>`);
   }
@@ -79,8 +79,8 @@ function renderClassSubOptions(){
     const sd = formSubOptions.saintDomains || [];
     blocks.push(`<div class="sub-opt-block">
       <div class="sub-opt-head">Saint — Deity’s Domains</div>
-      <div style="font-size:11px;color:var(--g60);margin-bottom:4px;">A Saint gains access to ALL the domains of their god (typically 3–4). These ARE the Saint’s spell list; Personal Domain picks are added on the Powers &amp; Spells tab from 3rd level.</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="fs-11 c-g60 mb-4">A Saint gains access to ALL the domains of their god (typically 3–4). These ARE the Saint’s spell list; Personal Domain picks are added on the Powers &amp; Spells tab from 3rd level.</div>
+      <div class="gap-6 flex-wrap" style="display:flex;">
         ${[0,1,2,3].map(i => `<select onchange="onSubOptDomain('saintDomains', ${i}, this.value)">${domainOpts(sd[i]||'')}</select>`).join('')}
       </div>
     </div>`);
@@ -89,8 +89,8 @@ function renderClassSubOptions(){
     const pd = formSubOptions.paladinDomains || [];
     blocks.push(`<div class="sub-opt-block">
       <div class="sub-opt-head">Paladin — Deity’s Domains</div>
-      <div style="font-size:11px;color:var(--g60);margin-bottom:4px;">From 4th level a Paladin casts spontaneously, like a Saint, drawing ONLY from their god’s Domain lists (HH). Choose the deity’s domains to unlock spell browsing.</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="fs-11 c-g60 mb-4">From 4th level a Paladin casts spontaneously, like a Saint, drawing ONLY from their god’s Domain lists (HH). Choose the deity’s domains to unlock spell browsing.</div>
+      <div class="gap-6 flex-wrap" style="display:flex;">
         ${[0,1,2,3].map(i => `<select onchange="onSubOptDomain('paladinDomains', ${i}, this.value)">${domainOpts(pd[i]||'')}</select>`).join('')}
       </div>
     </div>`);
@@ -107,16 +107,16 @@ function renderClassSubOptions(){
     const axisLabel = v.axis.charAt(0).toUpperCase() + v.axis.slice(1);
     const opts = (sel) => '<option value="">— pick skill —</option>' + elig.map(s => `<option${s===sel?' selected':''}>${s}</option>`).join('');
     return `<div class="sub-opt-block">
-      <div class="sub-opt-head">${className} — ${v.feature} <span style="font-weight:normal;font-size:10px;color:var(--g50);">(${axisLabel} Scale 0 variant)</span></div>
-      <div style="font-size:11px;color:var(--g60);margin-bottom:4px;">No ${v.axis} magic in this scenario — spellcasting is replaced by ${v.feature}: each pick grants +1 competence to a ${v.attrKey}-based class skill, and picks may stack on the same skill. Picks unlock at class levels ${v.milestones.join(' / ')}. ${budget ? `Available now: <b style="color:var(--gold);">${budget}</b>.` : 'None yet at this level.'}</div>
-      ${budget ? `<div style="display:flex;gap:6px;flex-wrap:wrap;">` +
+      <div class="sub-opt-head">${className} — ${v.feature} <span class="fw-normal fs-10 c-g50">(${axisLabel} Scale 0 variant)</span></div>
+      <div class="fs-11 c-g60 mb-4">No ${v.axis} magic in this scenario — spellcasting is replaced by ${v.feature}: each pick grants +1 competence to a ${v.attrKey}-based class skill, and picks may stack on the same skill. Picks unlock at class levels ${v.milestones.join(' / ')}. ${budget ? `Available now: <b class="c-gold">${budget}</b>.` : 'None yet at this level.'}</div>
+      ${budget ? `<div class="gap-6 flex-wrap" style="display:flex;">` +
         Array.from({length: budget}, (_, i) => `<select onchange="onScale0Pick('${v.field}', ${i}, this.value)">${opts(picks[i]||'')}</select>`).join('') + `</div>` : ''}
     </div>`;
   };
   if (names.has('Ranger')) {
     blocks.push((sixNow.divine || 0) === 0 ? scale0Block('Ranger') : `<div class="sub-opt-block">
-      <div class="sub-opt-head">Ranger — Spellcasting <span style="font-weight:normal;font-size:10px;color:var(--g50);">(informational)</span></div>
-      <div style="font-size:11px;color:var(--g60);">From 4th level the Ranger prepares divine spells from the <b>Druid spell list</b>, Cleric-style (daily meditation); caster level is one-half Ranger level, rounded up. No configuration needed — the Powers tab routes the Druid list automatically. <span style="opacity:.7;">(In a Divine Scale 0 scenario this becomes the Nature’s Secrets variant.)</span></div>
+      <div class="sub-opt-head">Ranger — Spellcasting <span class="fw-normal fs-10 c-g50">(informational)</span></div>
+      <div class="fs-11 c-g60">From 4th level the Ranger prepares divine spells from the <b>Druid spell list</b>, Cleric-style (daily meditation); caster level is one-half Ranger level, rounded up. No configuration needed — the Powers tab routes the Druid list automatically. <span class="op-0_7">(In a Divine Scale 0 scenario this becomes the Nature’s Secrets variant.)</span></div>
     </div>`);
   }
   if (names.has('Bard') && (sixNow.arcane || 0) === 0) {
@@ -126,12 +126,12 @@ function renderClassSubOptions(){
     const disc = formSubOptions.psionDiscipline;
     blocks.push(`<div class="sub-opt-block">
       <div class="sub-opt-head">Psion — Discipline</div>
-      <div style="font-size:11px;color:var(--g60);margin-bottom:4px;">Mandatory at 1st level. Grants the discipline’s class skills and its restricted powers; powers of other disciplines become unlearnable (Expanded Knowledge is the exception).</div>
+      <div class="fs-11 c-g60 mb-4">Mandatory at 1st level. Grants the discipline’s class skills and its restricted powers; powers of other disciplines become unlearnable (Expanded Knowledge is the exception).</div>
       <select onchange="onSubOptChange('psionDiscipline', this.value || null)">
         <option value="">— choose —</option>
         ${Object.keys(PSION_DISCIPLINE_INFO).map(n => `<option value="${n}"${disc===n?' selected':''}>${n} (${PSION_DISCIPLINE_INFO[n].discipline})</option>`).join('')}
       </select>
-      ${disc ? `<span style="font-size:10.5px;color:var(--g55);margin-left:8px;">Class skills: ${PSION_DISCIPLINE_INFO[disc].skills.join(', ')}</span>` : ''}
+      ${disc ? `<span class="fs-10_5 c-g55 ml-8">Class skills: ${PSION_DISCIPLINE_INFO[disc].skills.join(', ')}</span>` : ''}
     </div>`);
   }
   if (names.has('Wizard')) {
@@ -142,22 +142,22 @@ function renderClassSubOptions(){
       WIZARD_SCHOOLS.filter(s => s !== 'Divination' && s !== so.wizardSchool && !(excl||[]).includes(s))
         .map(s => `<option${s===sel?' selected':''}>${s}</option>`).join('');
     blocks.push(`<div class="sub-opt-block">
-      <div class="sub-opt-head">Wizard — School Specialization <span style="font-weight:normal;font-size:10px;color:var(--g50);">(optional)</span></div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span style="font-size:11px;color:var(--g65);">Specialty:</span>
+      <div class="sub-opt-head">Wizard — School Specialization <span class="fw-normal fs-10 c-g50">(optional)</span></div>
+      <div class="gap-8 items-center flex-wrap" style="display:flex;">
+        <span class="fs-11 c-g65">Specialty:</span>
         <select onchange="onSubOptChange('wizardSchool', this.value || null)">
           <option value="">— generalist —</option>
           ${WIZARD_SCHOOLS.map(s => `<option${s===so.wizardSchool?' selected':''}>${s}</option>`).join('')}
         </select>
-        ${so.wizardSchool ? `<span style="font-size:11px;color:var(--g65);">Prohibited (${prohibitedCount}):</span>
+        ${so.wizardSchool ? `<span class="fs-11 c-g65">Prohibited (${prohibitedCount}):</span>
           ${Array.from({length: prohibitedCount}, (_, i) =>
             `<select onchange="onSubOptDomain('wizardProhibited', ${i}, this.value)">${schoolOpts(so.wizardProhibited[i]||'', so.wizardProhibited.filter((_,j)=>j!==i))}</select>`).join('')}` : ''}
       </div>
-      ${so.wizardSchool ? `<div style="font-size:10.5px;color:var(--g50);margin-top:3px;">Specialists prepare one extra ${so.wizardSchool} spell per spell level daily (PP-free) and get +2 Spellcraft to learn ${so.wizardSchool} spells. Prohibited-school spells are unavailable — not even from scrolls or wands. Divination can never be prohibited.</div>` : ''}
+      ${so.wizardSchool ? `<div class="fs-10_5 c-g50 mt-3">Specialists prepare one extra ${so.wizardSchool} spell per spell level daily (PP-free) and get +2 Spellcraft to learn ${so.wizardSchool} spells. Prohibited-school spells are unavailable — not even from scrolls or wands. Divination can never be prohibited.</div>` : ''}
     </div>`);
   }
   host.innerHTML = blocks.length
-    ? `<div style="margin-top:.8rem;display:flex;flex-direction:column;gap:.6rem;">${blocks.join('')}</div>`
+    ? `<div class="mt-0_8rem flex-col" style="display:flex;gap:.6rem;">${blocks.join('')}</div>`
     : '';
 }
 function onSubOptChange(key, value){
@@ -201,7 +201,7 @@ function renderClassList(){
   // versatile per decision 5.
   const isL1Genesis = editId === null;
   if(formClasses.length===0){
-    list.innerHTML=`<div style="padding:1rem;text-align:center;color:var(--g40);font-style:italic;border:1px dashed rgba(200,151,30,.2);border-radius:3px;">No classes added yet — click "+ Add Class" to begin.</div>`;
+    list.innerHTML=`<div class="p-1rem text-center c-g40 italic" style="border:1px dashed rgba(200,151,30,.2);border-radius:3px;">No classes added yet — click "+ Add Class" to begin.</div>`;
   } else {
     list.innerHTML=formClasses.map((e,i)=>{
       const cls=getClassEntry(e);
@@ -216,7 +216,7 @@ function renderClassList(){
       const isFirst=!!e.first;
       return`<div class="cls-row ${isFirst?'first':''}">
         <span class="cls-tier-badge cls-tier-${e.tier}">${tierLabel}</span>
-        <span class="cls-name">${e.name}${citeHTML('classes', e.name)} <span style="font-size:10px;color:var(--g45);">d${hd} · ${sp}+Int SP</span></span>
+        <span class="cls-name">${e.name}${citeHTML('classes', e.name)} <span class="fs-10 c-g45">d${hd} · ${sp}+Int SP</span></span>
         <input type="number" class="cls-lvl-inp" value="${e.level}" min="1" max="${maxLvl}" ${lvlInpAttrs} onchange="onClassLevelChange(${i}, this.value)" title="${lvlInpTitle}">
         <label class="cls-first-lbl" title="The 'first' class is the one whose 1st level uses the maximum die value for HP. Only one class can be marked first.">
           <input type="radio" name="cls-first-radio" ${isFirst?'checked':''} onchange="setFirstClass(${i})">1st
@@ -246,9 +246,9 @@ function renderClassList(){
     const total=formClasses.reduce((s,e)=>s+(e.level||0),0);
     if (isL1Genesis) {
       if (formClasses.length === 0) {
-        hintEl.innerHTML = `<span style="color:var(--tv85);">⬟ 1st-level genesis: pick ONE starting class. Use Level Up after saving to advance, or Edit (GM) to construct higher-level characters.</span>`;
+        hintEl.innerHTML = `<span class="c-tv85">⬟ 1st-level genesis: pick ONE starting class. Use Level Up after saving to advance, or Edit (GM) to construct higher-level characters.</span>`;
       } else {
-        hintEl.innerHTML = `<span style="color:var(--tv85);">⬟ 1st-level genesis active. The character will be saved at Level 1; use Level Up or Edit afterward.</span>`;
+        hintEl.innerHTML = `<span class="c-tv85">⬟ 1st-level genesis active. The character will be saved at Level 1; use Level Up or Edit afterward.</span>`;
       }
     } else if(total===0) {
       hintEl.textContent='';

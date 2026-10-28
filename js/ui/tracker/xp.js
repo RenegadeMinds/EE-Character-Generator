@@ -31,11 +31,11 @@ function renderXPBar(c){
   // from zero. See computeXpProgress() near XP_TBL for the math.
   const prog = computeXpProgress(c);
   document.getElementById('tr-xp').innerHTML=`
-    <div class="xp-track" style="margin:0;">
-      <div class="xp-top"><span class="xp-lvl">Level ${c.totalLvl}</span><span style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;color:var(--g50);">ECL ${c.ecl}</span></div>
+    <div class="m-0 xp-track">
+      <div class="xp-top"><span class="xp-lvl">Level ${c.totalLvl}</span><span class="font-serif fs-9 c-g50">ECL ${c.ecl}</span></div>
       <div class="bar-wrap"><div class="bar-fill bar-gold" style="width:${prog.pct}%;"></div></div>
-      <div class="xp-txt">${prog.inLevel.toLocaleString()} / ${prog.bandSize.toLocaleString()} XP toward Lvl ${c.totalLvl + 1} <span style="color:var(--g45);font-size:10px;">(${c.xp.toLocaleString()} total)</span></div>
-      ${c.mcReserve && techsmithLvl(c) ? `<div style="font-size:10.5px;color:#78afcd;margin-top:3px;cursor:help;" title="Techsmith class feature (HH p.140): 250 XP × class level granted at every Techsmith level. Spendable ONLY on mastercraft items (the − Spend flow draws it first); unspent reserve is FORFEITED when a new level is gained. Separate from advancement XP — it never counts toward level gain.">🔧 Mastercraft XP Reserve: <b>${c.mcReserve.balance.toLocaleString()}</b> <span style="color:var(--g45);">(use-it-or-lose-it at level-up · mastercraft only)</span></div>` : ''}
+      <div class="xp-txt">${prog.inLevel.toLocaleString()} / ${prog.bandSize.toLocaleString()} XP toward Lvl ${c.totalLvl + 1} <span class="c-g45 fs-10">(${c.xp.toLocaleString()} total)</span></div>
+      ${c.mcReserve && techsmithLvl(c) ? `<div style="font-size:10.5px;color:#78afcd;margin-top:3px;cursor:help;" title="Techsmith class feature (HH p.140): 250 XP × class level granted at every Techsmith level. Spendable ONLY on mastercraft items (the − Spend flow draws it first); unspent reserve is FORFEITED when a new level is gained. Separate from advancement XP — it never counts toward level gain.">🔧 Mastercraft XP Reserve: <b>${c.mcReserve.balance.toLocaleString()}</b> <span class="c-g45">(use-it-or-lose-it at level-up · mastercraft only)</span></div>` : ''}
     </div>`;
 }
 function awardXP(){

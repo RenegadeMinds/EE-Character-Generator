@@ -79,12 +79,12 @@ function showStatBreakdown(statKey){
     for (const t of acDisp.tiers) {
       body += `<div class="drilldown-row applied">
         <span class="drilldown-val">${t.val}</span>
-        <span class="drilldown-src"><b>${t.name}</b><br><span style="font-size:11px;opacity:.7;">${t.formula}</span></span>
+        <span class="drilldown-src"><b>${t.name}</b><br><span class="fs-11 op-0_7">${t.formula}</span></span>
         <span></span>
       </div>`;
     }
     body += `</div>`;
-    body += `<div style="font-size:11px;color:var(--g50);margin-top:.8rem;line-height:1.5;">
+    body += `<div class="fs-11 c-g50 mt-0_8rem lh-1_5">
       T/ACtical Combat layers AC into tiers. An attack roll less than Touch misses entirely. A roll equal to Touch but less than Armor hits the character's equipment (damage resolves vs armor hardness). A roll equal to Armor but less than NatCrit hits the body but natural hardness applies. A roll equal to or greater than NatCrit (or the highest tier shown) is the threshold to confirm a critical hit, bypassing all armor including natural. (HH p.347)
     </div>`;
     body += `<button class="drilldown-close" onclick="closeDrilldown()">Close</button>`;
@@ -107,7 +107,7 @@ function showStatBreakdown(statKey){
       </div>`;
     }
     body += `</div>`;
-    body += `<div style="font-size:11px;color:var(--g50);margin-top:.8rem;line-height:1.5;">
+    body += `<div class="fs-11 c-g50 mt-0_8rem lh-1_5">
       A parry is an immediate free action (when readied) against a melee attack. Roll 1d20 + this modifier vs. the attacker's roll. Equal-or-greater parries the attack. Only a natural 20 parries a natural 20. Parry can only block melee attacks; readying a parry costs a move action (swift with Defensive Martial Arts; free with Improved Defensive Martial Arts; immediate free with Advanced Defensive Martial Arts). (HH p.377)
     </div>`;
     body += `<button class="drilldown-close" onclick="closeDrilldown()">Close</button>`;
@@ -141,7 +141,7 @@ function showStatBreakdown(statKey){
       }
       body += `</div>`;
     }
-    body += `<div style="font-size:11px;color:var(--g50);margin-top:.8rem;line-height:1.5;">
+    body += `<div class="fs-11 c-g50 mt-0_8rem lh-1_5">
       A dodge is an immediate free action (when readied) against an incoming attack. Roll 1d20 + this modifier vs. the attacker's roll. Equal-or-greater dodges the attack. Only a natural 20 dodges a natural 20. Dodge can be used against ranged attacks as well as melee. Readying a dodge costs a move action (swift with Dodge feat; free with Improved Dodge; immediate free with Advanced Dodge). Dodge bonuses stack with each other, unlike most bonus types. (HH p.373)
     </div>`;
     body += `<button class="drilldown-close" onclick="closeDrilldown()">Close</button>`;
@@ -169,7 +169,7 @@ function showStatBreakdown(statKey){
       </div>`;
     }
     for (const e of ((natComp.breakdown && natComp.breakdown.superseded) || [])) {
-      body += `<div class="drilldown-row" style="opacity:.45;">
+      body += `<div class="op-0_45 drilldown-row">
         <span class="drilldown-val">+${e.value}</span>
         <span class="drilldown-src">${escapeHTML(e.label || e.source)} — superseded (same-type, best wins)</span>
         <span></span>
@@ -181,7 +181,7 @@ function showStatBreakdown(statKey){
         <span></span>
       </div>
     </div>`;
-    body += `<div style="font-size:11px;color:var(--g50);margin-top:.8rem;line-height:1.5;">
+    body += `<div class="fs-11 c-g50 mt-0_8rem lh-1_5">
       Per HH p.347 — every +1 of natural AC modifier grants +5 HP and 1 point of natural hardness. Natural hardness applies to any physical damage (except acid damage) or any naturally-occurring damage; null energy attacks ignore hardness. When an attack lands at or above the Armor tier but below the NatCrit tier in the T/ACtical Combat System, damage hits the character's body but natural hardness applies first. (GG p.110)
     </div>`;
     body += `<button class="drilldown-close" onclick="closeDrilldown()">Close</button>`;
@@ -224,9 +224,9 @@ function showStatBreakdown(statKey){
     body+=`<div class="drilldown-section"><div class="drilldown-section-title">Inactive (conditional)</div>${inactive.map(b=>fmtRow(b,'inactive')).join('')}</div>`;
   }
   if(!applied.length && !superseded.length && !inactive.length){
-    body+=`<div style="color:var(--g50);font-style:italic;padding:.6rem 0;">No bonuses contribute to this stat.</div>`;
+    body+=`<div class="c-g50 italic" style="padding:.6rem 0;">No bonuses contribute to this stat.</div>`;
   }
-  body+=`<div style="font-size:11px;color:var(--g50);margin-top:.8rem;line-height:1.5;">Bonuses follow the GM's Guide stacking rules: same-type bonuses don't stack (best positive + worst negative apply); Dodge, Circumstance, and Untyped bonuses self-stack; same-source bonuses (e.g. two castings of the same spell) collapse to one regardless of type.</div>`;
+  body+=`<div class="fs-11 c-g50 mt-0_8rem lh-1_5">Bonuses follow the GM's Guide stacking rules: same-type bonuses don't stack (best positive + worst negative apply); Dodge, Circumstance, and Untyped bonuses self-stack; same-source bonuses (e.g. two castings of the same spell) collapse to one regardless of type.</div>`;
   body+=`<button class="drilldown-close" onclick="closeDrilldown()">Close</button>`;
   document.getElementById('drilldown-panel').innerHTML=body;
   document.getElementById('drilldown-bg').classList.add('open');
@@ -430,7 +430,7 @@ function renderSheetHeader(c, classArr) {
     heroicTierBadge+
     (_cap_sh.hasAP  ?'<span class="tag te">Action Points</span>':'')+
     (_cap_sh.hasHAP ?'<span class="tag te">Heroic Action Points</span>':'')+
-    (_cap_sh.hasFP  ?'<span class="tag tr" style="background:rgba(196,153,212,.18);border-color:rgba(196,153,212,.55);color:var(--vio);">Fate Points</span>':'');
+    (_cap_sh.hasFP  ?'<span class="c-vio tag tr" style="background:rgba(196,153,212,.18);border-color:rgba(196,153,212,.55);">Fate Points</span>':'');
 }
 
 // Sheet: the six attribute boxes, with level bumps, mutation, item and
@@ -465,7 +465,7 @@ function renderSheetAttributes(c) {
   document.getElementById('sh-attrs').innerHTML=ATTR_NAMES.map((a,i)=>{
     const bumpCount = bumpCountPerAttr[a] || 0;
     const bumpTag = bumpCount > 0
-      ? `<div style="font-family:'Epics Serif','Crimson Pro',serif;font-size:9px;color:var(--g55);font-style:italic;margin-top:2px;">+${bumpCount} level bump${bumpCount>1?'s':''}</div>`
+      ? `<div class="fs-9 c-g55 italic mt-2" style="font-family:'Epics Serif','Crimson Pro',serif;">+${bumpCount} level bump${bumpCount>1?'s':''}</div>`
       : '';
     const mutEx = mutExPerAttr[a] || 0, mutSu = mutSuPerAttr[a] || 0;
     const mutBits = [];
@@ -483,13 +483,13 @@ function renderSheetAttributes(c) {
     const buffD = (activeBuffAttrDeltas(c)[i] || 0);
     const effV = c.attrs[i] + iB + buffD;
     const itemTag = iB > 0
-      ? `<div style="font-family:'Epics Serif','Crimson Pro',serif;font-size:9px;color:var(--tb85);font-style:italic;margin-top:2px;cursor:help;" title="${escapeHTML(itemAttrB.from[i] || '')} — enhancement bonus while equipped (firm-wired: saves, skills, DCs, and attacks use the effective score; stored max HP does not follow item CON — RAW treats those hit points as temporary).">+${iB} equipped</div>`
+      ? `<div class="fs-9 c-tb85 italic mt-2 cursor-help" style="font-family:'Epics Serif','Crimson Pro',serif;" title="${escapeHTML(itemAttrB.from[i] || '')} — enhancement bonus while equipped (firm-wired: saves, skills, DCs, and attacks use the effective score; stored max HP does not follow item CON — RAW treats those hit points as temporary).">+${iB} equipped</div>`
       : '';
     const buffTag = buffD !== 0
       ? `<div style="font-family:'Epics Serif','Crimson Pro',serif;font-size:9px;color:var(--ty85);font-style:italic;margin-top:2px;cursor:help;" title="Active power effects (✨ panel below) — ${escapeHTML((c.activeEffects || []).filter(ae => (ae.effects || []).some(e => e.k === 'attr' && e.attr === a)).map(ae => ae.name).join(' + ') || 'wired buff')}. Clears on rest or the chip's ✕; suppressed while ⊘ Nullified.">${buffD > 0 ? '+' : ''}${buffD} ✨ active</div>`
       : '';
     return `<div class="attr-box"><span class="attr-nm">${a}</span>
-    <span class="attr-inp" style="font-family:'Epics Serif','Cinzel',serif;font-size:21px;font-weight:600;display:block;">${c.attrs[i]}${(iB > 0 || buffD !== 0) ? ` <span style="font-size:13px;color:var(--pb90);">(${effV})</span>` : ''}</span>
+    <span class="font-serif fw-600 attr-inp" style="font-size:21px;display:block;">${c.attrs[i]}${(iB > 0 || buffD !== 0) ? ` <span class="fs-13 c-pb90">(${effV})</span>` : ''}</span>
     <span class="attr-mod">${ms(effV)}</span>${bumpTag}${mutTag}${itemTag}${buffTag}</div>`;
   }).join('');
 }
@@ -526,18 +526,18 @@ function renderNatACMigrationBanner(c, natComputedForBanner) {
         ? `effective ${charEffectiveNAC} (from legacy sources)`
         : '0';
       natACMigrationBanner.innerHTML = `
-        <div style="display:flex;align-items:flex-start;gap:8px;">
-          <span style="color:var(--vio);font-size:14px;">⚜</span>
-          <div style="flex:1;">
-            <b style="color:var(--vio);">Racial Natural AC ${hasMatchingRacialSource ? 'incomplete' : 'missing'}.</b>
-            <div style="color:var(--g75);font-size:11px;margin-top:3px;line-height:1.45;">
+        <div class="items-start gap-8" style="display:flex;">
+          <span class="c-vio fs-14">⚜</span>
+          <div class="flex-1">
+            <b class="c-vio">Racial Natural AC ${hasMatchingRacialSource ? 'incomplete' : 'missing'}.</b>
+            <div class="c-g75 fs-11 mt-3 lh-1_45">
               ${escapeHTML(c.race)} grants <b>+${racialNatAC} Natural AC</b>, but this character has ${currentLabel}.
               Apply will ${hasMatchingRacialSource ? 'sync the racial entry' : 'add a structured racial source'} (+${diff} effective NAC),
               <b>+${5*diff} HP</b>, and <b>+${diff} natural hardness</b> per HH p.347.
             </div>
-            <div style="margin-top:6px;display:flex;gap:6px;">
-              <button class="btn btn-sm btn-pri" onclick="applyRacialNatAC()" style="font-size:11px;">Apply +${diff}</button>
-              <button class="btn btn-sm" onclick="dismissNatACBanner()" style="font-size:11px;">Dismiss</button>
+            <div class="mt-6 gap-6" style="display:flex;">
+              <button class="fs-11 btn btn-sm btn-pri" onclick="applyRacialNatAC()">Apply +${diff}</button>
+              <button class="fs-11 btn btn-sm" onclick="dismissNatACBanner()">Dismiss</button>
             </div>
           </div>
         </div>
@@ -583,15 +583,15 @@ function renderSheetCombatStats(c, natComputed, dM, stats) {
   const _dclOwn = ownsFeatN(c, 'Power Attack') || ownsFeatN(c, 'Combat Expertise');
   const _dclSpent = _dcl.pa + _dcl.ce;
   const _effBA = (c.bab || 0) - _dclSpent;
-  const _ceTag = _dcl.ce ? `<span style="display:block;font-size:9px;color:#78afcd;" title="Combat Expertise declared stance — this +${_dcl.ce} dodge bonus also applies to TOUCH AC (HH p.207). Lasts until re-declared.">+${_dcl.ce} CE (declared)</span>` : '';
+  const _ceTag = _dcl.ce ? `<span class="fs-9" style="display:block;color:#78afcd;" title="Combat Expertise declared stance — this +${_dcl.ce} dodge bonus also applies to TOUCH AC (HH p.207). Lasts until re-declared.">+${_dcl.ce} CE (declared)</span>` : '';
   // v8.63.0: Reckless Offense's −4 AC rides the same display convention as
   // the CE tag (attack rolls carry the +2; BA/Grapple expressly untouched).
-  const _roTag = _dcl.ro ? `<span style="display:block;font-size:9px;color:var(--red-text);" title="Reckless Offense declared — −4 AC until your next turn for +2 on melee attack rolls, Grapple included (HH p.239; a grapple check is like a melee attack roll). Base Attack and the iterative ladder untouched (Adam's ruling). Lasts until re-declared.">−4 RO (declared)</span>` : '';
+  const _roTag = _dcl.ro ? `<span class="fs-9 c-red-text" style="display:block;" title="Reckless Offense declared — −4 AC until your next turn for +2 on melee attack rolls, Grapple included (HH p.239; a grapple check is like a melee attack roll). Base Attack and the iterative ladder untouched (Adam's ruling). Lasts until re-declared.">−4 RO (declared)</span>` : '';
   // v8.64.0 (Phase 2 sift): Uncanny Dodge tag (class features + Fast Hero
   // talents through uncannyDodgeTier) and the Sharpshooter cover advisory.
   const _ud = uncannyDodgeTier(c);
   const _udTag = _ud ? `<span style="display:block;font-size:9px;color:#9cc3da;font-style:italic;" title="${_ud.tier >= 2 ? 'Improved Uncanny Dodge: you keep your Dex bonus to AC while flat-footed or struck by an invisible attacker, AND you cannot be flanked (a Rogue needs 4+ more Rogue levels to sneak-attack you via flanking).' : 'Uncanny Dodge: you keep your Dex bonus to AC while flat-footed or struck by an invisible attacker.'} Sources: ${_ud.srcs.join(', ')}. Uncanny Dodge from a second class upgrades to Improved automatically.">${_ud.tier >= 2 ? 'Imp. Uncanny Dodge' : 'Uncanny Dodge'}</span>` : '';
-  const _dpTag = (_cfLvlOf(c, 'Sharpshooter') >= 4) ? `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Defensive Positioning (Sharpshooter 4): when in ANY cover, your cover bonus to Defense and Reflex saves is +2 higher than normal.">+2 cover (conditional)</span>` : '';
+  const _dpTag = (_cfLvlOf(c, 'Sharpshooter') >= 4) ? `<span class="fs-9 italic" style="display:block;color:#d4b870;" title="Defensive Positioning (Sharpshooter 4): when in ANY cover, your cover bonus to Defense and Reflex saves is +2 higher than normal.">+2 cover (conditional)</span>` : '';
   // v8.88.2 (Adam's priority re-order, 2026-10-03): the cells rank by their
   // relative importance at the table — Row 1: Max HP, AC, Initiative, Action
   // Points; Row 2: Base Attack, Grapple, Speed, Reputation; Row 3: Defense
@@ -621,10 +621,10 @@ function renderSheetCombatStats(c, natComputed, dM, stats) {
     // v8.97.0 (Adam's flag request): ⚡ declaration-speed tags — when a feat
     // readies the parry/dodge as a swift action or faster, the cell says so.
     {l:'Parry', v:(parry.total>=0?'+':'')+parry.total, k:'parry', extraHtml:_ceTag + _roTag
-      + (parry.ready ? `<span style="font-size:9px;color:#78afcd;margin-left:3px;cursor:help;" title="${escapeHTML(`Parry readies as a ${parry.ready.speed} — ${parry.ready.by} (HH p.373). Base: an ordinary readied action.`)}">⚡ ${parry.ready.speed.split(' ')[0]}</span>` : '')
-      + (parry.shieldParry ? `<span style="font-size:9px;color:#78afcd;margin-left:3px;cursor:help;" title="Shield Parry: once per round, parry ANY incoming attack that rolls to hit — ranged included — as an immediate action with your shield (feat text).">🛡⚡</span>` : '')},
+      + (parry.ready ? `<span class="fs-9 cursor-help" style="color:#78afcd;margin-left:3px;" title="${escapeHTML(`Parry readies as a ${parry.ready.speed} — ${parry.ready.by} (HH p.373). Base: an ordinary readied action.`)}">⚡ ${parry.ready.speed.split(' ')[0]}</span>` : '')
+      + (parry.shieldParry ? `<span class="fs-9 cursor-help" style="color:#78afcd;margin-left:3px;" title="Shield Parry: once per round, parry ANY incoming attack that rolls to hit — ranged included — as an immediate action with your shield (feat text).">🛡⚡</span>` : '')},
     {l:'Dodge', v:(dodge.total>=0?'+':'')+dodge.total, k:'dodge', extraHtml:_ceTag + _roTag + _udTag
-      + (dodge.ready ? `<span style="font-size:9px;color:#78afcd;margin-left:3px;cursor:help;" title="${escapeHTML(`Dodge readies as a ${dodge.ready.speed} — ${dodge.ready.by} (HH p.372). Base: an ordinary readied action.`)}">⚡ ${dodge.ready.speed.split(' ')[0]}</span>` : '')},
+      + (dodge.ready ? `<span class="fs-9 cursor-help" style="color:#78afcd;margin-left:3px;" title="${escapeHTML(`Dodge readies as a ${dodge.ready.speed} — ${dodge.ready.by} (HH p.372). Base: an ordinary readied action.`)}">⚡ ${dodge.ready.speed.split(' ')[0]}</span>` : '')},
   ];
   // Nat. Hardness / SR / DR: only when the character has them.
   statCells.push(...sheetExtraDefenseCells(c, natHardness, natTooltip));
@@ -657,7 +657,7 @@ function sheetBaseAttackCell(c, _dcl, _dclOwn, _dclSpent, stats) {
      v: (_baTotal>=0?'+':'')+_baTotal,
      k:'bab',
      tooltip: _dclOwn ? `Declared stance — holds until re-declared. Power Attack ${_dcl.pa} · Combat Expertise ${_dcl.ce}: each is a PENALTY ON MELEE ATTACK ROLLS while engaged (Grapple included — a grapple check is like a melee attack roll), never a spend of Base Attack: the printed value stands, and the iterative ladder never loses attacks. Power Attack adds the same number to melee damage (×2 two-handed, none on light weapons; caps at your Base Attack). Combat Expertise adds the same number to your Defense Bonus — AC, touch, dodge, and Parry all rise (HH p.207; caps at +5 or your Base Attack, whichever is less). ▼ declares a point; ▲ withdraws one.` : undefined,
-     extraHtml: _dclOwn ? `<span style="display:block;margin-top:2px;white-space:nowrap;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${(_dcl.pa >= _paCap && _dcl.ce >= _ceCap) ? 'opacity:.35;' : ''}" title="Declare a point of penalty on melee attack rolls (Power Attack / Combat Expertise)" onclick="event.stopPropagation();baDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent <= 0 ? 'opacity:.35;' : ''}" title="Withdraw a declared point" onclick="event.stopPropagation();baDeclAdjust(1)">▲</button>${_dclSpent ? `<span style="font-size:9px;color:#d4b870;margin-left:4px;">PA −${_dcl.pa} · CE −${_dcl.ce} (attack rolls)</span>` : ''}</span>` : ''};
+     extraHtml: _dclOwn ? `<span class="mt-2 nowrap" style="display:block;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${(_dcl.pa >= _paCap && _dcl.ce >= _ceCap) ? 'opacity:.35;' : ''}" title="Declare a point of penalty on melee attack rolls (Power Attack / Combat Expertise)" onclick="event.stopPropagation();baDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_dclSpent <= 0 ? 'opacity:.35;' : ''}" title="Withdraw a declared point" onclick="event.stopPropagation();baDeclAdjust(1)">▲</button>${_dclSpent ? `<span class="fs-9 ml-4" style="color:#d4b870;">PA −${_dcl.pa} · CE −${_dcl.ce} (attack rolls)</span>` : ''}</span>` : ''};
   return _baCell;
 }
 
@@ -673,7 +673,7 @@ function sheetDefenseBonusCell(c, _dcl) {
         v: _bdN ? `${_effDef >= 0 ? '+' : ''}${_effDef}` : (c.def>=0?'+':'')+c.def,
         k:'def',
         tooltip: _bdCap ? `Best Defense (Survivor, HH p.137) — trade up to +${_bdCap} of Defense Bonus (your Survivor class Defense Bonus) for an equal bonus on melee attack rolls; adjustable as a FREE action, holds until re-declared. Currently trading ${_bdN}. The spend reaches AC, Parry, Dodge, and Grapple like Power Attack's reaches Base Attack.` : undefined,
-        extraHtml: _bdCap ? `<span style="display:block;margin-top:2px;white-space:nowrap;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_bdN >= _bdCap ? 'opacity:.35;' : ''}" title="Trade a point of Defense Bonus for +1 on melee attack rolls (Best Defense)" onclick="event.stopPropagation();bdDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_bdN <= 0 ? 'opacity:.35;' : ''}" title="Return a point of Defense Bonus" onclick="event.stopPropagation();bdDeclAdjust(1)">▲</button>${_bdN ? `<span style="font-size:9px;color:#d4b870;margin-left:4px;">BD ${_bdN}</span>` : ''}</span>` : ''};
+        extraHtml: _bdCap ? `<span class="mt-2 nowrap" style="display:block;"><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_bdN >= _bdCap ? 'opacity:.35;' : ''}" title="Trade a point of Defense Bonus for +1 on melee attack rolls (Best Defense)" onclick="event.stopPropagation();bdDeclAdjust(-1)">▼</button><button class="btn btn-sm" style="font-size:9px;padding:0 6px;${_bdN <= 0 ? 'opacity:.35;' : ''}" title="Return a point of Defense Bonus" onclick="event.stopPropagation();bdDeclAdjust(1)">▲</button>${_bdN ? `<span class="fs-9 ml-4" style="color:#d4b870;">BD ${_bdN}</span>` : ''}</span>` : ''};
     })();
   return _defCell;
 }
@@ -686,7 +686,7 @@ function sheetReputationCell(c, stats) {
       if (_cfLvlOf(c, 'Expert') >= 15) {
         const art = (c.classChoices || {})['exp_art_5'];
         const ranks = art ? ((c.skills || {})[art] || 0) : 0;
-        if (art && ranks >= 15) raTag = `<span style="display:block;font-size:9px;color:#d4b870;font-style:italic;" title="Renowned Artisan (Expert 15; ruled 2026-10-02: feature text canonical — Renowned 15th / Master 10th, table row is the typo): the equivalent of Renown, but ONLY in matters of ${escapeHTML(art)}. Call the +3 out in real time when the audience cares about the craft — it is NOT in the headline total. Also +1 Purchase DC on your works (apply at the table).">+3 Artisan renown (conditional)</span>`;
+        if (art && ranks >= 15) raTag = `<span class="fs-9 italic" style="display:block;color:#d4b870;" title="Renowned Artisan (Expert 15; ruled 2026-10-02: feature text canonical — Renowned 15th / Master 10th, table row is the typo): the equivalent of Renown, but ONLY in matters of ${escapeHTML(art)}. Call the +3 out in real time when the audience cares about the craft — it is NOT in the headline total. Also +1 Purchase DC on your works (apply at the table).">+3 Artisan renown (conditional)</span>`;
       }
       // v9.17.0 (bug report #1): Reputation prints SIGNED like its row-mates.
       const _repV = (stats.rep.total);
@@ -732,9 +732,9 @@ function renderSheetDefenseStrip(c) {
     const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
     const bits = [];
     const imm = Object.keys(ri.immune).sort();
-    if (imm.length) bits.push(`<b style="color:#b58fd4;">Immune:</b> ` + imm.map(t => `<span title="${escapeHTML(ri.immune[t])}" style="cursor:help;">${cap(t)}</span>`).join(', '));
+    if (imm.length) bits.push(`<b style="color:#b58fd4;">Immune:</b> ` + imm.map(t => `<span title="${escapeHTML(ri.immune[t])}" class="cursor-help">${cap(t)}</span>`).join(', '));
     const rs = Object.keys(ri.resists).sort();
-    if (rs.length) bits.push(`<b style="color:var(--gold);">Resist:</b> ` + rs.map(t => `<span title="${escapeHTML(ri.resists[t].source)}" style="cursor:help;">${cap(t)} ${ri.resists[t].value}</span>`).join(', '));
+    if (rs.length) bits.push(`<b class="c-gold">Resist:</b> ` + rs.map(t => `<span title="${escapeHTML(ri.resists[t].source)}" class="cursor-help">${cap(t)} ${ri.resists[t].value}</span>`).join(', '));
     // v8.8.0 (Adam's DR pass): Damage Reduction entries — separate lines,
     // best-in-situation per the books (no stacking across sources except
     // the folded book-explicit cases); conditional entries dimmed.
@@ -745,8 +745,8 @@ function renderSheetDefenseStrip(c) {
       ).join(', '));
     }
     const unchosen = (c.mutations || []).filter(m => (m.name === 'Energy Absorption' || m.name === 'Energy Diffusion') && !m.energyTypes);
-    if (unchosen.length) bits.push(`<span style="color:#d4b870;font-size:10px;">⚠ ${unchosen.map(m => m.name).join(', ')}: energy type(s) unchosen — remove &amp; re-add on the Mutations tab to pick</span>`);
-    if (ri.universal) bits.push(`<span style="color:#78afcd;cursor:help;" title="Resistant or immune to all five main energy types — the derived defense that applies even against disintegration (Damage Types reference).">◈ universal energy resistance</span>`);
+    if (unchosen.length) bits.push(`<span class="fs-10" style="color:#d4b870;">⚠ ${unchosen.map(m => m.name).join(', ')}: energy type(s) unchosen — remove &amp; re-add on the Mutations tab to pick</span>`);
+    if (ri.universal) bits.push(`<span class="cursor-help" style="color:#78afcd;" title="Resistant or immune to all five main energy types — the derived defense that applies even against disintegration (Damage Types reference).">◈ universal energy resistance</span>`);
     // v8.8.2 (Adam's Strong-apex audit): Carrying Capacity (HH p.261 table +
     // Tremendous Strength for Str 30+) and grapple modifier, both riding the
     // effective size — the Strong super-talents' ×4-carry / +1-size riders
@@ -775,11 +775,11 @@ function sheetCarryAndMountBits(c) {
   const _hiD = computeHardnessIgnore(c);
   let _demoRow = '';
   if (_hiD && _hiD.mode === 'mangler') {
-    _demoRow = `<span style="display:block;margin-top:2px;"><b style="color:#d4865a;">💥 Demolition:</b> <span style="cursor:help;" title="${escapeHTML(`${_hiD.from}${_hiD.instances > 1 ? ' — Titanic Strength acts as a second instance of Mangler (hardness & break-DC only; the ×4/+1 riders are already counted per talent). Ruled 2026-10-03.' : ''} Keyed to the ${['','Ignore Hardness','Improved Ignore Hardness','Advanced Ignore Hardness'][_hiD.tier]} tier. Su — falls under a Null Power Field (the Ex tree values stand back up).`)}">ignore ${_hiD.ignore} hardness · break DC −${_hiD.breakDC}${_hiD.instances > 1 ? ' <span style="font-size:10px;color:var(--vio);">×2 (Titanic echo)</span>' : ''}</span></span>`;
+    _demoRow = `<span class="mt-2" style="display:block;"><b style="color:#d4865a;">💥 Demolition:</b> <span class="cursor-help" title="${escapeHTML(`${_hiD.from}${_hiD.instances > 1 ? ' — Titanic Strength acts as a second instance of Mangler (hardness & break-DC only; the ×4/+1 riders are already counted per talent). Ruled 2026-10-03.' : ''} Keyed to the ${['','Ignore Hardness','Improved Ignore Hardness','Advanced Ignore Hardness'][_hiD.tier]} tier. Su — falls under a Null Power Field (the Ex tree values stand back up).`)}">ignore ${_hiD.ignore} hardness · break DC −${_hiD.breakDC}${_hiD.instances > 1 ? ' <span class="fs-10 c-vio">×2 (Titanic echo)</span>' : ''}</span></span>`;
   } else if (_hiD && _hiD.mode === 'latent') {
-    _demoRow = `<span style="display:block;margin-top:2px;"><b style="color:#d4865a;">💥 Demolition:</b> <span style="cursor:help;font-style:italic;opacity:.65;" title="${escapeHTML(_hiD.from)}">Mangler function latent — enter the Ignore Hardness tree</span></span>`;
+    _demoRow = `<span class="mt-2" style="display:block;"><b style="color:#d4865a;">💥 Demolition:</b> <span class="cursor-help italic op-0_65" title="${escapeHTML(_hiD.from)}">Mangler function latent — enter the Ignore Hardness tree</span></span>`;
   }
-  bits.push(`<b style="color:var(--g85);">Carry:</b> <span style="cursor:help;" title="${escapeHTML(cc.parts.join('\n') + '\n' + lift + '\nMedium load: max Dex +3, −3 check penalty, reduced speed. Heavy load: max Dex +1, −6, run ×3 (HH p.261–262). Tons are short tons (2,000 lb), rounded down.')}">light ≤${fmtCarry(cc.light)} · med ≤${fmtCarry(cc.medium)} · heavy ≤${fmtCarry(cc.heavy)}</span>${_demoRow}`);
+  bits.push(`<b class="c-g85">Carry:</b> <span style="cursor:help;" title="${escapeHTML(cc.parts.join('\n') + '\n' + lift + '\nMedium load: max Dex +3, −3 check penalty, reduced speed. Heavy load: max Dex +1, −6, run ×3 (HH p.261–262). Tons are short tons (2,000 lb), rounded down.')}">light ≤${fmtCarry(cc.light)} · med ≤${fmtCarry(cc.medium)} · heavy ≤${fmtCarry(cc.heavy)}</span>${_demoRow}`);
   // v8.13.x Segment A (Adam's active-loadout ruling): the piloted
   // vehicle joins the combat dashboard.
   const pv = pilotedVehicle(c);
@@ -788,7 +788,7 @@ function sheetCarryAndMountBits(c) {
     const mg = vehicleIntegrity(pv); const md = mg.def;
     const mTouch = mechaTouchAC(md);
     const mName = pv.custom ? pv.custom.name : (pv.customName || pv.ref);
-    bits.push(`<b style="color:#d4865a;">🦿 Piloting:</b> <span style="cursor:help;" title="${escapeHTML(`${md.size} mecha — its Str ${md.str} drives melee, your Dex caps at ${md.dexMax}, your BAB drives attacks. Every hull hit applies hardness ${mg.hardness}; crew is reached only through crit-table results. Full card on the 🕹 Vehicles tab.`)}">${escapeHTML(mName)} — T/AC ${mTouch}/${mTouch + md.equipAC + (paShieldBonus(pv))} · Hard ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} · speed ${md.speed} ft${md.fly ? ' · fly' : ''}</span>`);
+    bits.push(`<b style="color:#d4865a;">🦿 Piloting:</b> <span class="cursor-help" title="${escapeHTML(`${md.size} mecha — its Str ${md.str} drives melee, your Dex caps at ${md.dexMax}, your BAB drives attacks. Every hull hit applies hardness ${mg.hardness}; crew is reached only through crit-table results. Full card on the 🕹 Vehicles tab.`)}">${escapeHTML(mName)} — T/AC ${mTouch}/${mTouch + md.equipAC + (paShieldBonus(pv))} · Hard ${mg.hardness} · Hull ${mg.hp}/${mg.maxHP} · Str ${md.str} · speed ${md.speed} ft${md.fly ? ' · fly' : ''}</span>`);
   } else if (pv) {
     const vg = vehicleIntegrity(pv); const vd = vg.def;
     const vchk = vehicleOperatorCheck(c, vd);
@@ -798,16 +798,16 @@ function sheetCarryAndMountBits(c) {
   const paW = equippedPowerArmor(c);
   if (paW) {
     const paG = armorItemIntegrity(paW); const paD = POWER_ARMOR_DB[paW.ref];
-    bits.push(`<b style="color:#78afcd;">🤖 Power Armor:</b> <span style="cursor:help;" title="${escapeHTML(`${paD.size} TS ${paD.ts} power armor — a mecha your size (FF Ch.III). ${paD.strMin ? `Str floors at ${paD.strMin}; ` : paD.equipStrMod ? `+${paD.equipStrMod} equipment Str; ` : ''}${paD.dexMax ? `Dex caps at ${paD.dexMax}. ` : ''}Always intercedes: every hit applies hardness ${paG.hardness}; full AC confirms crits only. Loadout on the 🕹 Vehicles tab.`)}">${escapeHTML(enchantDisplayName(paW))} — Hard ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin ? ` · Str≥${paD.strMin}` : ''}${paD.dexMax ? ` · Dex≤${paD.dexMax}` : ''}${paD.fly ? ` · fly ${escapeHTML(paD.fly)}` : ''}</span>`);
+    bits.push(`<b style="color:#78afcd;">🤖 Power Armor:</b> <span class="cursor-help" title="${escapeHTML(`${paD.size} TS ${paD.ts} power armor — a mecha your size (FF Ch.III). ${paD.strMin ? `Str floors at ${paD.strMin}; ` : paD.equipStrMod ? `+${paD.equipStrMod} equipment Str; ` : ''}${paD.dexMax ? `Dex caps at ${paD.dexMax}. ` : ''}Always intercedes: every hit applies hardness ${paG.hardness}; full AC confirms crits only. Loadout on the 🕹 Vehicles tab.`)}">${escapeHTML(enchantDisplayName(paW))} — Hard ${paG.hardness} · Frame HP ${paG.hp}/${paG.maxHP}${paD.strMin ? ` · Str≥${paD.strMin}` : ''}${paD.dexMax ? ` · Dex≤${paD.dexMax}` : ''}${paD.fly ? ` · fly ${escapeHTML(paD.fly)}` : ''}</span>`);
   }
   const skW = activeSecondSkin(c);
   if (skW && !skW.destroyed) {
-    bits.push(`<b style="color:var(--vio);">🧿 Second Skin:</b> <span style="cursor:help;" title="${escapeHTML(`Level ${skW.row.lvl} ectoplasmic sheath (HH p.241): every hit strikes the skin first (hardness ${skW.row.hardness}), excess carries over to you. AC +${skW.row.ac} as armor. You count as armed (slam ${skW.row.slam}). Psionic focus locked; no worn armor. Manage on the 🕹 Vehicles tab.`)}">lvl ${skW.row.lvl} — AC +${skW.row.ac} · Hard ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr ? ` · DR ${skW.row.dr}` : ''}</span>`);
+    bits.push(`<b class="c-vio">🧿 Second Skin:</b> <span class="cursor-help" title="${escapeHTML(`Level ${skW.row.lvl} ectoplasmic sheath (HH p.241): every hit strikes the skin first (hardness ${skW.row.hardness}), excess carries over to you. AC +${skW.row.ac} as armor. You count as armed (slam ${skW.row.slam}). Psionic focus locked; no worn armor. Manage on the 🕹 Vehicles tab.`)}">lvl ${skW.row.lvl} — AC +${skW.row.ac} · Hard ${skW.row.hardness} · HP ${skW.hp}/${skW.maxHP} · slam ${skW.row.slam}${skW.row.dr ? ` · DR ${skW.row.dr}` : ''}</span>`);
   }
   if (cc.superTalents.length || cc.supremeEffortOwned) {
     const sz = SIZE_LADDER[effectiveSizeIndex(c)];
     const mult = Math.pow(4, cc.superTalents.length);
-    bits.push(`<span style="color:#78afcd;cursor:help;" title="${escapeHTML(`${cc.superTalents.length ? `Each of Mangler, Super-Smash, and Titanic Strength owned (here: ${cc.superTalents.join(', ')}) grants ×4 Carrying Capacity and +1 effective size category for natural attack damage dice, grappling, and the Jump skill — cumulative (HH p.263). ` : ''}Supernatural: suppressed while Nullified.${cc.supremeEffortOwned ? '\nWhile PERFORMING a Supreme Effort (move action): ×4 carry and +1 size ON TOP of the above — declare at the table.' : ''}`)}">🦾 Super-Strong${cc.superTalents.length ? ` ×${mult} carry · ${sz} for natural dice, grapple &amp; Jump` : ''}${cc.supremeEffortOwned ? ` · during Supreme Effort ×${mult * 4} / ${SIZE_LADDER[Math.min(SIZE_LADDER.length - 1, effectiveSizeIndex(c) + 1)]}` : ''}</span>`);
+    bits.push(`<span class="cursor-help" style="color:#78afcd;" title="${escapeHTML(`${cc.superTalents.length ? `Each of Mangler, Super-Smash, and Titanic Strength owned (here: ${cc.superTalents.join(', ')}) grants ×4 Carrying Capacity and +1 effective size category for natural attack damage dice, grappling, and the Jump skill — cumulative (HH p.263). ` : ''}Supernatural: suppressed while Nullified.${cc.supremeEffortOwned ? '\nWhile PERFORMING a Supreme Effort (move action): ×4 carry and +1 size ON TOP of the above — declare at the table.' : ''}`)}">🦾 Super-Strong${cc.superTalents.length ? ` ×${mult} carry · ${sz} for natural dice, grapple &amp; Jump` : ''}${cc.supremeEffortOwned ? ` · during Supreme Effort ×${mult * 4} / ${SIZE_LADDER[Math.min(SIZE_LADDER.length - 1, effectiveSizeIndex(c) + 1)]}` : ''}</span>`);
   }
   return bits;
 }
@@ -831,30 +831,30 @@ function renderSheetStateBanners(c) {
     const rt = rageTier(c);
     const chunks = [];
     if (c.nullified) {
-      chunks.push(`<div style="padding:6px 10px;background:rgba(212,112,112,.12);border:1px solid rgba(212,112,112,.5);border-radius:3px;font-size:12px;">
-              <b style="color:var(--red-text);">⊘ NULLIFIED</b> — all Supernatural modifiers suppressed (Null Power Field or equivalent): Su ability bakes${suAttrs.some(v=>v) ? ` (${suAttrs.map((v,i)=>v?`${['STR','DEX','CON','INT','WIS','CHA'][i]} −${v}`:null).filter(Boolean).join(', ')})` : ''}, Bulletproof, Nigh-Invulnerable, Hyper-Speed, Energy Immunity, Super-Smash, and the Super-Strong carry/size riders.
-              <span style="opacity:.7;">Buff super-powers, Su item effects, and other unwired Su abilities: GM adjudicates. Rage is Ex — it still works.</span>
-              <button class="btn btn-sm" style="font-size:10px;margin-left:8px;" onclick="toggleNullified()">Restore</button></div>`);
+      chunks.push(`<div class="p-6-10 fs-12" style="background:rgba(212,112,112,.12);border:1px solid rgba(212,112,112,.5);border-radius:3px;">
+              <b class="c-red-text">⊘ NULLIFIED</b> — all Supernatural modifiers suppressed (Null Power Field or equivalent): Su ability bakes${suAttrs.some(v=>v) ? ` (${suAttrs.map((v,i)=>v?`${['STR','DEX','CON','INT','WIS','CHA'][i]} −${v}`:null).filter(Boolean).join(', ')})` : ''}, Bulletproof, Nigh-Invulnerable, Hyper-Speed, Energy Immunity, Super-Smash, and the Super-Strong carry/size riders.
+              <span class="op-0_7">Buff super-powers, Su item effects, and other unwired Su abilities: GM adjudicates. Rage is Ex — it still works.</span>
+              <button class="fs-10 ml-8 btn btn-sm" onclick="toggleNullified()">Restore</button></div>`);
     }
     if (rt && c.raging) {
       const conRaged = am(effAttrs(c)[2]);
       const hpRider = (rt.attr / 2) * (c.totalLvl || 0);
-      chunks.push(`<div style="padding:6px 10px;background:rgba(212,140,70,.14);border:1px solid rgba(212,140,70,.6);border-radius:3px;font-size:12px;">
+      chunks.push(`<div class="p-6-10 fs-12" style="background:rgba(212,140,70,.14);border:1px solid rgba(212,140,70,.6);border-radius:3px;">
               <b style="color:#d4865a;">🔥 ${rt.name.toUpperCase()}</b> — +${rt.attr} Str &amp; Con (baked into every derived number), +${rt.will} morale Will, −2 AC. Duration ${3 + conRaged} rounds (3 + raged Con mod); once per encounter.
-              <span style="cursor:help;opacity:.8;" title="While raging: +${hpRider} HP (the raised Con mod × character level; these vanish when the rage ends and are NOT lost first the way temporary HP are). No Cha-, Dex-, or Int-based skills (except Balance, Escape Artist, Intimidate, Ride), no Concentration, no patience/concentration abilities, no spellcasting or command/trigger/completion items, no Combat Expertise / Magic / Power feats.">+${hpRider} HP rider &amp; restrictions ⓘ</span>
-              <button class="btn btn-sm" style="font-size:10px;margin-left:8px;" onclick="toggleRage()">End Rage${berserkerLvl(c) >= 17 ? '' : ' (→ Fatigued)'}</button></div>`);
+              <span class="cursor-help op-0_8" title="While raging: +${hpRider} HP (the raised Con mod × character level; these vanish when the rage ends and are NOT lost first the way temporary HP are). No Cha-, Dex-, or Int-based skills (except Balance, Escape Artist, Intimidate, Ride), no Concentration, no patience/concentration abilities, no spellcasting or command/trigger/completion items, no Combat Expertise / Magic / Power feats.">+${hpRider} HP rider &amp; restrictions ⓘ</span>
+              <button class="fs-10 ml-8 btn btn-sm" onclick="toggleRage()">End Rage${berserkerLvl(c) >= 17 ? '' : ' (→ Fatigued)'}</button></div>`);
     }
     if (c.fatigued && !c.raging) {
-      chunks.push(`<div style="padding:5px 10px;background:rgba(150,150,150,.1);border:1px solid rgba(180,180,180,.4);border-radius:3px;font-size:11.5px;">
-              <b style="opacity:.8;">😮‍💨 FATIGUED</b> — −2 Str, −2 Dex (baked), can’t charge or run. Lasts the encounter (post-Rage) or until 8 hours’ rest.
-              <button class="btn btn-sm" style="font-size:10px;margin-left:8px;" onclick="clearFatigue()">Recover</button></div>`);
+      chunks.push(`<div class="p-5-10 fs-11_5" style="background:rgba(150,150,150,.1);border:1px solid rgba(180,180,180,.4);border-radius:3px;">
+              <b class="op-0_8">😮‍💨 FATIGUED</b> — −2 Str, −2 Dex (baked), can’t charge or run. Lasts the encounter (post-Rage) or until 8 hours’ rest.
+              <button class="fs-10 ml-8 btn btn-sm" onclick="clearFatigue()">Recover</button></div>`);
     }
     // v8.8.3: Euphoriac banner (Ex — works while nullified).
     const euB = euphoriacBonus(c);
     if (euB && c.euphoric) {
-      chunks.push(`<div style="padding:5px 10px;background:rgba(120,175,205,.1);border:1px solid rgba(120,175,205,.5);border-radius:3px;font-size:11.5px;">
+      chunks.push(`<div class="p-5-10 fs-11_5" style="background:rgba(120,175,205,.1);border:1px solid rgba(120,175,205,.5);border-radius:3px;">
               <b style="color:#78afcd;">⚡ EUPHORIC</b> — +${euB} morale on attack rolls, damage rolls, and saving throws (baked). Lasts (wild-surge intensity) rounds; not gained if neuralgia struck.
-              <button class="btn btn-sm" style="font-size:10px;margin-left:8px;" onclick="toggleEuphoric()">Fades</button></div>`);
+              <button class="fs-10 ml-8 btn btn-sm" onclick="toggleEuphoric()">Fades</button></div>`);
     }
     // v8.60.2 (Adam): the ⊘ Nullified? TRIGGER moved to the Tracker's
     // Conditions panel — it's a condition, if an extreme one (Sheet =
@@ -872,9 +872,9 @@ function renderSheetStateBanners(c) {
         rageEl.style.display = '';
         if (!c.raging) {
           const used = abilityUsed(c, 'rage'), mx = rageUsesPerDay(c);
-          rageEl.innerHTML = `<button class="btn btn-sm" style="width:100%;font-size:10px;border-color:rgba(212,140,70,.5);color:#d4865a;" title="Fly into a ${rt.name}: +${rt.attr} Str/Con, +${rt.will} morale Will, −2 AC for 3 + raged Con mod rounds. Free action on your own action; once per encounter. ${used}/${mx} used today." onclick="toggleRage()">🔥 Rage! <span style="opacity:var(--o60);color:var(--dim);">${used}/${mx} today</span></button>`;
+          rageEl.innerHTML = `<button class="w-full fs-10 btn btn-sm" style="border-color:rgba(212,140,70,.5);color:#d4865a;" title="Fly into a ${rt.name}: +${rt.attr} Str/Con, +${rt.will} morale Will, −2 AC for 3 + raged Con mod rounds. Free action on your own action; once per encounter. ${used}/${mx} used today." onclick="toggleRage()">🔥 Rage! <span class="o-60 c-dim">${used}/${mx} today</span></button>`;
         } else {
-          rageEl.innerHTML = `<div style="text-align:center;padding:3px 6px;font-size:10px;color:#d4865a;border:1px solid rgba(212,140,70,.6);border-radius:3px;background:rgba(212,140,70,.14);" title="${rt.name} active — the banner below carries the numbers and the End Rage button.">🔥 ${rt.name.toUpperCase()} — see banner</div>`;
+          rageEl.innerHTML = `<div class="text-center fs-10" style="padding:3px 6px;color:#d4865a;border:1px solid rgba(212,140,70,.6);border-radius:3px;background:rgba(212,140,70,.14);" title="${rt.name} active — the banner below carries the numbers and the End Rage button.">🔥 ${rt.name.toUpperCase()} — see banner</div>`;
         }
       } else { rageEl.style.display = 'none'; rageEl.innerHTML = ''; }
     }
@@ -904,7 +904,7 @@ function renderSheetSaves(c, cM, dM, wM) {
     let evTag = '';
     if (s.k === 'ref') {
       const ev = evasionTier(c);
-      if (ev) evTag = `<span style="display:block;font-size:9px;color:#9cc3da;font-style:italic;margin-top:2px;cursor:help;" title="${ev.tier >= 2 ? 'Improved Evasion: a successful Reflex save against a half-damage effect means NO damage — and a failed save means only half.' : 'Evasion: a successful Reflex save against a half-damage effect (fireball, explosions…) means NO damage instead of half. Light or no armor only.'} Sources: ${ev.srcs.join(', ')}.">${ev.tier >= 2 ? 'Improved Evasion' : 'Evasion'}</span>`;
+      if (ev) evTag = `<span class="fs-9 italic mt-2 cursor-help" style="display:block;color:#9cc3da;" title="${ev.tier >= 2 ? 'Improved Evasion: a successful Reflex save against a half-damage effect means NO damage — and a failed save means only half.' : 'Evasion: a successful Reflex save against a half-damage effect (fireball, explosions…) means NO damage instead of half. Light or no armor only.'} Sources: ${ev.srcs.join(', ')}.">${ev.tier >= 2 ? 'Improved Evasion' : 'Evasion'}</span>`;
     }
     // v9.2.2 (Adam's Ultra Immune System ruling): CONDITIONAL save bonuses
     // get a visible ⚜ line on the card (they lived only in the drilldown) —
@@ -916,7 +916,7 @@ function renderSheetSaves(c, cM, dM, wM) {
       if (!_cond.includes(line)) _cond.push(line);
     }
     const condTag = _cond.length ? `<span style="display:block;font-size:9px;color:var(--vio);margin-top:2px;cursor:help;" title="${escapeHTML('Conditional — applies only in the stated situation; never part of the headline total:\n' + _cond.join('\n'))}">${_cond.slice(0, 3).map(l => `⚜ ${escapeHTML(l)}`).join('<br>')}${_cond.length > 3 ? `<br>⚜ +${_cond.length - 3} more (click for the drilldown)` : ''}</span>` : '';
-    return `<div class="stat-cell drillable" onclick="showStatBreakdown('${s.k}')"><span class="sc-lbl">${s.l}</span><span class="sc-val">${(total>=0?'+':'')+total}</span><span style="display:block;font-size:10px;color:var(--g50);margin-top:2px;">base ${s.base||0} + ${s.attr} ${s.mod>=0?'+':''}${s.mod}${other?` ${other>0?'+':'−'} ${Math.abs(other)} other`:''}</span>${evTag}${condTag}</div>`;
+    return `<div class="stat-cell drillable" onclick="showStatBreakdown('${s.k}')"><span class="sc-lbl">${s.l}</span><span class="sc-val">${(total>=0?'+':'')+total}</span><span class="fs-10 c-g50 mt-2" style="display:block;">base ${s.base||0} + ${s.attr} ${s.mod>=0?'+':''}${s.mod}${other?` ${other>0?'+':'−'} ${Math.abs(other)} other`:''}</span>${evTag}${condTag}</div>`;
   }).join('');
 }
 
@@ -944,16 +944,16 @@ function renderSheetArmaments(c) {
             ? `${fA(s.fullAttack[0])} (${s.fullAttack.slice(1).map(fA).join('/')})`
             : fA(s.attackBonus);
           const dmgTip = (s.dmgBreakdown || []).map(p => `${p.label}: ${p.value >= 0 ? '+' : ''}${p.value}`).join('\n');
-          const hand = s.hand ? ` <span style="font-size:8.5px;opacity:.6;">(${s.hand === 'main' ? 'main' : 'off'})</span>` : (s.gripBothHands ? ' <span style="font-size:8.5px;opacity:.6;" title="Wielded in both hands: Str ×1.5 damage, Power Attack ×2.">(🤲 both)</span>' : '');
-          const ihSm = s.ignoreHardness ? ` <span style="font-size:8.5px;color:var(--vio);cursor:help;" title="${escapeHTML(`Every +1 of enhancement bonus ignores 5 points of Hardness — artificial AND natural (GMG pp.253, 96).${s.ihBane ? ' Bane: 10 more vs the designated foe (GMG p.260).' : ''}`)}">⛏ −${s.ignoreHardness} hardness</span>` : '';
-          bits.push(`<tr><td>${escapeHTML(s.name)}${s.unarmed ? ' 🥊' : ''}${s.integratedIn ? ' 🔩' : ''}${hand}${ihSm}${s.proficient ? '' : ' <span style="color:#d4865a;font-size:9.5px;" title="−4 not proficient (already included)">⚠</span>'}${s.statStrip ? `<div style="font-size:9px;color:var(--g50);">${escapeHTML(s.statStrip)}</div>` : ''}</td>`
-            + `<td style="cursor:help;white-space:nowrap;" title="${escapeHTML(atkTip)}">${atkText}</td>`
+          const hand = s.hand ? ` <span class="fs-8_5 op-0_6">(${s.hand === 'main' ? 'main' : 'off'})</span>` : (s.gripBothHands ? ' <span class="fs-8_5 op-0_6" title="Wielded in both hands: Str ×1.5 damage, Power Attack ×2.">(🤲 both)</span>' : '');
+          const ihSm = s.ignoreHardness ? ` <span class="fs-8_5 c-vio cursor-help" title="${escapeHTML(`Every +1 of enhancement bonus ignores 5 points of Hardness — artificial AND natural (GMG pp.253, 96).${s.ihBane ? ' Bane: 10 more vs the designated foe (GMG p.260).' : ''}`)}">⛏ −${s.ignoreHardness} hardness</span>` : '';
+          bits.push(`<tr><td>${escapeHTML(s.name)}${s.unarmed ? ' 🥊' : ''}${s.integratedIn ? ' 🔩' : ''}${hand}${ihSm}${s.proficient ? '' : ' <span class="fs-9_5" style="color:#d4865a;" title="−4 not proficient (already included)">⚠</span>'}${s.statStrip ? `<div class="fs-9 c-g50">${escapeHTML(s.statStrip)}</div>` : ''}</td>`
+            + `<td class="cursor-help nowrap" title="${escapeHTML(atkTip)}">${atkText}</td>`
             + `<td style="cursor:help;" title="${escapeHTML(dmgTip ? 'Damage breakdown:\n' + dmgTip : '')}">${escapeHTML(s.damage)} ${escapeHTML(s.damageLabel || '')}</td>`
-            + `<td style="font-size:10px;opacity:.8;">${escapeHTML(s.typeLabel || (s.damageTypes || []).join('/') || '—')}</td></tr>`);
+            + `<td class="fs-10 op-0_8">${escapeHTML(s.typeLabel || (s.damageTypes || []).join('/') || '—')}</td></tr>`);
         }
         bits.push('</tbody></table>');
       } else {
-        bits.push('<div style="opacity:.5;font-size:11.5px;margin-bottom:.4rem;">No weapons equipped — unarmed only (see Gear).</div>');
+        bits.push('<div class="op-0_5 fs-11_5" style="margin-bottom:.4rem;">No weapons equipped — unarmed only (see Gear).</div>');
       }
       const armorItems = (c.items || []).filter(i => i.catalogue === 'armor' && i.equipped);
       if (armorItems.length) {
@@ -963,12 +963,12 @@ function renderSheetArmaments(c) {
           const strip = armorStatStrip(def, it);
           const nm = enchantDisplayName(it);
           const isShield = def.type === 'shield';
-          bits.push(`<div style="font-size:11.5px;"><b style="color:var(--gold);">${isShield ? '🛡' : '🪖'} ${escapeHTML(nm)}</b> <span style="font-size:10px;opacity:.8;">${escapeHTML(strip)}</span></div>`);
+          bits.push(`<div class="fs-11_5"><b class="c-gold">${isShield ? '🛡' : '🪖'} ${escapeHTML(nm)}</b> <span class="fs-10 op-0_8">${escapeHTML(strip)}</span></div>`);
         }
       } else {
-        bits.push('<div style="opacity:var(--o50);color:var(--dim);font-size:11px;">No armor equipped.</div>');
+        bits.push('<div class="o-50 c-dim fs-11">No armor equipped.</div>');
       }
-    } catch (e) { bits.push('<div style="opacity:var(--o50);color:var(--dim);font-size:11px;">—</div>'); }
+    } catch (e) { bits.push('<div class="o-50 c-dim fs-11">—</div>'); }
     armEl.innerHTML = bits.join('');
   }
 }
@@ -987,9 +987,9 @@ function renderSheetXP(c) {
   const prog=computeXpProgress(c);
   document.getElementById('sh-xp').innerHTML=`
     <div class="xp-track">
-      <div class="xp-top"><div><span class="xp-lvl">Level ${c.totalLvl}</span>${c.ecl!==c.totalLvl?`<span style="font-size:11px;color:var(--g50);margin-left:8px;">ECL ${c.ecl}</span>`:''}</div><div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g50);">Next: ${(c.xpNext||1000).toLocaleString()} XP</div></div>
+      <div class="xp-top"><div><span class="xp-lvl">Level ${c.totalLvl}</span>${c.ecl!==c.totalLvl?`<span class="fs-11 c-g50 ml-8">ECL ${c.ecl}</span>`:''}</div><div class="font-serif fs-9 uppercase ls-0_1em c-g50">Next: ${(c.xpNext||1000).toLocaleString()} XP</div></div>
       <div class="bar-wrap" style="height:8px;"><div class="bar-fill bar-gold" style="width:${prog.pct}%;"></div></div>
-      <div class="xp-txt">${prog.inLevel.toLocaleString()} / ${prog.bandSize.toLocaleString()} XP this level &nbsp;·&nbsp; ${prog.pct}% <span style="color:var(--g45);">(${c.xp.toLocaleString()} total)</span></div>
+      <div class="xp-txt">${prog.inLevel.toLocaleString()} / ${prog.bandSize.toLocaleString()} XP this level &nbsp;·&nbsp; ${prog.pct}% <span class="c-g45">(${c.xp.toLocaleString()} total)</span></div>
     </div>`;
 }
 
@@ -1045,20 +1045,20 @@ function sheetRacialHtml(c) {
     // "noisy"): the whole racial block folds behind a gold .race-det banner.
     // Adj/ECL/granted abilities are creation-time facts, "not worthy of
     // constant dashboard real estate"; the 🧬 subtype row stays outside.
-    featuresHtml = `<details class="race-det"><summary><b style="color:var(--gold);cursor:help;" title="${escapeHTML(hyBlurb)}">${raceDisplayOf(c)}${_mutSuffix}</b>${citeHTML('races', c.race)}</summary><div style="padding:4px 2px 2px 10px;">
-      <details class="hy-det"><summary>Hybrid mechanics — adjustments, RLM, size &amp; movement</summary><div style="padding:3px 0 2px 14px;line-height:1.65;">
-        Ability Adj.: ${radj} <span style="font-size:10px;color:var(--g50);">(both parents combined, applied at creation)</span><br>
-        RLM: +${_hyS.rlm}${_hyS.rlm !== _hyS.autoRlm ? ` <span style="font-size:10px;color:#d4b870;">(GM-tailored — auto would be +${_hyS.autoRlm}${_hyS.dropped ? '; dropped: ' + escapeHTML(_hyS.dropped) : ''})</span>` : ` <span style="font-size:10px;color:var(--g50);">(${_hyS.a} ${_hyS.A.ecl || 0} + ${_hyS.b} ${_hyS.B.ecl || 0} + 1)</span>`}<br>
-        Size &amp; movement (from ${escapeHTML(_hyS.sizeFrom)}): ${_szName}, base speed ${_walk}′${_modes ? ' · ' + escapeHTML(_modes) : ''} <span style="font-size:10px;color:var(--g50);">— final speed with talents &amp; armor reads off the Speed card</span>
+    featuresHtml = `<details class="race-det"><summary><b class="c-gold cursor-help" title="${escapeHTML(hyBlurb)}">${raceDisplayOf(c)}${_mutSuffix}</b>${citeHTML('races', c.race)}</summary><div style="padding:4px 2px 2px 10px;">
+      <details class="hy-det"><summary>Hybrid mechanics — adjustments, RLM, size &amp; movement</summary><div class="p-3-0-2-14 lh-1_65">
+        Ability Adj.: ${radj} <span class="fs-10 c-g50">(both parents combined, applied at creation)</span><br>
+        RLM: +${_hyS.rlm}${_hyS.rlm !== _hyS.autoRlm ? ` <span class="fs-10" style="color:#d4b870;">(GM-tailored — auto would be +${_hyS.autoRlm}${_hyS.dropped ? '; dropped: ' + escapeHTML(_hyS.dropped) : ''})</span>` : ` <span class="fs-10 c-g50">(${_hyS.a} ${_hyS.A.ecl || 0} + ${_hyS.b} ${_hyS.B.ecl || 0} + 1)</span>`}<br>
+        Size &amp; movement (from ${escapeHTML(_hyS.sizeFrom)}): ${_szName}, base speed ${_walk}′${_modes ? ' · ' + escapeHTML(_modes) : ''} <span class="fs-10 c-g50">— final speed with talents &amp; armor reads off the Speed card</span>
       </div></details>
-      <details class="hy-det"><summary>${escapeHTML(_hyS.a)} — racial abilities</summary><div style="padding:3px 0 2px 14px;line-height:1.55;font-size:12px;">${_hyS.A.notes || '—'}</div></details>
-      <details class="hy-det"><summary>${escapeHTML(_hyS.b)} — racial abilities</summary><div style="padding:3px 0 2px 14px;line-height:1.55;font-size:12px;">${_hyS.B.notes || '—'}</div></details>
+      <details class="hy-det"><summary>${escapeHTML(_hyS.a)} — racial abilities</summary><div class="p-3-0-2-14 lh-1_55 fs-12">${_hyS.A.notes || '—'}</div></details>
+      <details class="hy-det"><summary>${escapeHTML(_hyS.b)} — racial abilities</summary><div class="p-3-0-2-14 lh-1_55 fs-12">${_hyS.B.notes || '—'}</div></details>
     </div></details>`;
   } else {
     // v8.84.0: same gold banner for the plain races. The unconfigured-Hybrid
     // ⚑ prompt rides the SUMMARY line — a flag that hides is no flag.
-    const _hyFlag = c.race === 'Hybrid' ? ' <span style="color:#d4b870;font-size:11px;font-family:inherit;">⚑ parents not chosen — ✎ Edit and pick BOTH Humanoid parents</span>' : '';
-    featuresHtml = `<details class="race-det"><summary><b style="color:var(--gold);">${c.race}${_mutSuffix}</b>${citeHTML('races', c.race)}${_hyFlag}</summary><div style="padding:4px 2px 2px 14px;line-height:1.6;">Ability Adj.: ${radj} &nbsp;|&nbsp; ECL Mod: +${race.ecl||0}<br>${race.notes||''}</div></details>`;
+    const _hyFlag = c.race === 'Hybrid' ? ' <span class="fs-11" style="color:#d4b870;font-family:inherit;">⚑ parents not chosen — ✎ Edit and pick BOTH Humanoid parents</span>' : '';
+    featuresHtml = `<details class="race-det"><summary><b class="c-gold">${c.race}${_mutSuffix}</b>${citeHTML('races', c.race)}${_hyFlag}</summary><div class="lh-1_6" style="padding:4px 2px 2px 14px;">Ability Adj.: ${radj} &nbsp;|&nbsp; ECL Mod: +${race.ecl||0}<br>${race.notes||''}</div></details>`;
   }
   // The 🧬 Mutant subtype drop-down — one more racial row, the hy-det idiom.
   if (_mutTempl) {
@@ -1071,11 +1071,11 @@ function sheetRacialHtml(c) {
       ? `Classification tracks total MP: already Mega — each further 10 MP adds +1 RLM (and ECL).`
       : `Classification tracks total MP: next promotion at ${nextMP} MP (${nextTier.tier}${_mpS.isSuperMutant ? ` — power levels ${nextTier.spell_levels[0]}-${nextTier.spell_levels[1]}, ${nextTier.max_mp_per_power != null ? '≤' + nextTier.max_mp_per_power + ' MP/power' : 'uncapped'}` : ''}).`;
     featuresHtml += `
-      <details class="hy-det"><summary><span style="cursor:help;" title="The Mutant racial subtype (HH p.29) — templated via the Supernatural Mutation feat or 10+ total MP (Adam's unification, 2026-10-03). Its racial abilities are EXTRAORDINARY — fundamental physiology; a Null Power Field does not suppress them.">🧬 Mutant subtype — <b style="color:var(--vio);">${clsLabel}</b> · RLM +${ml} · ${_mpS.totalEarned} MP total</span></summary><div style="padding:3px 0 2px 14px;line-height:1.65;font-size:12px;">
-        <b style="color:var(--gold);">Unnatural Prowess (Ex):</b> +${Math.floor(ml / 2)} Base Attack · +${Math.floor(ml / 3)} Defense · +${2 * ml} skill points <span style="font-size:10px;color:var(--g50);">(Tech Scale 0 skills only — table-enforced)</span><br>
-        <b style="color:var(--gold);">Unnatural Resilience (Ex):</b> +${ml * (5 + conM)} HP · +${Math.floor(ml / 2)} all saves <span style="font-size:10px;color:var(--g50);">(baked live — cards, rows, and drilldowns already include them)</span><br>
-        ${_mpS.isSuperMutant ? `<b style="color:var(--gold);">ESL ${_mpS.eml}</b> <span style="font-size:10px;color:var(--g50);">(character level ${c.totalLvl || 1} + RLM ${ml})</span> · super-PP ${spp ? spp.current + '/' + spp.max : '—'}/day · ` : ''}<b style="color:var(--gold);">ECL +${ml}</b><br>
-        <span style="font-size:11px;font-style:italic;color:var(--tv85);">${promoLine}</span>
+      <details class="hy-det"><summary><span class="cursor-help" title="The Mutant racial subtype (HH p.29) — templated via the Supernatural Mutation feat or 10+ total MP (Adam's unification, 2026-10-03). Its racial abilities are EXTRAORDINARY — fundamental physiology; a Null Power Field does not suppress them.">🧬 Mutant subtype — <b class="c-vio">${clsLabel}</b> · RLM +${ml} · ${_mpS.totalEarned} MP total</span></summary><div class="p-3-0-2-14 lh-1_65 fs-12">
+        <b class="c-gold">Unnatural Prowess (Ex):</b> +${Math.floor(ml / 2)} Base Attack · +${Math.floor(ml / 3)} Defense · +${2 * ml} skill points <span class="fs-10 c-g50">(Tech Scale 0 skills only — table-enforced)</span><br>
+        <b class="c-gold">Unnatural Resilience (Ex):</b> +${ml * (5 + conM)} HP · +${Math.floor(ml / 2)} all saves <span class="fs-10 c-g50">(baked live — cards, rows, and drilldowns already include them)</span><br>
+        ${_mpS.isSuperMutant ? `<b class="c-gold">ESL ${_mpS.eml}</b> <span class="fs-10 c-g50">(character level ${c.totalLvl || 1} + RLM ${ml})</span> · super-PP ${spp ? spp.current + '/' + spp.max : '—'}/day · ` : ''}<b class="c-gold">ECL +${ml}</b><br>
+        <span class="fs-11 italic c-tv85">${promoLine}</span>
       </div></details>`;
   }
   return featuresHtml;
@@ -1096,7 +1096,7 @@ function sheetScenarioLineHtml(c) {
   // placeholder rows.
   if(c.sixLevels){
     const slLine=['arcane','divine','heroic','mutation','psionic','tech'].map(a=>`${SIX_LEVELS[a].short} ${c.sixLevels[a]||0}`).join(' · ');
-    return `<b style="color:var(--gold);">Scenario:</b> ${normalizePresetName(c.scenarioPreset||'Custom')} <span style="font-size:12px;color:var(--g65);">— ${slLine}</span><br><br>`;
+    return `<b class="c-gold">Scenario:</b> ${normalizePresetName(c.scenarioPreset||'Custom')} <span class="fs-12 c-g65">— ${slLine}</span><br><br>`;
   }
   return '';
 }
@@ -1111,9 +1111,9 @@ function sheetOccupationHtml(c) {
   // description, the DESIGNATED class skills (the picks), the bonus feat,
   // wealth bonus, and the full offered list for reference.
   const occs = (c.occupations && c.occupations.length ? c.occupations : (c.occ ? [c.occ] : [])).filter(Boolean);
-  let occHtml = `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(200,151,30,.2);"><b style="color:var(--gold);font-family:'Epics Serif','Cinzel',serif;">Starting Occupation</b>`;
+  let occHtml = `<div class="mt-10" style="padding-top:8px;border-top:1px solid rgba(200,151,30,.2);"><b class="c-gold font-serif">Starting Occupation</b>`;
   if (!occs.length) {
-    occHtml += ` <span style="opacity:.55;font-size:12px;">— none chosen (set on the Create tab; free class skills, maybe a feat — HH p.34)</span></div>`;
+    occHtml += ` <span class="op-0_55 fs-12">— none chosen (set on the Create tab; free class skills, maybe a feat — HH p.34)</span></div>`;
   } else {
     occHtml += '</div>';
     occs.forEach((o, oi) => {
@@ -1122,13 +1122,13 @@ function sheetOccupationHtml(c) {
       const pickedSkills = (picks.skills || []).filter(Boolean);
       const pickedFeat = picks.feat || null;
       const rows = [];
-      if (od && od.d) rows.push(`<div style="font-size:11.5px;color:var(--tx75);line-height:1.5;">${escapeHTML(od.d)}</div>`);
-      rows.push(`<div style="font-size:12px;"><b style="color:var(--g85);">Class skills designated:</b> ${pickedSkills.length ? escapeHTML(pickedSkills.join(', ')) : `<span style="color:#d4b870;">unchosen — pick ${od ? od.skill_count : '?'} from the list below (amber-dot ledger)</span>`}</div>`);
-      if (od && od.bonus_feat_options && od.bonus_feat_options.length) rows.push(`<div style="font-size:12px;"><b style="color:var(--g85);">Bonus feat:</b> ${pickedFeat ? escapeHTML(pickedFeat) : `<span style="color:#d4b870;">unchosen</span> <span style="opacity:var(--o60);color:var(--dim);">(options: ${escapeHTML(od.bonus_feat_options.join(', '))})</span>`}</div>`);
-      if (od && od.wealth != null) rows.push(`<div style="font-size:12px;"><b style="color:var(--g85);">Wealth bonus:</b> +${od.wealth} to the starting Wealth Score (HH p.44)</div>`);
-      if (od && od.prereq_age) rows.push(`<div style="font-size:11px;opacity:var(--o60);color:var(--dim);">Minimum age: ${od.prereq_age}</div>`);
-      if (od && od.skill_list) rows.push(`<div style="font-size:11px;opacity:var(--o60);color:var(--dim);line-height:1.5;">Offered list (choose ${od.skill_count}): ${escapeHTML(od.skill_list.join(' · '))}</div>`);
-      occHtml += `<details class="hy-det" style="margin-top:4px;"><summary style="cursor:pointer;font-size:12.5px;color:var(--gold);">💼 ${escapeHTML(o)}${oi === 1 ? ' <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(second occupation)</span>' : ''}</summary><div style="padding:4px 0 4px 14px;border-left:2px solid rgba(200,151,30,.35);margin-top:3px;display:flex;flex-direction:column;gap:4px;">${rows.join('')}</div></details>`;
+      if (od && od.d) rows.push(`<div class="fs-11_5 lh-1_5" style="color:var(--tx75);">${escapeHTML(od.d)}</div>`);
+      rows.push(`<div class="fs-12"><b class="c-g85">Class skills designated:</b> ${pickedSkills.length ? escapeHTML(pickedSkills.join(', ')) : `<span style="color:#d4b870;">unchosen — pick ${od ? od.skill_count : '?'} from the list below (amber-dot ledger)</span>`}</div>`);
+      if (od && od.bonus_feat_options && od.bonus_feat_options.length) rows.push(`<div class="fs-12"><b class="c-g85">Bonus feat:</b> ${pickedFeat ? escapeHTML(pickedFeat) : `<span style="color:#d4b870;">unchosen</span> <span class="o-60 c-dim">(options: ${escapeHTML(od.bonus_feat_options.join(', '))})</span>`}</div>`);
+      if (od && od.wealth != null) rows.push(`<div class="fs-12"><b class="c-g85">Wealth bonus:</b> +${od.wealth} to the starting Wealth Score (HH p.44)</div>`);
+      if (od && od.prereq_age) rows.push(`<div class="fs-11 o-60 c-dim">Minimum age: ${od.prereq_age}</div>`);
+      if (od && od.skill_list) rows.push(`<div class="fs-11 o-60 c-dim lh-1_5">Offered list (choose ${od.skill_count}): ${escapeHTML(od.skill_list.join(' · '))}</div>`);
+      occHtml += `<details class="mt-4 hy-det"><summary class="cursor-pointer fs-12_5 c-gold">💼 ${escapeHTML(o)}${oi === 1 ? ' <span class="fs-9 o-60 c-dim">(second occupation)</span>' : ''}</summary><div class="mt-3 flex-col gap-4" style="padding:4px 0 4px 14px;border-left:2px solid rgba(200,151,30,.35);display:flex;">${rows.join('')}</div></details>`;
     });
   }
   return occHtml;
@@ -1157,13 +1157,13 @@ function sheetClassFeaturesHtml(c, classArr) {
       ? `<b style="color:rgba(120,175,205,.95);">${escapeHTML(s.chosen)}</b>`
       : `<span style="color:#d4b870;">⚑ unchosen — pick in 🎓 Class Choices</span>`);
     return `<div style="font-size:12px;line-height:1.45;padding:1px 0 1px 10px;border-left:2px solid ${tc};margin-top:2px;">
-          <b style="color:var(--gold);">${escapeHTML(f.name)}</b>
+          <b class="c-gold">${escapeHTML(f.name)}</b>
           <span style="font-size:9px;color:${tc};text-transform:uppercase;letter-spacing:.06em;margin-left:5px;cursor:help;" title="${escapeHTML((f.desc || '') + (citStr ? ' — ' + citStr : ''))}">[${tl}]</span>
-          ${pickBits.length ? `<span style="font-size:11px;"> — ${pickBits.join(', ')}</span>` : ''}
-          <br><span style="color:var(--tx70);font-size:11px;">${escapeHTML(f.desc||'')}</span>
+          ${pickBits.length ? `<span class="fs-11"> — ${pickBits.join(', ')}</span>` : ''}
+          <br><span class="fs-11" style="color:var(--tx70);">${escapeHTML(f.desc||'')}</span>
         </div>`;
   };
-  let cfa = `<br><br><b style="color:var(--gold);">Class Features &amp; Abilities</b> <span style="font-size:10px;color:var(--g55);">(${activeFeatures.length} active — expand a class for its level-by-level record)</span>`;
+  let cfa = `<br><br><b class="c-gold">Class Features &amp; Abilities</b> <span class="fs-10 c-g55">(${activeFeatures.length} active — expand a class for its level-by-level record)</span>`;
   const renderedClasses = new Set();
   for (const e of classArr) {
     const cls = getClassEntry(e); if (!cls) continue;
@@ -1179,26 +1179,26 @@ function sheetClassFeaturesHtml(c, classArr) {
     if (e.tier === 'hero') {
       const tl2 = (c.talents || []).filter(t => { const td = TALENTS_DB.find(x => x.n === (t.name || t.n)); return td && td.hero_class === e.name; })
         .map(t => (t.name || t.n) + (t.param ? ` (${t.param})` : ''));
-      extras += `<div style="font-size:11px;margin:2px 0;color:var(--tx85);">🎭 <b style="color:var(--gold);">Talents chosen</b> (this class's trees): ${tl2.length ? `<b style="color:rgba(120,175,205,.95);">${tl2.map(escapeHTML).join(', ')}</b>` : '<i style="opacity:var(--o60);color:var(--dim);">none yet — the Talents tab awaits</i>'}</div>`;
+      extras += `<div class="fs-11 m-2-0 c-tx85">🎭 <b class="c-gold">Talents chosen</b> (this class's trees): ${tl2.length ? `<b style="color:rgba(120,175,205,.95);">${tl2.map(escapeHTML).join(', ')}</b>` : '<i class="o-60 c-dim">none yet — the Talents tab awaits</i>'}</div>`;
     }
     const bf = (c.feats || []).filter(f => typeof f.slotSource === 'string' && f.slotSource.startsWith(`classFeature:${e.name}:`))
       .map(f => f.name + (f.param ? ` (${f.param})` : ''));
-    if (bf.length) extras += `<div style="font-size:11px;margin:2px 0;color:var(--tx85);">★ <b style="color:var(--gold);">Bonus feats taken</b> (this class's slots): <b style="color:rgba(120,175,205,.95);">${bf.map(escapeHTML).join(', ')}</b></div>`;
+    if (bf.length) extras += `<div class="fs-11 m-2-0 c-tx85">★ <b class="c-gold">Bonus feats taken</b> (this class's slots): <b style="color:rgba(120,175,205,.95);">${bf.map(escapeHTML).join(', ')}</b></div>`;
     // Level-by-level record.
     const byLvl = {};
     for (const f of feats) { (byLvl[f.feature.lvl] = byLvl[f.feature.lvl] || []).push(f); }
     let body = `<div style="padding:3px 0 2px 12px;">${extras}`;
     for (const lvl of Object.keys(byLvl).map(Number).sort((a, b) => a - b)) {
-      body += `<div style="margin-top:4px;"><span style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);letter-spacing:.08em;">LEVEL ${lvl}</span>`;
+      body += `<div class="mt-4"><span class="font-serif fs-10 c-bronze ls-0_08em">LEVEL ${lvl}</span>`;
       for (const f of byLvl[lvl]) body += featureRow(e.name, f);
       body += `</div>`;
     }
     // Choice specs for this class that matched no feature row (defensive —
     // nothing a player picked should ever vanish from the record).
     const strays = chSpecs.filter(s => !consumedSpecs.has(s.key) && s.className === e.name);
-    for (const s of strays) { consumedSpecs.add(s.key); body += `<div style="font-size:11px;margin-top:3px;">L${s.atLvl} · ${escapeHTML(s.feature)}${s.idx > 1 ? ` #${s.idx}` : ''}: ${s.chosen ? `<b style="color:rgba(120,175,205,.95);">${escapeHTML(s.chosen)}</b>` : '<span style="color:#d4b870;">⚑ unchosen — 🎓 Class Choices</span>'}</div>`; }
+    for (const s of strays) { consumedSpecs.add(s.key); body += `<div class="fs-11 mt-3">L${s.atLvl} · ${escapeHTML(s.feature)}${s.idx > 1 ? ` #${s.idx}` : ''}: ${s.chosen ? `<b style="color:rgba(120,175,205,.95);">${escapeHTML(s.chosen)}</b>` : '<span style="color:#d4b870;">⚑ unchosen — 🎓 Class Choices</span>'}</div>`; }
     body += `</div>`;
-    cfa += `<details class="cls-det"><summary><b style="color:var(--gold);">${_hiero ? 'Ecclesiarch (Hierophant)' : escapeHTML(e.name)} ${e.level}</b>${citeHTML('classes', e.name)} <span style="font-size:10px;color:var(--g50);">${tierLabel}</span> <span style="font-size:10.5px;color:var(--tx75);font-family:Georgia,serif;letter-spacing:0;">— Hit Die d${cls.hd} · Key ${cls.attr} · ${cls.sp}+Int SP/lvl${apHint}${feats.length ? ` · ${feats.length} feature${feats.length === 1 ? '' : 's'}` : ''}</span>${_hiero ? ' <span style="font-size:9px;" title="GG p.161: the Ecclesiarch is ‘known sometimes as a Hierophant’ — the Druid-rooted ones answer to it.">ⓘ</span>' : ''}</summary>${body}</details>`;
+    cfa += `<details class="cls-det"><summary><b class="c-gold">${_hiero ? 'Ecclesiarch (Hierophant)' : escapeHTML(e.name)} ${e.level}</b>${citeHTML('classes', e.name)} <span class="fs-10 c-g50">${tierLabel}</span> <span class="fs-10_5 ls-0" style="color:var(--tx75);font-family:Georgia,serif;">— Hit Die d${cls.hd} · Key ${cls.attr} · ${cls.sp}+Int SP/lvl${apHint}${feats.length ? ` · ${feats.length} feature${feats.length === 1 ? '' : 's'}` : ''}</span>${_hiero ? ' <span class="fs-9" title="GG p.161: the Ecclesiarch is ‘known sometimes as a Hierophant’ — the Druid-rooted ones answer to it.">ⓘ</span>' : ''}</summary>${body}</details>`;
   }
   // Feature groups whose class isn't a current class entry (Heritage
   // grants and kin) — rendered so nothing active ever disappears.
@@ -1207,7 +1207,7 @@ function sheetClassFeaturesHtml(c, classArr) {
     let body = `<div style="padding:3px 0 2px 12px;">`;
     for (const f of byClass[cn]) body += featureRow(cn, f);
     body += `</div>`;
-    cfa += `<details class="cls-det"><summary><b style="color:var(--gold);">${escapeHTML(cn)}</b> <span style="font-size:10px;color:var(--g50);">granted abilities</span> <span style="font-size:10.5px;color:var(--tx75);font-family:Georgia,serif;letter-spacing:0;">· ${byClass[cn].length} feature${byClass[cn].length === 1 ? '' : 's'}</span></summary>${body}</details>`;
+    cfa += `<details class="cls-det"><summary><b class="c-gold">${escapeHTML(cn)}</b> <span class="fs-10 c-g50">granted abilities</span> <span class="fs-10_5 ls-0" style="color:var(--tx75);font-family:Georgia,serif;">· ${byClass[cn].length} feature${byClass[cn].length === 1 ? '' : 's'}</span></summary>${body}</details>`;
   }
   return cfa;
 }
@@ -1259,7 +1259,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
   const eff = POOL_EFF_LEVEL[poolName];
   poolHtml += `<span style="color:var(--g65);cursor:help;" title="${eff.full} — the ${poolName} pool’s effective ${eff.verb} level: the best contributing class’s level (Basic-class levels don’t stack, HH p.53), plus Prestige advancer levels; Heritage floor-raises to character level. Half-casters count half their class level, rounded up, from 4th.">${eff.abbr} ${pool.cl}</span>`;
   const poolNoun = poolName === 'psionic' ? 'Power' : 'Spell';  // v8.6.0 (Adam): name the thing
-  poolHtml += ` &nbsp;|&nbsp; <span style="color:var(--g65);">Max ${poolNoun} Lvl: ${pool.maxPowerLvl}</span>`;
+  poolHtml += ` &nbsp;|&nbsp; <span class="c-g65">Max ${poolNoun} Lvl: ${pool.maxPowerLvl}</span>`;
   // v8.3.13: reformat Save DC line. Bake the actual attribute modifier(s) into
   // the formula so the player can read off the per-roll DC directly: just
   // add the power's level. Multi-attribute pools (e.g. arcane with both INT
@@ -1272,7 +1272,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
     // from the per-contributor sub-block.
     const sign = pool.bestAttrMod >= 0 ? '+' : '';
     const sum = 10 + pool.bestAttrMod;
-    poolHtml += ` &nbsp;|&nbsp; <span style="color:var(--g65);">Base Save DC: 10 + ${attrList} mod (${sign}${pool.bestAttrMod}) = ${sum} + ${poolNoun} Lvl</span>`;
+    poolHtml += ` &nbsp;|&nbsp; <span class="c-g65">Base Save DC: 10 + ${attrList} mod (${sign}${pool.bestAttrMod}) = ${sum} + ${poolNoun} Lvl</span>`;
     // v8.5.4 EAL pass: Spell Focus school riders (spell pools only —
     // psionic disciplines aren't schools). +1 per Focus, +1 more per Greater.
     if (poolName !== 'psionic') {
@@ -1282,16 +1282,16 @@ function sheetCasterPoolHtml(c, poolName, pool) {
         if ((nm === 'Spell Focus' || nm === 'Greater Spell Focus') && f.param) sfBySchool[f.param] = (sfBySchool[f.param] || 0) + 1;
       }
       const sfList = Object.entries(sfBySchool).map(([s, n]) => `${s} +${n}`).join(', ');
-      if (sfList) poolHtml += ` <span style="color:var(--g50);font-size:10px;">(Spell Focus: ${sfList} DC)</span>`;
+      if (sfList) poolHtml += ` <span class="c-g50 fs-10">(Spell Focus: ${sfList} DC)</span>`;
     }
   } else {
-    poolHtml += ` &nbsp;|&nbsp; <span style="color:var(--g65);">Base Save DC: 10 + casting attr mod + ${poolNoun} Lvl</span>`;
+    poolHtml += ` &nbsp;|&nbsp; <span class="c-g65">Base Save DC: 10 + casting attr mod + ${poolNoun} Lvl</span>`;
   }
-  poolHtml += `<br><span style="color:var(--tx85);font-size:12px;">PP Pool: <b>${ppCurrentSum}</b> / ${ppBudgetSum}</span>`;
+  poolHtml += `<br><span class="c-tx85 fs-12">PP Pool: <b>${ppCurrentSum}</b> / ${ppBudgetSum}</span>`;
   // v8.6.0 C8 (final half): the Sheet REPORTS — management moved to its
   // homes (casting/prep on the Spells & Powers tabs, daily recovery on the
   // Tracker's Power Point Recovery panel).
-  poolHtml += ` <span style="font-size:10px;color:var(--g50);">— ${poolName === 'psionic' ? 'manifest on the ◈ Powers tab' : 'cast &amp; prepare on the ✨ Spells tab'} · rest on the Tracker</span>`;
+  poolHtml += ` <span class="fs-10 c-g50">— ${poolName === 'psionic' ? 'manifest on the ◈ Powers tab' : 'cast &amp; prepare on the ✨ Spells tab'} · rest on the Tracker</span>`;
   // Per-contributor sub-blocks
   for (const ctr of pool.contributors) {
     const ctrKey = (ctr.class || 'unknown') + ':' + (ctr.level || 0);
@@ -1306,16 +1306,16 @@ function sheetCasterPoolHtml(c, poolName, pool) {
     poolHtml += `<br><span style="font-size:11px;color:${tagColor};text-transform:uppercase;letter-spacing:.06em;">${escapeHTML(ctrLabel)}</span>`;
     poolHtml += ` <span style="font-size:9px;color:${tagColor};">[${tag}]</span>`;
     if (ctr._isAdvancer) {
-      poolHtml += `<br><span style="color:var(--tx65);font-size:11px;padding-left:12px;">Advancer class: contributes +${ctr.level} ${eff.abbr} only, no PP budget.</span>`;
+      poolHtml += `<br><span class="c-tx65 fs-11 pl-12">Advancer class: contributes +${ctr.level} ${eff.abbr} only, no PP budget.</span>`;
       continue;
     }
     if (ctr._fromHeritage) {
-      poolHtml += `<br><span style="color:var(--tx65);font-size:11px;padding-left:12px;">Heritage feat: +2 PP flat${pool.contributors.filter(x=>!x._isAdvancer && !x._fromHeritage && !x._fromFeat).length===0 ? ', 1st-level capability (class selection deferred to a future release)' : ', floor-raises '+eff.abbr+' to character level ('+(c.totalLvl||0)+')'}.</span>`;
+      poolHtml += `<br><span class="c-tx65 fs-11 pl-12">Heritage feat: +2 PP flat${pool.contributors.filter(x=>!x._isAdvancer && !x._fromHeritage && !x._fromFeat).length===0 ? ', 1st-level capability (class selection deferred to a future release)' : ', floor-raises '+eff.abbr+' to character level ('+(c.totalLvl||0)+')'}.</span>`;
       continue;
     }
     if (ctr._fromFeat) {
       // v8.5.4: Spellslinger / Power Reservoir — character-level bonus PP.
-      poolHtml += `<br><span style="color:var(--tx65);font-size:11px;padding-left:12px;">${escapeHTML(ctr.class)} feat: +${ctr.classPP} PP (equal to character level — grows on level-up). No ${eff.abbr} contribution.</span>`;
+      poolHtml += `<br><span class="c-tx65 fs-11 pl-12">${escapeHTML(ctr.class)} feat: +${ctr.classPP} PP (equal to character level — grows on level-up). No ${eff.abbr} contribution.</span>`;
       continue;
     }
     // Standard caster contributor — v8.6.0 C8 (final half): one compact
@@ -1324,7 +1324,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
     // the workflows live (Spells/Powers tabs + the Tracker's PP panel);
     // the Sheet reports.
     const ctrIdSafe = (poolName + '_' + ctrKey).replace(/[^a-z0-9]/gi,'_');
-    poolHtml += `<br><span style="font-size:11px;color:var(--tx80);padding-left:12px;">`;
+    poolHtml += `<br><span class="fs-11 c-tx80 pl-12">`;
     poolHtml += `<span title="This class’s own ${eff.verb} level — what its spells/powers resolve at.">${eff.abbr} ${ctr.clContribution}</span> · `;
     poolHtml += `${ctr.attr} ${ctr.attrScore} (${ctr.attrMod>=0?'+':''}${ctr.attrMod}) · max ${poolNoun.toLowerCase()} lvl ${ctr.classMaxPowerLvl} · `;
     poolHtml += `PP <b>${ctrCurrent}</b>/${ctrBudget}</span>`;
@@ -1335,16 +1335,16 @@ function sheetCasterPoolHtml(c, poolName, pool) {
       // only for characters with no structured data yet.
       const prepList = c.preparedSlots && c.preparedSlots[poolName] && c.preparedSlots[poolName][ctrKey];
       if (prepList && prepList.length) {
-        poolHtml += `<br><span style="font-size:11px;color:var(--tx65);padding-left:12px;">Prepared today (memorized at dawn — manage on the Powers &amp; Spells tab):</span>`;
+        poolHtml += `<br><span class="fs-11 c-tx65 pl-12">Prepared today (memorized at dawn — manage on the Powers &amp; Spells tab):</span>`;
         for (const r of prepList) {
           const left = (r.qty || 0) - (r.cast || 0);
           const hovP = powerHoverText(SPELLS_DB.find(x => x.name === r.name));  // v8.79.0: hover dossier on prepared rows too
-          poolHtml += `<br><span style="font-size:11px;padding-left:24px;${left <= 0 ? 'opacity:.45;text-decoration:line-through;' : 'color:#cccca0;'}${hovP ? 'cursor:help;' : ''}" ${hovP ? `title="${escapeHTML(hovP)}"` : ''}>${r.qty}× ${escapeHTML(r.dispName || r.name)} <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(lvl ${r.lvl}${r.free ? ', free specialty' : ', ' + r.cost + ' PP'})</span>${r.cast ? ` <span style="font-size:9px;color:#d4b870;">${left}/${r.qty} left</span>` : ''}</span>`;
+          poolHtml += `<br><span style="font-size:11px;padding-left:24px;${left <= 0 ? 'opacity:.45;text-decoration:line-through;' : 'color:#cccca0;'}${hovP ? 'cursor:help;' : ''}" ${hovP ? `title="${escapeHTML(hovP)}"` : ''}>${r.qty}× ${escapeHTML(r.dispName || r.name)} <span class="fs-9 o-60 c-dim">(lvl ${r.lvl}${r.free ? ', free specialty' : ', ' + r.cost + ' PP'})</span>${r.cast ? ` <span class="fs-9" style="color:#d4b870;">${left}/${r.qty} left</span>` : ''}</span>`;
         }
       } else {
-        poolHtml += `<br><span style="font-size:11px;color:var(--tx65);padding-left:12px;">Prepared today (memorized at morning prep, PP-cost deducted from budget):</span>`;
+        poolHtml += `<br><span class="fs-11 c-tx65 pl-12">Prepared today (memorized at morning prep, PP-cost deducted from budget):</span>`;
         poolHtml += `<br><textarea id="prep-${ctrIdSafe}" placeholder="e.g. 4× Magic Missile (4 PP), 2× Fireball (10 PP), 1× Mage Armor (1 PP)... — or use the structured Prepared Spells panel on the Powers & Spells tab" rows="3" onblur="snapshotPowerTextareas(chars.find(x=>x.id===curId));save();" style="width:95%;margin-left:12px;font-size:11px;background:rgba(0,0,0,.2);color:#cccca0;border:1px solid rgba(200,151,30,.2);padding:4px;">${escapeHTML((c.preparedToday && c.preparedToday[poolName] && c.preparedToday[poolName][ctrKey]) || '')}</textarea>`;
-        poolHtml += `<br><span style="font-size:10px;color:var(--g50);padding-left:12px;">During play, cross off instances as they’re cast. PP budget stays empty until next Rest.</span>`;
+        poolHtml += `<br><span class="fs-10 c-g50 pl-12">During play, cross off instances as they’re cast. PP budget stays empty until next Rest.</span>`;
       }
     } else {
       // Spontaneous — v8.6.0 (Adam's Rhad report, closing proposal C8's
@@ -1357,7 +1357,7 @@ function sheetCasterPoolHtml(c, poolName, pool) {
       if (poolKnownRecs.length) {
         if (!poolHtml.includes(`data-known-pool="${poolName}"`)) {
           const nounSp = poolName === 'psionic' ? 'Powers' : 'Spells';
-          poolHtml += `<br><span data-known-pool="${poolName}" style="font-size:11px;color:var(--tx65);padding-left:12px;">${nounSp} Known (manage on the ${poolName === 'psionic' ? 'Powers' : 'Spells'} tab):</span>`;
+          poolHtml += `<br><span data-known-pool="${poolName}" class="fs-11 c-tx65 pl-12">${nounSp} Known (manage on the ${poolName === 'psionic' ? 'Powers' : 'Spells'} tab):</span>`;
           const byName = Object.fromEntries(SPELLS_DB.map(s => [s.name, s]));
           // v8.79.0 (Adam's Rhad report): the known rows carried only
           // level + PP while the Talents above showed full prose — the
@@ -1367,17 +1367,17 @@ function sheetCasterPoolHtml(c, poolName, pool) {
           for (const p of poolKnownRecs) {
             const s = byName[p.name];
             const nm = (s && p.token) ? displayNameForRoute(s, {token: p.token, lvl: p.lvl, pool: p.pool, applies: p.applies}) : p.name;
-            const lvlBit = (p.lvl !== undefined && p.lvl !== null) ? ` <span style="font-size:9px;opacity:var(--o60);color:var(--dim);">(lvl ${p.lvl}${s ? ', ' + powerCastCost(s, p.lvl) + ' PP' : ''})</span>` : '';
+            const lvlBit = (p.lvl !== undefined && p.lvl !== null) ? ` <span class="fs-9 o-60 c-dim">(lvl ${p.lvl}${s ? ', ' + powerCastCost(s, p.lvl) + ' PP' : ''})</span>` : '';
             const hov = powerHoverText(s);
-            poolHtml += `<br><span style="font-size:11px;padding-left:24px;color:#cccca0;${hov ? 'cursor:help;' : ''}" ${hov ? `title="${escapeHTML(hov)}"` : ''}>${escapeHTML(nm)}${nm !== p.name ? ` <span style="font-size:9px;opacity:.5;">(${escapeHTML(p.name)})</span>` : ''}${lvlBit}${p.personal ? ' <span style="font-size:9px;color:var(--vio);">✦</span>' : ''}</span>`;
+            poolHtml += `<br><span style="font-size:11px;padding-left:24px;color:#cccca0;${hov ? 'cursor:help;' : ''}" ${hov ? `title="${escapeHTML(hov)}"` : ''}>${escapeHTML(nm)}${nm !== p.name ? ` <span class="fs-9 op-0_5">(${escapeHTML(p.name)})</span>` : ''}${lvlBit}${p.personal ? ' <span class="fs-9 c-vio">✦</span>' : ''}</span>`;
           }
         }
       } else {
         const knownList = (c.powersKnownList && c.powersKnownList[poolName] && c.powersKnownList[poolName][ctrKey]) || '';
-        poolHtml += `<br><span style="font-size:11px;color:var(--tx65);padding-left:12px;">${ctr.class} ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'Spells' : 'Powers'} Known:</span>`;
+        poolHtml += `<br><span class="fs-11 c-tx65 pl-12">${ctr.class} ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'Spells' : 'Powers'} Known:</span>`;
         poolHtml += `<br><textarea id="known-${ctrIdSafe}" placeholder="Type your known ${ctr.class === 'Sorcerer' || ctr.class === 'Bard' ? 'spells' : 'powers'} here, one per line... — or use the structured catalogue on the Spells/Powers tab" rows="3" onblur="snapshotPowerTextareas(chars.find(x=>x.id===curId));save();" style="width:95%;margin-left:12px;font-size:11px;background:rgba(0,0,0,.2);color:#cccca0;border:1px solid rgba(200,151,30,.2);padding:4px;">${escapeHTML(knownList)}</textarea>`;
       }
-      poolHtml += `<br><span style="font-size:10px;color:var(--g50);padding-left:12px;">Spend PP from this budget when ${poolName === 'psionic' ? 'manifesting' : 'casting'} (1/3/5/7/9/11/13/15/17 by ${poolNoun.toLowerCase()} level, HH p.404).</span>`;
+      poolHtml += `<br><span class="fs-10 c-g50 pl-12">Spend PP from this budget when ${poolName === 'psionic' ? 'manifesting' : 'casting'} (1/3/5/7/9/11/13/15/17 by ${poolNoun.toLowerCase()} level, HH p.404).</span>`;
     }
   }
   poolHtml += `</div>`;
@@ -1397,11 +1397,11 @@ function sheetTalentsHtml(c) {
   // WHICH talent is the Gift (the budget just carries +1), so the chip
   // crowns the section, not a specific pick.
   const _giftTalentChip = (!isLegacyCharacter(c) && c.heroesGiftChoice === 'talent')
-    ? ` <span style="font-size:9px;color:var(--vio);border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);padding:1px 5px;border-radius:2px;margin-left:4px;cursor:help;" title="Hero's Gift — assigned as a Talent: +1 talent in this budget. Which specific talent is the Gift isn't tracked; the budget carries it. To reassign (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.">⬟ incl. Hero's Gift</span>`
+    ? ` <span class="fs-9 c-vio p-1-5 ml-4 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);border-radius:2px;" title="Hero's Gift — assigned as a Talent: +1 talent in this budget. Which specific talent is the Gift isn't tracked; the budget carries it. To reassign (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.">⬟ incl. Hero's Gift</span>`
     : '';
-  let talentsHtml = `<br><br><b style="color:var(--gold);">Talents</b> <span style="font-size:10px;color:var(--g55);">(${tBudget.totalPicked} / ${tBudget.totalOwed})</span>${_giftTalentChip}`;
+  let talentsHtml = `<br><br><b class="c-gold">Talents</b> <span class="fs-10 c-g55">(${tBudget.totalPicked} / ${tBudget.totalOwed})</span>${_giftTalentChip}`;
   if (!ownedTalents.length) {
-    talentsHtml += `<br><span style="font-size:11px;color:var(--g45);font-style:italic;">None selected. Use the Talents tab to add.</span>`;
+    talentsHtml += `<br><span class="fs-11 c-g45 italic">None selected. Use the Talents tab to add.</span>`;
   } else {
     // Group by tree for clarity.
     const byTree = {};
@@ -1412,7 +1412,7 @@ function sheetTalentsHtml(c) {
       byTree[tree].push({entry:t, data});
     }
     for (const tree in byTree) {
-      talentsHtml += `<br><span style="font-size:11px;color:var(--g55);text-transform:uppercase;letter-spacing:.06em;">${escapeHTML(tree)}</span>`;
+      talentsHtml += `<br><span class="fs-11 c-g55 uppercase ls-0_06em">${escapeHTML(tree)}</span>`;
       for (const {entry, data} of byTree[tree]) {
         const tier = data?.tier || 'Talent';
         const tierColor = tier === 'Apex Super-Talent' ? '#c499d4'
@@ -1420,9 +1420,9 @@ function sheetTalentsHtml(c) {
                         : 'var(--gold)';
         talentsHtml += `
             <div style="font-size:12px;line-height:1.45;padding:2px 0 2px 12px;border-left:2px solid ${tierColor};margin-top:2px;">
-              <b style="color:var(--gold);">${escapeHTML(entry.name)}</b>${citeHTML('talents', entry.name)}
+              <b class="c-gold">${escapeHTML(entry.name)}</b>${citeHTML('talents', entry.name)}
               <span style="font-size:9px;color:${tierColor};text-transform:uppercase;letter-spacing:.06em;margin-left:6px;">[${escapeHTML(tier)}]</span>
-              ${data?.d ? `<br><span style="color:var(--tx70);font-size:11px;">${escapeHTML(data.d)}</span>` : ''}
+              ${data?.d ? `<br><span class="fs-11" style="color:var(--tx70);">${escapeHTML(data.d)}</span>` : ''}
             </div>`;
       }
     }
@@ -1437,7 +1437,7 @@ function sheetMutationsHtml(c) {
   // the table-play reference for the rest (senses, natural attacks, activated
   // abilities, burdens).
   if (!(c.mutations || []).length) return '';
-  let muHtml = `<br><br><b style="color:var(--vio);">Mutations</b>`;
+  let muHtml = `<br><br><b class="c-vio">Mutations</b>`;
   for (const m of c.mutations) {
     const fx = MUTATION_EFFECTS[m.name] || {};
     const bits = [];
@@ -1449,10 +1449,10 @@ function sheetMutationsHtml(c) {
     for (const sk in (fx.condSkills || {})) bits.push(`${fx.condSkills[sk][0] > 0 ? '+' : ''}${fx.condSkills[sk][0]} ${sk} ${fx.condSkills[sk][1]}`);
     for (const sv in (fx.condSaves || {})) bits.push(`${fx.condSaves[sv][0] > 0 ? '+' : ''}${fx.condSaves[sv][0]} ${({fort:'Fort',ref:'Ref',will:'Will'})[sv]} ${fx.condSaves[sv][1]}`);
     muHtml += `
-        <div style="font-size:12px;line-height:1.45;padding:2px 0 2px 12px;border-left:2px solid rgba(196,153,212,.5);margin-top:2px;">
-          <b style="color:var(--gold);">${escapeHTML(m.name)}${m.attr ? ' (' + m.attr + ')' : ''}</b>
-          <span style="font-size:9px;color:var(--vio);text-transform:uppercase;letter-spacing:.06em;margin-left:6px;">[${m.kind}]</span>
-          ${bits.length ? `<br><span style="color:var(--tx70);font-size:11px;">${escapeHTML(bits.join(' · '))}</span>` : ''}
+        <div class="fs-12 lh-1_45 mt-2" style="padding:2px 0 2px 12px;border-left:2px solid rgba(196,153,212,.5);">
+          <b class="c-gold">${escapeHTML(m.name)}${m.attr ? ' (' + m.attr + ')' : ''}</b>
+          <span class="fs-9 c-vio uppercase ls-0_06em ml-6">[${m.kind}]</span>
+          ${bits.length ? `<br><span class="fs-11" style="color:var(--tx70);">${escapeHTML(bits.join(' · '))}</span>` : ''}
         </div>`;
   }
   return muHtml;
@@ -1460,17 +1460,17 @@ function sheetMutationsHtml(c) {
 
 // Sheet: languages, allegiances, notes and the class summary.
 function renderSheetFooter(c, classArr) {
-  document.getElementById('sh-langs').innerHTML=`<b style="color:var(--gold);">Languages:</b> ${c.langs||'Common'}<br><b style="color:var(--gold);">Allegiances:</b> ${c.allegiance||'—'}`;
+  document.getElementById('sh-langs').innerHTML=`<b class="c-gold">Languages:</b> ${c.langs||'Common'}<br><b class="c-gold">Allegiances:</b> ${c.allegiance||'—'}`;
   document.getElementById('sh-notes').textContent=c.notes||'None.';
   // Class level drilldown summary — one row per entry
   const tierLabels={hero:'Hero',ordinary:'Ordinary',basic:'Basic',advanced:'Advanced',prestige:'Prestige'};
-  const summary=classArr.map(e=>`<div><b style="color:var(--gold);">${e.name}</b> Lvl ${e.level} <span style="font-size:11px;color:var(--g55);">(${tierLabels[e.tier]||'?'} Class)</span></div>`).join('');
+  const summary=classArr.map(e=>`<div><b class="c-gold">${e.name}</b> Lvl ${e.level} <span class="fs-11 c-g55">(${tierLabels[e.tier]||'?'} Class)</span></div>`).join('');
   // v8.39.2 (Adam's catch): the in-list "▾ Class Tables" button duplicated
   // the section header's toggle (both called toggleDrill('sh-drill')) —
   // removed; the header button now carries the "Class Tables" label.
   document.getElementById('sh-classes').innerHTML=
     summary+
-    `<div style="color:var(--g55);font-size:12px;margin-top:4px;">Total Level: ${c.totalLvl} &nbsp;|&nbsp; ECL: ${c.ecl}</div>`;
+    `<div class="c-g55 fs-12 mt-4">Total Level: ${c.totalLvl} &nbsp;|&nbsp; ECL: ${c.ecl}</div>`;
 }
 function renderDrilldown(c){
   const d=document.getElementById('sh-drill');
@@ -1490,13 +1490,13 @@ function renderDrilldown(c){
       rows.push(`<tr class="${l===curLvl?'cur-lvl':''}"><td>${l}</td><td>+${cls.bab[i]}</td><td>+${cls.fort[i]}</td><td>+${cls.ref[i]}</td><td>+${cls.will[i]}</td><td>+${cls.def[i]}</td><td>+${cls.rep[i]}</td>${showFeatures?`<td>${feat}</td>`:''}</tr>`);
     }
     const label={hero:'',ordinary:' (Ordinary Class)',basic:' (Basic Class)',advanced:' (Advanced Class)',prestige:' (Prestige Class)'}[kind]||'';
-    return`<div style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--gold);margin:.75rem 0 .5rem;">${name} — Level Progression${label}</div>
+    return`<div class="font-serif fs-11 c-gold" style="margin:.75rem 0 .5rem;">${name} — Level Progression${label}</div>
     <table class="lvl-tbl"><thead><tr><th>Lvl</th><th>BAB</th><th>Fort</th><th>Ref</th><th>Will</th><th>Def</th><th>Rep</th>${showFeatures?'<th>Features</th>':''}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
   };
   for(const e of classArr){
     const cls=getClassEntry(e);
     html+=drawTbl(e.name,cls,e.level,e.tier);
   }
-  d.innerHTML=html||'<div style="color:var(--g40);font-size:13px;">No class data to display.</div>';
+  d.innerHTML=html||'<div class="c-g40 fs-13">No class data to display.</div>';
 }
 

@@ -11,7 +11,9 @@
      inside this one file. It now lives in ordinary files next to it:
        js/boot.js        error capture + theme; must run here, in <head>
        css/fonts.css     the @font-face rule (font file: assets/fonts/epics-serif.ttf)
-       css/app.css       every other style rule
+       css/app.css       every other style rule (themes, components, print)
+       css/utilities.css one-property classes (fs-10, c-gold, ...) that
+                         replaced inline style="..." attributes
        assets/img/logo.jpg  the logo
        js/core, js/data, js/rules, js/ui, js/main.js   the app itself (122 files),
                          loaded at the bottom of <body>
@@ -27,6 +29,7 @@
 <script src="js/boot.js?v=9.19.0"></script>
 <link rel="stylesheet" href="css/fonts.css?v=9.19.0">
 <link rel="stylesheet" href="css/app.css?v=9.19.0">
+<link rel="stylesheet" href="css/utilities.css?v=9.19.0">
 </head>
 <body>
 
@@ -80,7 +83,7 @@
   <!-- v8.69.0 (Adam's playtest-volume report): the command row moved ABOVE
        the roster — a long roster made these a scroll away. The backup
        doctrine rides with the buttons it explains. -->
-  <div class="btn-row" style="margin-bottom:4px;">
+  <div class="mb-4 btn-row">
     <button class="btn btn-pri" onclick="showPage('create')">✦ Create New Hero</button>
     <button class="btn" onclick="openQuickdraw()" title="Target class + level in, legal skeleton out: only the forced picks are made; the amber dots mark everything still yours to choose.">⚡ Quickdraw</button>
     <!-- v8.51.1: the courier — characters were trapped in each browser's
@@ -90,7 +93,7 @@
     <input id="roster-import-file" type="file" accept=".json,application/json" style="display:none;" onchange="importRosterFile(this)">
   </div>
   <!-- v8.58.0 Backup Guardian (d): the doctrine, stated where the buttons live. -->
-  <div style="font-size:11px;color:var(--g55);margin-bottom:10px;line-height:1.5;">
+  <div class="fs-11 c-g55 mb-10 lh-1_5">
     💾 Your heroes live in <b>this browser on this device</b> — ⬇ export after every session; the file is the true backup.
     Clearing cookies / site data deletes the roster. iPhone Safari players: add this page to your Home Screen so iOS doesn't tidy it away.
   </div>
@@ -101,15 +104,15 @@
 <!-- v8.40.0: ⚡ QUICKDRAW modal — goal + level (+ optional starting class,
      scenario, race, batch count) → legal skeleton characters. -->
 <div id="qd-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;overflow:auto;">
-  <div style="max-width:600px;margin:5vh auto;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;padding:18px 20px;">
-    <div class="modal-title" style="margin-bottom:4px;">⚡ Quickdraw Generator</div>
-    <div style="font-size:11.5px;color:var(--g60);margin-bottom:12px;line-height:1.5;">
+  <div class="m-5vh-auto p-18-20" style="max-width:600px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+    <div class="mb-4 modal-title">⚡ Quickdraw Generator</div>
+    <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       Pick the destination; the generator makes <b>only the forced moves</b> — class ladder, prerequisite skills, feats, and attributes — and leaves every expressive choice unmade, flagged by the amber dots. A skeleton, not a build.
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:12.5px;">
-      <label>Scenario<br><select id="qd-preset" onchange="qdOnPreset()" style="width:100%;"></select></label>
+    <div class="fs-12_5" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;">
+      <label>Scenario<br><select id="qd-preset" onchange="qdOnPreset()" class="w-full"></select></label>
       <label>Six Scales<br>
-        <span style="display:inline-flex;gap:4px;flex-wrap:wrap;">
+        <span class="gap-4 flex-wrap" style="display:inline-flex;">
           <!-- six mini inputs, preset-synced, hand-editable -->
           <input id="qd-sl-arcane"   type="number" min="0" max="9" value="0" title="Arcane"   onchange="qdRefreshClassLists()">
           <input id="qd-sl-divine"   type="number" min="0" max="9" value="0" title="Divine"   onchange="qdRefreshClassLists()">
@@ -118,29 +121,29 @@
           <input id="qd-sl-psionic"  type="number" min="0" max="9" value="0" title="Psionic"  onchange="qdRefreshClassLists()">
           <input id="qd-sl-tech"     type="number" min="0" max="9" value="5" title="Tech"     onchange="qdRefreshClassLists()">
         </span>
-        <span style="font-size:9.5px;opacity:.5;">A·D·H·M·P·T (editable)</span>
+        <span class="fs-9_5 op-0_5">A·D·H·M·P·T (editable)</span>
       </label>
-      <label>Target class<br><select id="qd-goal" style="width:100%;"></select></label>
+      <label>Target class<br><select id="qd-goal" class="w-full"></select></label>
       <label>Character level<br><input id="qd-level" type="number" min="1" max="20" value="5"></label>
-      <label>Starting class<br><select id="qd-start" style="width:100%;"></select></label>
-      <label>Race<br><select id="qd-race" onchange="qdHybridToggle()" style="width:100%;"></select></label>
+      <label>Starting class<br><select id="qd-start" class="w-full"></select></label>
+      <label>Race<br><select id="qd-race" onchange="qdHybridToggle()" class="w-full"></select></label>
       <label>How many?<br><input id="qd-count" type="number" min="1" max="10" value="1"></label>
       <!-- v8.68.2 (Adam's field report): Hybrid in Quickdraw/Bespoke prompts
            for its parents like the Create form does. -->
-      <div id="qd-hyb-row" style="grid-column:1 / -1;display:none;border:1px solid rgba(200,151,30,.3);border-radius:3px;padding:6px 8px;font-size:11px;">
+      <div id="qd-hyb-row" class="span-all p-6-8 fs-11" style="display:none;border:1px solid rgba(200,151,30,.3);border-radius:3px;">
         <span>Parent A <select id="qd-hyb-a"></select></span>
-        <span style="margin-left:8px;">Parent B <select id="qd-hyb-b"></select></span>
-        <span style="margin-left:8px;" title="Size AND movement follow this parent (HH p.30).">Size &amp; movement from <select id="qd-hyb-size"><option value="a">Parent A</option><option value="b">Parent B</option></select></span>
-        <span style="margin-left:8px;opacity:.7;">(HUMANOID parents only — RLM = A + B + 1)</span>
+        <span class="ml-8">Parent B <select id="qd-hyb-b"></select></span>
+        <span class="ml-8" title="Size AND movement follow this parent (HH p.30).">Size &amp; movement from <select id="qd-hyb-size"><option value="a">Parent A</option><option value="b">Parent B</option></select></span>
+        <span class="ml-8 op-0_7">(HUMANOID parents only — RLM = A + B + 1)</span>
       </div>
-      <label>Name / name stem<br><input id="qd-stem" type="text" placeholder="e.g. Redshirt" style="width:100%;"></label>
+      <label>Name / name stem<br><input id="qd-stem" type="text" placeholder="e.g. Redshirt" class="w-full"></label>
       <!-- v8.53.0 (Adam's request): occupation offered at build time, gently.
            Choosing one here only SETS the occupation — the perk picks (which
            class skills, which bonus feat) stay owed on the amber-dot ledger,
            so the fun choices remain the player's. -->
-      <label style="grid-column:1 / -1;">Starting Occupation <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(optional — free class skills, maybe a feat)</span><br>
-        <select id="qd-occ" onchange="qdOccHint()" style="width:100%;"></select>
-        <div id="qd-occ-hint" style="font-size:10.5px;color:var(--g65);margin-top:3px;line-height:1.45;"></div>
+      <label class="span-all">Starting Occupation <span class="o-55 c-dim fs-9_5">(optional — free class skills, maybe a feat)</span><br>
+        <select id="qd-occ" onchange="qdOccHint()" class="w-full"></select>
+        <div id="qd-occ-hint" class="fs-10_5 mt-3 lh-1_45" style="color:var(--g65);"></div>
       </label>
       <!-- v8.95.0 (Adam's dice-roller addendum): Automatic Attribute
            Generation toggle, pre-selected. Unticked = the Manual Attribute
@@ -148,33 +151,33 @@
            arbitrarily (a dice-rolled set, a GM array). Manual values are
            taken as FINAL scores (level bumps assumed included); racial
            adjustment applies on top; prerequisite gates still check. -->
-      <div style="grid-column:1 / -1;border:1px solid rgba(200,151,30,.3);border-radius:3px;padding:6px 9px;font-size:11.5px;">
-        <label style="cursor:pointer;"><input type="checkbox" id="qd-auto-attrs" checked onchange="qdAttrModeToggle()"> <b>Automatic Attribute Generation?</b> <span style="opacity:var(--o55);color:var(--dim);font-size:10px;">(untick to enter a dice-rolled set manually)</span></label>
-        <div id="qd-manual-attrs" style="display:none;margin-top:7px;">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <span>STR <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(0,-1)">−</button> <b id="qd-ma-0" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(0,1)">+</button></span>
-            <span>DEX <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(1,-1)">−</button> <b id="qd-ma-1" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(1,1)">+</button></span>
-            <span>CON <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(2,-1)">−</button> <b id="qd-ma-2" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(2,1)">+</button></span>
-            <span>INT <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(3,-1)">−</button> <b id="qd-ma-3" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(3,1)">+</button></span>
-            <span>WIS <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(4,-1)">−</button> <b id="qd-ma-4" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(4,1)">+</button></span>
-            <span>CHA <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(5,-1)">−</button> <b id="qd-ma-5" style="display:inline-block;min-width:18px;text-align:center;">10</b> <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" onclick="qdMaAdj(5,1)">+</button></span>
+      <div class="span-all p-6-9 fs-11_5" style="border:1px solid rgba(200,151,30,.3);border-radius:3px;">
+        <label class="cursor-pointer"><input type="checkbox" id="qd-auto-attrs" checked onchange="qdAttrModeToggle()"> <b>Automatic Attribute Generation?</b> <span class="o-55 c-dim fs-10">(untick to enter a dice-rolled set manually)</span></label>
+        <div id="qd-manual-attrs" class="mt-7" style="display:none;">
+          <div class="gap-10 flex-wrap" style="display:flex;">
+            <span>STR <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(0,-1)">−</button> <b id="qd-ma-0" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(0,1)">+</button></span>
+            <span>DEX <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(1,-1)">−</button> <b id="qd-ma-1" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(1,1)">+</button></span>
+            <span>CON <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(2,-1)">−</button> <b id="qd-ma-2" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(2,1)">+</button></span>
+            <span>INT <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(3,-1)">−</button> <b id="qd-ma-3" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(3,1)">+</button></span>
+            <span>WIS <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(4,-1)">−</button> <b id="qd-ma-4" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(4,1)">+</button></span>
+            <span>CHA <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(5,-1)">−</button> <b id="qd-ma-5" class="min-w-18 text-center" style="display:inline-block;">10</b> <button class="fs-10 p-0-6 btn btn-sm" onclick="qdMaAdj(5,1)">+</button></span>
           </div>
-          <div style="font-size:10px;color:var(--g55);margin-top:4px;line-height:1.4;">Entered values are the FINAL scores (include your level bumps); racial adjustments apply on top. Attribute prerequisites still check — a shortfall refuses with the gap named.</div>
+          <div class="fs-10 c-g55 mt-4 lh-1_4">Entered values are the FINAL scores (include your level bumps); racial adjustments apply on top. Attribute prerequisites still check — a shortfall refuses with the gap named.</div>
         </div>
       </div>
     </div>
-    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+    <div class="gap-8 justify-end" style="margin-top:14px;display:flex;">
       <button class="btn btn-sm" onclick="closeQuickdraw()">Cancel</button>
       <button class="btn btn-sm btn-pri" onclick="qdRun()">⚡ Build</button>
     </div>
     <!-- v8.51.0: the GM lane — an exact multi-class script, one pass. -->
-    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
-      <div style="font-size:12px;color:#d4b870;"><b>⚡ Bespoke Ladder (GM)</b> — exact multi-class script, one pass</div>
-      <div style="font-size:10.5px;color:var(--g55);line-height:1.45;margin:3px 0 6px;">
+    <div class="mt-12" style="padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
+      <div class="fs-12" style="color:#d4b870;"><b>⚡ Bespoke Ladder (GM)</b> — exact multi-class script, one pass</div>
+      <div class="fs-10_5 c-g55 lh-1_45" style="margin:3px 0 6px;">
         Comma-separated <b>"Class N"</b> steps in entry order. Uses the Scenario, Race and Name fields above. Every entry is validated at its own level with the real prerequisite checker; each gated class's minimum skills/feats are force-picked; everything expressive stays owed (amber dots) — a skeleton, not a build.
       </div>
-      <input id="qd-bespoke" type="text" placeholder="e.g. Dedicated Hero 2, Aristocrat 2, Fighter 2, Expert 2, Field Officer 2, Ambassador 2" style="width:100%;font-size:11.5px;padding:5px 8px;">
-      <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+      <input id="qd-bespoke" type="text" placeholder="e.g. Dedicated Hero 2, Aristocrat 2, Fighter 2, Expert 2, Field Officer 2, Ambassador 2" class="w-full fs-11_5 p-5-8">
+      <div class="mt-8 justify-end" style="display:flex;">
         <button class="btn btn-sm btn-pri" onclick="qdBespokeRun()">⚡ Build Bespoke</button>
       </div>
     </div>
@@ -185,15 +188,15 @@
      first-class data (name + six dials + optional official lock + notes).
      Objective task language per Adam's doctrine, not flavor terminology. -->
 <div id="scen-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-  <div style="max-width:640px;margin:5vh auto;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;padding:18px 20px;">
-    <div class="modal-title" style="margin-bottom:4px;">✦ Name and Establish Your Scenario: The Six Scales</div>
-    <div style="font-size:11.5px;color:var(--g60);margin-bottom:12px;line-height:1.5;">
+  <div class="m-5vh-auto p-18-20" style="max-width:640px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+    <div class="mb-4 modal-title">✦ Name and Establish Your Scenario: The Six Scales</div>
+    <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       Set the six dials that define your world's fundamental rules, name it, and save. Your scenario then appears alongside the built-in presets — on the Create page and in Quickdraw — and can be exported as a small file for your players to import.
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:12.5px;">
-      <label>Scenario name<br><input id="scen-name" type="text" placeholder="e.g. The Siderius Solum Corridor" style="width:100%;"></label>
+    <div class="fs-12_5" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;">
+      <label>Scenario name<br><input id="scen-name" type="text" placeholder="e.g. The Siderius Solum Corridor" class="w-full"></label>
       <label>The Six Scales<br>
-        <span style="display:inline-flex;gap:4px;flex-wrap:wrap;">
+        <span class="gap-4 flex-wrap" style="display:inline-flex;">
           <input id="scen-sl-arcane"   type="number" min="0" max="9" value="0" title="Arcane"   oninput="scenAnnotate()">
           <input id="scen-sl-divine"   type="number" min="0" max="9" value="0" title="Divine"   oninput="scenAnnotate()">
           <input id="scen-sl-heroic"   type="number" min="0" max="9" value="1" title="Heroic"   oninput="scenAnnotate()">
@@ -201,27 +204,27 @@
           <input id="scen-sl-psionic"  type="number" min="0" max="9" value="0" title="Psionic"  oninput="scenAnnotate()">
           <input id="scen-sl-tech"     type="number" min="0" max="9" value="5" title="Tech"     oninput="scenAnnotate()">
         </span>
-        <span style="font-size:9.5px;opacity:.5;">Arcane · Divine · Heroic · Mutation · Psionic · Tech</span>
+        <span class="fs-9_5 op-0_5">Arcane · Divine · Heroic · Mutation · Psionic · Tech</span>
       </label>
-      <div id="scen-annot" style="grid-column:1 / -1;font-size:11px;line-height:1.5;padding:6px 9px;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;"></div>
-      <label style="grid-column:1 / -1;">Notes for the table <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(optional — house rules, tone, what the dials mean here; travels with the exported file)</span><br>
-        <textarea id="scen-notes" rows="2" style="width:100%;font-size:11.5px;"></textarea></label>
-      <label style="grid-column:1 / -1;font-size:11.5px;display:flex;align-items:center;gap:7px;">
-        <input id="scen-lock" type="checkbox" style="width:auto;">
+      <div id="scen-annot" class="span-all fs-11 lh-1_5 p-6-9 rounded-2" style="background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.3);"></div>
+      <label class="span-all">Notes for the table <span class="o-55 c-dim fs-9_5">(optional — house rules, tone, what the dials mean here; travels with the exported file)</span><br>
+        <textarea id="scen-notes" rows="2" class="w-full fs-11_5"></textarea></label>
+      <label class="span-all fs-11_5 items-center gap-7" style="display:flex;">
+        <input id="scen-lock" type="checkbox" class="w-auto">
         <span><b>Official scenario</b> — when a player selects it on the Create page, the Six Scales lock automatically (they can still Unlock &amp; Edit, which is on the record).</span>
       </label>
     </div>
-    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+    <div class="gap-8 justify-end" style="margin-top:14px;display:flex;">
       <button class="btn btn-sm" onclick="closeScenarioStudio()">Cancel</button>
       <button class="btn btn-sm btn-pri" onclick="scenSave()">✦ Establish Scenario</button>
     </div>
-    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:12px;color:#d4b870;"><b>Established Scenarios</b></div>
-        <button class="btn btn-sm" style="margin-left:auto;font-size:10px;padding:1px 8px;" onclick="document.getElementById('scen-import-file').click()" title="Import a scenario file from your GM (or another machine). Imported scenarios are ADDED; name collisions get a suffix.">⬆ Import</button>
+    <div class="mt-12" style="padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
+      <div class="items-center gap-8" style="display:flex;">
+        <div class="fs-12" style="color:#d4b870;"><b>Established Scenarios</b></div>
+        <button class="ml-auto fs-10 p-1-8 btn btn-sm" onclick="document.getElementById('scen-import-file').click()" title="Import a scenario file from your GM (or another machine). Imported scenarios are ADDED; name collisions get a suffix.">⬆ Import</button>
         <input id="scen-import-file" type="file" accept=".json,application/json" style="display:none;" onchange="scenImportFile(this)">
       </div>
-      <div id="scen-list" style="margin-top:5px;"></div>
+      <div id="scen-list" class="mt-5"></div>
     </div>
   </div>
 </div>
@@ -231,67 +234,67 @@
      adjustments (fixed or player-chosen) + granted feats from the catalog.
      Price set per feat since v8.55.1; prereqs waived (birthright doctrine). -->
 <div id="hb-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-  <div style="max-width:660px;margin:5vh auto;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;padding:18px 20px;">
-    <div class="modal-title" style="margin-bottom:4px;">🌍 Homebrew Forge — Name and Establish Your Feat</div>
-    <div style="font-size:11.5px;color:var(--g60);margin-bottom:12px;line-height:1.5;">
+  <div class="m-5vh-auto p-18-20" style="max-width:660px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+    <div class="mb-4 modal-title">🌍 Homebrew Forge — Name and Establish Your Feat</div>
+    <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       GM lane. Homebrew feats built here carry <b>structured</b> payloads the engine already understands — attribute adjustments and granted catalog feats — plus your description for the hover. Each feat sets its own price: <b>free</b> (a birthright — no slot, no budget) or <b>costing a feat selection</b> (an ad-hoc approved pick). Prerequisites are waived either way; anything beyond these payloads stays prose — the numbers remain the book's.
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:12.5px;">
-      <label>Feat name<br><input id="hb-name" type="text" placeholder="e.g. Unique Heritage" style="width:100%;"></label>
-      <label>Family<br><select id="hb-family" style="width:100%;">
+    <div class="fs-12_5" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;">
+      <label>Feat name<br><input id="hb-name" type="text" placeholder="e.g. Unique Heritage" class="w-full"></label>
+      <label>Family<br><select id="hb-family" class="w-full">
         <option selected>Heritage</option><option>General</option><option>Fighter</option><option>Expert</option><option>Power</option><option>Magic</option>
       </select></label>
-      <label style="grid-column:1 / -1;">Description <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(shown on the feat card and hover — the table's memory of what this means)</span><br>
-        <textarea id="hb-desc" rows="2" style="width:100%;font-size:11.5px;"></textarea></label>
-      <label style="grid-column:1 / -1;">Attribute adjustments <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(baked on grant; Con changes retro-adjust HP per RAW; reversed on revoke)</span><br>
-        <span style="display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">STR</span><input id="hb-adj-0" type="number" min="-5" max="5" value="0" style="width:52px;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">DEX</span><input id="hb-adj-1" type="number" min="-5" max="5" value="0" style="width:52px;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">CON</span><input id="hb-adj-2" type="number" min="-5" max="5" value="0" style="width:52px;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">INT</span><input id="hb-adj-3" type="number" min="-5" max="5" value="0" style="width:52px;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">WIS</span><input id="hb-adj-4" type="number" min="-5" max="5" value="0" style="width:52px;">
-          <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">CHA</span><input id="hb-adj-5" type="number" min="-5" max="5" value="0" style="width:52px;">
+      <label class="span-all">Description <span class="o-55 c-dim fs-9_5">(shown on the feat card and hover — the table's memory of what this means)</span><br>
+        <textarea id="hb-desc" rows="2" class="w-full fs-11_5"></textarea></label>
+      <label class="span-all">Attribute adjustments <span class="o-55 c-dim fs-9_5">(baked on grant; Con changes retro-adjust HP per RAW; reversed on revoke)</span><br>
+        <span class="gap-6 flex-wrap items-center" style="display:inline-flex;">
+          <span class="fs-10 o-60 c-dim">STR</span><input id="hb-adj-0" type="number" min="-5" max="5" value="0" class="w-52">
+          <span class="fs-10 o-60 c-dim">DEX</span><input id="hb-adj-1" type="number" min="-5" max="5" value="0" class="w-52">
+          <span class="fs-10 o-60 c-dim">CON</span><input id="hb-adj-2" type="number" min="-5" max="5" value="0" class="w-52">
+          <span class="fs-10 o-60 c-dim">INT</span><input id="hb-adj-3" type="number" min="-5" max="5" value="0" class="w-52">
+          <span class="fs-10 o-60 c-dim">WIS</span><input id="hb-adj-4" type="number" min="-5" max="5" value="0" class="w-52">
+          <span class="fs-10 o-60 c-dim">CHA</span><input id="hb-adj-5" type="number" min="-5" max="5" value="0" class="w-52">
         </span></label>
       <label>…or player-chosen bonus<br>
-        <span style="display:inline-flex;gap:6px;align-items:center;">
-          <span style="font-size:10.5px;opacity:.6;">+</span><input id="hb-choose-n" type="number" min="0" max="5" value="0" style="width:52px;">
-          <span style="font-size:10.5px;opacity:.6;">to one attribute of the player's choice (0 = off)</span>
+        <span class="gap-6 items-center" style="display:inline-flex;">
+          <span class="fs-10_5 op-0_6">+</span><input id="hb-choose-n" type="number" min="0" max="5" value="0" class="w-52">
+          <span class="fs-10_5 op-0_6">to one attribute of the player's choice (0 = off)</span>
         </span></label>
-      <label>Granted feats <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(comma-separated catalog names)</span><br>
-        <input id="hb-grants" type="text" placeholder="e.g. Toughness" style="width:100%;"></label>
+      <label>Granted feats <span class="o-55 c-dim fs-9_5">(comma-separated catalog names)</span><br>
+        <input id="hb-grants" type="text" placeholder="e.g. Toughness" class="w-full"></label>
       <!-- v8.56.0 (playtest issue #1): prerequisite display text — inherited
            from the retired Custom Feat form. Free text, never auto-validated
            (GM adjudicates), shown on the feat card. -->
-      <label style="grid-column:1 / -1;">Prerequisites <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(optional display text — not auto-validated; the GM adjudicates)</span><br>
-        <input id="hb-pre" type="text" placeholder="e.g. Str 13, GM approval" style="width:100%;"></label>
+      <label class="span-all">Prerequisites <span class="o-55 c-dim fs-9_5">(optional display text — not auto-validated; the GM adjudicates)</span><br>
+        <input id="hb-pre" type="text" placeholder="e.g. Str 13, GM approval" class="w-full"></label>
       <!-- v8.55.1 (Adam's correction): "free" was the WORLDS' ruling, not a law
            of homebrew — an ad-hoc approved feat may well cost a selection. -->
-      <label style="grid-column:1 / -1;font-size:11.5px;display:flex;align-items:center;gap:7px;">
-        <input id="hb-free" type="checkbox" checked style="width:auto;">
+      <label class="span-all fs-11_5 items-center gap-7" style="display:flex;">
+        <input id="hb-free" type="checkbox" checked class="w-auto">
         <span><b>Free grant</b> — no feat slot consumed (a birthright/campaign grant). Uncheck if this feat <b>costs one of the hero's feat selections</b> — it will then count against the feat budget like any picked feat.</span>
       </label>
     </div>
-    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+    <div class="gap-8 justify-end" style="margin-top:14px;display:flex;">
       <button class="btn btn-sm" onclick="hbClose()">Close</button>
       <button class="btn btn-sm" onclick="hbSaveAndGrant()" title="One step: establish this feat in the library AND grant it to the currently-selected hero.">🌍 Establish &amp; Grant</button>
       <button class="btn btn-sm btn-pri" onclick="hbSave()">🌍 Establish Feat</button>
     </div>
-    <div id="hb-choose-panel" style="display:none;margin-top:12px;padding:10px;border:1px solid rgba(125,170,220,.4);border-radius:4px;background:rgba(125,170,220,.06);">
-      <div style="font-size:12px;color:#7daadc;margin-bottom:6px;" id="hb-choose-label">Choose the attribute:</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <div id="hb-choose-panel" class="mt-12" style="display:none;padding:10px;border:1px solid rgba(125,170,220,.4);border-radius:4px;background:rgba(125,170,220,.06);">
+      <div class="fs-12 mb-6" style="color:#7daadc;" id="hb-choose-label">Choose the attribute:</div>
+      <div class="gap-6 flex-wrap" style="display:flex;">
         <button class="btn btn-sm" onclick="hbChoosePick(0)">STR</button><button class="btn btn-sm" onclick="hbChoosePick(1)">DEX</button>
         <button class="btn btn-sm" onclick="hbChoosePick(2)">CON</button><button class="btn btn-sm" onclick="hbChoosePick(3)">INT</button>
         <button class="btn btn-sm" onclick="hbChoosePick(4)">WIS</button><button class="btn btn-sm" onclick="hbChoosePick(5)">CHA</button>
       </div>
     </div>
-    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:12px;color:#d4b870;"><b>Homebrew Library</b> <span style="font-size:10px;opacity:var(--o55);color:var(--dim);">grants apply to the currently-selected hero</span></div>
-        <button class="btn btn-sm" style="margin-left:auto;font-size:10px;padding:1px 8px;" onclick="hbExportAll()" title="Download the whole library as one file for your players.">⬇ Export All</button>
-        <button class="btn btn-sm" style="font-size:10px;padding:1px 8px;" onclick="document.getElementById('hb-import-file').click()" title="Import homebrew feats from a file. Adds only; name collisions get a suffix.">⬆ Import</button>
+    <div class="mt-12" style="padding-top:10px;border-top:1px dashed rgba(200,151,30,.3);">
+      <div class="items-center gap-8" style="display:flex;">
+        <div class="fs-12" style="color:#d4b870;"><b>Homebrew Library</b> <span class="fs-10 o-55 c-dim">grants apply to the currently-selected hero</span></div>
+        <button class="ml-auto fs-10 p-1-8 btn btn-sm" onclick="hbExportAll()" title="Download the whole library as one file for your players.">⬇ Export All</button>
+        <button class="fs-10 p-1-8 btn btn-sm" onclick="document.getElementById('hb-import-file').click()" title="Import homebrew feats from a file. Adds only; name collisions get a suffix.">⬆ Import</button>
         <input id="hb-import-file" type="file" accept=".json,application/json" style="display:none;" onchange="hbImportFile(this)">
       </div>
-      <div id="hb-list" style="margin-top:5px;"></div>
+      <div id="hb-list" class="mt-5"></div>
     </div>
   </div>
 </div>
@@ -305,19 +308,19 @@
        no friction, no confirm. Edit stays fully versatile (decision 5);
        this banner just reminds the user that Level Up is the canonical
        progression path. -->
-  <div id="edit-advisory-banner" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(212,184,112,.07);border:1px solid rgba(212,184,112,.30);border-radius:3px;font-size:11.5px;color:#d4b870;line-height:1.45;">
+  <div id="edit-advisory-banner" class="fs-11_5 lh-1_45" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(212,184,112,.07);border:1px solid rgba(212,184,112,.30);border-radius:3px;color:#d4b870;">
     ⚠ <b>Editing a character directly.</b> Incremental <b>Level Up</b> is the canonical path for level progression and avoids inconsistencies; bulk editing here may introduce them. <b>Edit</b> remains fully versatile and is the right tool for GM adjustments, bug-hunting, and character cleanup — proceed with that intent.
   </div>
   <!-- v8.4.0: Hero's Gift retcon panel. Visible only when editing a v8.4.0+
        Hero-classed character. Allows changing heroesGiftChoice as a GM
        retcon — saveCharacter detects the change, runs the compliance scan,
        and records a GM exception listing any newly-broken prereq chains. -->
-  <div id="edit-heroes-gift-retcon" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(196,153,212,.06);border:1px solid rgba(196,153,212,.25);border-radius:3px;font-size:12px;color:var(--g85);line-height:1.5;">
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--vio);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;">⬟ Hero's Gift — Retcon</div>
-    <div style="margin-bottom:6px;">Current assignment: <b id="edit-hg-current">—</b>. Changing this will record a GM exception and run a compliance scan to detect any prereq chains broken by the retcon.</div>
-    <label style="display:flex;align-items:center;gap:8px;">
+  <div id="edit-heroes-gift-retcon" class="fs-12 lh-1_5" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(196,153,212,.06);border:1px solid rgba(196,153,212,.25);border-radius:3px;color:var(--g85);">
+    <div class="font-serif fs-10 c-vio ls-0_05em uppercase mb-5">⬟ Hero's Gift — Retcon</div>
+    <div class="mb-6">Current assignment: <b id="edit-hg-current">—</b>. Changing this will record a GM exception and run a compliance scan to detect any prereq chains broken by the retcon.</div>
+    <label class="items-center gap-8" style="display:flex;">
       Change to:
-      <select id="edit-hg-choice" style="font-size:12px;">
+      <select id="edit-hg-choice" class="fs-12">
         <option value="">— No change —</option>
         <option value="null">Unassigned (revert)</option>
         <option value="feat">Feat</option>
@@ -337,7 +340,7 @@
   <!-- I: Scenario Settings (the Six Scales of the GM's scenario) — moved to top in v8.3.17 -->
   <div class="panel" id="six-levels-panel">
     <div class="sec-head sm">I. Scenario Settings — The Six Scales
-      <span id="six-levels-status-pill" style="font-family:'Epics Serif','Crimson Pro',serif;font-size:11px;font-weight:normal;text-transform:none;letter-spacing:0;margin-left:auto;padding:2px 8px;border-radius:8px;">Awaiting…</span>
+      <span id="six-levels-status-pill" class="fs-11 normal-case ls-0 ml-auto" style="font-family:'Epics Serif','Crimson Pro',serif;font-weight:normal;padding:2px 8px;border-radius:8px;">Awaiting…</span>
     </div>
     <div class="fr">
       <label>Quick-pick: Archetypal Scenario</label>
@@ -362,7 +365,7 @@
         <option>Universe City</option>
       </select>
     </div>
-    <div class="fg3" id="six-levels-grid" style="margin-top:.6rem;"></div>
+    <div class="mt-0_6rem fg3" id="six-levels-grid"></div>
     <!-- v8.3.24: Scenario Title — auto-generated from the Six Scales values
          when no hand-curated preset matches. Player can override with the ✎
          button; ↻ regenerates from current axes.
@@ -371,25 +374,25 @@
          the current title pre-filled and selected. Enter/Save commits;
          Escape/Cancel reverts. Empty input on commit clears the override
          (equivalent to clicking ↻ Regenerate). -->
-    <div id="scenario-title-row" style="display:flex;align-items:center;gap:8px;margin-top:.5rem;padding:7px 11px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;flex-wrap:wrap;">
-      <span style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g70);">Scenario Title:</span>
+    <div id="scenario-title-row" class="items-center gap-8 flex-wrap" style="display:flex;margin-top:.5rem;padding:7px 11px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+      <span class="font-serif fs-9 uppercase ls-0_1em c-g70">Scenario Title:</span>
       <!-- Display mode (default) -->
-      <span id="scenario-title-display" style="font-family:'Epics Serif','Crimson Pro',serif;font-style:italic;font-size:14px;color:var(--gold);flex:1;min-width:200px;"></span>
+      <span id="scenario-title-display" class="italic fs-14 flex-1" style="font-family:'Epics Serif','Crimson Pro',serif;color:var(--gold);min-width:200px;"></span>
       <!-- Edit mode (hidden by default; toggled by onScenarioTitleOverride). The
            input mimics the display span's typography for visual continuity. -->
-      <input type="text" id="scenario-title-input" style="display:none;font-family:'Epics Serif','Crimson Pro',serif;font-style:italic;font-size:14px;color:var(--gold);background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.5);border-radius:2px;padding:2px 6px;flex:1;min-width:200px;outline:none;" placeholder="Type a custom title, or leave blank to revert to auto-generated" maxlength="200">
-      <button type="button" onclick="onScenarioTitleOverride()" id="scenario-title-edit-btn" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);padding:3px 8px;font-size:11px;cursor:pointer;border-radius:3px;" title="Override with a custom title">✎ Override</button>
-      <button type="button" onclick="onScenarioTitleSaveEdit()" id="scenario-title-save-btn" style="display:none;background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);padding:3px 8px;font-size:11px;cursor:pointer;border-radius:3px;" title="Save (Enter)">✓ Save</button>
-      <button type="button" onmousedown="window._scenarioTitleCancelling=true;" onclick="onScenarioTitleCancelEdit()" id="scenario-title-cancel-btn" style="display:none;background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);padding:3px 8px;font-size:11px;cursor:pointer;border-radius:3px;" title="Cancel (Escape)">✕ Cancel</button>
-      <button type="button" onclick="onScenarioTitleRegenerate()" id="scenario-title-regen-btn" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);padding:3px 8px;font-size:11px;cursor:pointer;border-radius:3px;" title="Re-generate from current Six Scales">↻ Regenerate</button>
+      <input type="text" id="scenario-title-input" class="italic fs-14 p-2-6 flex-1" style="display:none;font-family:'Epics Serif','Crimson Pro',serif;color:var(--gold);background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.5);border-radius:2px;min-width:200px;outline:none;" placeholder="Type a custom title, or leave blank to revert to auto-generated" maxlength="200">
+      <button type="button" onclick="onScenarioTitleOverride()" id="scenario-title-edit-btn" class="p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Override with a custom title">✎ Override</button>
+      <button type="button" onclick="onScenarioTitleSaveEdit()" id="scenario-title-save-btn" class="p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);border-radius:3px;" title="Save (Enter)">✓ Save</button>
+      <button type="button" onmousedown="window._scenarioTitleCancelling=true;" onclick="onScenarioTitleCancelEdit()" id="scenario-title-cancel-btn" class="p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Cancel (Escape)">✕ Cancel</button>
+      <button type="button" onclick="onScenarioTitleRegenerate()" id="scenario-title-regen-btn" class="p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Re-generate from current Six Scales">↻ Regenerate</button>
     </div>
-    <div id="six-levels-summary" style="font-size:12px;color:var(--g70);line-height:1.6;margin-top:.6rem;padding:8px 12px;background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;"></div>
+    <div id="six-levels-summary" class="fs-12 lh-1_6 mt-0_6rem p-8-12 rounded-2" style="color:var(--g70);background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);"></div>
     <!-- v8.3.17: Lock/sandbox controls + status -->
-    <div id="six-levels-gate-controls" style="margin-top:.75rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button type="button" id="six-levels-lock-btn" onclick="lockSixLevels()" style="background:var(--lock-bg);color:var(--gold);border:1px solid rgba(200,151,30,.5);padding:6px 14px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;border-radius:3px;">🔒 Lock as Official</button>
-      <button type="button" id="six-levels-sandbox-btn" onclick="enterSandboxMode()" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);padding:6px 14px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;border-radius:3px;">⚡ Use Sandbox Mode</button>
-      <button type="button" id="six-levels-unlock-btn" onclick="unlockSixLevels()" style="display:none;background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);padding:6px 14px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;border-radius:3px;">🔓 Unlock &amp; Edit</button>
-      <span id="six-levels-gate-help" style="font-size:10px;color:var(--g50);font-style:italic;flex:1;">Lock to enable race, class, and occupation choices below — or use sandbox to explore.</span>
+    <div id="six-levels-gate-controls" class="gap-8 items-center flex-wrap" style="margin-top:.75rem;display:flex;">
+      <button type="button" id="six-levels-lock-btn" onclick="lockSixLevels()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:var(--lock-bg);color:var(--gold);border:1px solid rgba(200,151,30,.5);border-radius:3px;">🔒 Lock as Official</button>
+      <button type="button" id="six-levels-sandbox-btn" onclick="enterSandboxMode()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);border-radius:3px;">⚡ Use Sandbox Mode</button>
+      <button type="button" id="six-levels-unlock-btn" onclick="unlockSixLevels()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);border-radius:3px;">🔓 Unlock &amp; Edit</button>
+      <span id="six-levels-gate-help" class="fs-10 italic flex-1" style="color:var(--g50);">Lock to enable race, class, and occupation choices below — or use sandbox to explore.</span>
     </div>
   </div>
 
@@ -410,16 +413,16 @@
         <!-- v8.68.0 (Adam's simple model): the Hybrid two-parent picker.
              Shown only while Race = Hybrid; RLM auto-computes A+B+1 with a
              GM-override field for tailored builds (dropped abilities noted). -->
-        <div id="hybrid-row" style="display:none;margin-top:6px;padding:7px 9px;border:1px solid rgba(200,151,30,.3);border-radius:3px;font-size:11.5px;">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <div id="hybrid-row" class="mt-6 fs-11_5" style="display:none;padding:7px 9px;border:1px solid rgba(200,151,30,.3);border-radius:3px;">
+          <div class="gap-8 flex-wrap items-center" style="display:flex;">
             <span>Parent A <select id="c-hyb-a" onchange="updateHybridForm()"></select></span>
             <span>Parent B <select id="c-hyb-b" onchange="updateHybridForm()"></select></span>
             <span title="Size AND movement modes/rate follow this parent (HH p.30).">Size &amp; movement from <select id="c-hyb-size" onchange="updateHybridForm()"><option value="a">Parent A</option><option value="b">Parent B</option></select></span>
           </div>
-          <div style="margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="mt-4 gap-10 flex-wrap items-center" style="display:flex;">
             <span id="c-hyb-rlm-info" style="color:var(--g80);"></span>
             <span title="GM-TAILORED builds only: if your GM approved dropping specific racial abilities to shave the modifier, enter the GM-adjudicated RLM here (blank = the automatic A + B + 1).">GM override RLM <input type="number" id="c-hyb-rlm" style="width:56px;" placeholder="auto" onchange="updateHybridForm()"></span>
-            <input type="text" id="c-hyb-dropped" placeholder="Dropped abilities (GM-tailored builds — note them here)…" style="flex:1;min-width:180px;font-size:11px;">
+            <input type="text" id="c-hyb-dropped" placeholder="Dropped abilities (GM-tailored builds — note them here)…" class="flex-1 min-w-180 fs-11">
           </div>
         </div>
       </div>
@@ -433,13 +436,13 @@
       </div>
       <div class="fr"><label>Allegiance(s)</label><input type="text" id="c-allegiance" placeholder="e.g. The Crown, Guild of Shadows…"></div>
     </div>
-    <div id="race-info" style="background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.15);border-radius:3px;padding:9px 12px;font-size:13px;color:var(--g80);"></div>
+    <div id="race-info" class="fs-13" style="background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.15);border-radius:3px;padding:9px 12px;color:var(--g80);"></div>
   </div>
 
   <!-- III: Ability Scores -->
   <div class="panel" id="attrs-panel">
     <div class="sec-head sm">III. Ability Scores</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
+    <div class="gap-8 items-center flex-wrap mb-1rem" style="display:flex;">
       <!-- v8.35.0 (Adam): the Quickdraw table RETIRED from the digital tool.
            Its pen-and-paper premise is rolling six UNASSIGNED scores the
            player then places freely; the form applied rows (sorted highest-
@@ -448,19 +451,19 @@
            carry attribute generation here; the table stays in the book. -->
       <button class="btn btn-sm" onclick="rollAttributes()">🎲 Roll 4d6 Drop Lowest</button>
       <button class="btn btn-sm" onclick="pointBuyStart()">◆ Point Buy (20 pts)</button>
-      <span id="pb-remain" style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g60);display:none;"></span>
+      <span id="pb-remain" class="font-serif fs-10" style="color:var(--g60);display:none;"></span>
     </div>
     <div class="attr-grid" id="attr-grid"></div>
-    <div id="attr-budget" style="margin-top:.5rem;font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g70);letter-spacing:.04em;display:none;"></div>
-    <div id="attr-violations" style="margin-top:.4rem;font-size:11px;color:var(--red-text);display:none;"></div>
+    <div id="attr-budget" class="font-serif fs-11 ls-0_04em" style="margin-top:.5rem;color:var(--g70);display:none;"></div>
+    <div id="attr-violations" class="fs-11" style="margin-top:.4rem;color:var(--red-text);display:none;"></div>
     <!-- v8.2.3 (Issue B): Attribute Bumps panel — +1 to an attribute every 4 levels per HH p.879.
          The panel only renders content when totalLvl >= 4. Each bump is a dropdown letting the
          player choose which attribute to bump. Bumps are stored on c.attrBumps and applied
          AFTER racial mods at display time, so the attribute budget tracker stays clean. -->
     <div id="attr-bumps-panel" style="margin-top:.75rem;display:none;padding:.6rem .8rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g70);margin-bottom:6px;">Attribute Bumps — Level 4 / 8 / 12 / 16 / 20</div>
-      <div id="attr-bumps-rows" style="display:flex;flex-direction:column;gap:5px;"></div>
-      <div style="font-size:10px;color:var(--g50);margin-top:6px;font-style:italic;line-height:1.4;">Per HH p.879: at every 4th character level, choose one attribute to gain a permanent +1. These bumps are applied on top of base scores and racial modifiers; they don't count against your attribute-generation budget.</div>
+      <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-6">Attribute Bumps — Level 4 / 8 / 12 / 16 / 20</div>
+      <div id="attr-bumps-rows" class="flex-col gap-5" style="display:flex;"></div>
+      <div class="fs-10 c-g50 mt-6 italic lh-1_4">Per HH p.879: at every 4th character level, choose one attribute to gain a permanent +1. These bumps are applied on top of base scores and racial modifiers; they don't count against your attribute-generation budget.</div>
     </div>
     <!-- v8.35.0: #quickdraw-area removed (see the retirement note above). -->
   </div>
@@ -477,10 +480,10 @@
        random-roll 00 — applySecondOccupationVisibility()). -->
   <div class="panel" id="occupation-panel">
     <div class="sec-head sm">IV. Starting Occupation
-      <span style="font-family:'Epics Serif','Crimson Pro',serif;font-size:11px;color:var(--g55);font-weight:normal;text-transform:none;letter-spacing:0;margin-left:auto;">Your character's life before adventure — grants class skills, skill picks, and feat options.</span>
+      <span class="fs-11 c-g55 fw-normal normal-case ls-0 ml-auto" style="font-family:'Epics Serif','Crimson Pro',serif;">Your character's life before adventure — grants class skills, skill picks, and feat options.</span>
     </div>
     <div class="fg2">
-      <div class="fr"><label>Starting Occupation <span id="c-occ-picks-warn" style="font-size:10px;color:#d4b870;display:none;letter-spacing:0;text-transform:none;font-family:'Epics Serif','Crimson Pro',serif;">⚠ skill picks pending</span></label>
+      <div class="fr"><label>Starting Occupation <span id="c-occ-picks-warn" class="fs-10 ls-0 normal-case" style="color:#d4b870;display:none;font-family:'Epics Serif','Crimson Pro',serif;">⚠ skill picks pending</span></label>
         <select id="c-occ" onchange="updateOccupationDisplay()">
           <option>Academic</option><option>Adventurer</option><option>Apothecary</option>
           <option>Astronaut Trainee</option><option>Athlete</option><option>Blue Collar</option>
@@ -494,14 +497,14 @@
           <option>Squire</option><option>Student</option><option>Technician</option>
           <option>Transporter</option><option>White Collar</option>
         </select>
-        <div id="c-occ-readonly" style="display:none;padding:7px 10px;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);border-radius:3px;font-size:13px;color:var(--g85);">
+        <div id="c-occ-readonly" class="p-7-10 fs-13" style="display:none;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);border-radius:3px;color:var(--g85);">
           <span id="c-occ-readonly-text"></span>
-          <button class="btn btn-sm" onclick="unlockOccupations()" style="float:right;font-size:10px;padding:2px 7px;margin-top:-2px;" title="Starting Occupation is fixed at character creation. Click to override (GM permission required).">⚿ Edit (GM)</button>
+          <button class="fs-10 p-2-7 btn btn-sm" onclick="unlockOccupations()" style="float:right;margin-top:-2px;" title="Starting Occupation is fixed at character creation. Click to override (GM permission required).">⚿ Edit (GM)</button>
         </div>
         <!-- v8.2.1: Inline picker for the primary occupation's bonus skills and feat -->
-        <div id="c-occ-picker" style="margin-top:8px;display:none;"></div>
+        <div id="c-occ-picker" class="mt-8" style="display:none;"></div>
       </div>
-      <div class="fr" id="c-occ2-row" style="display:none;"><label>Second Occupation <span style="font-size:10px;color:var(--g55);font-style:italic;letter-spacing:0;text-transform:none;font-family:'Epics Serif','Crimson Pro',serif;">(Moonlighter — feat or random-roll 00)</span><span id="c-occ2-picks-warn" style="font-size:10px;color:#d4b870;display:none;letter-spacing:0;text-transform:none;font-family:'Epics Serif','Crimson Pro',serif;">  ⚠ skill picks pending</span></label>
+      <div class="fr" id="c-occ2-row" style="display:none;"><label>Second Occupation <span class="fs-10 c-g55 italic ls-0 normal-case" style="font-family:'Epics Serif','Crimson Pro',serif;">(Moonlighter — feat or random-roll 00)</span><span id="c-occ2-picks-warn" class="fs-10 ls-0 normal-case" style="color:#d4b870;display:none;font-family:'Epics Serif','Crimson Pro',serif;">  ⚠ skill picks pending</span></label>
         <select id="c-occ2" onchange="updateOccupationDisplay()">
           <option value="">— None —</option>
           <option>Academic</option><option>Adventurer</option><option>Apothecary</option>
@@ -517,7 +520,7 @@
           <option>Transporter</option><option>White Collar</option>
         </select>
         <!-- v8.2.1: Inline picker for the secondary occupation's bonus skills and feat (Moonlighter) -->
-        <div id="c-occ2-picker" style="margin-top:8px;display:none;"></div>
+        <div id="c-occ2-picker" class="mt-8" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -525,19 +528,19 @@
   <!-- V: Classes -->
   <div class="panel" id="classes-panel">
     <div class="sec-head sm">V. Character Class(es)
-      <span style="font-family:'Epics Serif','Crimson Pro',serif;font-size:11px;color:var(--g55);font-weight:normal;text-transform:none;letter-spacing:0;margin-left:auto;">Add as many as you like — multiclassing is fully supported.</span>
+      <span class="fs-11 c-g55 fw-normal normal-case ls-0 ml-auto" style="font-family:'Epics Serif','Crimson Pro',serif;">Add as many as you like — multiclassing is fully supported.</span>
     </div>
     <div class="fg2">
       <div>
         <div id="class-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
-        <div style="margin-top:.6rem;">
+        <div class="mt-0_6rem">
           <button type="button" id="add-class-btn" class="btn btn-sm" onclick="openAddClassDialog()">+ Add Class</button>
           <span id="class-list-hint" style="font-size:11px;color:var(--g50);margin-left:.6rem;"></span>
         </div>
       </div>
       <div>
         <div id="class-preview" style="font-size:12px;color:var(--g70);line-height:1.9;"></div>
-        <div id="prereq-checks" style="margin-top:.5rem;display:flex;flex-direction:column;gap:.4rem;"></div>
+        <div id="prereq-checks" class="flex-col" style="margin-top:.5rem;display:flex;gap:.4rem;"></div>
       </div>
     </div>
     <!-- v8.5.4: per-class sub-option pickers (Cleric domains / Druid option,
@@ -547,7 +550,7 @@
 
     <!-- Add Class dialog (hidden by default) -->
     <div id="add-class-dialog" style="display:none;margin-top:.8rem;padding:1rem;background:rgba(0,0,0,.25);border:1px solid var(--bronze);border-radius:3px;">
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:12px;color:var(--gold);margin-bottom:.6rem;letter-spacing:.08em;">▾ ADD A CLASS</div>
+      <div class="font-serif fs-12 c-gold mb-0_6rem ls-0_08em">▾ ADD A CLASS</div>
       <div class="fg2">
         <div class="fr"><label>Tier</label>
           <select id="add-cls-tier" onchange="onAddClassTierChange()">
@@ -566,11 +569,11 @@
         </div>
       </div>
       <div class="fr"><label>Initial Level</label><input type="number" id="add-cls-lvl" value="1" min="1" max="20"></div>
-      <div style="margin-top:.6rem;display:flex;gap:.4rem;">
+      <div class="mt-0_6rem" style="display:flex;gap:.4rem;">
         <button type="button" class="btn btn-sm btn-pri" onclick="confirmAddClass()">Add</button>
         <button type="button" class="btn btn-sm" onclick="cancelAddClass()">Cancel</button>
       </div>
-      <div id="add-cls-warn" style="font-size:11px;color:var(--g60);margin-top:.4rem;"></div>
+      <div id="add-cls-warn" class="fs-11" style="color:var(--g60);margin-top:.4rem;"></div>
     </div>
   </div>
 
@@ -582,30 +585,30 @@
          house convention (Hero's Hit Die = lower half rolled + upper half
          guaranteed) shown in every class entry's "Hit Die (of the Hero)"
          parenthetical. Saved on c.hpMode. Per-level rolls saved on c.hpRolls. -->
-    <div style="margin-top:.7rem;padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g60);margin-bottom:6px;">HP Generation Mode</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-        <label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--g85);cursor:pointer;">
-          <input type="radio" name="c-hp-mode" value="hero" checked onchange="onHpModeChange()"> <span>Hero's Hit Die <span style="font-size:10px;color:var(--g55);">(default)</span></span>
+    <div class="mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
+      <div class="font-serif fs-9 uppercase ls-0_1em c-g60 mb-6">HP Generation Mode</div>
+      <div class="gap-6 flex-wrap items-center" style="display:flex;">
+        <label class="items-center gap-4 fs-12 c-g85 cursor-pointer" style="display:inline-flex;">
+          <input type="radio" name="c-hp-mode" value="hero" checked onchange="onHpModeChange()"> <span>Hero's Hit Die <span class="fs-10 c-g55">(default)</span></span>
         </label>
-        <label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--g85);cursor:pointer;margin-left:14px;">
+        <label class="items-center gap-4 fs-12 c-g85 cursor-pointer" style="display:inline-flex;margin-left:14px;">
           <input type="radio" name="c-hp-mode" value="random" onchange="onHpModeChange()"> <span>Random</span>
         </label>
-        <label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--g85);cursor:pointer;margin-left:14px;">
+        <label class="items-center gap-4 fs-12 c-g85 cursor-pointer" style="display:inline-flex;margin-left:14px;">
           <input type="radio" name="c-hp-mode" value="max" onchange="onHpModeChange()"> <span>Maximum</span>
         </label>
-        <button class="btn btn-sm" onclick="rerollFormHp()" style="font-size:10px;padding:3px 8px;margin-left:auto;">🎲 Re-roll HP</button>
+        <button class="fs-10 p-3-8 ml-auto btn btn-sm" onclick="rerollFormHp()">🎲 Re-roll HP</button>
       </div>
-      <div style="font-size:10px;color:var(--g50);margin-top:5px;font-style:italic;line-height:1.4;">Hero: lower half of die rolled, upper half guaranteed (e.g., d8 becomes d4+4). Random: full die per level. Maximum: take the die value (no roll). The very first level always takes the max die regardless of mode.</div>
-      <div id="hp-roll-preview" style="font-size:10px;color:var(--g55);margin-top:4px;letter-spacing:.04em;"></div>
+      <div class="fs-10 c-g50 mt-5 italic lh-1_4">Hero: lower half of die rolled, upper half guaranteed (e.g., d8 becomes d4+4). Random: full die per level. Maximum: take the die value (no roll). The very first level always takes the max die regardless of mode.</div>
+      <div id="hp-roll-preview" class="fs-10 mt-4 ls-0_04em" style="color:var(--g55);"></div>
     </div>
     <!-- v8.1.7: T/ACtical Combat System — equipment AC modifiers -->
-    <div style="margin-top:.7rem;padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
+    <div class="mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
       <!-- v8.5.4 ergo C6: no uppercase transform here — it flattened the T/ACtical pun -->
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;letter-spacing:.1em;color:var(--g60);margin-bottom:6px;">T/ACtical Combat — Equipment AC Modifiers</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-        <div><label style="font-size:10px;color:var(--g70);display:block;margin-bottom:2px;">Armor AC</label><input type="number" id="c-armor-ac" value="0" min="0" max="20" style="width:60px;" onchange="updateDerived()"></div>
-        <div><label style="font-size:10px;color:var(--g70);display:block;margin-bottom:2px;">Shield AC</label><input type="number" id="c-shield-ac" value="0" min="0" max="20" style="width:60px;" onchange="updateDerived()"></div>
+      <div class="font-serif fs-9 ls-0_1em c-g60 mb-6">T/ACtical Combat — Equipment AC Modifiers</div>
+      <div class="gap-10 flex-wrap" style="display:flex;align-items:flex-end;">
+        <div><label class="fs-10 c-g70 mb-2" style="display:block;">Armor AC</label><input type="number" id="c-armor-ac" value="0" min="0" max="20" class="w-60" onchange="updateDerived()"></div>
+        <div><label class="fs-10 c-g70 mb-2" style="display:block;">Shield AC</label><input type="number" id="c-shield-ac" value="0" min="0" max="20" class="w-60" onchange="updateDerived()"></div>
         <!-- v8.3.5: Natural AC split into two fields. Racial NAC comes from the
              race's structured natAC value (auto-filled, read-only). Bonus NAC
              is player-editable for magic items / spells / GM-granted natural
@@ -614,18 +617,18 @@
              c-natural-ac input remains as a HIDDEN field for backward compat
              with old code paths during the v8.3.5 transition. -->
         <div title="From your race (auto-applied). Edit a character's race to change.">
-          <label style="font-size:10px;color:var(--g70);display:block;margin-bottom:2px;">Racial NAC</label>
-          <input type="number" id="c-racial-nac" value="0" min="0" max="20" style="width:60px;background:rgba(200,151,30,.07);color:var(--g70);" readonly tabindex="-1">
+          <label class="fs-10 c-g70 mb-2" style="display:block;">Racial NAC</label>
+          <input type="number" id="c-racial-nac" value="0" min="0" max="20" class="w-60" style="background:rgba(200,151,30,.07);color:var(--g70);" readonly tabindex="-1">
         </div>
         <div title="Bonus from magic items, spells, GM grants, etc. Same-type stacking applies at display time.">
-          <label style="font-size:10px;color:var(--g70);display:block;margin-bottom:2px;">Bonus NAC</label>
-          <input type="number" id="c-bonus-nac" value="0" min="0" max="20" style="width:60px;" onchange="updateDerived()">
+          <label class="fs-10 c-g70 mb-2" style="display:block;">Bonus NAC</label>
+          <input type="number" id="c-bonus-nac" value="0" min="0" max="20" class="w-60" onchange="updateDerived()">
         </div>
         <input type="hidden" id="c-natural-ac" value="0">
-        <div style="flex:1;min-width:120px;font-size:11px;color:var(--g50);line-height:1.4;font-style:italic;">Per HH p.347. Armor and Shield contribute to Total AC. Natural AC adds to Critical-confirmation tier and also grants <b>+5 HP and +1 natural hardness per point</b>. Same-type natural-armor sources don't stack — best wins.</div>
+        <div class="flex-1 fs-11 c-g50 lh-1_4 italic" style="min-width:120px;">Per HH p.347. Armor and Shield contribute to Total AC. Natural AC adds to Critical-confirmation tier and also grants <b>+5 HP and +1 natural hardness per point</b>. Same-type natural-armor sources don't stack — best wins.</div>
       </div>
     </div>
-    <div class="fg2" style="margin-top:.7rem;">
+    <div class="mt-0_7rem fg2">
       <div class="fr"><label>Languages Known</label><textarea id="c-langs" placeholder="Common, Elven…" style="min-height:60px;"></textarea></div>
       <div class="fr"><label>Notes / Backstory</label><textarea id="c-notes" placeholder="Background, allegiances, goals, GM scenario notes…"></textarea></div>
     </div>
@@ -641,24 +644,24 @@
 <div id="page-sheet" class="page">
   <div id="sh-prompt" class="empty" style="display:none;"><div class="empty-ico">📜</div><div class="empty-txt">Select a hero from the roster first</div></div>
   <div id="sh-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+    <div class="justify-between items-start flex-wrap gap-10" style="display:flex;margin-bottom:1.25rem;">
       <div>
-        <div id="sh-name" style="font-family:'Epics Serif','Cinzel',serif;font-size:24px;font-weight:700;color:var(--gold);"></div>
-        <div id="sh-meta" style="font-family:'Epics Serif','Crimson Pro',serif;font-size:14px;color:var(--g65);margin-top:2px;"></div>
-        <div id="sh-tags" style="margin-top:6px;"></div>
-        <div id="sh-gm-exceptions" style="margin-top:8px;"></div>
+        <div id="sh-name" class="font-serif" style="font-size:24px;font-weight:700;color:var(--gold);"></div>
+        <div id="sh-meta" class="fs-14 mt-2" style="font-family:'Epics Serif','Crimson Pro',serif;color:var(--g65);"></div>
+        <div id="sh-tags" class="mt-6"></div>
+        <div id="sh-gm-exceptions" class="mt-8"></div>
         <!-- v8.3.20: persistent active-conditions banner. Populated by
              renderSheetConditionBanner; hidden when there are no conditions. -->
-        <div id="sh-conditions-banner" style="margin-top:8px;display:none;"></div>
+        <div id="sh-conditions-banner" class="mt-8" style="display:none;"></div>
         <!-- v8.4.0: Hero's Gift panel — shows the assignment state (Unassigned,
              Assigned to Feat, or Assigned to Talent) for v8.4.0+ Hero-classed
              characters. Hidden for legacy characters and non-Hero characters.
              Populated by renderHerosGiftPanel(). -->
-        <div id="sh-heroes-gift" style="margin-top:8px;display:none;"></div>
+        <div id="sh-heroes-gift" class="mt-8" style="display:none;"></div>
         <!-- v8.39.0: Career Compass — pledge a target Advanced/Prestige class
              and track the reverse-engineered qualification path. Populated by
              renderCareerCompass(). -->
-        <div id="sh-career-compass" style="margin-top:8px;"></div>
+        <div id="sh-career-compass" class="mt-8"></div>
       </div>
       <div class="btn-row" style="margin-top:0;">
         <button class="btn btn-sm btn-pri" onclick="printSheet()">🖨 Export PDF</button>
@@ -687,20 +690,20 @@
              stored c.naturalAC is less than their race's structured natAC value
              (e.g. for characters created before natAC was added to the race data).
              Player clicks "Apply" to bring their character into sync. -->
-        <div id="sh-natac-migration" style="display:none;margin-bottom:.7rem;padding:8px 12px;background:rgba(196,153,212,.08);border-left:3px solid #c499d4;border-radius:0 3px 3px 0;font-size:12px;line-height:1.5;"></div>
+        <div id="sh-natac-migration" class="p-8-12 fs-12 lh-1_5" style="display:none;margin-bottom:.7rem;background:rgba(196,153,212,.08);border-left:3px solid #c499d4;border-radius:0 3px 3px 0;"></div>
         <div class="sec-head sm">Combat Statistics</div>
         <div class="stat-strip" id="sh-stats"></div>
         <!-- v8.8.0 (Adam): Resistances & Immunities aggregate — talents,
              mutations, enchanted armor abilities, magic items. -->
-        <div id="sh-resist" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;font-size:11.5px;line-height:1.6;"></div>
+        <div id="sh-resist" class="mt-6 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;"></div>
         <!-- v8.8.3: level-accrued class-feature choices (competence picks,
              Battle-Hardened, Favored Enemies, Terrain Mastery, attr bakes…) -->
         <div id="sh-classchoices" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;font-size:11.5px;line-height:1.6;"></div>
         <!-- v8.8.0 (Adam): Null Power Field state — suppresses ALL Su modifiers. -->
-        <div id="sh-nullify" style="margin-top:6px;"></div>
+        <div id="sh-nullify" class="mt-6"></div>
         <!-- v8.42.0: transient-wired active power effects (✨ chips with ✕
              dismiss). Populated by renderActiveBuffs(); greyed under NPF. -->
-        <div id="sh-buffs" style="margin-top:6px;display:none;"></div>
+        <div id="sh-buffs" class="mt-6" style="display:none;"></div>
         <!-- v8.46.0: 🧠 THE MIND'S LEDGER (GMG pp.144-150 / FF pp.529-532) —
              v8.60.2: MOVED up beneath the mental attributes (see #sh-attrs). -->
         <div class="ornament">✦ ✦ ✦</div>
@@ -715,7 +718,7 @@
         <div class="sec-head sm">Armaments &amp; Armor
           <button class="class-drill-btn" onclick="showPage('gear')" title="Equip, swap hands, mastercraft, gadgets — the workflow lives on the Gear tab.">⚒ manage on Gear</button>
         </div>
-        <div id="sh-armaments" style="font-size:12.5px;line-height:1.6;"></div>
+        <div id="sh-armaments" class="fs-12_5 lh-1_6"></div>
         <div class="ornament">✦ ✦ ✦</div>
         <div class="sec-head sm">Class Level Breakdown
           <button class="class-drill-btn" onclick="toggleDrill('sh-drill')">▾ Class Tables</button>
@@ -728,7 +731,7 @@
              numbers) to the bottom of the column, beneath Class Level
              Breakdown — the companion reads as an appendix to the master,
              not an interruption. -->
-        <div id="sh-companions" style="display:none;margin-top:10px;padding:6px 10px;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;font-size:11.5px;line-height:1.6;"></div>
+        <div id="sh-companions" class="mt-10 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;"></div>
       </div>
       <div>
         <div class="sec-head sm">Progression</div>
@@ -737,24 +740,24 @@
              and the classes conflate into per-class collapsibles below. -->
         <!-- v8.96.0 (Adam's dig): the Starting Occupation earns its seat —
              and the section its rebrand. -->
-        <div class="sec-head sm" style="margin-top:1rem;">Scenario, Racial Features, &amp; Starting Occupation</div>
-        <div id="sh-features" style="font-size:13px;line-height:1.9;color:var(--tx85);"></div>
+        <div class="mt-1rem sec-head sm">Scenario, Racial Features, &amp; Starting Occupation</div>
+        <div id="sh-features" class="fs-13 lh-1_9" style="color:var(--tx85);"></div>
         <div class="ornament">✦ ✦ ✦</div>
         <div class="sec-head sm">Languages & Allegiances</div>
-        <div id="sh-langs" style="font-size:14px;line-height:1.7;color:var(--tx80);margin-bottom:.9rem;"></div>
+        <div id="sh-langs" class="fs-14 lh-1_7 mb-0_9rem" style="color:var(--tx80);"></div>
         <div class="sec-head sm">Notes & Backstory</div>
-        <div id="sh-notes" style="font-size:14px;line-height:1.7;color:var(--tx80);white-space:pre-wrap;"></div>
+        <div id="sh-notes" class="fs-14 lh-1_7" style="color:var(--tx80);white-space:pre-wrap;"></div>
       </div>
     </div>
     <!-- v8.56.0 (playtest issue #3d): read-only body-slots reference at the
          sheet's foot — collapsed by default; equip/unequip lives on Gear. -->
-    <div class="sec-head sm" onclick="toggleSheetMagicSlots()" style="cursor:pointer;user-select:none;margin-top:1rem;">
-      <span id="sh-magic-slots-chev" style="font-size:9px;color:var(--bronze);">▸</span> Magic / Imbued Item Body Slots
-      <span style="font-weight:400;font-size:10px;opacity:var(--o50);color:var(--dim);text-transform:none;letter-spacing:0;">— reference only; equip from the ⚒ Gear tab</span>
+    <div class="cursor-pointer select-none mt-1rem sec-head sm" onclick="toggleSheetMagicSlots()">
+      <span id="sh-magic-slots-chev" class="fs-9" style="color:var(--bronze);">▸</span> Magic / Imbued Item Body Slots
+      <span class="fw-400 fs-10 o-50 c-dim normal-case ls-0">— reference only; equip from the ⚒ Gear tab</span>
     </div>
     <div id="sh-magic-slots-wrap" style="display:none;">
-      <div class="panel" style="overflow-x:auto;margin-bottom:.9rem;">
-        <table class="sk-tbl"><thead><tr><th style="min-width:160px;">Slot</th><th>Affinity / Equipped</th></tr></thead><tbody id="sheet-magic-slots"></tbody></table>
+      <div class="overflow-x-auto mb-0_9rem panel">
+        <table class="sk-tbl"><thead><tr><th class="min-w-160">Slot</th><th>Affinity / Equipped</th></tr></thead><tbody id="sheet-magic-slots"></tbody></table>
       </div>
     </div>
   </div>
@@ -764,26 +767,26 @@
 <div id="page-skills" class="page">
   <div id="sk-prompt" class="empty" style="display:none;"><div class="empty-ico">⚗</div><div class="empty-txt">Select a hero first</div></div>
   <div id="sk-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;">
-      <div id="sk-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div id="sk-pts-info" style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g60);"></div>
+    <div class="justify-between items-center mb-0_9rem flex-wrap gap-8" style="display:flex;">
+      <div id="sk-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div id="sk-pts-info" class="font-serif fs-11" style="color:var(--g60);"></div>
     </div>
-    <div style="margin-bottom:.75rem;font-size:13px;color:var(--g60);">
+    <div class="mb-0_75rem fs-13 c-g60">
       Class skills cost 1 pt/rank (max level+4). Cross-class skills cost 2 pts/rank. Craft, Knowledge, Perform, and Profession each represent families of specific sub-skills.
       <span class="cite cite-HH" title="Hero's Handbook, p. 145 — Chapter V: Skills">HH 145</span>
     </div>
-    <div style="margin-bottom:.6rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;">
-      <span style="font-family:'Epics Serif','Cinzel',serif;color:var(--g60);letter-spacing:.08em;text-transform:uppercase;">Show:</span>
-      <button class="btn btn-sm sk-filter-btn" data-filter="all" onclick="setSkillFilter('all')" style="font-size:10px;padding:3px 9px;">All Skills</button>
+    <div class="mb-0_6rem gap-6 flex-wrap items-center fs-11" style="display:flex;">
+      <span class="font-serif c-g60 ls-0_08em uppercase">Show:</span>
+      <button class="fs-10 p-3-9 btn btn-sm sk-filter-btn" data-filter="all" onclick="setSkillFilter('all')">All Skills</button>
       <button class="btn btn-sm sk-filter-btn" data-filter="class" onclick="setSkillFilter('class')" style="font-size:10px;padding:3px 9px;">Class Skills</button>
-      <button class="btn btn-sm sk-filter-btn" data-filter="trained" onclick="setSkillFilter('trained')" style="font-size:10px;padding:3px 9px;">Trained (≥1 rank)</button>
-      <span style="flex:1;"></span>
-      <button class="btn btn-sm" onclick="expandAllSkillFamilies()" style="font-size:10px;padding:3px 9px;" title="Expand all collapsible skill families">▾ Expand All</button>
-      <button class="btn btn-sm" onclick="collapseAllSkillFamilies()" style="font-size:10px;padding:3px 9px;" title="Collapse all skill families">▸ Collapse All</button>
+      <button class="fs-10 p-3-9 btn btn-sm sk-filter-btn" data-filter="trained" onclick="setSkillFilter('trained')">Trained (≥1 rank)</button>
+      <span class="flex-1"></span>
+      <button class="fs-10 p-3-9 btn btn-sm" onclick="expandAllSkillFamilies()" title="Expand all collapsible skill families">▾ Expand All</button>
+      <button class="fs-10 p-3-9 btn btn-sm" onclick="collapseAllSkillFamilies()" title="Collapse all skill families">▸ Collapse All</button>
     </div>
-    <div class="panel" style="overflow-x:auto;">
+    <div class="overflow-x-auto panel">
       <table class="sk-tbl">
-        <thead><tr><th style="min-width:160px;">Skill</th><th>Key</th><th>Mod</th><th>Ranks</th><th>Misc</th><th>Total</th></tr></thead>
+        <thead><tr><th class="min-w-160">Skill</th><th>Key</th><th>Mod</th><th>Ranks</th><th>Misc</th><th>Total</th></tr></thead>
         <tbody id="sk-tbody"></tbody>
       </table>
     </div>
@@ -795,21 +798,21 @@
 <div id="page-feats" class="page">
   <div id="ft-prompt" class="empty" style="display:none;"><div class="empty-ico">★</div><div class="empty-txt">Select a hero first</div></div>
   <div id="ft-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;">
-      <div id="ft-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div id="ft-count" style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g60);"></div>
+    <div class="justify-between items-center mb-0_9rem flex-wrap gap-8" style="display:flex;">
+      <div id="ft-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div id="ft-count" class="font-serif fs-11" style="color:var(--g60);"></div>
     </div>
-    <div style="margin-bottom:.75rem;font-size:13px;color:var(--g60);">
+    <div class="mb-0_75rem fs-13 c-g60">
       All characters start with 1 Heritage feat + 1 feat of choice. Human characters get +1 additional feat. Hero class characters receive a Hero's Gift (extra Talent or feat from Hero's feat list). Additional feats gained at 3rd level and every 3 levels thereafter.
     </div>
 
     <!-- Feat picker & custom-add -->
-    <div class="panel" style="margin-bottom:.9rem;">
+    <div class="mb-0_9rem panel">
       <div class="sec-head sm">Add a Feat</div>
-      <div style="font-size:13px;color:var(--g75);margin-bottom:.5rem;line-height:1.5;">
+      <div class="fs-13 c-g75 mb-0_5rem lh-1_5">
         Browse the full feat catalog with live prereq validation, or add a custom feat your GM has approved.
       </div>
-      <div class="btn-row" style="margin-bottom:.5rem;">
+      <div class="mb-0_5rem btn-row">
         <button class="btn btn-sm btn-pri" onclick="openFeatBrowser()">⌕ Browse Feats</button>
         <!-- v8.56.0 (playtest issue #1): the old "+ Custom Feat" inline form
              is SUBSUMED by the Forge — one door for all homebrew, from pure
@@ -832,23 +835,23 @@
 <div id="page-gear" class="page">
   <div id="gear-prompt" class="empty" style="display:none;"><div class="empty-ico">⚒</div><div class="empty-txt">Select a hero first</div></div>
   <div id="gear-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;">
-      <div id="gear-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g60);">Mastercraft cap &amp; gadget Tech Scale gates follow the scenario's Tech Scale.</div>
+    <div class="justify-between items-center mb-0_9rem flex-wrap gap-8" style="display:flex;">
+      <div id="gear-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div class="font-serif fs-11 c-g60">Mastercraft cap &amp; gadget Tech Scale gates follow the scenario's Tech Scale.</div>
     </div>
 
     <!-- v8.29.0 (Adam): collapsible Gear-page tutorial. Collapsed by default;
          open/closed state remembered per browser (dxd20v2_ui prefs, try/catch
          guarded — storage can be unavailable). Pure orientation copy: it
          describes the page's REAL section order, top to bottom. -->
-    <div class="panel" style="margin-bottom:.9rem;padding:0;">
-      <div onclick="toggleGearTut()" style="cursor:pointer;user-select:none;padding:7px 12px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;">
-        <span id="gear-tut-chev" style="font-size:9px;color:var(--bronze);">▸</span> ⓘ How This Page Works
-        <span style="font-weight:400;font-size:10px;opacity:var(--o55);color:var(--dim);text-transform:none;letter-spacing:0;">— click to expand</span>
+    <div class="mb-0_9rem p-0 panel">
+      <div onclick="toggleGearTut()" class="cursor-pointer select-none font-serif fs-11 ls-0_08em uppercase c-gold items-center gap-8" style="padding:7px 12px;display:flex;">
+        <span id="gear-tut-chev" class="fs-9" style="color:var(--bronze);">▸</span> ⓘ How This Page Works
+        <span class="fw-400 fs-10 o-55 c-dim normal-case ls-0">— click to expand</span>
       </div>
-      <div id="gear-tut-body" style="display:none;padding:0 14px 12px;font-size:12px;line-height:1.65;color:rgba(220,205,170,.88);">
-        <p style="margin:.3rem 0 .6rem;">The top of the page is your ledger and combat dashboard. <b style="color:var(--gold);">Wealth</b> tracks your funds — every item added below is either 💰 <i>Purchased</i> (deducted at the market-adjusted DC) or 🎁 <i>Acquired</i> free. <b style="color:var(--gold);">Equipped — Held &amp; Worn</b> shows what is where on your body right now (hands, armor, and a two-handed weapon's claim on the off hand), and <b style="color:var(--gold);">Equipped Weapons — Attack &amp; Damage</b> is the live dashboard: attack and damage lines computed from your stats, proficiencies, mastercraft and enchantments, with alternate modes (autofire, flurry, Rapid Shot…) alongside. <b style="color:var(--gold);">Magic / Imbued Item Body Slots</b> maps the body-slot affinities — enchanted items land in their natural slot as you add them.</p>
-        <p style="margin:0;">Below that sit the inventories: <b style="color:var(--gold);">Enchanted &amp; Imbued Items</b> (browse the full catalogue), <b style="color:var(--gold);">Weapons</b>, <b style="color:var(--gold);">Armor &amp; Shields</b>, and <b style="color:var(--gold);">Tools &amp; Skill Kits</b> — add from the pickers, then <i>Equip</i>/<i>Unequip</i> on each row; the ▸ beside an item's name opens its dossier — provenance, Purchase DC, and the ✨ Enchant / Mastercraft controls (the result becomes the name: “+2 Mastercrafted (Damage) Plasma Pistol”); ✎ renames an item, 💱 sells it at another market's prices. (Owning a tool kit is enough to use it — no equipping needed.) At the bottom is the motor pool — <b style="color:var(--gold);">Vehicles</b>, <b style="color:var(--gold);">Mecha</b> (samples, or 🏗 custom builds), and <b style="color:var(--gold);">Starships</b> (🚀 commissioned through the shipyard). They are <i>bought</i> here but <i>operated</i> on the 🕹 Vehicles tab, which appears once you own something pilotable.</p>
+      <div id="gear-tut-body" class="fs-12 lh-1_65" style="display:none;padding:0 14px 12px;color:rgba(220,205,170,.88);">
+        <p style="margin:.3rem 0 .6rem;">The top of the page is your ledger and combat dashboard. <b class="c-gold">Wealth</b> tracks your funds — every item added below is either 💰 <i>Purchased</i> (deducted at the market-adjusted DC) or 🎁 <i>Acquired</i> free. <b class="c-gold">Equipped — Held &amp; Worn</b> shows what is where on your body right now (hands, armor, and a two-handed weapon's claim on the off hand), and <b class="c-gold">Equipped Weapons — Attack &amp; Damage</b> is the live dashboard: attack and damage lines computed from your stats, proficiencies, mastercraft and enchantments, with alternate modes (autofire, flurry, Rapid Shot…) alongside. <b class="c-gold">Magic / Imbued Item Body Slots</b> maps the body-slot affinities — enchanted items land in their natural slot as you add them.</p>
+        <p class="m-0">Below that sit the inventories: <b class="c-gold">Enchanted &amp; Imbued Items</b> (browse the full catalogue), <b class="c-gold">Weapons</b>, <b class="c-gold">Armor &amp; Shields</b>, and <b class="c-gold">Tools &amp; Skill Kits</b> — add from the pickers, then <i>Equip</i>/<i>Unequip</i> on each row; the ▸ beside an item's name opens its dossier — provenance, Purchase DC, and the ✨ Enchant / Mastercraft controls (the result becomes the name: “+2 Mastercrafted (Damage) Plasma Pistol”); ✎ renames an item, 💱 sells it at another market's prices. (Owning a tool kit is enough to use it — no equipping needed.) At the bottom is the motor pool — <b class="c-gold">Vehicles</b>, <b class="c-gold">Mecha</b> (samples, or 🏗 custom builds), and <b class="c-gold">Starships</b> (🚀 commissioned through the shipyard). They are <i>bought</i> here but <i>operated</i> on the 🕹 Vehicles tab, which appears once you own something pilotable.</p>
       </div>
     </div>
 
@@ -860,34 +863,34 @@
          header for at-a-glance reference; the controls (± Adjust, 🔍 price
          check, ⚄ roll) live in the expanded panel. Collapsed by default;
          renderWealthPanel keeps the header summary live either way. -->
-    <div class="sec-head sm" onclick="toggleGearWealth()" style="cursor:pointer;user-select:none;"><span id="gear-wealth-chev" style="font-size:9px;color:var(--bronze);">▸</span> Wealth <span id="gear-wealth-summary" style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0;color:var(--g85);margin-left:8px;"></span></div>
-    <div class="panel" style="margin-bottom:.9rem;padding:8px 12px;display:none;" id="gear-wealth-panel"></div>
+    <div class="cursor-pointer select-none sec-head sm" onclick="toggleGearWealth()"><span id="gear-wealth-chev" class="fs-9" style="color:var(--bronze);">▸</span> Wealth <span id="gear-wealth-summary" class="fs-11 normal-case ls-0 ml-8" style="font-weight:400;color:var(--g85);"></span></div>
+    <div class="mb-0_9rem p-8-12 panel" style="display:none;" id="gear-wealth-panel"></div>
 
     <div class="sec-head sm">Equipped — Held &amp; Worn</div>
-    <div class="panel" style="overflow-x:auto;margin-bottom:.9rem;">
+    <div class="overflow-x-auto mb-0_9rem panel">
       <table class="sk-tbl"><thead><tr><th style="min-width:110px;">Slot</th><th>Item</th></tr></thead><tbody id="gear-equipped-rows"></tbody></table>
     </div>
 
     <div class="sec-head sm">Equipped Weapons — Attack &amp; Damage
-      <button id="melee-opts-btn" class="btn btn-sm" style="font-size:9px;padding:1px 8px;margin-left:10px;text-transform:none;font-weight:normal;letter-spacing:0;" onclick="toggleMeleeOpts()" title="Show the special-attack maneuvers (Disarm, Trip, Feint, Bull Rush, Overrun, Sunder) with live numbers on every melee row. Anyone may attempt them — the ⚠ tags carry the cost. Maneuvers whose Improved feat you own stay visible even when this is off.">⚔ Expanded Melee Options</button>
+      <button id="melee-opts-btn" class="fs-9 p-1-8 ml-10 normal-case ls-0 btn btn-sm" style="font-weight:normal;" onclick="toggleMeleeOpts()" title="Show the special-attack maneuvers (Disarm, Trip, Feint, Bull Rush, Overrun, Sunder) with live numbers on every melee row. Anyone may attempt them — the ⚠ tags carry the cost. Maneuvers whose Improved feat you own stay visible even when this is off.">⚔ Expanded Melee Options</button>
     </div>
-    <div class="panel" style="overflow-x:auto;margin-bottom:.9rem;">
+    <div class="overflow-x-auto mb-0_9rem panel">
       <table class="sk-tbl"><thead><tr><th>Weapon</th><th title="The bracketed sequence is the Full Attack action: one extra swing per 5 points of Base Attack, each at a cumulative −5 (five swings at BA +20, the cap).">Attack (Full Atk)</th><th>Damage</th><th>Damage Type</th><th>Alt. Modes</th></tr></thead><tbody id="gear-weapon-summary"></tbody></table>
     </div>
 
     <!-- v8.56.0 (playtest issue #3d): the body-slot map is collapsible —
          useful reference, but perpetual noise for a fresh Level 1. -->
-    <div class="sec-head sm" onclick="toggleGearMagicSlots()" style="cursor:pointer;user-select:none;"><span id="gear-magic-slots-chev" style="font-size:9px;color:var(--bronze);">▸</span> Magic / Imbued Item Body Slots <span class="cite cite-GG" title="GM's Guide, p. 222 — Body Slot Affinities for Enchanted and Imbued Items">GG 222</span> <span style="font-weight:400;font-size:10px;opacity:var(--o50);color:var(--dim);text-transform:none;letter-spacing:0;">— click to expand</span></div>
+    <div class="cursor-pointer select-none sec-head sm" onclick="toggleGearMagicSlots()"><span id="gear-magic-slots-chev" class="fs-9" style="color:var(--bronze);">▸</span> Magic / Imbued Item Body Slots <span class="cite cite-GG" title="GM's Guide, p. 222 — Body Slot Affinities for Enchanted and Imbued Items">GG 222</span> <span class="fw-400 fs-10 o-50 c-dim normal-case ls-0">— click to expand</span></div>
     <div id="gear-magic-slots-wrap" style="display:none;">
-      <div style="margin-bottom:.5rem;font-size:11px;color:var(--g60);">A humanoid body wears one item per place — Head, Eyes, Neck, Torso, Body (one robe OR suit of armor), Waist, Shoulders, Arms/Wrists, Hands (gloves and gauntlets share), two Rings, Feet — plus the Back (house addendum †). The GM's Guide p. 222 table lists enchantment <i>affinities</i> within each place (hover a row). Ring (×2) and Imbued Tattoo (×20, temporary, no slot) are author rulings. Add items from the catalogue below — they land in their natural place.</div>
-      <div class="panel" style="overflow-x:auto;margin-bottom:.9rem;">
-        <table class="sk-tbl"><thead><tr><th style="min-width:160px;">Body Slot</th><th>Affinity / Equipped</th></tr></thead><tbody id="gear-magic-slots"></tbody></table>
+      <div class="mb-0_5rem fs-11 c-g60">A humanoid body wears one item per place — Head, Eyes, Neck, Torso, Body (one robe OR suit of armor), Waist, Shoulders, Arms/Wrists, Hands (gloves and gauntlets share), two Rings, Feet — plus the Back (house addendum †). The GM's Guide p. 222 table lists enchantment <i>affinities</i> within each place (hover a row). Ring (×2) and Imbued Tattoo (×20, temporary, no slot) are author rulings. Add items from the catalogue below — they land in their natural place.</div>
+      <div class="overflow-x-auto mb-0_9rem panel">
+        <table class="sk-tbl"><thead><tr><th class="min-w-160">Body Slot</th><th>Affinity / Equipped</th></tr></thead><tbody id="gear-magic-slots"></tbody></table>
       </div>
     </div>
 
     <!-- v8.91.0: 🦾 CYBERNETICS — implant body slots (HH pp.332-339) -->
-    <div class="sec-head sm" onclick="toggleGearCyber()" style="cursor:pointer;user-select:none;border-top:1px solid rgba(120,175,205,.25);padding-top:8px;"><span id="gear-cyber-chev" style="font-size:9px;color:#78afcd;">▸</span> <span style="color:#78afcd;">🦾 Cybernetics</span> <span class="cite cite-HH" title="Hero's Handbook, pp. 332-339 — Cybernetic Attachments & Implants">HH 332</span> <span id="gear-cyber-summary" style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0;color:var(--tb85);margin-left:8px;"></span></div>
-    <div id="gear-cyber-wrap" style="display:none;border-bottom:1px solid rgba(120,175,205,.25);padding-bottom:10px;margin-bottom:.9rem;">
+    <div class="cursor-pointer select-none sec-head sm" onclick="toggleGearCyber()" style="border-top:1px solid rgba(120,175,205,.25);padding-top:8px;"><span id="gear-cyber-chev" class="fs-9" style="color:#78afcd;">▸</span> <span style="color:#78afcd;">🦾 Cybernetics</span> <span class="cite cite-HH" title="Hero's Handbook, pp. 332-339 — Cybernetic Attachments & Implants">HH 332</span> <span id="gear-cyber-summary" class="fs-11 normal-case ls-0 ml-8" style="font-weight:400;color:var(--tb85);"></span></div>
+    <div id="gear-cyber-wrap" class="mb-0_9rem" style="display:none;border-bottom:1px solid rgba(120,175,205,.25);padding-bottom:10px;">
       <div id="gear-cyber-body"></div>
     </div>
 
@@ -896,53 +899,53 @@
          integrity all ride the normal rails). Armor may be forged from a
          named substance (HH pp.329-331 alloys; hardness per the p.384 row
          of the substance's NATIVE Tech Scale). -->
-    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+    <div class="justify-end mb-4" style="display:flex;">
       <button class="btn btn-sm" onclick="hbgOpen()" title="GM lane: author custom weapons and armor. Entries join the shop catalogs below (gated by the scenario's Tech Scale like any canon item) and export as a file for your players. Armor can be forged from a named Tech Scale alloy (HH pp.329-331) — its hardness follows the substance's native-TS row on the Armor Hardness table (HH p.384).">🛠 Homebrew Armory</button>
     </div>
     <div id="hbg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-      <div style="max-width:720px;margin:5vh auto;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;padding:18px 20px;">
-        <div class="modal-title" style="margin-bottom:4px;">🛠 Homebrew Armory — Forge Your Arms &amp; Armor</div>
-        <div style="font-size:11.5px;color:var(--g60);margin-bottom:10px;line-height:1.5;">
+      <div class="m-5vh-auto p-18-20" style="max-width:720px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+        <div class="mb-4 modal-title">🛠 Homebrew Armory — Forge Your Arms &amp; Armor</div>
+        <div class="fs-11_5 c-g60 mb-10 lh-1_5">
           GM lane. Entries join the real catalogs — browsable, purchasable (at your Purchase DC), equippable, with live stat strips and T/AC armor integrity. Book anchors: armor hardness by Tech Scale and standard substance (HH p.384); the named alloys and their characters (HH pp.329-331, the vehicular armor list — personal-armor use is a GM extrapolation the table supports).
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 12px;font-size:12px;">
-          <label>Type<br><select id="hbg-type" style="width:100%;" onchange="hbgTypeChange()">
+        <div class="fs-12" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 12px;">
+          <label>Type<br><select id="hbg-type" class="w-full" onchange="hbgTypeChange()">
             <option value="weapon" selected>Weapon</option><option value="armor">Armor / Shield</option>
           </select></label>
-          <label>Name<br><input id="hbg-name" type="text" placeholder="e.g. Chainsword" style="width:100%;"></label>
-          <label>Tech Scale<br><select id="hbg-ts" style="width:100%;">
+          <label>Name<br><input id="hbg-name" type="text" placeholder="e.g. Chainsword" class="w-full"></label>
+          <label>Tech Scale<br><select id="hbg-ts" class="w-full">
             <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
           </select></label>
-          <label>Purchase DC<br><input id="hbg-dc" type="number" min="1" max="60" value="15" style="width:100%;"></label>
-          <label>Weight (lb.)<br><input id="hbg-weight" type="number" min="0" value="5" style="width:100%;"></label>
+          <label>Purchase DC<br><input id="hbg-dc" type="number" min="1" max="60" value="15" class="w-full"></label>
+          <label>Weight (lb.)<br><input id="hbg-weight" type="number" min="0" value="5" class="w-full"></label>
           <label></label>
           <!-- weapon fields -->
-          <label class="hbg-w">Proficiency<br><select id="hbg-cat" style="width:100%;">
+          <label class="hbg-w">Proficiency<br><select id="hbg-cat" class="w-full">
             <option>Simple</option><option selected>Martial</option><option>Exotic</option><option>Personal Firearm</option><option>Heavy Weapon</option>
           </select></label>
-          <label class="hbg-w">Kind<br><select id="hbg-kind" style="width:100%;">
+          <label class="hbg-w">Kind<br><select id="hbg-kind" class="w-full">
             <option>light</option><option selected>one-handed</option><option>two-handed</option><option>ranged</option>
           </select></label>
-          <label class="hbg-w">Damage type <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(the catalog's own vocabulary)</span><br><select id="hbg-dtype" style="width:100%;" onchange="hbgDtypeChange()">
+          <label class="hbg-w">Damage type <span class="o-55 c-dim fs-9_5">(the catalog's own vocabulary)</span><br><select id="hbg-dtype" class="w-full" onchange="hbgDtypeChange()">
             <option selected>slashing</option><option>piercing</option><option>bludgeoning</option><option>ballistic</option><option>laser</option><option>fire</option><option>electricity</option><option value="ionic" title="Electrical nonlethal — 'ionization' (HH p.231 region): de-ionize electronics via Repair DC 15, 1 hour per 20 HP.">ionic</option><option>plasma</option><option>cryonic</option><option>acid</option><option>sonic</option><option value="concussion" title="Nonlethal sonic/blast damage (HH: concussion grenades deal nonlethal concussion damage).">concussion</option><option>disintegration</option>
           </select></label>
-          <label class="hbg-w">Damage (Medium)<br><input id="hbg-dmgm" type="text" value="1d8" style="width:100%;"></label>
-          <label class="hbg-w">Damage (Small)<br><input id="hbg-dmgs" type="text" value="1d6" style="width:100%;"></label>
-          <label class="hbg-w">Critical<br><input id="hbg-crit" type="text" value="19–20/x2" style="width:100%;"></label>
-          <label class="hbg-w">Range increment (ft)<br><input id="hbg-range" type="number" min="0" value="10" style="width:100%;" title="Melee weapons: the thrown increment, or 0 for none."></label>
-          <label class="hbg-w">Lethality<br><select id="hbg-leth" style="width:100%;"><option selected>lethal</option><option>nonlethal</option></select></label>
+          <label class="hbg-w">Damage (Medium)<br><input id="hbg-dmgm" type="text" value="1d8" class="w-full"></label>
+          <label class="hbg-w">Damage (Small)<br><input id="hbg-dmgs" type="text" value="1d6" class="w-full"></label>
+          <label class="hbg-w">Critical<br><input id="hbg-crit" type="text" value="19–20/x2" class="w-full"></label>
+          <label class="hbg-w">Range increment (ft)<br><input id="hbg-range" type="number" min="0" value="10" class="w-full" title="Melee weapons: the thrown increment, or 0 for none."></label>
+          <label class="hbg-w">Lethality<br><select id="hbg-leth" class="w-full"><option selected>lethal</option><option>nonlethal</option></select></label>
           <label class="hbg-w"></label>
           <!-- armor fields -->
-          <label class="hbg-a" style="display:none;">Category<br><select id="hbg-atype" style="width:100%;" onchange="hbgAutoSpeed()">
+          <label class="hbg-a" style="display:none;">Category<br><select id="hbg-atype" class="w-full" onchange="hbgAutoSpeed()">
             <option selected>light</option><option>medium</option><option>heavy</option><option>shield</option>
           </select></label>
-          <label class="hbg-a" style="display:none;">AC bonus<br><input id="hbg-ac" type="number" min="0" max="15" value="3" style="width:100%;"></label>
+          <label class="hbg-a" style="display:none;">AC bonus<br><input id="hbg-ac" type="number" min="0" max="15" value="3" class="w-full"></label>
           <label class="hbg-a" style="display:none;">Max Dex<br><input id="hbg-mdex" type="text" value="+4" style="width:100%;"></label>
-          <label class="hbg-a" style="display:none;">Armor check penalty<br><input id="hbg-acp" type="text" value="-2" style="width:100%;"></label>
-          <label class="hbg-a" style="display:none;">Arcane spell failure<br><input id="hbg-asf" type="text" value="20%" style="width:100%;"></label>
-          <label class="hbg-a" style="display:none;">Speed (30’ base / 20’ base)<br><input id="hbg-speed" type="text" value="30’/20’" style="width:100%;"></label>
-          <label class="hbg-a" style="display:none;grid-column:1 / -1;">Substance <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(hardness follows the substance's NATIVE-TS row on HH p.384 — a Megatanium chain shirt is hard like Megatanium, whatever its pattern's age)</span><br>
-            <select id="hbg-substance" style="width:100%;">
+          <label class="hbg-a" style="display:none;">Armor check penalty<br><input id="hbg-acp" type="text" value="-2" class="w-full"></label>
+          <label class="hbg-a" style="display:none;">Arcane spell failure<br><input id="hbg-asf" type="text" value="20%" class="w-full"></label>
+          <label class="hbg-a" style="display:none;">Speed (30’ base / 20’ base)<br><input id="hbg-speed" type="text" value="30’/20’" class="w-full"></label>
+          <label class="span-all hbg-a" style="display:none;">Substance <span class="o-55 c-dim fs-9_5">(hardness follows the substance's NATIVE-TS row on HH p.384 — a Megatanium chain shirt is hard like Megatanium, whatever its pattern's age)</span><br>
+            <select id="hbg-substance" class="w-full">
               <option value="" selected>Standard for its Tech Scale (HH p.384 default)</option>
               <option value="Alumisteel">Alumisteel (TS 5)</option><option value="Duraplastic">Duraplastic (TS 5)</option>
               <option value="Duralloy">Duralloy (TS 6)</option><option value="Mythralloy">Mythralloy (TS 6 — mithral alloy, expensive)</option>
@@ -954,53 +957,53 @@
               <option value="Reactive">Reactive (TS 8 — mythralloy protection, no mithral)</option>
               <option value="Unobtanium">Unobtanium (TS 9 — ask your GM!)</option>
             </select></label>
-          <label class="hbg-w" style="grid-column:1 / -1;">Tech Upgrades <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(Adam's gaveled list, 2026-10-11 — display riders, adjudicated at the table like the ⛏ convention)</span><br>
-            <span style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11.5px;margin-top:2px;">
-              <span>Anti-Armor <select id="hbg-aa" style="font-size:11.5px;"><option value="0" selected>None</option><option value="1">I (ignore 5 hardness)</option><option value="2">II (ignore 10)</option><option value="3">III (ignore 20)</option><option value="4">Power Weapon (ignores ALL hardness)</option></select></span>
+          <label class="span-all hbg-w">Tech Upgrades <span class="o-55 c-dim fs-9_5">(Adam's gaveled list, 2026-10-11 — display riders, adjudicated at the table like the ⛏ convention)</span><br>
+            <span class="flex-wrap items-center fs-11_5 mt-2" style="display:flex;gap:12px;">
+              <span>Anti-Armor <select id="hbg-aa" class="fs-11_5"><option value="0" selected>None</option><option value="1">I (ignore 5 hardness)</option><option value="2">II (ignore 10)</option><option value="3">III (ignore 20)</option><option value="4">Power Weapon (ignores ALL hardness)</option></select></span>
               <label style="display:inline;"><input type="checkbox" id="hbg-stun" onchange="hbgTechChange('stun')"> Stun Pulse</label>
               <label style="display:inline;"><input type="checkbox" id="hbg-emp" onchange="hbgTechChange('emp')"> EMP (ionic)</label>
               <label style="display:inline;"><input type="checkbox" id="hbg-reach"> Extended Reach (+5′)</label>
               <label style="display:inline;"><input type="checkbox" id="hbg-hcrit" onchange="hbgTechChange('hcrit')"> Heavy Crit (×3)</label>
               <label style="display:inline;" title="The High Frequency Sword's economy: the upgrades run 50 uses per power pack. (It will go the way of ammunition tracking, but technically it belongs.)"><input type="checkbox" id="hbg-ppack"> Power-Pack Economy</label>
             </span></label>
-          <label style="grid-column:1 / -1;">Standard-feature Gadget <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(built in at the forge — occupies the item's base gadget slot, the "one before Mastercrafting" of HH pp.274-275; mastercraft slots stack on top as normal)</span><br>
-            <select id="hbg-gadget" style="width:100%;"><option value="" selected>None</option></select></label>
-          <label style="grid-column:1 / -1;">Notes <span style="opacity:var(--o55);color:var(--dim);font-size:9.5px;">(special qualities stay prose — the GM adjudicates them at the table)</span><br>
-            <textarea id="hbg-notes" rows="2" style="width:100%;font-size:11.5px;"></textarea></label>
+          <label class="span-all">Standard-feature Gadget <span class="o-55 c-dim fs-9_5">(built in at the forge — occupies the item's base gadget slot, the "one before Mastercrafting" of HH pp.274-275; mastercraft slots stack on top as normal)</span><br>
+            <select id="hbg-gadget" class="w-full"><option value="" selected>None</option></select></label>
+          <label class="span-all">Notes <span class="o-55 c-dim fs-9_5">(special qualities stay prose — the GM adjudicates them at the table)</span><br>
+            <textarea id="hbg-notes" rows="2" class="w-full fs-11_5"></textarea></label>
         </div>
-        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+        <div class="gap-8 mt-10 items-center" style="display:flex;">
           <button class="btn btn-pri btn-sm" onclick="hbgSave()">⚒ Forge It</button>
           <button class="btn btn-sm" onclick="hbgExport()" title="Export the armory as a JSON file for your players.">⬇ Export</button>
           <button class="btn btn-sm" onclick="document.getElementById('hbg-import-file').click()" title="Import an armory file. Adds only; name collisions with canon entries are refused.">⬆ Import</button>
           <input id="hbg-import-file" type="file" accept=".json" style="display:none;" onchange="hbgImport(this)">
-          <span style="flex:1;"></span>
+          <span class="flex-1"></span>
           <button class="btn btn-sm" onclick="hbgClose()">Close</button>
         </div>
-        <div class="sec-head sm" style="margin-top:12px;">The Armory</div>
-        <div id="hbg-list" style="max-height:220px;overflow-y:auto;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+        <div class="mt-12 sec-head sm">The Armory</div>
+        <div id="hbg-list" class="overflow-y-auto" style="max-height:220px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
       </div>
     </div>
 
     <div class="sec-head sm">Inventory — Weapons</div>
-    <div id="gear-inv-weapons" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
-      <select id="gear-add-weapon-sel" style="font-size:11px;max-width:260px;"></select>
-      <select id="gear-add-weapon-slot" style="font-size:11px;"><option value="main_hand">Main Hand</option><option value="off_hand">Off Hand</option></select>
+    <div id="gear-inv-weapons" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
+      <select id="gear-add-weapon-sel" class="fs-11 max-w-260"></select>
+      <select id="gear-add-weapon-slot" class="fs-11"><option value="main_hand">Main Hand</option><option value="off_hand">Off Hand</option></select>
       <button class="btn btn-sm" onclick="addItemFromPicker('weapon')">+ Add Weapon</button>
     </div>
 
     <div class="sec-head sm">Inventory — Armor &amp; Shields</div>
-    <div id="gear-inv-armor" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
-      <select id="gear-add-armor-sel" style="font-size:11px;max-width:260px;"></select>
+    <div id="gear-inv-armor" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
+      <select id="gear-add-armor-sel" class="fs-11 max-w-260"></select>
       <button class="btn btn-sm" onclick="addItemFromPicker('armor')">+ Add Armor/Shield</button>
     </div>
 
     <div class="sec-head sm">Equipment, Tools &amp; Skill Kits (owned)</div>
-    <div style="margin-bottom:.5rem;font-size:11px;color:var(--g60);">The HH Chapter VII catalogue (pp.293–324). Owning is sufficient — no equip needed (🎒 Wear gear into its body slot; ⚡ Activate devices; 🧪 Use consumables — Boons show on the Sheet). ✦ = grants a bonus; ⚒ = a kit a skill needs (Skills tab: ⚒ may suffer −4 without one; ⚒✓ satisfied; ⚒−2 minimally equipped). Conditional gear bonuses show as ⚜ on the skill row.</div>
-    <div id="gear-inv-tools" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
-      <select id="gear-add-equipment-sel" style="font-size:11px;max-width:260px;"></select>
+    <div class="mb-0_5rem fs-11 c-g60">The HH Chapter VII catalogue (pp.293–324). Owning is sufficient — no equip needed (🎒 Wear gear into its body slot; ⚡ Activate devices; 🧪 Use consumables — Boons show on the Sheet). ✦ = grants a bonus; ⚒ = a kit a skill needs (Skills tab: ⚒ may suffer −4 without one; ⚒✓ satisfied; ⚒−2 minimally equipped). Conditional gear bonuses show as ⚜ on the skill row.</div>
+    <div id="gear-inv-tools" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
+      <select id="gear-add-equipment-sel" class="fs-11 max-w-260"></select>
       <button class="btn btn-sm" onclick="addItemFromPicker('equipment')">+ Add Equipment</button>
     </div>
 
@@ -1014,15 +1017,15 @@
          stack — give it air (a gap and hairline above and below) and the
          house arcane purple so it reads as THE magic section at a glance. -->
     <div style="margin:1.5rem 0 1.1rem;border-top:1px solid rgba(196,153,212,.3);"></div>
-    <div class="sec-head sm" style="color:var(--vio);">✨ Inventory — Enchanted &amp; Imbued Items</div>
-    <div id="gear-inv-magic" style="margin-bottom:.6rem;"></div>
-    <div class="btn-row" style="margin-bottom:.6rem;">
+    <div class="c-vio sec-head sm">✨ Inventory — Enchanted &amp; Imbued Items</div>
+    <div id="gear-inv-magic" class="mb-0_6rem"></div>
+    <div class="mb-0_6rem btn-row">
       <button id="magic-browse-toggle" class="btn btn-sm" style="border-color:rgba(196,153,212,.55);color:var(--vio);background:rgba(196,153,212,.07);" onclick="toggleMagicBrowse()">⌕ Browse Enchanted &amp; Imbued Items (706)</button>
     </div>
-    <div id="magic-browse-wrap" style="display:none;margin-bottom:1rem;">
-      <div style="margin-bottom:.6rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;">
-        <input type="text" id="magic-search" placeholder="Search name / text…" oninput="renderMagicBrowse()" style="font-size:12px;padding:4px 8px;min-width:180px;">
-        <select id="magic-type-filter" onchange="renderMagicBrowse()" style="font-size:11px;">
+    <div id="magic-browse-wrap" class="mb-1rem" style="display:none;">
+      <div class="mb-0_6rem gap-6 flex-wrap items-center fs-11" style="display:flex;">
+        <input type="text" id="magic-search" placeholder="Search name / text…" oninput="renderMagicBrowse()" class="fs-12 p-4-8 min-w-180">
+        <select id="magic-type-filter" onchange="renderMagicBrowse()" class="fs-11">
           <option value="">All types</option>
           <option value="wondrous">Wondrous</option><option value="ring">Rings</option>
           <option value="rod">Rods</option><option value="staff">Staffs</option>
@@ -1046,19 +1049,19 @@
          (one economy — Wealth, market TS, provenance), operate on the gated
          🕹 Vehicles tab. -->
     <div class="sec-head sm">Inventory — Vehicles</div>
-    <div style="margin-bottom:.5rem;font-size:11px;color:var(--g60);">Purchases here register ownership; operation lives on the 🕹 Vehicles tab (it appears once something pilotable is owned). Restriction ratings (Lic/Res/Mil) are black-market purchase-DC modifiers — shown in the tooltip, applied by GM ruling.</div>
-    <div id="gear-inv-vehicles" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
-      <select id="gear-add-vehicle-sel" style="font-size:11px;max-width:260px;"></select>
+    <div class="mb-0_5rem fs-11 c-g60">Purchases here register ownership; operation lives on the 🕹 Vehicles tab (it appears once something pilotable is owned). Restriction ratings (Lic/Res/Mil) are black-market purchase-DC modifiers — shown in the tooltip, applied by GM ruling.</div>
+    <div id="gear-inv-vehicles" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
+      <select id="gear-add-vehicle-sel" class="fs-11 max-w-260"></select>
       <button class="btn btn-sm" onclick="addItemFromPicker('vehicle')">+ Add Vehicle</button>
     </div>
 
     <!-- v8.17.0 Segment C: mecha — sample units + the custom builder. -->
     <div class="sec-head sm">Inventory — Mecha</div>
-    <div style="margin-bottom:.5rem;font-size:11px;color:var(--g60);">Sample units ship with their standard packages (the listed DC); custom builds pick frame size, superstructure, and armor type per FF pp.630-631, then outfit slot by slot on the 🕹 Vehicles tab. All mecha are Military (+3) restricted when armed.</div>
-    <div id="gear-inv-mecha" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
-      <select id="gear-add-mecha-sel" style="font-size:11px;max-width:260px;"></select>
+    <div class="mb-0_5rem fs-11 c-g60">Sample units ship with their standard packages (the listed DC); custom builds pick frame size, superstructure, and armor type per FF pp.630-631, then outfit slot by slot on the 🕹 Vehicles tab. All mecha are Military (+3) restricted when armed.</div>
+    <div id="gear-inv-mecha" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
+      <select id="gear-add-mecha-sel" class="fs-11 max-w-260"></select>
       <button class="btn btn-sm" onclick="addItemFromPicker('mecha')">+ Add Mecha</button>
       <button class="btn btn-sm" onclick="openMechaBuilder()" title="Design a custom mecha from the FF frame/superstructure/armor tables">🏗 Custom Build</button>
     </div>
@@ -1066,9 +1069,9 @@
     <!-- v8.18.0 Segment D: starships — commissioned through the shipyard flow
          (subtype → engine → armor → name; base DC = hull + trained crew). -->
     <div class="sec-head sm">Inventory — Starships</div>
-    <div style="margin-bottom:.5rem;font-size:11px;color:var(--g60);">Commission via the shipyard: 23 subtypes from Launch to Dreadnought (FF pp.664-683). Base DC includes hull + trained crew; engines, armor, weapons, and systems price separately by their DC formulas as you fit her out on the 🕹 Vehicles tab.</div>
-    <div id="gear-inv-starships" style="margin-bottom:.6rem;"></div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
+    <div class="mb-0_5rem fs-11 c-g60">Commission via the shipyard: 23 subtypes from Launch to Dreadnought (FF pp.664-683). Base DC includes hull + trained crew; engines, armor, weapons, and systems price separately by their DC formulas as you fit her out on the 🕹 Vehicles tab.</div>
+    <div id="gear-inv-starships" class="mb-0_6rem"></div>
+    <div class="gap-6 items-center flex-wrap mb-1rem" style="display:flex;">
       <button class="btn btn-sm" onclick="openStarshipBuilder()">🚀 Commission a Starship</button>
     </div>
   </div>
@@ -1080,8 +1083,8 @@
 <div id="page-vehicles" class="page">
   <div id="vh-prompt" class="empty" style="display:none;"><div class="empty-ico">🕹</div><div class="empty-txt">Select a hero first</div></div>
   <div id="vh-content" style="display:none;">
-    <div id="vh-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);margin-bottom:.5rem;"></div>
-    <div style="margin-bottom:.75rem;font-size:11px;color:var(--g55);line-height:1.5;">
+    <div id="vh-hero-nm" class="font-serif fs-17 mb-0_5rem" style="color:var(--gold);"></div>
+    <div class="mb-0_75rem fs-11 c-g55 lh-1_5">
       One vehicle may be <b>piloted</b> at a time — the Sheet's combat dashboard reflects it. Vehicle T/AC is 10 − size for touch, + half hardness (rounded up) for total; the pilot's own modifiers are not included. Maneuver class modifies Drive/Pilot/Ride/Balance checks (penalties also apply to Initiative). Damage: hits apply hardness first; at 0 HP the vehicle is disabled, and past 1.5× max HP it cannot be repaired (salvage only). Repair: 1 hour, Repair DC 20, 2d6 HP restored (mechanical tool kit &amp; workshop). <span class="cite cite-HH" title="Hero's Handbook, Ch. VII — Vehicles, pp.313-326">HH 313</span> <span class="cite cite-GMG" title="GM's Guide — Vehicles, maneuverability &amp; crew roles, pp.92-93 &amp; 473+">GMG 473</span>
     </div>
     <div id="vh-list"></div>
@@ -1094,33 +1097,33 @@
 <div id="page-powers" class="page">
   <div id="pw-prompt" class="empty" style="display:none;"><div class="empty-ico">◈</div><div class="empty-txt">Select a hero first</div></div>
   <div id="pw-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:8px;">
-      <div id="pw-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div id="pw-budget-line" style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g70);"></div>
+    <div class="justify-between items-center mb-0_5rem flex-wrap gap-8" style="display:flex;">
+      <div id="pw-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div id="pw-budget-line" class="font-serif fs-11" style="color:var(--g70);"></div>
     </div>
     <!-- v8.30.0 (Adam): page tutorial — the Gear-page pattern (v8.29.0). -->
-    <div class="panel" id="powers-tut-panel" style="margin-bottom:.9rem;padding:0;">
-      <div onclick="togglePageTut('powers')" style="cursor:pointer;user-select:none;padding:7px 12px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;">
-        <span id="powers-tut-chev" style="font-size:9px;color:var(--bronze);">▸</span> ⓘ How This Page Works
-        <span style="font-weight:400;font-size:10px;opacity:var(--o55);color:var(--dim);text-transform:none;letter-spacing:0;">— click to expand</span>
+    <div class="mb-0_9rem p-0 panel" id="powers-tut-panel">
+      <div onclick="togglePageTut('powers')" class="cursor-pointer select-none font-serif fs-11 ls-0_08em uppercase c-gold items-center gap-8" style="padding:7px 12px;display:flex;">
+        <span id="powers-tut-chev" class="fs-9" style="color:var(--bronze);">▸</span> ⓘ How This Page Works
+        <span class="fw-400 fs-10 o-55 c-dim normal-case ls-0">— click to expand</span>
       </div>
-      <div id="powers-tut-body" style="display:none;padding:0 14px 12px;font-size:12px;line-height:1.65;color:rgba(220,205,170,.88);">
-        <p style="margin:.3rem 0 .6rem;">This page serves two tabs over one surface — <b style="color:var(--gold);">Arcane / Divine Spells</b> and <b style="color:var(--gold);">Psionic / Super Powers</b> — each showing its own side of your repertoire. The header carries your pool chips: power points and effective level (EAL/EDL for spells, EPL for powers, ESL for a super-mutant) per pool, with per-class breakdowns. <b style="color:var(--gold);">Known Spells &amp; Powers</b> is the repertoire itself — the Cast/Manifest button spends PP from the right pool and opens the cast-options dialog (augmentation steppers, metamagic and Power feats, Overchannel and kin where they apply); the numbers land in the blue resolution panel, which stays up until you dismiss it.</p>
-        <p style="margin:0;">Prepared casters (Wizard, Cleric, Ranger) get the <b style="color:var(--gold);">Prepared Spells</b> panel: PP are committed at dawn when memorizing and casting a prepared spell is then free — the Tracker's ☀ Fully Rested re-memorizes for the new day. Below, the <b style="color:var(--gold);">⌕ catalogue</b> toggle opens the full corpus with search and filters ("castable by this character" respects your lists, levels, and discipline gates — ⚠ entries are GM-confirm advisories). Super-mutants also see their MP-purchased powers and the momentary-focus flow on the Powers side.</p>
+      <div id="powers-tut-body" class="fs-12 lh-1_65" style="display:none;padding:0 14px 12px;color:rgba(220,205,170,.88);">
+        <p style="margin:.3rem 0 .6rem;">This page serves two tabs over one surface — <b class="c-gold">Arcane / Divine Spells</b> and <b class="c-gold">Psionic / Super Powers</b> — each showing its own side of your repertoire. The header carries your pool chips: power points and effective level (EAL/EDL for spells, EPL for powers, ESL for a super-mutant) per pool, with per-class breakdowns. <b class="c-gold">Known Spells &amp; Powers</b> is the repertoire itself — the Cast/Manifest button spends PP from the right pool and opens the cast-options dialog (augmentation steppers, metamagic and Power feats, Overchannel and kin where they apply); the numbers land in the blue resolution panel, which stays up until you dismiss it.</p>
+        <p class="m-0">Prepared casters (Wizard, Cleric, Ranger) get the <b class="c-gold">Prepared Spells</b> panel: PP are committed at dawn when memorizing and casting a prepared spell is then free — the Tracker's ☀ Fully Rested re-memorizes for the new day. Below, the <b class="c-gold">⌕ catalogue</b> toggle opens the full corpus with search and filters ("castable by this character" respects your lists, levels, and discipline gates — ⚠ entries are GM-confirm advisories). Super-mutants also see their MP-purchased powers and the momentary-focus flow on the Powers side.</p>
       </div>
     </div>
-    <div style="margin-bottom:.75rem;font-size:11px;color:var(--g55);line-height:1.5;">
+    <div class="mb-0_75rem fs-11 c-g55 lh-1_5">
       Known spells &amp; powers are your repertoire — per-day preparation for prep casters (Wizard, Cleric, Ranger) is tracked at the table, not here. Domain spell access and Psion discipline restrictions are advisory (⚠) — confirm with your GM. <span class="cite cite-HH" title="Hero's Handbook, Ch. IX — Spells and Powers">HH 385</span>
     </div>
 
     <!-- v8.5.2 Phase D: last-cast resolution panel. Persists until dismissed
          so the numbers stay visible during table play. -->
-    <div id="pw-cast-result" style="display:none;border:1px solid rgba(120,175,205,.4);border-left-width:3px;border-radius:3px;padding:8px 11px;margin-bottom:1rem;background:rgba(120,175,205,.06);">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div id="pw-cast-title" style="font-family:'Epics Serif','Cinzel',serif;font-size:13px;color:rgba(120,175,205,.95);"></div>
-        <button class="btn btn-sm" style="font-size:9px;padding:1px 6px;" onclick="dismissCastResult()">✕</button>
+    <div id="pw-cast-result" class="mb-1rem" style="display:none;border:1px solid rgba(120,175,205,.4);border-left-width:3px;border-radius:3px;padding:8px 11px;background:rgba(120,175,205,.06);">
+      <div class="justify-between items-center" style="display:flex;">
+        <div id="pw-cast-title" class="font-serif fs-13" style="color:rgba(120,175,205,.95);"></div>
+        <button class="fs-9 p-1-6 btn btn-sm" onclick="dismissCastResult()">✕</button>
       </div>
-      <div id="pw-cast-body" style="font-size:11.5px;line-height:1.6;margin-top:4px;color:var(--parch);"></div>
+      <div id="pw-cast-body" class="fs-11_5 lh-1_6 mt-4" style="color:var(--parch);"></div>
     </div>
 
     <!-- v8.82.0 (Adam's taxonomy tweak + placement refinement): the
@@ -1134,7 +1137,7 @@
          reveals the rest. Records stay talents (single source of truth). -->
     <div id="pw-su-talents" style="display:none;margin-bottom:.7rem;"></div>
     <div class="sec-head sm">Known Spells &amp; Powers</div>
-    <div id="pw-known-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;margin-bottom:1rem;"></div>
+    <div id="pw-known-list" class="mb-1rem" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
 
     <!-- v8.5.4 Layer 4: dawn-preparation panel for prepared casters
          (Wizard, Cleric incl. Druid Option, Ranger). Populated by
@@ -1144,26 +1147,26 @@
     <!-- v8.5.4 ergo C1: the 666-entry catalogue collapses behind a browse
          toggle (mirroring the Feats tab's "⌕ BROWSE FEATS" pattern) — it was
          86% of the tab's height, burying the play-time surfaces above it. -->
-    <div class="btn-row" style="margin-bottom:.6rem;">
+    <div class="mb-0_6rem btn-row">
       <!-- v8.38.0: count rendered live from SPELLS_DB.length (was hardcoded
            "(666)" and silently frozen there through three corpus growths). -->
       <button id="pw-browse-toggle" class="btn btn-sm" onclick="togglePwBrowse()">⌕ Browse the Catalogue</button>
     </div>
     <div id="pw-browse-wrap" style="display:none;">
-      <div class="sec-head sm">Browse the Catalogue <span id="pw-browse-count" style="font-weight:400;font-size:10px;opacity:.6;"></span></div>
-      <div style="margin-bottom:.6rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;">
-        <input type="text" id="pw-search" placeholder="Search name / school…" oninput="renderPowersBrowse()" style="font-size:12px;padding:4px 8px;min-width:180px;">
-        <select id="pw-pool-filter" onchange="renderPowersBrowse()" style="font-size:11px;">
+      <div class="sec-head sm">Browse the Catalogue <span id="pw-browse-count" class="fs-10" style="font-weight:400;opacity:.6;"></span></div>
+      <div class="mb-0_6rem gap-6 flex-wrap items-center fs-11" style="display:flex;">
+        <input type="text" id="pw-search" placeholder="Search name / school…" oninput="renderPowersBrowse()" class="fs-12 p-4-8 min-w-180">
+        <select id="pw-pool-filter" onchange="renderPowersBrowse()" class="fs-11">
           <option value="">All pools</option><option value="arcane">Arcane</option><option value="divine">Divine</option><option value="psionic">Psionic</option>
         </select>
-        <select id="pw-lvl-filter" onchange="renderPowersBrowse()" style="font-size:11px;">
+        <select id="pw-lvl-filter" onchange="renderPowersBrowse()" class="fs-11">
           <option value="">Any level</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option>
         </select>
         <!-- v8.74.0 (Adam's mission): Power-Type theme filter — the HH Ch.XI
              Super-Power Suites, a builder's-eye lens on the whole corpus.
              Options populated from POWER_THEMES at first render. -->
-        <select id="pw-theme-filter" onchange="renderPowersBrowse()" style="font-size:11px;max-width:200px;" title="Super-Power Suites by Theme (HH Ch.XI, pp.670+) — the book's thematic groupings of spells &amp; powers, a different perspective to build from (especially for super-mutants, who may buy up to 9th-level spells &amp; powers at creation with GM permission). Suite rule, applied at the table: once a character owns TWO powers from one suite, further powers from that same suite cost 1 MP less."></select>
-        <label style="font-size:11px;"><input type="checkbox" id="pw-castable-only" checked onchange="renderPowersBrowse()"> <span id="pw-castable-lbl">castable by this character</span></label>
+        <select id="pw-theme-filter" onchange="renderPowersBrowse()" class="fs-11" style="max-width:200px;" title="Super-Power Suites by Theme (HH Ch.XI, pp.670+) — the book's thematic groupings of spells &amp; powers, a different perspective to build from (especially for super-mutants, who may buy up to 9th-level spells &amp; powers at creation with GM permission). Suite rule, applied at the table: once a character owns TWO powers from one suite, further powers from that same suite cost 1 MP less."></select>
+        <label class="fs-11"><input type="checkbox" id="pw-castable-only" checked onchange="renderPowersBrowse()"> <span id="pw-castable-lbl">castable by this character</span></label>
       </div>
       <div id="pw-browse-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
     </div>
@@ -1178,16 +1181,16 @@
 <div id="page-mutations" class="page">
   <div id="mu-prompt" class="empty" style="display:none;"><div class="empty-ico">☣</div><div class="empty-txt">Select a hero first</div></div>
   <div id="mu-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:8px;">
-      <div id="mu-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div id="mu-ledger" style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g70);"></div>
+    <div class="justify-between items-center mb-0_5rem flex-wrap gap-8" style="display:flex;">
+      <div id="mu-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div id="mu-ledger" class="font-serif fs-11" style="color:var(--g70);"></div>
     </div>
-    <div style="margin-bottom:.75rem;font-size:11px;color:var(--g55);line-height:1.5;">
+    <div class="mb-0_75rem fs-11 c-g55 lh-1_5">
       Drawbacks <b>earn</b> Mutation Points; Advantages and attribute mutations <b>spend</b> them. Spent may never exceed earned — the remainder stays banked (and can buy super-powers on the Powers tab, or super-talents, if you have the Supernatural Mutation feat). Every 10 MP earned adds +1 Mutant level (+1 ECL). <span class="cite cite-HH" title="Hero's Handbook, Ch. IX — Mutations, pp.410-424">HH 410</span>
     </div>
 
     <div class="sec-head sm">Your Mutations &amp; MP Ledger</div>
-    <div id="mu-known-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;margin-bottom:1rem;"></div>
+    <div id="mu-known-list" class="mb-1rem" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
 
     <!-- v8.6.0 mutation audit: live mechanical-effects panel — wired bonuses
          (skills/saves/NAC) summarized + display-tier effects (senses, natural
@@ -1197,14 +1200,14 @@
     <!-- v8.6.0 (Adam's ergonomics note): the 65-entry catalogue collapses
          behind a browse toggle like the Feats/Spells/Powers catalogues —
          it was perpetually open in full below the ledger. -->
-    <div class="btn-row" style="margin-bottom:.6rem;">
+    <div class="mb-0_6rem btn-row">
       <button id="mu-browse-toggle" class="btn btn-sm" onclick="toggleMuBrowse()">⌕ Browse Advantages &amp; Drawbacks (65)</button>
     </div>
     <div id="mu-browse-wrap" style="display:none;">
-      <div class="sec-head sm">Browse Advantages &amp; Drawbacks <span style="font-weight:400;font-size:10px;opacity:var(--o60);color:var(--dim);">(65 entries)</span></div>
-      <div style="margin-bottom:.6rem;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;">
-        <input type="text" id="mu-search" placeholder="Search name / text…" oninput="renderMutationsBrowse()" style="font-size:12px;padding:4px 8px;min-width:180px;">
-        <select id="mu-kind-filter" onchange="renderMutationsBrowse()" style="font-size:11px;">
+      <div class="sec-head sm">Browse Advantages &amp; Drawbacks <span class="fw-400 fs-10 o-60 c-dim">(65 entries)</span></div>
+      <div class="mb-0_6rem gap-6 flex-wrap items-center fs-11" style="display:flex;">
+        <input type="text" id="mu-search" placeholder="Search name / text…" oninput="renderMutationsBrowse()" class="fs-12 p-4-8 min-w-180">
+        <select id="mu-kind-filter" onchange="renderMutationsBrowse()" class="fs-11">
           <option value="">All kinds</option><option value="advantage">Advantages</option><option value="drawback">Drawbacks</option><option value="attribute">Attribute mutations</option>
         </select>
       </div>
@@ -1220,24 +1223,24 @@
 <div id="page-talents" class="page">
   <div id="tl-prompt" class="empty" style="display:none;"><div class="empty-ico">✧</div><div class="empty-txt">Select a hero first</div></div>
   <div id="tl-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;">
-      <div id="tl-hero-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);"></div>
-      <div id="tl-count" style="font-family:'Epics Serif','Cinzel',serif;font-size:11px;color:var(--g60);"></div>
+    <div class="justify-between items-center mb-0_9rem flex-wrap gap-8" style="display:flex;">
+      <div id="tl-hero-nm" class="font-serif fs-17" style="color:var(--gold);"></div>
+      <div id="tl-count" class="font-serif fs-11" style="color:var(--g60);"></div>
     </div>
-    <div style="margin-bottom:.75rem;font-size:13px;color:var(--g60);">
+    <div class="mb-0_75rem fs-13 c-g60">
       Hero classes grant Talents at 1st, 3rd, 5th, 7th, and 9th level of that class — up to five total per class taken to max level. Multi-Talented adds a cross-class slot. Each Hero class has multiple Talent Trees; some trees have internal prerequisites between Talents. Super-Talents and Apex Super-Talents are different: they consume NO Talent selection — meeting the prerequisites (including the Supernatural Mutation feat) and spending the banked MP is their whole price.
     </div>
 
     <!-- Budget summary -->
-    <div class="panel" id="tl-budget-panel" style="margin-bottom:.9rem;">
+    <div class="mb-0_9rem panel" id="tl-budget-panel">
       <div class="sec-head sm">Talent Budget</div>
-      <div id="tl-budget" style="font-size:12px;color:var(--g75);"></div>
+      <div id="tl-budget" class="fs-12" style="color:var(--g75);"></div>
     </div>
 
     <!-- Picker -->
-    <div class="panel" style="margin-bottom:.9rem;">
+    <div class="mb-0_9rem panel">
       <div class="sec-head sm">Add a Talent</div>
-      <div style="font-size:13px;color:var(--g75);margin-bottom:.5rem;line-height:1.5;">
+      <div class="fs-13 c-g75 mb-0_5rem lh-1_5">
         Browse the talent catalog with live prereq validation. Only your Hero class trees are shown by default; Multi-Talented — or a "Bonus Feat or Talent" flex slot (Anti-Hero 1+, Super-Hero/Villain 2+) with 13+ in the tree's associated attribute — opens other classes' trees as well.
       </div>
       <div class="btn-row">
@@ -1253,13 +1256,13 @@
 
 <!-- =================== TALENT BROWSER MODAL (v8.3.21) =================== -->
 <div id="talent-browser" class="page" style="display:none;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;flex-wrap:wrap;gap:8px;">
-    <div style="font-family:'Epics Serif','Cinzel',serif;font-size:17px;color:var(--gold);">Talent Catalog</div>
+  <div class="justify-between items-center mb-0_9rem flex-wrap gap-8" style="display:flex;">
+    <div class="font-serif fs-17 c-gold">Talent Catalog</div>
     <button class="btn btn-sm" onclick="closeTalentBrowser()">✕ Close</button>
   </div>
-  <div id="talent-browser-banner" style="font-size:12px;color:var(--g70);margin-bottom:.5rem;display:none;padding:6px 10px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;"></div>
-  <div style="display:flex;gap:8px;margin-bottom:.6rem;flex-wrap:wrap;">
-    <input type="text" id="talent-search" placeholder="Search talents…" oninput="filterTalents()" style="flex:1;min-width:160px;">
+  <div id="talent-browser-banner" class="fs-12 mb-0_5rem p-6-10 rounded-2" style="color:var(--g70);display:none;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);"></div>
+  <div class="gap-8 mb-0_6rem flex-wrap" style="display:flex;">
+    <input type="text" id="talent-search" placeholder="Search talents…" oninput="filterTalents()" class="flex-1 min-w-160">
     <select id="talent-class-filter" onchange="onTalentClassFilterChange()" style="width:auto;" title="Filter by Hero class">
       <option value="">All Hero Classes</option>
       <option value="Strong Hero">Strong Hero</option>
@@ -1269,35 +1272,35 @@
       <option value="Dedicated Hero">Dedicated Hero</option>
       <option value="Charismatic Hero">Charismatic Hero</option>
     </select>
-    <select id="talent-tree-filter" onchange="filterTalents()" style="width:auto;" title="Filter by Talent Tree">
+    <select id="talent-tree-filter" onchange="filterTalents()" class="w-auto" title="Filter by Talent Tree">
       <option value="">All Trees</option>
     </select>
-    <select id="talent-qual-filter" onchange="filterTalents()" style="width:auto;" title="Filter by prereq status">
+    <select id="talent-qual-filter" onchange="filterTalents()" class="w-auto" title="Filter by prereq status">
       <option value="qualifies" selected>✓ Qualifies Only</option>
       <option value="">All Talents</option>
       <option value="missing">✗ Missing Prereqs</option>
       <option value="owned">⚿ Owned</option>
     </select>
   </div>
-  <div id="talent-browser-list" style="max-height:450px;overflow-y:auto;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+  <div id="talent-browser-list" class="overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
 </div>
 
 <!-- =================== TRACKER =================== -->
 <div id="page-tracker" class="page">
   <div id="tr-prompt" class="empty" style="display:none;"><div class="empty-ico">♦</div><div class="empty-txt">Select a hero first</div></div>
   <div id="tr-content" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px;">
-      <div id="tr-nm" style="font-family:'Epics Serif','Cinzel',serif;font-size:19px;color:var(--gold);"></div>
+    <div class="justify-between items-center flex-wrap gap-8" style="display:flex;margin-bottom:1.25rem;">
+      <div id="tr-nm" class="font-serif" style="font-size:19px;color:var(--gold);"></div>
     </div>
     <!-- v8.30.0 (Adam): page tutorial — the Gear-page pattern (v8.29.0). -->
-    <div class="panel" style="margin-bottom:.9rem;padding:0;">
-      <div onclick="togglePageTut('tracker')" style="cursor:pointer;user-select:none;padding:7px 12px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;">
-        <span id="tracker-tut-chev" style="font-size:9px;color:var(--bronze);">▸</span> ⓘ How This Page Works
-        <span style="font-weight:400;font-size:10px;opacity:var(--o55);color:var(--dim);text-transform:none;letter-spacing:0;">— click to expand</span>
+    <div class="mb-0_9rem p-0 panel">
+      <div onclick="togglePageTut('tracker')" class="cursor-pointer select-none font-serif fs-11 ls-0_08em uppercase c-gold items-center gap-8" style="padding:7px 12px;display:flex;">
+        <span id="tracker-tut-chev" class="fs-9" style="color:var(--bronze);">▸</span> ⓘ How This Page Works
+        <span class="fw-400 fs-10 o-55 c-dim normal-case ls-0">— click to expand</span>
       </div>
-      <div id="tracker-tut-body" style="display:none;padding:0 14px 12px;font-size:12px;line-height:1.65;color:rgba(220,205,170,.88);">
-        <p style="margin:.3rem 0 .6rem;">The panels track play-time resources. <b style="color:var(--gold);">Hit Points</b> heal and damage by amount, with ⚙ HP Mode for generation modes and re-rolls — HP recovery is always manual, because resting conditions can limit it. <b style="color:var(--gold);">Action Points</b> spend here and reset only at level-up, never on rest; Fate Point controls appear for Hero-classed characters in Heroic 5+ scenarios. <b style="color:var(--gold);">Power Point Recovery</b>'s ☀ Fully Rested starts the new day: every PP pool refills, prepared lists re-memorize, per-diem class abilities restore (weekly abilities keep their count) — and it deliberately touches neither HP nor AP.</p>
-        <p style="margin:0;"><b style="color:var(--gold);">Experience Points</b>: + Award, − Spend (mastercraft, item creation, and XP-cost spells or powers — the floor rule stops you spending below your current level), and ⬆ Level Up. <b style="color:var(--gold);">Conditions</b> toggles the common states with the full list behind More…, and shows the active mechanical effects beneath. Armor Integrity and Per-Diem Abilities panels appear only when you have something to track. At the bottom, <b style="color:var(--gold);">Action History</b> is the structured AP/FP audit trail, and the <b style="color:var(--gold);">Session Journal</b> is your free-text story log.</p>
+      <div id="tracker-tut-body" class="fs-12 lh-1_65" style="display:none;padding:0 14px 12px;color:rgba(220,205,170,.88);">
+        <p style="margin:.3rem 0 .6rem;">The panels track play-time resources. <b class="c-gold">Hit Points</b> heal and damage by amount, with ⚙ HP Mode for generation modes and re-rolls — HP recovery is always manual, because resting conditions can limit it. <b class="c-gold">Action Points</b> spend here and reset only at level-up, never on rest; Fate Point controls appear for Hero-classed characters in Heroic 5+ scenarios. <b class="c-gold">Power Point Recovery</b>'s ☀ Fully Rested starts the new day: every PP pool refills, prepared lists re-memorize, per-diem class abilities restore (weekly abilities keep their count) — and it deliberately touches neither HP nor AP.</p>
+        <p class="m-0"><b class="c-gold">Experience Points</b>: + Award, − Spend (mastercraft, item creation, and XP-cost spells or powers — the floor rule stops you spending below your current level), and ⬆ Level Up. <b class="c-gold">Conditions</b> toggles the common states with the full list behind More…, and shows the active mechanical effects beneath. Armor Integrity and Per-Diem Abilities panels appear only when you have something to track. At the bottom, <b class="c-gold">Action History</b> is the structured AP/FP audit trail, and the <b class="c-gold">Session Journal</b> is your free-text story log.</p>
       </div>
     </div>
     <div class="panel-grid">
@@ -1310,8 +1313,8 @@
         <!-- v8.50.0: general attribute damage (Ego Whip, Shadow touch, poison)
              — steppers per attribute; renderAttrDmg() via renderHPBar. -->
         <div id="tr-attr-dmg"></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
-          <input type="number" id="tr-hp-adj" placeholder="Amt" min="0" style="width:68px;padding:5px 8px;font-size:13px;">
+        <div class="gap-7 flex-wrap mt-8" style="display:flex;">
+          <input type="number" id="tr-hp-adj" placeholder="Amt" min="0" class="p-5-8 fs-13" style="width:68px;">
           <button class="ilbtn heal" onclick="adjustHP('heal')" title="Restore hit points. Note: when a magical spell or power cures HP damage, it also removes an EQUAL amount of nonlethal damage (HH p.349) — apply that with NL Heal.">+ Heal</button>
           <button class="ilbtn dmg" onclick="adjustHP('dmg')">– Damage</button>
           <button class="ilbtn" onclick="adjustNL('dmg')" title="Take NONLETHAL damage: a separate running tally, never deducted from HP (HH p.349). Tally EQUAL to current HP = Staggered (standard OR move action each round); tally EXCEEDING current HP = Unconscious (helpless; casters retain their abilities). Lethal weapons can deal it at −4 to hit, and vice versa.">😵 NL Dmg</button>
@@ -1320,20 +1323,20 @@
           <!-- v8.2.3 (Issue A): HP mode + re-roll controls. -->
           <button class="ilbtn" onclick="toggleHpModePanel()" title="Change HP generation mode (Hero / Random / Maximum) and re-roll if needed.">⚙ HP Mode</button>
         </div>
-        <div id="tr-hp-mode-panel" style="display:none;margin-top:8px;padding:7px 9px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
-          <div style="font-family:'Epics Serif','Cinzel',serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--g70);margin-bottom:5px;">HP Generation Mode</div>
-          <div id="tr-hp-mode-radios" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--g85);"></div>
-          <div style="display:flex;gap:6px;margin-top:6px;align-items:center;">
-            <button class="ilbtn" onclick="rerollSheetHp()" style="font-size:10px;">🎲 Re-roll HP</button>
-            <span id="tr-hp-mode-note" style="font-size:10px;color:var(--g55);font-style:italic;"></span>
+        <div id="tr-hp-mode-panel" class="mt-8" style="display:none;padding:7px 9px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+          <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-5">HP Generation Mode</div>
+          <div id="tr-hp-mode-radios" class="gap-10 flex-wrap items-center fs-11" style="display:flex;color:var(--g85);"></div>
+          <div class="gap-6 mt-6 items-center" style="display:flex;">
+            <button class="fs-10 ilbtn" onclick="rerollSheetHp()">🎲 Re-roll HP</button>
+            <span id="tr-hp-mode-note" class="fs-10 italic" style="color:var(--g55);"></span>
           </div>
-          <div id="tr-hp-roll-detail" style="font-size:10px;color:var(--g50);margin-top:5px;line-height:1.4;"></div>
+          <div id="tr-hp-roll-detail" class="fs-10 mt-5 lh-1_4" style="color:var(--g50);"></div>
         </div>
       </div>
       <div class="panel">
         <div class="sec-head sm">Action Points</div>
         <div id="tr-ap"></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
+        <div class="gap-7 flex-wrap mt-8" style="display:flex;">
           <button class="ilbtn heal" onclick="adjustAP(1)">+ Gain</button>
           <button class="ilbtn dmg" onclick="adjustAP(-1)">– Spend</button>
           <button class="ilbtn" onclick="resetAP()">↺ Level Reset</button>
@@ -1341,7 +1344,7 @@
         <!-- v8.3.19: Fate Point controls; rendered visible only when the
              scenario is Heroic 5+ and the character has Hero class levels.
              Visibility is toggled in renderAPBar via 'tr-ap-fp-controls'. -->
-        <div id="tr-ap-fp-controls" style="display:none;gap:7px;flex-wrap:wrap;margin-top:6px;">
+        <div id="tr-ap-fp-controls" class="gap-7 flex-wrap mt-6" style="display:none;">
           <button class="ilbtn dmg" onclick="spendFatePoint()" style="background:rgba(212,112,112,.18);border-color:rgba(212,112,112,.5);color:var(--fp-dmg);" title="Permanently spend 1 AP as a Fate Point (HH p.55). This reduces your max AP pool by 1 at every future level-up.">⚿ Spend Fate Point</button>
           <button class="ilbtn heal" onclick="restoreFatePoint()" style="background:rgba(125,170,220,.15);border-color:rgba(125,170,220,.4);color:var(--fp-heal);" title="GM-granted restoration of a previously-spent Fate Point. Increases max AP by 1 and grants 1 AP to your current pool.">⚿ Restore FP (GM)</button>
         </div>
@@ -1354,10 +1357,10 @@
       <div class="panel" id="tr-pp-panel" style="display:none;">
         <div class="sec-head sm">Power Point Recovery</div>
         <div id="tr-pp"></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
+        <div class="gap-7 flex-wrap mt-8" style="display:flex;">
           <button class="ilbtn heal" onclick="fullyRested()" title="New day: refill every PP pool, re-memorize prepared spell lists, refill super PP, restore daily class-ability uses, clear fatigue. Does NOT touch HP (adjust manually — resting conditions may limit HP recovery) and never refreshes AP (level-up only).">☀ Fully Rested</button>
         </div>
-        <div style="font-size:10px;color:var(--g50);margin-top:6px;line-height:1.45;">Refills all power point pools, re-memorizes prepared lists, and restores daily class-ability uses for the new day (per-week abilities keep their count). HP recovery is handled manually above; AP only return on level-up.</div>
+        <div class="fs-10 c-g50 mt-6 lh-1_45">Refills all power point pools, re-memorizes prepared lists, and restores daily class-ability uses for the new day (per-week abilities keep their count). HP recovery is handled manually above; AP only return on level-up.</div>
       </div>
       <!-- v8.8.2: per-diem class-ability tracker (Rage, Smite, Lay on Hands,
            Turn Undead, Bardic Music, Miracles…). -->
@@ -1369,8 +1372,8 @@
       <div class="panel">
         <div class="sec-head sm">Experience Points</div>
         <div id="tr-xp"></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;">
-          <input type="number" id="tr-xp-adj" placeholder="XP" min="0" style="width:80px;padding:5px 8px;font-size:13px;">
+        <div class="gap-7 flex-wrap mt-8" style="display:flex;">
+          <input type="number" id="tr-xp-adj" placeholder="XP" min="0" class="p-5-8 fs-13" style="width:80px;">
           <button class="ilbtn heal" onclick="awardXP()">+ Award</button>
           <button class="ilbtn dmg" onclick="spendXP()" title="XP expenditures — mastercraft (250 × bonus, paid before the Craft check), magic/psionic item creation, and spells or powers with an XP Cost line. The book floor applies: you cannot spend so much XP that you lose a level.">− Spend</button>
           <button class="ilbtn" onclick="checkLevelUp()">⬆ Level Up</button>
@@ -1378,17 +1381,17 @@
       </div>
       <div class="panel">
         <div class="sec-head sm">Conditions</div>
-        <div id="tr-conds" style="min-height:32px;margin-bottom:8px;"></div>
+        <div id="tr-conds" class="mb-8" style="min-height:32px;"></div>
         <!-- v8.3.20: quick-add row (6 most common), then a dropdown for the
              full list of 30+ HH conditions, then Clear All. -->
-        <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+        <div class="gap-5 flex-wrap items-center" style="display:flex;">
           <button class="ilbtn" onclick="addCond('Prone')">Prone</button>
           <button class="ilbtn" onclick="addCond('Stunned')">Stunned</button>
           <button class="ilbtn" onclick="addCond('Blinded')">Blinded</button>
           <button class="ilbtn" onclick="addCond('Frightened')">Frightened</button>
           <button class="ilbtn" onclick="addCond('Unconscious')">Unconscious</button>
           <button class="ilbtn" onclick="addCond('Disabled')">Disabled</button>
-          <select id="tr-cond-more" onchange="if(this.value){addCond(this.value);this.value='';}" style="font-size:11px;padding:3px 6px;">
+          <select id="tr-cond-more" onchange="if(this.value){addCond(this.value);this.value='';}" class="fs-11" style="padding:3px 6px;">
             <option value="">More…</option>
           </select>
           <button class="ilbtn" onclick="clearConds()">Clear All</button>
@@ -1405,7 +1408,7 @@
         </div>
         <!-- v8.3.20: persistent mechanical-effects panel populated when any
              condition is active. Hidden when there are no conditions. -->
-        <div id="tr-cond-effects" style="display:none;margin-top:10px;"></div>
+        <div id="tr-cond-effects" class="mt-10" style="display:none;"></div>
       </div>
       <!-- v8.62.0 (Tier B): 🎭 TALENT ACTIONS — computed reference cards for
            the at-will action talents (the Charisma suite, Strategy suite,
@@ -1413,48 +1416,48 @@
            are at-will checks, so they get live numbers, not counters. -->
       <div class="panel" id="tr-talent-actions-panel" style="display:none;">
         <div class="sec-head sm">🎭 Talent Actions</div>
-        <div id="tr-talent-actions" style="font-size:11.5px;line-height:1.6;"></div>
+        <div id="tr-talent-actions" class="fs-11_5 lh-1_6"></div>
       </div>
       <!-- v8.62.0 (Tier B): ⚔ UNIVERSAL COMBAT OPTIONS — the book's always-
            available actions, Tumble-rank-aware. -->
       <div class="panel">
         <div class="sec-head sm">⚔ Universal Combat Options</div>
-        <div id="tr-combat-options" style="font-size:11px;line-height:1.7;"></div>
+        <div id="tr-combat-options" class="fs-11 lh-1_7"></div>
       </div>
       <!-- v8.65.0 (Tier B, Adam's go): 🎵 BARDIC MUSIC — computed performance
            cards (level + Perform-rank gated, HH pp.77-78); uses counter lives
            on the per-diem panel. Hidden for the Bard-less. -->
       <div class="panel" id="tr-bardic-panel" style="display:none;">
         <div class="sec-head sm">🎵 Bardic Music</div>
-        <div id="tr-bardic" style="font-size:11.5px;line-height:1.6;"></div>
+        <div id="tr-bardic" class="fs-11_5 lh-1_6"></div>
       </div>
       <!-- v8.65.0 (Tier B, Adam's go): 🔥 ELEMENTAL ARSENAL — the
            Elementalist's AT-WILL attack forms with live math, variant-aware
            (GMG pp.165-167). Hidden for the Elementalist-less. -->
       <div class="panel" id="tr-elemental-panel" style="display:none;">
         <div class="sec-head sm">🔥 Elemental Arsenal</div>
-        <div id="tr-elemental" style="font-size:11.5px;line-height:1.6;"></div>
+        <div id="tr-elemental" class="fs-11_5 lh-1_6"></div>
       </div>
     </div>
     <!-- v8.3.27: Action History — structured AP/FP audit log. Separate from
          the Session Log below (which is the free-text journal). This panel
          auto-populates whenever the player spends or manually restores AP/FP. -->
-    <div class="sec-head sm" style="margin-top:1.25rem;display:flex;align-items:center;gap:8px;">
+    <div class="mt-1_25rem items-center gap-8 sec-head sm" style="display:flex;">
       <span>Action History</span>
-      <span style="font-size:10px;color:var(--g40);font-weight:400;text-transform:none;letter-spacing:0;">AP / FP audit trail</span>
-      <button type="button" onclick="clearActionLog()" style="margin-left:auto;background:rgba(200,151,30,.06);color:var(--g60);border:1px solid rgba(200,151,30,.25);padding:4px 8px;min-height:24px;font-size:10px;cursor:pointer;border-radius:2px;font-weight:400;text-transform:none;letter-spacing:0;">Clear History</button>
+      <span class="fs-10 c-g40 fw-400 normal-case ls-0">AP / FP audit trail</span>
+      <button type="button" onclick="clearActionLog()" class="ml-auto c-g60 p-4-8 fs-10 cursor-pointer fw-400 normal-case ls-0" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.25);min-height:24px;border-radius:2px;">Clear History</button>
     </div>
-    <div id="tr-action-log" style="max-height:340px;overflow-y:auto;margin-bottom:1.25rem;"></div>
+    <div id="tr-action-log" class="overflow-y-auto" style="max-height:340px;margin-bottom:1.25rem;"></div>
 
-    <div class="sec-head sm" style="display:flex;align-items:center;gap:8px;">
+    <div class="items-center gap-8 sec-head sm" style="display:flex;">
       <span>Session Journal</span>
-      <span style="font-size:10px;color:var(--g40);font-weight:400;text-transform:none;letter-spacing:0;">free-text story notes</span>
+      <span class="fs-10 c-g40 fw-400 normal-case ls-0">free-text story notes</span>
     </div>
-    <div style="display:flex;gap:7px;margin-bottom:.75rem;">
-      <input type="text" id="tr-log-inp" placeholder="Note…" style="flex:1;" onkeypress="if(event.key==='Enter')addLogEntry()">
+    <div class="gap-7 mb-0_75rem" style="display:flex;">
+      <input type="text" id="tr-log-inp" placeholder="Note…" class="flex-1" onkeypress="if(event.key==='Enter')addLogEntry()">
       <button class="btn btn-sm" onclick="addLogEntry()">Add</button>
     </div>
-    <div id="tr-log" style="max-height:280px;overflow-y:auto;"></div>
+    <div id="tr-log" class="overflow-y-auto" style="max-height:280px;"></div>
   </div>
 </div>
 
@@ -1464,22 +1467,22 @@
 <!-- Single shared modal element used for all four flows (AP spend, AP restore,
      FP spend, FP restore). The mode is tracked on modal.dataset.mode and the
      commit handler dispatches based on it. -->
-<div id="apfp-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:#1a1208;border:1px solid var(--bronze);border-radius:4px;max-width:560px;width:100%;max-height:85vh;display:flex;flex-direction:column;">
+<div id="apfp-modal" class="items-center p-1rem" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;justify-content:center;">
+  <div class="max-w-560 w-full flex-col" style="background:#1a1208;border:1px solid var(--bronze);border-radius:4px;max-height:85vh;display:flex;">
     <div style="padding:.9rem 1.2rem;border-bottom:1px solid rgba(200,151,30,.2);">
-      <div id="apfp-modal-title" style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;"></div>
+      <div id="apfp-modal-title" class="font-serif fs-14 uppercase ls-0_08em" style="color:var(--gold);"></div>
     </div>
-    <div style="padding:.9rem 1.2rem;overflow-y:auto;flex:1;">
-      <div id="apfp-modal-ctx" style="font-size:12px;color:var(--g75);line-height:1.5;margin-bottom:.75rem;padding:7px 11px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);border-radius:2px;"></div>
+    <div class="overflow-y-auto flex-1" style="padding:.9rem 1.2rem;">
+      <div id="apfp-modal-ctx" class="fs-12 lh-1_5 mb-0_75rem rounded-2" style="color:var(--g75);padding:7px 11px;background:rgba(200,151,30,.04);border-left:2px solid rgba(200,151,30,.3);"></div>
       <div id="apfp-modal-radios"></div>
       <div style="margin-top:.9rem;">
-        <label for="apfp-modal-note" style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--g70);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Note <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g45);">(optional — for campaign tracking)</span></label>
-        <input type="text" id="apfp-modal-note" maxlength="240" placeholder="What happened? (e.g. 'Saved the rogue from the trap', 'Rerolled the Diplomacy check')" style="width:100%;background:rgba(0,0,0,.35);color:var(--gold);border:1px solid rgba(200,151,30,.4);border-radius:2px;padding:6px 10px;font-size:12px;">
+        <label for="apfp-modal-note" class="font-serif fs-10 c-g70 uppercase ls-0_08em mb-4" style="display:block;">Note <span class="fw-400 normal-case ls-0 c-g45">(optional — for campaign tracking)</span></label>
+        <input type="text" id="apfp-modal-note" maxlength="240" placeholder="What happened? (e.g. 'Saved the rogue from the trap', 'Rerolled the Diplomacy check')" class="w-full p-6-10 fs-12" style="background:rgba(0,0,0,.35);color:var(--gold);border:1px solid rgba(200,151,30,.4);border-radius:2px;">
       </div>
     </div>
-    <div style="padding:.7rem 1.2rem;border-top:1px solid rgba(200,151,30,.2);display:flex;justify-content:flex-end;gap:.5rem;">
-      <button type="button" onclick="closeAPFPModal()" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);padding:6px 14px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-radius:2px;">Cancel</button>
-      <button type="button" onclick="commitAPFPModal()" style="background:rgba(200,151,30,.18);color:var(--gold);border:1px solid rgba(200,151,30,.5);padding:6px 14px;font-family:'Epics Serif','Cinzel',serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-radius:2px;">Commit</button>
+    <div class="justify-end" style="padding:.7rem 1.2rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:.5rem;">
+      <button type="button" onclick="closeAPFPModal()" class="c-g75 p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.3);border-radius:2px;">Cancel</button>
+      <button type="button" onclick="commitAPFPModal()" class="c-gold p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.18);border:1px solid rgba(200,151,30,.5);border-radius:2px;">Commit</button>
     </div>
   </div>
 </div>
@@ -1487,17 +1490,17 @@
 <!-- =================== FEAT BROWSER MODAL =================== -->
 <div class="modal-bg" id="feat-modal">
   <div class="modal-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <div class="justify-between items-center mb-1rem" style="display:flex;">
       <div class="modal-title">Feat Browser</div>
       <button class="btn btn-sm" onclick="closeFeatBrowser()">✕ Close</button>
     </div>
     <!-- v8.3.2: slot-context banner. When the player has open class-bonus slots
          (e.g. Expert Bonus Expert Feat), this surfaces which slot is being
          filled and the restriction. Hidden when no slot context applies. -->
-    <div id="feat-slot-banner" style="display:none;margin-bottom:.75rem;padding:8px 12px;background:rgba(196,153,212,.08);border-left:3px solid #c499d4;border-radius:0 3px 3px 0;font-size:12px;line-height:1.5;"></div>
-    <div style="margin-bottom:.75rem;display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" id="feat-search" placeholder="Search feats…" style="flex:1;min-width:150px;" oninput="filterFeats()">
-      <select id="feat-type-filter" onchange="filterFeats()" style="width:auto;">
+    <div id="feat-slot-banner" class="mb-0_75rem p-8-12 fs-12 lh-1_5" style="display:none;background:rgba(196,153,212,.08);border-left:3px solid #c499d4;border-radius:0 3px 3px 0;"></div>
+    <div class="mb-0_75rem gap-8 flex-wrap" style="display:flex;">
+      <input type="text" id="feat-search" placeholder="Search feats…" class="flex-1" style="min-width:150px;" oninput="filterFeats()">
+      <select id="feat-type-filter" onchange="filterFeats()" class="w-auto">
         <option value="">All Families</option>
         <option value="Heritage">Heritage</option>
         <option value="General">General</option>
@@ -1506,7 +1509,7 @@
         <option value="Magic">Magic</option>
         <option value="Power">Power</option>
       </select>
-      <select id="feat-qual-filter" onchange="filterFeats()" style="width:auto;" title="Filter by prerequisite status">
+      <select id="feat-qual-filter" onchange="filterFeats()" class="w-auto" title="Filter by prerequisite status">
         <option value="">All Feats</option>
         <option value="qualifies">✓ Qualifies Only</option>
         <option value="missing">✗ Missing Prereqs</option>
@@ -1516,12 +1519,12 @@
       <!-- v8.89.0 (Adam's sorting report): the catalogue previously rendered
            in raw database order — seven ingest batches, each alphabetical,
            reading as undeclared subsets. -->
-      <select id="feat-sort" onchange="filterFeats()" style="width:auto;" title="Sort order: A–Z across the whole catalogue, or grouped by family with headers">
+      <select id="feat-sort" onchange="filterFeats()" class="w-auto" title="Sort order: A–Z across the whole catalogue, or grouped by family with headers">
         <option value="az">Sort: A–Z</option>
         <option value="family">Sort: by Family</option>
       </select>
     </div>
-    <div id="feat-browser-list" style="max-height:450px;overflow-y:auto;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+    <div id="feat-browser-list" class="overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
   </div>
 </div>
 
@@ -1536,8 +1539,8 @@
 <div class="modal-bg" id="level-up-modal">
   <div class="modal-box" style="max-width:600px;">
     <div class="modal-title" id="lvlup-title">⬆ Level Up</div>
-    <div id="lvlup-body" style="font-size:13px;line-height:1.55;color:var(--parch);min-height:200px;"></div>
-    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;" id="lvlup-actions"></div>
+    <div id="lvlup-body" class="fs-13 lh-1_55" style="color:var(--parch);min-height:200px;"></div>
+    <div class="mt-1_25rem pt-1rem gap-8 justify-end" style="border-top:1px solid rgba(200,151,30,.2);display:flex;" id="lvlup-actions"></div>
   </div>
 </div>
 
@@ -1549,10 +1552,10 @@
      elevates the change to its proper narrative weight and, on confirm, immediately
      saves the character so form-state and saved-state can't diverge. -->
 <div class="modal-bg" id="six-levels-confirm-modal">
-  <div class="modal-box" style="max-width:560px;">
+  <div class="max-w-560 modal-box">
     <div class="modal-title">⚠ Scenario Rules Change</div>
-    <div id="six-levels-confirm-body" style="font-size:13px;line-height:1.55;color:var(--parch);"></div>
-    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;">
+    <div id="six-levels-confirm-body" class="fs-13 lh-1_55" style="color:var(--parch);"></div>
+    <div class="mt-1_25rem pt-1rem gap-8 justify-end" style="border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button class="btn btn-sm" onclick="cancelSixLevelChange()">Cancel — revert the change</button>
       <button class="btn btn-sm btn-pri" onclick="confirmSixLevelChange()">Confirm &amp; Save</button>
     </div>
@@ -1563,10 +1566,10 @@
 <!-- Unsaved-changes guard: a nav-tab click away from a page holding unsaved
      work (Skills ranks, the Create form) lands here instead of discarding. -->
 <div class="modal-bg" id="unsaved-modal" role="dialog" aria-modal="true" aria-labelledby="unsaved-modal-title">
-  <div class="modal-box" style="max-width:480px;">
+  <div class="max-w-480 modal-box">
     <div class="modal-title" id="unsaved-modal-title">Unsaved changes</div>
-    <div id="unsaved-modal-body" style="font-size:14px;line-height:1.55;color:var(--parch);"></div>
-    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+    <div id="unsaved-modal-body" class="fs-14 lh-1_55" style="color:var(--parch);"></div>
+    <div class="mt-1_25rem pt-1rem gap-8 justify-end flex-wrap" style="border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button type="button" class="btn btn-sm" id="unsaved-stay" onclick="resolveUnsaved('stay')">Stay</button>
       <button type="button" class="btn btn-sm btn-danger" id="unsaved-discard" onclick="resolveUnsaved('discard')">Discard</button>
       <button type="button" class="btn btn-sm btn-pri" id="unsaved-save" onclick="resolveUnsaved('save')">Save and continue</button>
@@ -1577,50 +1580,50 @@
 <!-- Bug report: no backend by design (static GitHub Pages) — Send opens the
      player's mail app via mailto:, Copy is the fallback, and every report is
      kept in a local "My reports" list to view and resend. -->
-<div class="modal-bg" id="bug-modal" role="dialog" aria-modal="true" aria-labelledby="bug-modal-title" style="align-items:flex-start;overflow-y:auto;padding:4vh 0;">
+<div class="items-start overflow-y-auto modal-bg" id="bug-modal" role="dialog" aria-modal="true" aria-labelledby="bug-modal-title" style="padding:4vh 0;">
   <div class="modal-box" style="max-width:640px;max-height:none;">
     <div class="modal-title" id="bug-modal-title">🐞 Report a bug</div>
-    <label for="bug-what" style="font-size:11px;">What happened? (what you clicked, what you expected, what you saw)</label>
+    <label for="bug-what" class="fs-11">What happened? (what you clicked, what you expected, what you saw)</label>
     <textarea id="bug-what" rows="5" placeholder="e.g. On the Skills tab I put 4 ranks in Climb, clicked Feats, and the ranks were gone."></textarea>
-    <label style="display:flex;gap:8px;align-items:center;margin-top:.7rem;font-size:11px;text-transform:none;letter-spacing:.02em;cursor:pointer;">
-      <input type="checkbox" id="bug-attach" style="width:auto;"> Attach my current character's data (JSON) — optional
+    <label class="gap-8 items-center mt-0_7rem fs-11 normal-case cursor-pointer" style="display:flex;letter-spacing:.02em;">
+      <input type="checkbox" id="bug-attach" class="w-auto"> Attach my current character's data (JSON) — optional
     </label>
-    <details style="margin-top:.7rem;font-size:12px;">
-      <summary style="cursor:pointer;color:var(--gold-soft);">Captured automatically (click to view)</summary>
-      <pre id="bug-ctx" style="white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;color:var(--parch);background:rgba(0,0,0,.25);border:1px solid rgba(200,151,30,.25);padding:8px;margin-top:6px;max-height:200px;overflow:auto;"></pre>
+    <details class="mt-0_7rem fs-12">
+      <summary class="cursor-pointer c-gold-soft">Captured automatically (click to view)</summary>
+      <pre id="bug-ctx" class="fs-11 lh-1_45 mt-6" style="white-space:pre-wrap;word-break:break-word;color:var(--parch);background:rgba(0,0,0,.25);border:1px solid rgba(200,151,30,.25);padding:8px;max-height:200px;overflow:auto;"></pre>
     </details>
-    <div style="font-size:12px;color:var(--gold-mute);margin-top:.6rem;">Send opens your email app addressed to <b id="bug-email" style="color:var(--gold-soft);"></b>. If no mail app opens, use Copy and paste the report into any email or message.</div>
-    <div id="bug-status" role="status" aria-live="polite" style="font-size:12px;color:#78c88c;min-height:1.2em;margin-top:.4rem;"></div>
-    <div style="margin-top:.6rem;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+    <div class="fs-12 c-gold-mute mt-0_6rem">Send opens your email app addressed to <b id="bug-email" style="color:var(--gold-soft);"></b>. If no mail app opens, use Copy and paste the report into any email or message.</div>
+    <div id="bug-status" role="status" aria-live="polite" class="fs-12" style="color:#78c88c;min-height:1.2em;margin-top:.4rem;"></div>
+    <div class="mt-0_6rem gap-8 justify-end flex-wrap" style="display:flex;">
       <button type="button" class="btn btn-sm" onclick="closeBugReport()">Close</button>
       <button type="button" class="btn btn-sm" id="bug-copy" onclick="bugCopy()">⧉ Copy to clipboard</button>
       <button type="button" class="btn btn-sm btn-pri" id="bug-send" onclick="bugSend()">✉ Send</button>
     </div>
     <div class="sec-head sm" style="margin-top:1.2rem;">My reports</div>
-    <div id="bug-list" style="font-size:12px;"></div>
-    <pre id="bug-view" style="display:none;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;color:var(--parch);background:rgba(0,0,0,.25);border:1px solid rgba(200,151,30,.25);padding:8px;margin-top:8px;max-height:260px;overflow:auto;"></pre>
+    <div id="bug-list" class="fs-12"></div>
+    <pre id="bug-view" class="fs-11 lh-1_45 mt-8" style="display:none;white-space:pre-wrap;word-break:break-word;color:var(--parch);background:rgba(0,0,0,.25);border:1px solid rgba(200,151,30,.25);padding:8px;max-height:260px;overflow:auto;"></pre>
   </div>
 </div>
 
 <!-- Display settings (v9.17.0 §277): three themes + text size, persisted. -->
 <div class="modal-bg" id="display-modal" role="dialog" aria-modal="true" aria-labelledby="display-modal-title">
-  <div class="modal-box" style="max-width:480px;">
+  <div class="max-w-480 modal-box">
     <div class="modal-title" id="display-modal-title">⚙ Display</div>
-    <fieldset style="border:none;margin-bottom:1rem;">
-      <legend style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:6px;">Colour theme</legend>
-      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;margin-bottom:6px;"><input type="radio" name="disp-theme" value="parchment" style="width:auto;margin-top:3px;" onchange="setDisplayPref('theme','parchment')"> <span><b>Parchment</b> (default) — the dun and gold, with faint text made easier to read</span></label>
-      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;margin-bottom:6px;"><input type="radio" name="disp-theme" value="classic" style="width:auto;margin-top:3px;" onchange="setDisplayPref('theme','classic')"> <span><b>Classic</b> (original colours) — exactly as before; some faint text is low-contrast</span></label>
-      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;"><input type="radio" name="disp-theme" value="hc" style="width:auto;margin-top:3px;" onchange="setDisplayPref('theme','hc')"> <span><b>High Contrast</b> — bright text on near-black, for low vision</span></label>
-      <div id="disp-theme-note" style="font-size:12px;color:var(--gold-mute);margin-top:6px;"></div>
+    <fieldset class="border-none mb-1rem">
+      <legend class="fs-11 ls-0_1em uppercase c-gold-soft mb-6">Colour theme</legend>
+      <label class="gap-8 items-start fs-13 normal-case ls-0 c-parch cursor-pointer mb-6" style="display:flex;"><input type="radio" name="disp-theme" value="parchment" class="w-auto mt-3" onchange="setDisplayPref('theme','parchment')"> <span><b>Parchment</b> (default) — the dun and gold, with faint text made easier to read</span></label>
+      <label class="gap-8 items-start fs-13 normal-case ls-0 c-parch cursor-pointer mb-6" style="display:flex;"><input type="radio" name="disp-theme" value="classic" style="width:auto;margin-top:3px;" onchange="setDisplayPref('theme','classic')"> <span><b>Classic</b> (original colours) — exactly as before; some faint text is low-contrast</span></label>
+      <label class="gap-8 items-start fs-13 normal-case ls-0 c-parch cursor-pointer" style="display:flex;"><input type="radio" name="disp-theme" value="hc" class="w-auto mt-3" onchange="setDisplayPref('theme','hc')"> <span><b>High Contrast</b> — bright text on near-black, for low vision</span></label>
+      <div id="disp-theme-note" class="fs-12 mt-6" style="color:var(--gold-mute);"></div>
     </fieldset>
-    <fieldset style="border:none;">
-      <legend style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:6px;">Text size</legend>
-      <label style="display:flex;gap:8px;align-items:center;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;"><input type="radio" name="disp-size" value="md" style="width:auto;" onchange="setDisplayPref('textsize','md')"> Standard</label>
-      <label style="display:flex;gap:8px;align-items:center;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;"><input type="radio" name="disp-size" value="lg" style="width:auto;" onchange="setDisplayPref('textsize','lg')"> Large (115%)</label>
-      <label style="display:flex;gap:8px;align-items:center;font-size:13px;text-transform:none;letter-spacing:0;color:var(--parch);cursor:pointer;"><input type="radio" name="disp-size" value="xl" style="width:auto;" onchange="setDisplayPref('textsize','xl')"> Larger (130%)</label>
+    <fieldset class="border-none">
+      <legend class="fs-11 ls-0_1em uppercase c-gold-soft mb-6">Text size</legend>
+      <label class="gap-8 items-center fs-13 normal-case ls-0 c-parch cursor-pointer" style="display:flex;"><input type="radio" name="disp-size" value="md" class="w-auto" onchange="setDisplayPref('textsize','md')"> Standard</label>
+      <label class="gap-8 items-center fs-13 normal-case ls-0 c-parch cursor-pointer" style="display:flex;"><input type="radio" name="disp-size" value="lg" class="w-auto" onchange="setDisplayPref('textsize','lg')"> Large (115%)</label>
+      <label class="gap-8 items-center fs-13 normal-case ls-0 c-parch cursor-pointer" style="display:flex;"><input type="radio" name="disp-size" value="xl" class="w-auto" onchange="setDisplayPref('textsize','xl')"> Larger (130%)</label>
     </fieldset>
-    <div style="font-size:12px;color:var(--gold-mute);margin-top:.8rem;">Saved in this browser. Browser zoom (Ctrl/⌘ +) also works: the tab bar wraps instead of hiding tabs.</div>
-    <div style="margin-top:1rem;display:flex;justify-content:flex-end;"><button type="button" class="btn btn-sm btn-pri" onclick="closeDisplaySettings()">Done</button></div>
+    <div class="fs-12 c-gold-mute mt-0_8rem">Saved in this browser. Browser zoom (Ctrl/⌘ +) also works: the tab bar wraps instead of hiding tabs.</div>
+    <div class="mt-1rem justify-end" style="display:flex;"><button type="button" class="btn btn-sm btn-pri" onclick="closeDisplaySettings()">Done</button></div>
   </div>
 </div>
 
@@ -1642,10 +1645,10 @@
      shape as the old `if (!confirm(...)) return;` with two keywords added.
      opts: {title, okLabel, cancelLabel}. -->
 <div class="modal-bg" id="confirm-modal">
-  <div class="modal-box" style="max-width:480px;">
+  <div class="max-w-480 modal-box">
     <div class="modal-title" id="confirm-modal-title">Confirm</div>
-    <div id="confirm-modal-body" style="font-size:13px;line-height:1.55;color:var(--parch);white-space:pre-line;"></div>
-    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;">
+    <div id="confirm-modal-body" class="fs-13 lh-1_55" style="color:var(--parch);white-space:pre-line;"></div>
+    <div class="mt-1_25rem pt-1rem gap-8 justify-end" style="border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button class="btn btn-sm" id="confirm-modal-cancel" onclick="resolveConfirmModal(false)">No</button>
       <button class="btn btn-sm btn-pri" id="confirm-modal-ok" onclick="resolveConfirmModal(true)">Yes</button>
     </div>
@@ -1660,11 +1663,11 @@
      any time (the delta is what's paid). Creation-side mechanics are NOT
      enforced (GM adjudicates); exceeding the TS cap flags the item. -->
 <div class="modal-bg" id="enchant-modal">
-  <div class="modal-box" style="max-width:560px;max-height:82vh;overflow-y:auto;">
+  <div class="max-w-560 overflow-y-auto modal-box" style="max-height:82vh;">
     <div class="modal-title" id="enchant-modal-title">⚒ Enchant / Imbue</div>
     <div id="enchant-modal-body"></div>
-    <div style="margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;align-items:center;">
-      <span id="enchant-modal-warn" style="font-size:11px;color:var(--red-text);margin-right:auto;"></span>
+    <div class="mt-1rem gap-8 justify-end items-center" style="padding-top:.8rem;border-top:1px solid rgba(200,151,30,.2);display:flex;">
+      <span id="enchant-modal-warn" class="fs-11" style="color:var(--red-text);margin-right:auto;"></span>
       <button class="btn btn-sm" onclick="closeEnchantModal()">Cancel</button>
       <button class="btn btn-sm" id="enchant-modal-clear" onclick="clearEnchant()" style="display:none;color:var(--red-text);">Remove enchantment</button>
       <button class="btn btn-sm btn-pri" id="enchant-modal-save" onclick="saveEnchant()">Apply</button>
@@ -1677,10 +1680,10 @@
 <div class="modal-bg" id="text-modal">
   <div class="modal-box" style="max-width:440px;">
     <div class="modal-title" id="text-modal-title"></div>
-    <div id="text-modal-hint" style="font-size:11.5px;line-height:1.5;color:var(--g70);margin-bottom:.6rem;"></div>
-    <input type="text" id="text-modal-input" maxlength="60" style="width:100%;box-sizing:border-box;font-size:13px;padding:6px 8px;"
+    <div id="text-modal-hint" class="fs-11_5 lh-1_5 mb-0_6rem" style="color:var(--g70);"></div>
+    <input type="text" id="text-modal-input" maxlength="60" class="w-full fs-13 p-6-8" style="box-sizing:border-box;"
       onkeydown="if(event.key==='Enter')resolveTextModal(true);if(event.key==='Escape')resolveTextModal(false);">
-    <div style="margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;">
+    <div class="mt-1rem gap-8 justify-end" style="padding-top:.8rem;border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button class="btn btn-sm" onclick="resolveTextModal(false)">Cancel</button>
       <button class="btn btn-sm btn-pri" onclick="resolveTextModal(true)">OK</button>
     </div>
@@ -1688,11 +1691,11 @@
 </div>
 
 <div class="modal-bg" id="choice-modal">
-  <div class="modal-box" style="max-width:480px;">
+  <div class="max-w-480 modal-box">
     <div class="modal-title" id="choice-modal-title"></div>
-    <input type="text" id="choice-modal-input" style="width:100%;box-sizing:border-box;padding:6px 8px;margin-bottom:8px;font-size:13px;" oninput="filterChoiceModal()" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmChoiceModal();}">
-    <select id="choice-modal-select" size="10" style="width:100%;box-sizing:border-box;font-size:13px;" ondblclick="confirmChoiceModal()"></select>
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;">
+    <input type="text" id="choice-modal-input" class="w-full p-6-8 mb-8 fs-13" style="box-sizing:border-box;" oninput="filterChoiceModal()" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmChoiceModal();}">
+    <select id="choice-modal-select" size="10" class="w-full fs-13" style="box-sizing:border-box;" ondblclick="confirmChoiceModal()"></select>
+    <div class="mt-1rem pt-1rem gap-8 justify-end" style="border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button class="btn btn-sm" onclick="cancelChoiceModal()">Cancel</button>
       <button class="btn btn-sm btn-pri" onclick="confirmChoiceModal()">Select</button>
     </div>
@@ -1708,20 +1711,20 @@
 <div class="modal-bg" id="six-levels-firstsave-modal">
   <div class="modal-box" style="max-width:620px;">
     <div class="modal-title">📜 Confirm Scenario — Six Scales</div>
-    <div style="font-size:13px;line-height:1.55;color:var(--parch);">
-      <p style="margin:0 0 .75rem 0;">Before this character is committed to the
-        roster, please confirm the <b style="color:var(--gold);">Six Scales</b>
+    <div class="fs-13 lh-1_55 c-parch">
+      <p class="m-0-0-0_75rem-0">Before this character is committed to the
+        roster, please confirm the <b class="c-gold">Six Scales</b>
         of the scenario they're entering. These six axes determine what magic,
         psionics, super-powers, divine intervention, technology, and heroic
         potential exist in your campaign world.</p>
-      <div id="six-levels-firstsave-recap" style="font-size:11.5px;padding:.6rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);margin:0 0 .75rem 0;"></div>
-      <p style="margin:0;font-size:12px;color:var(--g85);"><b>Heads up:</b>
+      <div id="six-levels-firstsave-recap" class="fs-11_5 m-0-0-0_75rem-0" style="padding:.6rem .75rem;background:rgba(200,151,30,.05);border-left:2px solid rgba(200,151,30,.4);"></div>
+      <p class="m-0 fs-12 c-g85"><b>Heads up:</b>
         Once you save, the Six Scales become part of this character's record.
         Changing any of them later will be treated as a setting-level event
         (emergence of magic, technological revolution, etc.) and will require
         an explicit GM-acknowledged confirmation.</p>
     </div>
-    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:8px;justify-content:flex-end;">
+    <div class="mt-1_25rem pt-1rem gap-8 justify-end" style="border-top:1px solid rgba(200,151,30,.2);display:flex;">
       <button class="btn btn-sm" onclick="cancelFirstSaveSixLevels()">Back — adjust Six Scales first</button>
       <button class="btn btn-sm btn-pri" onclick="confirmFirstSaveSixLevels()">Confirm &amp; Save Character</button>
     </div>

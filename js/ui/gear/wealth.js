@@ -118,9 +118,9 @@ function wealthChartHTML(c) {
     const cur = c.wealthScore === dc;
     rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;padding:0 6px;${cur ? 'background:rgba(200,151,30,.18);border-radius:2px;font-weight:bold;color:var(--gold);' : ''}"><span>DC ${dc}${cur ? ' ◂' : ''}</span><span>${fmtCoin(d / 100)} gp · $${d.toLocaleString()}</span></div>`);
   }
-  return `<details ${_wealthChartOpen ? 'open' : ''} ontoggle="_wealthChartOpen=this.open" style="margin-top:8px;font-size:11px;">
-    <summary style="cursor:pointer;color:var(--g80);">📊 Wealth Score / Purchase DC chart <span class="cite cite-HH" title="Hero's Handbook p.45 — the Score/DC currency table (1 gp = $100 = 100 credits)">HH 45</span> <span style="opacity:.5;font-size:9.5px;">— your current score is highlighted</span></summary>
-    <div style="columns:3;column-gap:18px;max-height:260px;overflow-y:auto;margin-top:6px;padding:6px;border:1px solid rgba(200,151,30,.2);border-radius:3px;line-height:1.7;">${rows.join('')}</div>
+  return `<details ${_wealthChartOpen ? 'open' : ''} ontoggle="_wealthChartOpen=this.open" class="mt-8 fs-11">
+    <summary class="cursor-pointer c-g80">📊 Wealth Score / Purchase DC chart <span class="cite cite-HH" title="Hero's Handbook p.45 — the Score/DC currency table (1 gp = $100 = 100 credits)">HH 45</span> <span class="op-0_5 fs-9_5">— your current score is highlighted</span></summary>
+    <div class="overflow-y-auto mt-6 lh-1_7" style="columns:3;column-gap:18px;max-height:260px;padding:6px;border:1px solid rgba(200,151,30,.2);border-radius:3px;">${rows.join('')}</div>
   </details>`;
 }
 function renderWealthPanel(c) {
@@ -131,29 +131,29 @@ function renderWealthPanel(c) {
   const sum = document.getElementById('gear-wealth-summary');
   if (sum) {
     sum.innerHTML = c.wealthScore == null
-      ? `<span style="opacity:var(--o60);color:var(--dim);">— untracked · expand to roll starting wealth</span>`
-      : `— Score <b style="color:var(--gold);">${c.wealthScore}</b> · <b style="color:${c.funds < 0 ? 'var(--red-text)' : 'var(--gold)'};">${escapeHTML(fundsLabel(c.funds, ts))}</b>${c.funds < 0 ? ' <span style="font-size:10px;color:var(--red-text);">(in debt)</span>' : ''}`;
+      ? `<span class="o-60 c-dim">— untracked · expand to roll starting wealth</span>`
+      : `— Score <b class="c-gold">${c.wealthScore}</b> · <b style="color:${c.funds < 0 ? 'var(--red-text)' : 'var(--gold)'};">${escapeHTML(fundsLabel(c.funds, ts))}</b>${c.funds < 0 ? ' <span class="fs-10 c-red-text">(in debt)</span>' : ''}`;
   }
   if (c.wealthScore == null) {
     const parts = startingWealthBreakdown(c);
     const fixed = parts.reduce((s, p) => s + p.v, 0);
-    el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;">
-      <span style="opacity:.7;">Wealth untracked — starting score would be <b>${fixed} + 2d4</b> <span style="opacity:var(--o60);color:var(--dim);">(${escapeHTML(parts.map(p => `${p.label} +${p.v}`).join(' · '))})</span></span>
-      <button class="btn btn-sm btn-pri" style="font-size:11px;" onclick="rollStartingWealth()">⚄ Roll starting wealth</button>
-      <span style="font-size:10px;opacity:var(--o50);color:var(--dim);">(until rolled, item adds don’t prompt for payment)</span>
+    el.innerHTML = `<div class="items-center gap-10 flex-wrap fs-12" style="display:flex;">
+      <span class="op-0_7">Wealth untracked — starting score would be <b>${fixed} + 2d4</b> <span class="o-60 c-dim">(${escapeHTML(parts.map(p => `${p.label} +${p.v}`).join(' · '))})</span></span>
+      <button class="fs-11 btn btn-sm btn-pri" onclick="rollStartingWealth()">⚄ Roll starting wealth</button>
+      <span class="fs-10 o-50 c-dim">(until rolled, item adds don’t prompt for payment)</span>
     </div>`;
     return;
   }
   const pcOpts = ['<option value="">Scenario market (TS' + ts + ')</option>']
     .concat([0,1,2,3,4,5,6,7,8,9].map(t => `<option value="${t}" ${_priceCheckTs === t ? 'selected' : ''}>TS ${t}</option>`)).join('');
-  el.innerHTML = `<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;">
-    <span title="${escapeHTML('Wealth Score TRACKS the funds (v8.96.0, HH p.45): the highest threshold your current funds meet. Fall below it and the score drops; pass the next and it rises. Starting roll (HH p.44): ' + (c.wealthBreakdown || '—') + '. Funds are GM-editable via ± Adjust; the score follows.')}" style="cursor:help;">Wealth Score <b style="color:var(--gold);">${c.wealthScore}</b></span>
-    <span>Funds: <b style="color:${c.funds < 0 ? 'var(--red-text)' : 'var(--gold)'};">${escapeHTML(fundsLabel(c.funds, ts))}</b>${c.funds < 0 ? ' <span style="font-size:10px;color:var(--red-text);">(in debt — GM)</span>' : ''}</span>
-    <button class="btn btn-sm" style="font-size:11px;" onclick="adjustFunds()">± Adjust</button>
-    <label style="font-size:11px;opacity:.85;" title="Display-only lens: see what gear would cost in another era's market. Purchases always charge the scenario's market.">🔍 Price check:
-      <select onchange="setPriceCheckTs(this.value)" style="font-size:10px;">${pcOpts}</select></label>
-    ${_priceCheckTs != null ? `<span style="font-size:10px;color:#d4b870;">🔍 viewing TS ${_priceCheckTs} market prices — display only; purchases charge the scenario (TS ${ts})</span>` : ''}
-    <span style="font-size:10px;opacity:.5;cursor:help;" title="${escapeHTML(PRICE_FLUX_NOTE)}">💰 Purchased deducts · 🎁 Acquired is free · list prices; the GM applies market swings via ± Adjust</span>
+  el.innerHTML = `<div class="items-center flex-wrap fs-12_5" style="display:flex;gap:14px;">
+    <span title="${escapeHTML('Wealth Score TRACKS the funds (v8.96.0, HH p.45): the highest threshold your current funds meet. Fall below it and the score drops; pass the next and it rises. Starting roll (HH p.44): ' + (c.wealthBreakdown || '—') + '. Funds are GM-editable via ± Adjust; the score follows.')}" style="cursor:help;">Wealth Score <b class="c-gold">${c.wealthScore}</b></span>
+    <span>Funds: <b style="color:${c.funds < 0 ? 'var(--red-text)' : 'var(--gold)'};">${escapeHTML(fundsLabel(c.funds, ts))}</b>${c.funds < 0 ? ' <span class="fs-10 c-red-text">(in debt — GM)</span>' : ''}</span>
+    <button class="fs-11 btn btn-sm" onclick="adjustFunds()">± Adjust</button>
+    <label class="fs-11 op-0_85" title="Display-only lens: see what gear would cost in another era's market. Purchases always charge the scenario's market.">🔍 Price check:
+      <select onchange="setPriceCheckTs(this.value)" class="fs-10">${pcOpts}</select></label>
+    ${_priceCheckTs != null ? `<span class="fs-10" style="color:#d4b870;">🔍 viewing TS ${_priceCheckTs} market prices — display only; purchases charge the scenario (TS ${ts})</span>` : ''}
+    <span class="fs-10 op-0_5 cursor-help" title="${escapeHTML(PRICE_FLUX_NOTE)}">💰 Purchased deducts · 🎁 Acquired is free · list prices; the GM applies market swings via ± Adjust</span>
   </div>${wealthChartHTML(c)}`;
 }
 // v8.7.0 (Adam's "Rogue Trader clause", 2026-09-02): cross-scalar sales.

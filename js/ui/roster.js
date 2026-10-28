@@ -145,7 +145,7 @@ function renderRoster(){
       </div>
       <div>
         <div class="char-badge">Level ${c.totalLvl}${c.ecl!==c.totalLvl?` / ECL ${c.ecl}`:''}</div>
-        <div style="font-size:11px;color:var(--g45);text-align:center;margin-top:3px;">${c.currentHP}/${c.maxHP} HP</div>
+        <div class="fs-11 c-g45 text-center mt-3">${c.currentHP}/${c.maxHP} HP</div>
       </div>
     </li>`;
   }).join('')}</ul>`;

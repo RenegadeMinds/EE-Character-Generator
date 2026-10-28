@@ -123,11 +123,11 @@ function renderStarshipCards(c) {
     const secBars = sections.map(s => {
       const pct = Math.max(0, Math.min(100, Math.round(s.hp / s.maxHP * 100)));
       const col = s.disabled ? 'var(--red-text)' : pct <= 33 ? '#d4865a' : '#6dba88';
-      return `<div style="display:flex;align-items:center;gap:6px;font-size:10.5px;">
-        <span style="min-width:86px;color:var(--g60);">${s.section}</span>
-        <span style="min-width:70px;"><b style="color:${col};">${s.hp}</b>/${s.maxHP} <span style="opacity:var(--o50);color:var(--dim);">(${s.D}D)</span></span>
-        <div class="bar-wrap" style="flex:1;height:4px;"><div class="bar-fill" style="width:${pct}%;background:${col};"></div></div>
-        ${s.disabled ? '<span style="color:var(--red-text);font-size:9px;">DISABLED</span>' : ''}
+      return `<div class="items-center gap-6 fs-10_5" style="display:flex;">
+        <span class="c-g60" style="min-width:86px;">${s.section}</span>
+        <span style="min-width:70px;"><b style="color:${col};">${s.hp}</b>/${s.maxHP} <span class="o-50 c-dim">(${s.D}D)</span></span>
+        <div class="flex-1 bar-wrap" style="height:4px;"><div class="bar-fill" style="width:${pct}%;background:${col};"></div></div>
+        ${s.disabled ? '<span class="c-red-text fs-9">DISABLED</span>' : ''}
       </div>`;
     }).join('');
     const critTip = 'Starship Critical Hits (FF p.648 — the table header misprints d%; it is a d20): 1-7 normal crit · 8-10 crit + crew casualties (1d10) · 11-16 damaged system (comm/targeting/weapon/defense/engines[−1,000 ft]/sensors[blind]) — repair 10 hrs DC 30 or jury-rig DC 25 · 17 defense destroyed · 18 weapon destroyed · 19 severe ×10 + casualties · 20 severe ×10 + gravity out 1d10 rds.';
@@ -176,25 +176,25 @@ function renderStarshipCards(c) {
       const mountChip = wep ? [shipMountChip(l), shipLinkChip(l), shipBatteryChip(l)].filter(Boolean).join(' · ') : '';
       const sIcon = l.state === 'destroyed' ? '☠' : l.state === 'damaged' ? '⚑' : '●';
       const sColor = l.state === 'destroyed' ? '#999' : l.state === 'damaged' ? 'var(--red-text)' : '#6dba88';
-      return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:1px 0;">
+      return `<div class="items-center gap-6 fs-11" style="display:flex;padding:1px 0;">
         <button class="btn btn-sm" style="font-size:9px;padding:0 4px;color:${sColor};" title="Cycle: ok → damaged (10 hrs, Repair DC 30; jury-rig DC 25 for the battle) → destroyed (replace) → ok" onclick="paCycleSlotState('${it.id}',${idx})">${sIcon}</button>
-        <span style="color:var(--g55);min-width:80px;">${escapeHTML(l.slot)}</span>
-        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}${wep ? 'color:#d4865a;' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}${mountChip ? ` <span style="color:#78afcd;font-size:9.5px;">${escapeHTML(mountChip)}</span>` : ''}</span>
-        ${l.fixed ? '' : `<button class="btn btn-sm" style="font-size:9px;padding:0 4px;" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
+        <span class="c-g55" style="min-width:80px;">${escapeHTML(l.slot)}</span>
+        <span style="flex:1;${l.state !== 'ok' ? 'opacity:.5;text-decoration:line-through;' : ''}${l.fixed ? 'color:#78afcd;' : ''}${wep ? 'color:#d4865a;' : ''}" ${tip ? `title="${escapeHTML(tip)}" style="cursor:help;"` : ''}>${escapeHTML(l.gear)}${mountChip ? ` <span class="fs-9_5" style="color:#78afcd;">${escapeHTML(mountChip)}</span>` : ''}</span>
+        ${l.fixed ? '' : `<button class="fs-9 p-0-4 btn btn-sm" onclick="paRemoveLoadoutLine('${it.id}',${idx})">✕</button>`}
       </div>`;
     }).join('');
-    return `<div class="panel" style="margin-bottom:.8rem;border-color:rgba(150,150,220,.4);">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-        <div style="font-family:'Epics Serif','Cinzel',serif;font-size:14px;color:var(--gold);">🚀 ${escapeHTML(name)} <span style="font-size:10px;color:var(--g50);">${escapeHTML(def.subtype)} · ${def.cls} TS ${def.ts} · ${escapeHTML(def.armor || '')} armor</span></div>
-        <div style="white-space:nowrap;">
-          <button class="btn btn-sm" style="font-size:10px;" onclick="shipIncomingHit('${it.id}')">⚔ Hit</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="shipRepair('${it.id}')">🔧 Repair</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="setJointOwners('${it.id}')">✎ Owners</button>
+    return `<div class="mb-0_8rem panel" style="border-color:rgba(150,150,220,.4);">
+      <div class="justify-between items-center flex-wrap gap-6" style="display:flex;">
+        <div class="font-serif fs-14 c-gold">🚀 ${escapeHTML(name)} <span class="fs-10 c-g50">${escapeHTML(def.subtype)} · ${def.cls} TS ${def.ts} · ${escapeHTML(def.armor || '')} armor</span></div>
+        <div class="nowrap">
+          <button class="fs-10 btn btn-sm" onclick="shipIncomingHit('${it.id}')">⚔ Hit</button>
+          <button class="fs-10 btn btn-sm" onclick="shipRepair('${it.id}')">🔧 Repair</button>
+          <button class="fs-10 btn btn-sm" onclick="setJointOwners('${it.id}')">✎ Owners</button>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--parch);margin-top:5px;">
-        <span style="cursor:help;" title="Touch/full AC; the trained-crew figures include the crew-quality modifiers (FF STARSHIP TYPES). Untrained pilots without Starship Operation apply only ⅓ Defense Bonus (GMG).">T/AC <b>${def.tac}</b> <span style="opacity:var(--o60);color:var(--dim);">(${def.tacTrained} trained)</span></span> ·
-        Hardness <b style="cursor:help;" title="${escapeHTML(def.hardStr)}">${def.hardness}</b> · <b>${def.D}D</b> (${def.D * 20} HP total) ·
+      <div class="fs-11 c-parch mt-5">
+        <span class="cursor-help" title="Touch/full AC; the trained-crew figures include the crew-quality modifiers (FF STARSHIP TYPES). Untrained pilots without Starship Operation apply only ⅓ Defense Bonus (GMG).">T/AC <b>${def.tac}</b> <span class="o-60 c-dim">(${def.tacTrained} trained)</span></span> ·
+        Hardness <b class="cursor-help" title="${escapeHTML(def.hardStr)}">${def.hardness}</b> · <b>${def.D}D</b> (${def.D * 20} HP total) ·
         crew ${def.crew} · ${escapeHTML(def.lw)} · ${escapeHTML(cls.space || '')} ·
         ${(() => {
           // v8.22.0 (Adam's ruling, 2026-09-04): despite the printed "+", the
@@ -211,12 +211,12 @@ function renderStarshipCards(c) {
           const pFt = printed ? (parseInt(printed.replace(/[^\d]/g, '').slice(0, 6), 10) || 0) : 0;
           const shown = printed || `${spd.toLocaleString()} ft (${Math.floor(spd / 250)} hexes)`;
           const zeroNote = (!printed && spd === 0) ? ' ⚠ Thrusters/Photon Sails list 0 ft — a ship without a faster primary engine maneuvers at GM-adjudicated station-keeping speeds.' : '';
-          return `<span style="cursor:help;" title="Tactical speed per MOVE action — 1 stellar hex = 250 ft (Adam's scales). Round economy (GMG p.506): two move actions + one standard, any order — full burn = ${((printed ? pFt : spd) * 2).toLocaleString()} ft/round.${printed ? ` Printed subtype speed (standard engine, FF statblock). Engine-derived after refit: ${eng ? eng.name : 'thrusters'} ${engFt.toLocaleString()} ft${penFt ? ` − armor ${penFt.toLocaleString()}` : ''} = ${spd.toLocaleString()} ft.` : ''}${zeroNote}">speed <b>${shown}</b>/move <span style="opacity:var(--o60);color:var(--dim);">(×2/round)</span></span> ·`;
+          return `<span class="cursor-help" title="Tactical speed per MOVE action — 1 stellar hex = 250 ft (Adam's scales). Round economy (GMG p.506): two move actions + one standard, any order — full burn = ${((printed ? pFt : spd) * 2).toLocaleString()} ft/round.${printed ? ` Printed subtype speed (standard engine, FF statblock). Engine-derived after refit: ${eng ? eng.name : 'thrusters'} ${engFt.toLocaleString()} ft${penFt ? ` − armor ${penFt.toLocaleString()}` : ''} = ${spd.toLocaleString()} ft.` : ''}${zeroNote}">speed <b>${shown}</b>/move <span class="o-60 c-dim">(×2/round)</span></span> ·`;
         })()}
         grapple ${cls.grappleMod || '+0'} ·
-        <span style="cursor:help;color:#d4b870;" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
+        <span class="cursor-help" style="color:#d4b870;" title="${escapeHTML(critTip)}">🎲 crit table ⓘ</span>
       </div>
-      <div style="margin-top:5px;">${secBars}</div>
+      <div class="mt-5">${secBars}</div>
       ${(() => {
         // v8.26.0 pass 2: the printed subtype statblock line (FF pp.663-684)
         // — space, length/weight, crew (+quality mod), passengers, cargo, the
@@ -225,19 +225,19 @@ function renderStarshipCards(c) {
         if (!st) return '';
         const big = /Light|Medium|Heavy|Superheavy/.test(String(st.space || '')) && !/Ultralight/.test(String(st.space || ''));
         const initRule = big ? 'CHA check (Light-Colossal and larger — GMG p.506)' : 'DEX check (Ultralight-Colossal and smaller — GMG p.506)';
-        return `<div style="font-size:10.5px;color:var(--tl80);margin-top:4px;">
-          ${st.space ? `⬡ ${escapeHTML(st.space)} · ` : ''}${st.lw ? `${escapeHTML(st.lw)} · ` : ''}${st.crew ? `crew ${escapeHTML(st.crew)} · ` : ''}${st.passengers ? `passengers ${escapeHTML(st.passengers)} · ` : ''}${st.cargo ? `cargo ${escapeHTML(st.cargo)} · ` : ''}${st.hd ? `<span style="cursor:help;" title="The printed HD notation — sections split evenly, remainder to Infrastructure, unless this notes otherwise.">HD ${escapeHTML(st.hd)}</span> · ` : ''}<span style="cursor:help;" title="Stellar initiative: commander rolls a ${initRule}. Every ship starts flat-footed until it acts.">init: ${big ? 'Cha' : 'Dex'}${st.init ? ` (${escapeHTML(st.init)})` : ''}</span>
+        return `<div class="fs-10_5 mt-4" style="color:var(--tl80);">
+          ${st.space ? `⬡ ${escapeHTML(st.space)} · ` : ''}${st.lw ? `${escapeHTML(st.lw)} · ` : ''}${st.crew ? `crew ${escapeHTML(st.crew)} · ` : ''}${st.passengers ? `passengers ${escapeHTML(st.passengers)} · ` : ''}${st.cargo ? `cargo ${escapeHTML(st.cargo)} · ` : ''}${st.hd ? `<span class="cursor-help" title="The printed HD notation — sections split evenly, remainder to Infrastructure, unless this notes otherwise.">HD ${escapeHTML(st.hd)}</span> · ` : ''}<span class="cursor-help" title="Stellar initiative: commander rolls a ${initRule}. Every ship starts flat-footed until it acts.">init: ${big ? 'Cha' : 'Dex'}${st.init ? ` (${escapeHTML(st.init)})` : ''}</span>
         </div>`;
       })()}
-      <div style="font-size:11px;color:var(--g70);margin-top:5px;">
-        ${hasOp ? '<span style="color:#6dba88;">✓ Starship Operation</span>' : '<span style="color:var(--red-text);" title="Without it: reduced Defense Bonus contribution and operation penalties — see GMG crewed-starship rules.">✗ Starship Operation</span>'}
+      <div class="fs-11 c-g70 mt-5">
+        ${hasOp ? '<span style="color:#6dba88;">✓ Starship Operation</span>' : '<span class="c-red-text" title="Without it: reduced Defense Bonus contribution and operation penalties — see GMG crewed-starship rules.">✗ Starship Operation</span>'}
         · Roles: pilot · copilot · gunners (${def.weapons} weapon slots) · engineer (damage control) · sensor/comm officers — FF p.662.
         · Slots: ${def.weapons} weapons (${cls.weaponsPer}) · ${def.defense} defense · ${def.sensors} sensors · engines ${escapeHTML(def.engineD)}
-        · <span style="cursor:help;color:#78afcd;" title="${escapeHTML(Object.values(STARSHIP_COMBAT_REF).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
+        · <span class="cursor-help" style="color:#78afcd;" title="${escapeHTML(Object.values(STARSHIP_COMBAT_REF).join('\n\n'))}">📖 stellar combat ref ⓘ</span>
       </div>
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g55);margin-top:7px;">Fittings <button class="btn btn-sm" style="font-size:9px;padding:0 5px;margin-left:6px;" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
+      <div class="fs-10 uppercase ls-0_08em c-g55 mt-7">Fittings <button class="fs-9 p-0-5 ml-6 btn btn-sm" onclick="paAddLoadoutLine('${it.id}')">+ Install</button></div>
       ${loadout}
-      <div style="font-size:10px;color:var(--g45);margin-top:3px;">Registered owners: ${it.jointOwners ? escapeHTML(it.jointOwners) : `${escapeHTML(c.name)} (sole)`} · Jointly-owned by charter, most likely — the bookkeeping berths here.</div>
+      <div class="fs-10 c-g45 mt-3">Registered owners: ${it.jointOwners ? escapeHTML(it.jointOwners) : `${escapeHTML(c.name)} (sole)`} · Jointly-owned by charter, most likely — the bookkeeping berths here.</div>
     </div>`;
   }).join('');
 }

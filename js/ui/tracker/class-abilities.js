@@ -152,17 +152,17 @@ function renderPerDiem(c) {
   const specs = computePerDiemAbilities(c);
   if (!specs.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
   host.style.display = '';
-  host.innerHTML = `<div style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);margin-bottom:4px;">Class Abilities <span style="color:var(--g45);font-size:9px;text-transform:none;letter-spacing:0;">· ☀ Fully Rested restores daily; ↻ = GM renew (single ability)</span></div>`
+  host.innerHTML = `<div class="font-serif fs-10 c-bronze mb-4">Class Abilities <span class="c-g45 fs-9 normal-case ls-0">· ☀ Fully Rested restores daily; ↻ = GM renew (single ability)</span></div>`
     + specs.map(s => {
       const used = abilityUsed(c, s.key);
       const left = Math.max(0, s.max - used);
       const low = left === 0;
-      return `<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;margin:2px 0;">
-        <span style="flex:1;cursor:help;" title="${escapeHTML(s.note || '')}">${s.name}${s.weekly ? ' <span style="opacity:.55;font-size:9px;">(per week)</span>' : ''}</span>
-        <b style="color:${low ? 'var(--red-text)' : 'rgba(120,175,205,.95)'};">${left}</b><span style="opacity:var(--o55);color:var(--dim);">/${s.max}${s.kind === 'pool' ? ' pts' : ''}</span>
-        <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" title="Spend one ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',1)">−</button>
-        <button class="btn btn-sm" style="font-size:10px;padding:0 6px;" title="Undo a spent ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',-1)">+</button>
-        <button class="btn btn-sm" style="font-size:10px;padding:0 6px;opacity:.7;" title="GM renew: reset ${s.name} alone (a rejuvenating roleplay event short of a full rest)" onclick="renewAbility('${s.key}')">↻</button>
+      return `<div class="items-center gap-6 fs-11_5 m-2-0" style="display:flex;">
+        <span class="flex-1 cursor-help" title="${escapeHTML(s.note || '')}">${s.name}${s.weekly ? ' <span class="op-0_55 fs-9">(per week)</span>' : ''}</span>
+        <b style="color:${low ? 'var(--red-text)' : 'rgba(120,175,205,.95)'};">${left}</b><span class="o-55 c-dim">/${s.max}${s.kind === 'pool' ? ' pts' : ''}</span>
+        <button class="fs-10 p-0-6 btn btn-sm" title="Spend one ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',1)">−</button>
+        <button class="fs-10 p-0-6 btn btn-sm" title="Undo a spent ${s.kind === 'pool' ? 'point' : 'use'}" onclick="adjustAbilityUse('${s.key}',-1)">+</button>
+        <button class="fs-10 p-0-6 op-0_7 btn btn-sm" title="GM renew: reset ${s.name} alone (a rejuvenating roleplay event short of a full rest)" onclick="renewAbility('${s.key}')">↻</button>
       </div>`;
     }).join('');
 }
@@ -182,16 +182,16 @@ function renderBattleFocus(c) {
   const passive = Math.ceil(mod / 2);
   host.innerHTML = `
     <div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border:1px solid rgba(200,151,30,.2);border-left:2px solid ${focused ? '#7daadc' : 'rgba(200,151,30,.3)'};border-radius:2px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <span style="font-family:'Epics Serif','Cinzel',serif;font-size:10px;color:var(--bronze);">Battle Focus (Psionic 0 variant) &middot; modifier +${mod}</span>
+      <div class="justify-between items-center mb-4" style="display:flex;">
+        <span class="font-serif fs-10 c-bronze">Battle Focus (Psionic 0 variant) &middot; modifier +${mod}</span>
         <span style="font-family:'Epics Serif','Cinzel',serif;font-size:12px;font-weight:600;color:${focused ? '#7daadc' : 'var(--g45)'};">${focused ? '◉ FOCUSED' : '○ unfocused'}</span>
       </div>
-      <div style="font-size:10.5px;color:var(--g70);line-height:1.45;margin-bottom:6px;">
+      <div class="fs-10_5 c-g70 lh-1_45 mb-6">
         ${focused
-          ? `While focused: <b style="color:var(--gold);">+${passive}</b> to hit, damage, dodge, and parry (half of +${mod}, rounded up). Expend the focus for the full <b style="color:var(--gold);">+${mod}</b> on any single roll.`
+          ? `While focused: <b class="c-gold">+${passive}</b> to hit, damage, dodge, and parry (half of +${mod}, rounded up). Expend the focus for the full <b class="c-gold">+${mod}</b> on any single roll.`
           : `Gain psionic focus (see Concentration) to receive +${passive} to hit, damage, dodge, and parry — or expend it for +${mod} on a single roll.`}
       </div>
-      <div style="display:flex;gap:6px;">
+      <div class="gap-6" style="display:flex;">
         <button class="btn btn-sm" onclick="toggleBattleFocus()">${focused ? 'Drop Focus' : '◉ Become Focused'}</button>
         ${focused ? `<button class="btn btn-sm btn-pri" onclick="expendBattleFocus()">⚡ Expend for +${mod}</button>` : ''}
       </div>
@@ -239,7 +239,7 @@ function renderTalentActions(c) {
   const chaM = effAm(c, 5), intM = effAm(c, 3);
   const fmt = (n) => `${n >= 0 ? '+' : ''}${n}`;
   const cards = [];
-  const card = (name, body, tip) => cards.push(`<div style="padding:4px 0;border-bottom:1px solid rgba(200,151,30,.08);" title="${escapeHTML(tip || '')}"><b style="color:rgba(212,184,112,.9);cursor:help;">${name}</b> — ${body}</div>`);
+  const card = (name, body, tip) => cards.push(`<div class="p-4-0" style="border-bottom:1px solid rgba(200,151,30,.08);" title="${escapeHTML(tip || '')}"><b class="cursor-help" style="color:rgba(212,184,112,.9);">${name}</b> — ${body}</div>`);
   // ---- Charisma suite ----
   if (owned.has('Charm')) card('Charm', `+${chaLvl} competence on Charisma-based checks made to INFLUENCE others`, 'Only against targets with attitudes of indifferent or better — never vs unfriendly or hostile (GM adjudicates attitude).');
   if (owned.has('Fast-Talk')) card('Fast-Talk', `+${chaLvl} competence on Bluff, Diplomacy, and Gamble while lying, cheating, or bending the truth${owned.has('Silver Tongue') ? ' — Silver Tongue extends this to Gather Information and Intimidate, and lets you spend an AP to reroll (keep the second roll)' : ''}`, 'Applies when attempting to con or deceive.');
@@ -272,7 +272,7 @@ function renderCombatOptions(c) {
   if (!host) return;
   const tumble = (getLiveSkillRanks(c, 'Tumble') || 0);
   const t5 = tumble >= 5;
-  const chip = (name, body, tip) => `<span style="display:inline-block;margin:1px 10px 1px 0;white-space:nowrap;cursor:help;" title="${escapeHTML(tip)}"><b style="color:var(--tc85);">${name}</b> <span style="opacity:.8;">${body}</span></span>`;
+  const chip = (name, body, tip) => `<span class="nowrap cursor-help" style="display:inline-block;margin:1px 10px 1px 0;" title="${escapeHTML(tip)}"><b class="c-tc85">${name}</b> <span class="op-0_8">${body}</span></span>`;
   host.innerHTML = [
     chip('Aid Another', 'attack vs AC 10 → ally +2', 'Standard action, in melee reach of an opponent engaging your ally: hit AC 10 to grant the ally +2 on their next attack against that opponent OR +2 AC against its next attack (before your next turn). Bonuses from multiple aiders stack. Also usable to assist skill checks.'),
     chip('Fight Defensively', `−4 attacks / +${t5 ? 3 : 2} Defense${t5 ? ' (Tumble 5+)' : ''}`, 'Declare with an attack or full attack action; lasts until your next action. With 5+ ranks of Tumble the dodge bonus is +3 instead of +2.'),
@@ -294,23 +294,23 @@ function renderCombatOptions(c) {
   const ownsFeat = (n) => (c.feats || []).some(f => (f.name || f.n) === n);
   const impGrap = ownsFeat('Improved Grapple');
   const eaRanks = (getLiveSkillRanks(c, 'Escape Artist') || 0);
-  const gH = (t) => `<div style="margin-top:5px;color:rgba(212,184,112,.9);font-weight:bold;">${t}</div>`;
+  const gH = (t) => `<div class="mt-5 bold" style="color:rgba(212,184,112,.9);">${t}</div>`;
   host.innerHTML = [
     host.innerHTML,
     chip('Grapple', `d20 ${gr ? (gr.total >= 0 ? '+' : '') + gr.total : '+ mods'} — special modifiers &amp; options; see details below`, `Grapple check = d20 + BAB + Str mod + special size modifier (±4 per size step)${impGrap ? ' + Improved Grapple +4' : ''}${gr ? `. Yours: ${gr.parts.join(' · ')}.` : '.'} The full start-a-grapple sequence, in-grapple actions, pins, and multi-grappler rules are in the Grappling Rules Summary directly below.`),
   ].join('');
   host.innerHTML += `
-    <details class="hy-det" style="margin-top:6px;"><summary>Grappling Rules Summary (HH pp.372–374)${gr ? ` · your check: d20 ${gr.total >= 0 ? '+' : ''}${gr.total}` : ''}</summary>
-    <div style="padding:4px 0 2px 14px;line-height:1.55;font-size:11px;color:var(--tx85);">
-      <b>The check:</b> 1d20 + base attack bonus + Str modifier + special size modifier — "a grapple check is like a melee attack roll." Special size modifier: Colossal +16, Gargantuan +12, Huge +8, Large +4, Medium +0, Small −4, Tiny −8, Diminutive −12, Fine −16 (±4 per step, in place of the normal attack-roll size modifier).${gr ? ` <span style="color:var(--tc85);">Yours: ${gr.parts.join(' · ')}.</span>` : ''}
+    <details class="mt-6 hy-det"><summary>Grappling Rules Summary (HH pp.372–374)${gr ? ` · your check: d20 ${gr.total >= 0 ? '+' : ''}${gr.total}` : ''}</summary>
+    <div class="lh-1_55 fs-11 c-tx85" style="padding:4px 0 2px 14px;">
+      <b>The check:</b> 1d20 + base attack bonus + Str modifier + special size modifier — "a grapple check is like a melee attack roll." Special size modifier: Colossal +16, Gargantuan +12, Huge +8, Large +4, Medium +0, Small −4, Tiny −8, Diminutive −12, Fine −16 (±4 per step, in place of the normal attack-roll size modifier).${gr ? ` <span class="c-tc85">Yours: ${gr.parts.join(' · ')}.</span>` : ''}
       ${gH('Starting a grapple (standard action — one attempt per iterative, at successively lower BA)')}
-      <b>1. AoO:</b> the target gets an attack of opportunity against you${impGrap ? ' — <span style="color:var(--tc85);">waived: you have Improved Grapple (+4 on all grapple checks, already in your total)</span>' : ' (waived by Improved Grapple)'}; if it deals damage, the attempt fails.<br>
+      <b>1. AoO:</b> the target gets an attack of opportunity against you${impGrap ? ' — <span class="c-tc85">waived: you have Improved Grapple (+4 on all grapple checks, already in your total)</span>' : ' (waived by Improved Grapple)'}; if it deals damage, the attempt fails.<br>
       <b>2. Grab:</b> melee touch attack; miss = fail.<br>
       <b>3. Hold:</b> opposed grapple check (free action); win = you are grappling and deal unarmed-strike damage. You automatically lose vs a target two or more size categories larger. Ties go to the higher modifier.<br>
       <b>4. Maintain:</b> move into the target's space (free movement — provokes from OTHER threateners, never the target). Can't move in → you must let go.
       ${gH('While grappling (both of you)')}
       You threaten no hexes · you lose your Dex bonus to AC against opponents you are NOT grappling · no normal movement. Each of the following takes the place of ONE attack (iteratives apply):
-      <b>Attack</b> with unarmed strike, natural weapon, or LIGHT weapon at −4 (never two weapons) · <b>Damage</b> via opposed check — unarmed-strike nonlethal (−4 on the check to make it lethal) · <b>Pin</b> via opposed check (1 round) · <b>Escape</b> via opposed check — or an Escape Artist check${eaRanks ? ` <span style="color:var(--tc85);">(your ranks: ${eaRanks})</span>` : ''} as a standard action; you must beat EVERY holder, then finish adjacent · <b>Move</b> half speed, everyone comes along (standard action, beat all; +4 to move a lone PINNED opponent) · <b>Draw a light weapon</b> (move action + check) · <b>Use the opponent's light weapon</b> (opposed check, then attack at −4; no possession) · <b>Break another's pin</b> (opposed check) · <b>Cast/manifest</b> only ≤ 1 standard action, no somatic components, materials in hand, Concentration DC 20 + spell level · activate non-spell-completion magic items and retrieve a component (full round) freely.
+      <b>Attack</b> with unarmed strike, natural weapon, or LIGHT weapon at −4 (never two weapons) · <b>Damage</b> via opposed check — unarmed-strike nonlethal (−4 on the check to make it lethal) · <b>Pin</b> via opposed check (1 round) · <b>Escape</b> via opposed check — or an Escape Artist check${eaRanks ? ` <span class="c-tc85">(your ranks: ${eaRanks})</span>` : ''} as a standard action; you must beat EVERY holder, then finish adjacent · <b>Move</b> half speed, everyone comes along (standard action, beat all; +4 to move a lone PINNED opponent) · <b>Draw a light weapon</b> (move action + check) · <b>Use the opponent's light weapon</b> (opposed check, then attack at −4; no possession) · <b>Break another's pin</b> (opposed check) · <b>Cast/manifest</b> only ≤ 1 standard action, no somatic components, materials in hand, Concentration DC 20 + spell level · activate non-spell-completion magic items and retrieve a component (full round) freely.
       ${gH('Pinned')}
       Held immobile 1 round (not helpless): −4 AC against everyone EXCEPT the pinner; the pinner may silence you. Escape the pin with an opposed check (or Escape Artist, standard action) — success leaves you still grappling. The PINNER may damage you, use your weapon, or move the grapple — but can't draw/use weapons, escape another's grapple, pin another, or break pins; releasing you is a free action; disarming your secured gear gives you +4 to resist.
       ${gH('Joining & multiples')}
@@ -342,9 +342,9 @@ function renderBardicMusic(c) {
   const sugDC = 10 + Math.floor(brd / 2) + chaM;
   const card = (ranksReq, name, body, tip) => {
     const ok = perf >= ranksReq;
-    return `<div style="margin:3px 0;${ok ? '' : 'opacity:.45;'}cursor:help;" title="${escapeHTML(tip + (ok ? '' : ` LOCKED — needs ${ranksReq} Perform ranks (your best: ${perf}).`))}"><b style="color:rgba(156,195,218,${ok ? '.9' : '.5'});">${name}</b> <span style="opacity:.85;">${body}${ok ? '' : ` <i style="font-size:10px;">(needs ${ranksReq} ranks)</i>`}</span></div>`;
+    return `<div style="margin:3px 0;${ok ? '' : 'opacity:.45;'}cursor:help;" title="${escapeHTML(tip + (ok ? '' : ` LOCKED — needs ${ranksReq} Perform ranks (your best: ${perf}).`))}"><b style="color:rgba(156,195,218,${ok ? '.9' : '.5'});">${name}</b> <span class="op-0_85">${body}${ok ? '' : ` <i class="fs-10">(needs ${ranksReq} ranks)</i>`}</span></div>`;
   };
-  const rows = [`<div style="font-size:10.5px;color:var(--g60);margin-bottom:5px;">${brd} uses/day (${used} used — the ☀ per-diem panel tracks them) · best Perform: ${escapeHTML(perfName)} ${perf} ranks · starting a performance is a standard action; no spellcasting or spell-trigger/completion items while performing; a deaf Bard fails 20% of attempts (the use is still spent).</div>`];
+  const rows = [`<div class="fs-10_5 c-g60 mb-5">${brd} uses/day (${used} used — the ☀ per-diem panel tracks them) · best Perform: ${escapeHTML(perfName)} ${perf} ranks · starting a performance is a standard action; no spellcasting or spell-trigger/completion items while performing; a deaf Bard fails 20% of attempts (the use is still spent).</div>`];
   rows.push(card(3, 'Countersong', `(Su) Perform check each round — anyone within 30 ft may use it in place of their save vs sonic / language-dependent magic; up to 10 rounds.`, 'Ongoing noninstantaneous effects get a new save each round at your Perform result. No effect on save-less effects.'));
   rows.push(card(3, 'Fascinate', `(Sp) ${1 + Math.floor((brd - 1) / 3)} creature${1 + Math.floor((brd - 1) / 3) === 1 ? '' : 's'} within 90 ft — Perform check = their Will DC; up to ${brd} rounds.`, 'Targets must be able to see, hear, and attend; nearby combat prevents it. Fascinated: sits and listens, −4 on reactive Listen/Spot. New threats allow a fresh save vs a new Perform check; obvious threats break it. Mind-affecting compulsion.'));
   rows.push(card(5, 'Inspire Courage', `(Su) allies who hear: +${courage} morale on attacks & weapon damage, +${courage} on saves vs charm/fear; lasts while heard + 5 rounds.`, 'Self included. +1 base, +1 more at 8th, 14th, and 20th. Mind-affecting.'));
@@ -371,7 +371,7 @@ function renderElementalist(c) {
   panel.style.display = '';
   const pick = ((c.classChoices || {})['ele_var_1'] || '');
   const vn = (pick.match(/^(Ambrian|Kryonian|Vesuvian|Vitrolian)/) || [])[1] || null;
-  if (!vn) { host.innerHTML = `<div style="font-size:11px;color:#d4b870;">Choose the Elemental Focus in 🎓 Class Choices (Sheet) — every attack form keys off the variant.</div>`; return; }
+  if (!vn) { host.innerHTML = `<div class="fs-11" style="color:#d4b870;">Choose the Elemental Focus in 🎓 Class Choices (Sheet) — every attack form keys off the variant.</div>`; return; }
   const eff = effAttrs(c);
   const strM = am(eff[0]), dexM = am(eff[1]);
   const szm = (raceACSizeMod(c) || 0);
@@ -386,8 +386,8 @@ function renderElementalist(c) {
     Vesuvian:  { fist: `2d6 fire per melee TOUCH (${fmt(mTouch)})`, bolt: `${boltDice} fire OR heat (nonlethal fire), ranged touch ${fmt(rTouch)}, 15 ft`, blasts: [`Targeted Fire Blast — ${ele}d6 fire, ranged touch ${fmt(rTouch)}, range ${ele * 30} ft`, `Area Fire Blast — ${ele}d6 fire, ${ele * 5}′-radius area, Reflex DC ${13 + dexM} half, range ${ele * 10} ft`], weapon: '+2d6 fire per hit' },
     Vitrolian: { fist: `2d6 bludgeoning + Str (${fmt(strM)}) — a NORMAL armed unarmed attack, stone-sheathed`, bolt: `+2d6 additional bludgeoning on each successful Elemental Fist or Slam hit${greater ? ' · Fist ignores 10 hardness (Greater Adaptation)' : ''}`, blasts: [`Clap Shockwave — ${ele}d6 concussion (nonlethal sonic), ${ele * 10}′ cone, Fort DC ${13 + strM} half`, `Stomp Shockwave — ${ele}d4 nonlethal, ${ele * 10}′ radius on you (you're immune), Str check DC ${13 + strM} or knocked PRONE`], weapon: '+5 Hardness, +10 HP, and a magical +1 to hit on the engulfed weapon' },
   }[vn];
-  const card = (name, body, tip) => `<div style="margin:3px 0;cursor:help;" title="${escapeHTML(tip)}"><b style="color:rgba(212,134,90,.95);">${name}</b> <span style="opacity:.85;">${body}</span></div>`;
-  const rows = [`<div style="font-size:10.5px;color:var(--g60);margin-bottom:5px;">${vn} · Elementalist ${ele} — all forms are AT-WILL (Su)${greater ? ' · Greater Elemental Adaptation active (7th)' : ''}. The Nimbus (1${ele >= 8 ? '-2' : ''}/day or 1 AP) is on the ☀ per-diem panel.</div>`];
+  const card = (name, body, tip) => `<div class="m-3-0 cursor-help" title="${escapeHTML(tip)}"><b style="color:rgba(212,134,90,.95);">${name}</b> <span class="op-0_85">${body}</span></div>`;
+  const rows = [`<div class="fs-10_5 c-g60 mb-5">${vn} · Elementalist ${ele} — all forms are AT-WILL (Su)${greater ? ' · Greater Elemental Adaptation active (7th)' : ''}. The Nimbus (1${ele >= 8 ? '-2' : ''}/day or 1 AP) is on the ☀ per-diem panel.</div>`];
   rows.push(card('Elemental Fist', `move action to invoke — ${V.fist}`, 'GMG p.165: the element engulfs your hand (harmless to you); your unarmed attack counts as ARMED. Also shown as an alt mode on the Gear tab’s unarmed row.'));
   if (ele >= 2) rows.push(card(vn === 'Vitrolian' ? 'Elemental Bolt (rider)' : 'Elemental Bolt', `${V.bolt} — usable once per attack: iteratives from high BA each carry one.`, 'GMG p.166: a full-attack Elementalist fires one bolt per attack.'));
   if (ele >= 3) rows.push(card('Elemental Blast', `standard action — ${V.blasts.join(' · OR · ')}`, 'GMG p.166: two manifestation options; pick per blast.'));

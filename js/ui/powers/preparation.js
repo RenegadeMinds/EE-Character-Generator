@@ -427,48 +427,48 @@ function renderPrepPanel(c) {
   if (!host) return;
   _prepCtrs = prepContributorsOf(c);
   if (!_prepCtrs.length) { host.innerHTML = ''; return; }
-  let html = `<div class="sec-head sm">Prepared Spells <span style="font-weight:400;font-size:10px;opacity:var(--o60);color:var(--dim);">(memorized at dawn — PP, Magic-feat and augment costs ALL paid at preparation, per instance; casting is free)</span></div>`;
-  html += `<div style="border:1px solid rgba(220,205,138,.25);border-radius:3px;margin-bottom:1rem;">`;
+  let html = `<div class="sec-head sm">Prepared Spells <span class="fw-400 fs-10 o-60 c-dim">(memorized at dawn — PP, Magic-feat and augment costs ALL paid at preparation, per instance; casting is free)</span></div>`;
+  html += `<div class="mb-1rem" style="border:1px solid rgba(220,205,138,.25);border-radius:3px;">`;
   _prepCtrs.forEach((pc, pi) => {
     const c2 = chars.find(x => x.id === curId);
     const list = getPreparedList(c2, pc.poolName, pc.ctrKey);
     const cur = c2.ppCurrent?.[pc.poolName]?.[pc.ctrKey] ?? pc.budget;
     const committed = list.reduce((t, r) => t + (r.free ? 0 : (r.cost || 0) * (r.qty || 0)), 0);
     const isSpec = pc.ctr.class === 'Wizard' && c2.wizardSchool;
-    html += `<div style="padding:7px 10px;border-bottom:1px solid rgba(200,151,30,.08);">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+    html += `<div class="p-7-10" style="border-bottom:1px solid rgba(200,151,30,.08);">
+      <div class="justify-between items-center gap-6 flex-wrap" style="display:flex;">
         <div><b style="color:#dccd8a;">${escapeHTML(pc.ctr.class)} ${pc.ctr.level}</b>
           <span style="font-size:10px;opacity:.6;" title="${POOL_EFF_LEVEL[pc.poolName].full} contribution of this class — its spells resolve at this level">(${pc.poolName} · ${POOL_EFF_LEVEL[pc.poolName].abbr} ${pc.ctr.clContribution} · max spell lvl ${pc.ctr.classMaxPowerLvl})</span>
-          <span style="font-size:11px;margin-left:8px;color:var(--tx80);">PP: <b>${cur}</b>/${pc.budget} unallocated · ${committed} committed to prep</span></div>
-        <div><button class="btn btn-sm btn-pri" style="font-size:10px;" onclick="prepPickAndAdd(${pi})">+ Prepare…</button>
-          <button class="btn btn-sm" style="font-size:10px;" onclick="restPP('${pc.poolName}')" title="Refill this pool's PP and re-memorize the current list (new day)">☾ Rest pool</button></div>
+          <span class="fs-11 ml-8 c-tx80">PP: <b>${cur}</b>/${pc.budget} unallocated · ${committed} committed to prep</span></div>
+        <div><button class="fs-10 btn btn-sm btn-pri" onclick="prepPickAndAdd(${pi})">+ Prepare…</button>
+          <button class="fs-10 btn btn-sm" onclick="restPP('${pc.poolName}')" title="Refill this pool's PP and re-memorize the current list (new day)">☾ Rest pool</button></div>
       </div>`;
     if (isSpec) {
       const freeUsed = specialistFreeUsed(c2, pc);
       const lvls = [];
       for (let L = 0; L <= (pc.ctr.classMaxPowerLvl || 0); L++) lvls.push(`${L}:${freeUsed[L] ? '●' : '○'}`);
-      html += `<div style="font-size:10px;color:var(--g60);margin-top:2px;">${escapeHTML(c2.wizardSchool)} specialist — one free specialty spell per level daily: ${lvls.join(' ')}</div>`;
+      html += `<div class="fs-10 c-g60 mt-2">${escapeHTML(c2.wizardSchool)} specialist — one free specialty spell per level daily: ${lvls.join(' ')}</div>`;
     }
     if (pc.ctr.class === 'Cleric') {
-      html += `<div style="font-size:10px;color:var(--g55);margin-top:2px;">Spontaneous conversion: any uncast prepared spell → ${(c2.druidOption || pc.ctr._heritageChoice === 'Cleric (Druid Option)') ? 'Summon Nature’s Ally' : 'Cure/Inflict Wounds'} of the same level or lower (⇄ button).</div>`;
+      html += `<div class="fs-10 c-g55 mt-2">Spontaneous conversion: any uncast prepared spell → ${(c2.druidOption || pc.ctr._heritageChoice === 'Cleric (Druid Option)') ? 'Summon Nature’s Ally' : 'Cure/Inflict Wounds'} of the same level or lower (⇄ button).</div>`;
     }
     if (pc.ctr.class !== 'Wizard') {
-      html += `<div style="font-size:10px;color:var(--g45);margin-top:2px;">Divine preparation draws on the class's ENTIRE spell list — “+ Prepare…” browses it by spell level (no need to add spells to Known first).</div>`;
+      html += `<div class="fs-10 c-g45 mt-2">Divine preparation draws on the class's ENTIRE spell list — “+ Prepare…” browses it by spell level (no need to add spells to Known first).</div>`;
     }
     html += list.length
       ? list.map((r, idx) => {
           const left = (r.qty || 0) - (r.cast || 0);
           return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11.5px;padding:3px 0 3px 12px;${left <= 0 ? 'opacity:.45;' : ''}">
-            <div><b>${escapeHTML(r.dispName || r.name)}</b> <span style="font-size:10px;opacity:var(--o60);color:var(--dim);">lvl ${r.lvl}${r.free ? ' · FREE specialty' : ` · ${r.cost} PP`}</span>${(r.metas || []).includes('Quicken Spell') ? ' <span style="font-size:9px;color:var(--vio);border:1px solid rgba(196,153,212,.4);border-radius:3px;padding:0 3px;" title="Quickened at memorization — this instance casts as a SWIFT action (no AoO, one per round).">swift</span>' : ''}
+            <div><b>${escapeHTML(r.dispName || r.name)}</b> <span class="fs-10 o-60 c-dim">lvl ${r.lvl}${r.free ? ' · FREE specialty' : ` · ${r.cost} PP`}</span>${(r.metas || []).includes('Quicken Spell') ? ' <span class="fs-9 c-vio" style="border:1px solid rgba(196,153,212,.4);border-radius:3px;padding:0 3px;" title="Quickened at memorization — this instance casts as a SWIFT action (no AoO, one per round).">swift</span>' : ''}
               <span style="font-size:10px;color:${left > 0 ? '#6dba88' : 'var(--red-text)'};margin-left:6px;">${left}/${r.qty} left${r.cast ? ` (${r.cast} cast)` : ''}</span></div>
             <div>
               <button class="btn btn-sm" style="font-size:10px;${left <= 0 ? 'opacity:.5;' : 'border-color:rgba(120,175,205,.5);color:rgba(120,175,205,.95);'}" title="Cast a prepared instance (no PP)" onclick="castPreparedAt(${pi},${idx})">⚡ Cast</button>
               ${pc.ctr.class === 'Cleric' ? `<button class="btn btn-sm" style="font-size:10px;${left <= 0 ? 'opacity:.5;' : ''}" title="Spontaneous conversion" onclick="convertPreparedAt(${pi},${idx})">⇄</button>` : ''}
-              <button class="btn btn-sm btn-danger" style="font-size:10px;" title="Unprepare one uncast instance (refunds its PP)" onclick="unprepareAt(${pi},${idx})">−</button>
+              <button class="fs-10 btn btn-sm btn-danger" title="Unprepare one uncast instance (refunds its PP)" onclick="unprepareAt(${pi},${idx})">−</button>
             </div>
           </div>`;
         }).join('')
-      : `<div style="font-size:11px;color:var(--g45);padding:4px 0 2px 12px;font-style:italic;">Nothing prepared yet — click “+ Prepare…” at dawn.</div>`;
+      : `<div class="fs-11 c-g45 italic" style="padding:4px 0 2px 12px;">Nothing prepared yet — click “+ Prepare…” at dawn.</div>`;
     html += `</div>`;
   });
   html += `</div>`;
@@ -498,12 +498,12 @@ function renderPPRecovery(c){
       for (const key in slots) for (const r of slots[key]) { qty += r.qty || 0; cast += r.cast || 0; }
       if (qty) prepBit = ` · <span title="prepared instances remaining today">${qty - cast}/${qty} prepared</span>`;
     }
-    const permBit = pp.permanentSpent ? ` <span style="opacity:.55;font-size:10px;cursor:help;" title="Permanently expended on High Arcana / Mental Mastery picks — the pool maximum shown is already reduced.">(−${pp.permanentSpent} permanent)</span>` : '';
-    bits.push(`<div style="font-size:12px;margin:3px 0;"><span title="${eff.full}" style="cursor:help;color:var(--g75);">${eff.abbr} ${pool.cl}</span> · ${poolName}: <b style="color:${low ? 'var(--red-text)' : 'rgba(120,175,205,.95)'};">${pp.current}</b>/${pp.max} PP${permBit}${prepBit}</div>`);
+    const permBit = pp.permanentSpent ? ` <span class="op-0_55 fs-10 cursor-help" title="Permanently expended on High Arcana / Mental Mastery picks — the pool maximum shown is already reduced.">(−${pp.permanentSpent} permanent)</span>` : '';
+    bits.push(`<div class="fs-12 m-3-0"><span title="${eff.full}" class="cursor-help c-g75">${eff.abbr} ${pool.cl}</span> · ${poolName}: <b style="color:${low ? 'var(--red-text)' : 'rgba(120,175,205,.95)'};">${pp.current}</b>/${pp.max} PP${permBit}${prepBit}</div>`);
   }
   if (mpSt.isSuperMutant) {
     const spp = getSuperPPState(c);
-    bits.push(`<div style="font-size:12px;margin:3px 0;"><span title="Effective Super Level" style="cursor:help;color:var(--tv80);">ESL ${mpSt.eml}</span> · super: <b style="color:rgba(196,153,212,.95);">${spp.current}</b>/${spp.max} PP</div>`);
+    bits.push(`<div class="fs-12 m-3-0"><span title="Effective Super Level" class="cursor-help c-tv80">ESL ${mpSt.eml}</span> · super: <b style="color:rgba(196,153,212,.95);">${spp.current}</b>/${spp.max} PP</div>`);
   }
   // v8.21.0 Segment A: the psionic-focus chip joins the PP panel.
   { const chip = psiFocusChipHTML(c); if (chip) bits.push(chip); }
