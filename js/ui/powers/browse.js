@@ -190,7 +190,7 @@ function powerPrereqBadge(s, c) {
     const ok = have >= need;
     return ` <span style="font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid ${ok ? 'rgba(212,184,112,.45)' : 'rgba(212,112,112,.6)'};color:${ok ? '#d4b870' : 'var(--red-text)'};margin-left:4px;cursor:help;" title="Prerequisite: ${escapeHTML(s.prerequisite)}${ok ? '' : ' — this scenario is Tech Scale ' + have + ': GM exception territory'}">⚙ Tech ${need}+${ok ? '' : ' ✗'}</span>`;
   }
-  return ` <span class="fs-9 p-1-5 ml-4 cursor-help" style="border-radius:2px;border:1px solid rgba(212,184,112,.45);color:#d4b870;" title="Prerequisite: ${escapeHTML(s.prerequisite)}">⚑ prereq</span>`;
+  return ` <span class="rounded-2 fs-9 p-1-5 ml-4 cursor-help" style="border:1px solid rgba(212,184,112,.45);color:#d4b870;" title="Prerequisite: ${escapeHTML(s.prerequisite)}">⚑ prereq</span>`;
 }
 
 function spellStatLine(s) {
@@ -307,7 +307,7 @@ function renderPowers() {
     if (domOwned.has('Paladin')) for (const d of (c.paladinDomains || [])) domSources.push(['Paladin', d]);
   }
   domHost.innerHTML = domSources.length
-    ? `<div class="mt-8 p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+    ? `<div class="rounded-3 mt-8 p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(200,151,30,.18);">
         <div class="font-serif fs-10 uppercase ls-0_08em c-g70 mb-4">Domain Granted Powers</div>
         ${domSources.map(([cls, d]) => {
           const dd = DOMAINS_DB.find(x => x.name === d);
@@ -490,7 +490,7 @@ function renderPowersBrowse() {
             : /Supernatural Mutation/.test(w) ? 'needs Su Mutation'
             : /Mutation Scale/.test(w) ? 'needs Mut 5 scenario'
             : 'not buyable';
-          buyBtn = `<span class="fs-9 p-2-6 nowrap cursor-help" style="color:var(--tp55);border:1px dashed rgba(181,143,212,.3);border-radius:2px;" title="Not buyable yet — ${escapeHTML(w)}. The shopping window follows your CLASSIFICATION, which tracks TOTAL MP earned (+1 Mutant level per full 10 — Adam's unification ruling, HH p.423): Minor <10 MP (lvl 1-3, ≤6 MP/power) · Moderate 10+ (1-5, ≤10) · Major 20+ (1-9, ≤20) · Mega 30+ (1-9, uncapped). Earn MP across a threshold and the window widens automatically; the Mutation Scale caps the total (GMG pp.64-66).">◈ ${escapeHTML(short)}</span>`;
+          buyBtn = `<span class="rounded-2 fs-9 p-2-6 nowrap cursor-help" style="color:var(--tp55);border:1px dashed rgba(181,143,212,.3);" title="Not buyable yet — ${escapeHTML(w)}. The shopping window follows your CLASSIFICATION, which tracks TOTAL MP earned (+1 Mutant level per full 10 — Adam's unification ruling, HH p.423): Minor <10 MP (lvl 1-3, ≤6 MP/power) · Moderate 10+ (1-5, ≤10) · Major 20+ (1-9, ≤20) · Mega 30+ (1-9, uncapped). Earn MP across a threshold and the window widens automatically; the Mutation Scale caps the total (GMG pp.64-66).">◈ ${escapeHTML(short)}</span>`;
         }
       }
     }

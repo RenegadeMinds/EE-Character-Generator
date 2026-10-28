@@ -62,7 +62,7 @@ function openCastOptions(ctx) {
       ${aug.step ? `<span class="op-0_65 fs-10_5">(steps of ${aug.step})</span>` : ''}
       <div class="fs-10_5 c-g70 mt-2" style="max-height:70px;overflow:auto;">${escapeHTML(aug.text)}</div></div>` : '';
     host.innerHTML = `<div class="items-center" style="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;justify-content:center;" onclick="if(event.target===this)__coDone(false)">
-      <div style="background:#161210;border:1px solid rgba(200,151,30,.5);border-radius:6px;padding:14px 18px;max-width:520px;width:92%;max-height:82vh;overflow:auto;">
+      <div class="rounded-6" style="background:#161210;border:1px solid rgba(200,151,30,.5);padding:14px 18px;max-width:520px;width:92%;max-height:82vh;overflow:auto;">
         <div class="font-serif c-gold mb-6" style="font-size:15px;">${prep ? '📜' : '⚡'} ${escapeHTML(spell.name)} — ${prep ? 'memorization options' : 'cast options'}</div>
         <div class="fs-11_5 c-g70 mb-6">Base ${baseCost} PP (level ${lvl}${isBuff ? ', Buff — 0 PP unaugmented' : ''}) · cap: total ≤ ${capLabel} ${cap}<span id="co-capnote"></span></div>
         ${prep ? `<div class="fs-10_5 mb-6" style="color:#d4b870;">Prepared casting: ALL Magic-feat and augment costs are paid NOW, at memorization — this particular instance then casts at no PP with everything baked in (a Quickened instance casts as a swift action). Other instances of the same spell memorize at their standard cost unless likewise declared.</div>` : ''}

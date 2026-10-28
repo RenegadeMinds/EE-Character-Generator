@@ -122,7 +122,7 @@ function renderMutationEffects(c) {
   if (!fx.length && !wired.length) { host.innerHTML = ''; return; }
   const groups = {};
   for (const e of fx) (groups[e.group] = groups[e.group] || []).push(e);
-  let html = `<div class="mb-1rem p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(196,153,212,.25);border-radius:3px;">
+  let html = `<div class="rounded-3 mb-1rem p-7-10" style="background:rgba(0,0,0,.18);border:1px solid rgba(196,153,212,.25);">
     <div class="font-serif fs-10 uppercase ls-0_08em c-tv80 mb-4">Mutation Effects</div>`;
   if (wired.length) html += `<div class="fs-11 c-tx85 lh-1_5 mb-3"><b class="fs-10" style="color:var(--tv75);">WIRED INTO STATS:</b> ${wired.join(' · ')}</div>`;
   for (const g of ['Senses & Movement', 'Natural Attacks', 'Activated', 'Notes']) {
@@ -361,7 +361,7 @@ function renderSuperTalentPanel(c) {
     for (const t of byClass[hc]) {
       const owned = ownedNames.includes(t.n);
       const pr = checkTalentPrereqs(t.n, c);
-      const apex = t.is_apex ? ` <span class="c-vio p-0-4" style="font-size:8px;border:1px solid rgba(196,153,212,.4);border-radius:2px;">APEX</span>` : '';
+      const apex = t.is_apex ? ` <span class="rounded-2 c-vio p-0-4" style="font-size:8px;border:1px solid rgba(196,153,212,.4);">APEX</span>` : '';
       const offClass = !heroClasses.has(hc);
       const buy = owned
         ? `<span class="fs-10" style="color:#6dba88;">✓ owned</span>`
@@ -433,12 +433,12 @@ function renderMutationsBrowse() {
     const tags = [
       m.kind === 'drawback' ? 'drawback' : (m.kind === 'attribute' ? 'attribute' : m.category),
       m.obvious ? 'obvious' : null, m.multi ? 'multi' : null, m.techMin ? 'tech-gated' : null,
-    ].filter(Boolean).map(t => `<span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${t}</span>`).join('');
+    ].filter(Boolean).map(t => `<span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${t}</span>`).join('');
     return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
       <div class="justify-between items-center gap-6" style="display:flex;">
         <div class="cursor-pointer flex-1" onclick="toggleMuDetail('${escapeHTML(m.name).replace(/'/g, "\\'")}')"><b>${escapeHTML(m.name)}</b> <span class="fs-10 o-60 c-dim">${sign}${m.mp} MP</span>${tags} <span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span></div>
         ${/^Supernatural \[Attribute\]/.test(m.name)
-          ? `<span class="fs-9 c-vio p-2-6 nowrap cursor-help" style="border:1px dashed rgba(196,153,212,.35);border-radius:2px;" title="v8.82.0 (Adam's taxonomy ruling): the Supernatural [Attribute] ladder is SUPERNATURAL — it shops in the ✨ Supernatural Attributes panel on the ◈ Powers tab (its records still live here and on the Sheet).">↗ ✨ Powers tab</span>`
+          ? `<span class="rounded-2 fs-9 c-vio p-2-6 nowrap cursor-help" style="border:1px dashed rgba(196,153,212,.35);" title="v8.82.0 (Adam's taxonomy ruling): the Supernatural [Attribute] ladder is SUPERNATURAL — it shops in the ✨ Supernatural Attributes panel on the ◈ Powers tab (its records still live here and on the Sheet).">↗ ✨ Powers tab</span>`
           : `<button class="fs-10 btn btn-sm btn-pri" onclick="addMutationFromBrowse(${i})">+ ${m.kind === 'drawback' ? 'Take' : 'Add'}</button>`}
       </div>
       ${open ? `<div class="fs-11_5 mt-5 lh-1_55 c-parch">${m.flavor ? '<i>' + escapeHTML(m.flavor) + '</i><br>' : ''}${escapeHTML(m.benefit || m.drawback || '')}${m.special ? '<br><b>Special:</b> ' + escapeHTML(m.special) : ''}${m.prerequisite ? '<br><b>Prerequisite:</b> ' + escapeHTML(m.prerequisite) : ''}</div>` : ''}

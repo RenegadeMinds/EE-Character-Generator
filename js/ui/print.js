@@ -740,7 +740,7 @@ function printNotesTrackerLanguagesHtml(c) {
         <div class="ps-sec-head">HP / Condition Tracker</div>
         <div class="ps-sec-body">
           <div class="gap-4 mb-6" style="display:grid;grid-template-columns:repeat(4,1fr);">
-            ${[1,2,3,4,5,6,7,8].map(()=>'<div style="height:14px;border:1px solid #888;border-radius:2px;"></div>').join('')}
+            ${[1,2,3,4,5,6,7,8].map(()=>'<div class="rounded-2" style="height:14px;border:1px solid #888;"></div>').join('')}
           </div>
           <div class="fs-8pt">Current HP: _______ / ${c.maxHP} &nbsp;&nbsp; Conditions: _______________________</div>
         </div>

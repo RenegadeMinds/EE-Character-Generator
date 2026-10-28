@@ -56,7 +56,7 @@ function renderHerosGiftPanel(c){
   if (choice === null || choice === undefined) {
     // Unassigned state — show the assignment buttons + latent-potential copy.
     el.innerHTML = `
-      <div style="padding:9px 12px;background:rgba(196,153,212,.07);border:1px solid rgba(196,153,212,.30);border-radius:3px;border-left-width:3px;border-left-color:var(--vio);">
+      <div class="rounded-3" style="padding:9px 12px;background:rgba(196,153,212,.07);border:1px solid rgba(196,153,212,.30);border-left-width:3px;border-left-color:var(--vio);">
         <div class="font-serif fs-11 c-vio ls-0_05em uppercase mb-6">⬟ Hero's Gift — Unassigned</div>
         <div class="fs-12 c-g85 lh-1_5 mb-8">
           Your Hero's Gift slot is unassigned. When you're ready, choose how to spend it: a bonus <b>Feat</b> from your Hero class's feat list, or an extra <b>Talent</b> from your Hero class's talent trees. The choice is permanent (retconnable only via Edit, with a GM exception). You can leave it unassigned indefinitely — some GMs allow declaring the slot mid-session, at which point it's set in stone.

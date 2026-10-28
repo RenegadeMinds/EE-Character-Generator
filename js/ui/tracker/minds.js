@@ -195,7 +195,7 @@ function renderMindsLedger(c) {
        : `<b style="color:rgba(120,205,140,.95);">type-immune</b> — no save needed (${escapeHTML(pk.faced.n)} was defeated)`)
     : '';
   slot.innerHTML = `
-  <div class="p-7-10 fs-11_5 lh-1_65" style="background:rgba(14,18,26,.55);border:1px solid rgba(120,175,205,.28);border-radius:3px;">
+  <div class="rounded-3 p-7-10 fs-11_5 lh-1_65" style="background:rgba(14,18,26,.55);border:1px solid rgba(120,175,205,.28);">
     <div class="justify-between items-baseline" style="display:flex;">
       <b class="ls-0_04em" style="color:#9cc3da;">🧠 ${escapeHTML(c.name)}'s Sanity: <span style="color:${mindTier(m) ? '#d49a70' : '#9cc3da'};cursor:help;" title="${MIND_TIERS[mindTier(m)][1]}">${MIND_TIERS[mindTier(m)][0]}</span></b>
       <b class="cursor-pointer c-red-text ml-8" onclick="(function(){const c=chars.find(x=>x.id===curId); if(c){mindOf(c).open=false; save(); renderMindsLedger(c);}})()" title="Collapse">▴</b>
@@ -211,7 +211,7 @@ function renderMindsLedger(c) {
       <div class="mt-3"><label class="cursor-pointer" title="The typical roll for witnessing a horrific, graphic scene — a maiming, a death, or an especially gory aspect of the Horror itself (GM's discretion): +5 DC, 1d3 damage."><input type="checkbox" ${m.calc.maim ? 'checked' : ''} onchange="mindSet('maim',this.checked)"> Maiming and/or Gore</label>
         · vs <input type="text" value="${escapeHTML(m.calc.name || '')}" onchange="mindSet('name',this.value)" placeholder="Horror name (registry)" class="fs-11" style="width:130px;padding:2px 5px;"></div>
     </div>
-    ${m.perOpen ? `<div class="mt-4 p-3-8" style="border:1px dashed rgba(120,175,205,.25);border-radius:3px;">
+    ${m.perOpen ? `<div class="rounded-3 mt-4 p-3-8" style="border:1px dashed rgba(120,175,205,.25);">
       <span class="c-ts75" title="What this character BELIEVES reality allows, per axis. Horror DCs measure the gap vs belief, not fact — and belief ratchets upward as horrors educate (after damage + recovery, the witness knows).">Perceived Scales:</span>
       ${axes.map(a => `<span class="ml-8 nowrap">${a.slice(0, 3)} <b class="cursor-pointer c-red-text" onclick="mindPer('${a}',-1)">−</b> <b style="color:#e8d9a0;">${per[a] || 0}</b> <b class="cursor-pointer" style="color:#7dc98c;" onclick="mindPer('${a}',1)">+</b></span>`).join('')}
       <span class="ml-10 fs-10" style="color:var(--ts50);">(known 5+ on an axis = exempt from Scale modifiers)</span>

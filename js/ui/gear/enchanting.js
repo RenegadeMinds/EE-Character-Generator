@@ -111,7 +111,7 @@ function renderEnchantModal() {
         </select></label>
     </div>
     <div class="fs-10 uppercase ls-0_08em c-g60 mb-3">Special abilities <span class="normal-case ls-0">(bonus-equivalents ≤ +5; flat-gp abilities don't consume the budget)</span></div>
-    <div class="overflow-y-auto p-2-6" style="max-height:34vh;border:1px solid rgba(200,151,30,.15);border-radius:3px;">${rows || '<div class="op-0_5 fs-11" style="padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
+    <div class="rounded-3 overflow-y-auto p-2-6" style="max-height:34vh;border:1px solid rgba(200,151,30,.15);">${rows || '<div class="op-0_5 fs-11" style="padding:6px;">No abilities in the catalogue for this item type.</div>'}</div>
     <div class="mt-0_7rem fs-12 lh-1_6">
       Aggregate modifier: <b style="color:${overCap || overAbility ? 'var(--red-text)' : 'var(--gold)'};">+${totalMod}</b> (enhancement +${st.enh} · abilities +${abilityMod}${flatGp ? ` · flat ${flatGp.toLocaleString()} gp` : ''})<br>
       ${word} value: <b>${cost.toLocaleString()} gp</b> <span class="op-0_6 cursor-help" title="${escapeHTML(PRICE_FLUX_NOTE)}">(${escapeHTML(priceLabel(dcForDollars(cost * 100), scenarioTechScale(c)))})</span>${prev ? ` — upgrade cost <b>${delta.toLocaleString()} gp</b> (current value ${prev.cost.toLocaleString()} gp)` : ''} · crafting time ≈ <b>${days} day${days === 1 ? '' : 's'}</b> <span class="o-55 c-dim">(RP only)</span>

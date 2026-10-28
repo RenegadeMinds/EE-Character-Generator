@@ -62,12 +62,12 @@ function renderGMExceptions(c){
   const openCount = exceptions.length - resolvedCount;
   const arrow = gmExceptionsExpanded ? '▾' : '▸';
   // Banner header
-  let html = `<div onclick="toggleGMExceptionsExpanded()" class="cursor-pointer p-6-10 fs-12 c-red-text items-center gap-8 font-serif ls-0_05em" style="background:rgba(212,112,112,.08);border:1px solid rgba(212,112,112,.3);border-radius:3px;display:inline-flex;">
+  let html = `<div onclick="toggleGMExceptionsExpanded()" class="rounded-3 cursor-pointer p-6-10 fs-12 c-red-text items-center gap-8 font-serif ls-0_05em" style="background:rgba(212,112,112,.08);border:1px solid rgba(212,112,112,.3);display:inline-flex;">
     ${arrow} ⚠ ${exceptions.length} GM exception${exceptions.length===1?'':'s'} on this character
     ${resolvedCount > 0 ? `<span class="op-0_85" style="color:#6dba88;">(${resolvedCount} now resolved)</span>` : ''}
   </div>`;
   if (gmExceptionsExpanded) {
-    html += `<div class="mt-8" style="border:1px solid rgba(212,112,112,.25);border-radius:3px;background:rgba(20,15,10,.4);">`;
+    html += `<div class="rounded-3 mt-8" style="border:1px solid rgba(212,112,112,.25);background:rgba(20,15,10,.4);">`;
     exceptions.forEach((ex, i) => {
       const isResolved = recheck[i];
       const statusBadge = isResolved
@@ -182,7 +182,7 @@ function renderFeatList(c){
   if (g.shield) bits.push('shields');
   if (g.towerShield) bits.push('tower shields');
   if (g.weaponsDisp.length) bits.push('specific: ' + g.weaponsDisp.join(', '));
-  let grantBanner = `<div class="p-6-10 mb-6 fs-11 c-tb85" style="border:1px solid rgba(120,175,205,.25);border-radius:3px;">
+  let grantBanner = `<div class="rounded-3 p-6-10 mb-6 fs-11 c-tb85" style="border:1px solid rgba(120,175,205,.25);">
     <b>Class &amp; racial proficiencies</b> <span class="o-60 c-dim">(granted on entry — no feat slots used)</span>: ${escapeHTML(bits.join(' · '))}</div>`;
   // v8.71.0 (Adam's grooming pass): the Sheet's assigned-state Gift banner
   // retired — the ⬟ honor now sits on the occupying feat itself, read off
@@ -202,7 +202,7 @@ function renderFeatList(c){
   const _anyGiftTag = _giftAssigned && feats.some(_giftTagged);
   const GIFT_CHIP_TIP = "Hero's Gift — this feat fills the Hero-class Gift slot (+1 bonus feat, Hero feat list). To reassign the Gift (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.";
   if (_giftAssigned && !_anyGiftTag) {
-    grantBanner += `<div class="p-5-10 mb-6 fs-11 c-vio" style="border:1px solid rgba(196,153,212,.3);border-radius:3px;" title="${escapeHTML(GIFT_CHIP_TIP)} 1st-level picks fill the slot automatically; feats taken at higher levels count against the budget without a slot tag (cosmetic only).">⬟ <b>Hero's Gift (feat)</b> — +1 feat budget; no feat tagged to the slot yet.</div>`;
+    grantBanner += `<div class="rounded-3 p-5-10 mb-6 fs-11 c-vio" style="border:1px solid rgba(196,153,212,.3);" title="${escapeHTML(GIFT_CHIP_TIP)} 1st-level picks fill the slot automatically; feats taken at higher levels count against the budget without a slot tag (cosmetic only).">⬟ <b>Hero's Gift (feat)</b> — +1 feat budget; no feat tagged to the slot yet.</div>`;
   }
   // v9.19.0 (old-boys #3): the UNCLAIMED Gift gets its claim card HERE — the
   // attention dot pointed at this tab, but the only chooser hid inside
@@ -210,7 +210,7 @@ function renderFeatList(c){
   // bonus all session. One click each way; the fold reconciler has already
   // absorbed over-budget cases before this renders.
   if (!isLegacyCharacter(c) && c.heroesGiftChoice === null && (c.classes || []).some(e => e.tier === 'hero')) {
-    grantBanner += `<div class="p-7-10 mb-6 fs-11_5 c-gold" style="border:1px solid rgba(200,151,30,.45);border-radius:3px;background:rgba(200,151,30,.04);">
+    grantBanner += `<div class="rounded-3 p-7-10 mb-6 fs-11_5 c-gold" style="border:1px solid rgba(200,151,30,.45);background:rgba(200,151,30,.04);">
       🎁 <b>Hero's Gift unclaimed</b> — your Hero class owes you ONE bonus pick: a feat or a talent, chosen once (retcon later via ✎ Edit).
       <span class="nowrap"><button class="fs-10 ml-8 btn btn-sm btn-pri" onclick="assignHerosGiftAsFeat()">Claim as Feat (+1 feat slot)</button>
       <button class="fs-10 ml-4 btn btn-sm" onclick="assignHerosGiftAsTalent()">Claim as Talent (+1 talent slot)</button></span>
@@ -224,7 +224,7 @@ function renderFeatList(c){
     // v8.71.0: ⬟ chip on the feat occupying the Hero's Gift slot.
     const _isGiftFeat = _giftAssigned && _giftTagged(f);
     const giftChip = _isGiftFeat
-      ? ` <span class="fs-9 c-vio p-1-5 ml-6 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);border-radius:2px;" title="${escapeHTML(GIFT_CHIP_TIP)}">⬟ Hero's Gift</span>`
+      ? ` <span class="rounded-2 fs-9 c-vio p-1-5 ml-6 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);" title="${escapeHTML(GIFT_CHIP_TIP)}">⬟ Hero's Gift</span>`
       : '';
     const data = getFeatData(f.name);
     if (!data) {

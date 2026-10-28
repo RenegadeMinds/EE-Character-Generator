@@ -135,7 +135,7 @@ function renderVehicles() {
       ['T/AC', `${def.touch_ac}/${def.total_ac}`], ['Hardness', def.hardness],
       ['Size', `${SIZE_FULL[def.size] || def.size}${def.polyhex ? ` (${def.polyhex})` : ''}`],
       ['Purchase', `DC ${def.purchase_dc} · ${def.restriction} (+${def.restriction_mod})`],
-    ].map(([l, v]) => `<div style="border:1px solid rgba(200,151,30,.15);padding:3px 7px;border-radius:2px;"><div class="fs-8_5 uppercase ls-0_06em c-g55">${l}</div><div class="fs-12 c-parch">${v}</div></div>`).join('');
+    ].map(([l, v]) => `<div class="rounded-2" style="border:1px solid rgba(200,151,30,.15);padding:3px 7px;"><div class="fs-8_5 uppercase ls-0_06em c-g55">${l}</div><div class="fs-12 c-parch">${v}</div></div>`).join('');
     const stateBanner = g.destroyed
       ? `<div class="fs-11 mt-4" style="color:#999;">☠ DESTROYED — damage ${g.damage} ≥ ${g.destroyThreshold} (1.5× max HP): beyond repair, salvage only (HH p.181).</div>`
       : g.broken

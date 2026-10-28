@@ -104,7 +104,7 @@
 <!-- v8.40.0: ⚡ QUICKDRAW modal — goal + level (+ optional starting class,
      scenario, race, batch count) → legal skeleton characters. -->
 <div id="qd-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;overflow:auto;">
-  <div class="m-5vh-auto p-18-20" style="max-width:600px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+  <div class="rounded-6 m-5vh-auto p-18-20" style="max-width:600px;background:#1a140a;border:1px solid rgba(200,151,30,.45);">
     <div class="mb-4 modal-title">⚡ Quickdraw Generator</div>
     <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       Pick the destination; the generator makes <b>only the forced moves</b> — class ladder, prerequisite skills, feats, and attributes — and leaves every expressive choice unmade, flagged by the amber dots. A skeleton, not a build.
@@ -130,7 +130,7 @@
       <label>How many?<br><input id="qd-count" type="number" min="1" max="10" value="1"></label>
       <!-- v8.68.2 (Adam's field report): Hybrid in Quickdraw/Bespoke prompts
            for its parents like the Create form does. -->
-      <div id="qd-hyb-row" class="span-all p-6-8 fs-11" style="display:none;border:1px solid rgba(200,151,30,.3);border-radius:3px;">
+      <div id="qd-hyb-row" class="rounded-3 span-all p-6-8 fs-11" style="display:none;border:1px solid rgba(200,151,30,.3);">
         <span>Parent A <select id="qd-hyb-a"></select></span>
         <span class="ml-8">Parent B <select id="qd-hyb-b"></select></span>
         <span class="ml-8" title="Size AND movement follow this parent (HH p.30).">Size &amp; movement from <select id="qd-hyb-size"><option value="a">Parent A</option><option value="b">Parent B</option></select></span>
@@ -151,7 +151,7 @@
            arbitrarily (a dice-rolled set, a GM array). Manual values are
            taken as FINAL scores (level bumps assumed included); racial
            adjustment applies on top; prerequisite gates still check. -->
-      <div class="span-all p-6-9 fs-11_5" style="border:1px solid rgba(200,151,30,.3);border-radius:3px;">
+      <div class="rounded-3 span-all p-6-9 fs-11_5" style="border:1px solid rgba(200,151,30,.3);">
         <label class="cursor-pointer"><input type="checkbox" id="qd-auto-attrs" checked onchange="qdAttrModeToggle()"> <b>Automatic Attribute Generation?</b> <span class="o-55 c-dim fs-10">(untick to enter a dice-rolled set manually)</span></label>
         <div id="qd-manual-attrs" class="mt-7" style="display:none;">
           <div class="gap-10 flex-wrap" style="display:flex;">
@@ -188,7 +188,7 @@
      first-class data (name + six dials + optional official lock + notes).
      Objective task language per Adam's doctrine, not flavor terminology. -->
 <div id="scen-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-  <div class="m-5vh-auto p-18-20" style="max-width:640px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+  <div class="rounded-6 m-5vh-auto p-18-20" style="max-width:640px;background:#1a140a;border:1px solid rgba(200,151,30,.45);">
     <div class="mb-4 modal-title">✦ Name and Establish Your Scenario: The Six Scales</div>
     <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       Set the six dials that define your world's fundamental rules, name it, and save. Your scenario then appears alongside the built-in presets — on the Create page and in Quickdraw — and can be exported as a small file for your players to import.
@@ -234,7 +234,7 @@
      adjustments (fixed or player-chosen) + granted feats from the catalog.
      Price set per feat since v8.55.1; prereqs waived (birthright doctrine). -->
 <div id="hb-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-  <div class="m-5vh-auto p-18-20" style="max-width:660px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+  <div class="rounded-6 m-5vh-auto p-18-20" style="max-width:660px;background:#1a140a;border:1px solid rgba(200,151,30,.45);">
     <div class="mb-4 modal-title">🌍 Homebrew Forge — Name and Establish Your Feat</div>
     <div class="fs-11_5 c-g60 lh-1_5" style="margin-bottom:12px;">
       GM lane. Homebrew feats built here carry <b>structured</b> payloads the engine already understands — attribute adjustments and granted catalog feats — plus your description for the hover. Each feat sets its own price: <b>free</b> (a birthright — no slot, no budget) or <b>costing a feat selection</b> (an ad-hoc approved pick). Prerequisites are waived either way; anything beyond these payloads stays prose — the numbers remain the book's.
@@ -308,14 +308,14 @@
        no friction, no confirm. Edit stays fully versatile (decision 5);
        this banner just reminds the user that Level Up is the canonical
        progression path. -->
-  <div id="edit-advisory-banner" class="fs-11_5 lh-1_45" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(212,184,112,.07);border:1px solid rgba(212,184,112,.30);border-radius:3px;color:#d4b870;">
+  <div id="edit-advisory-banner" class="rounded-3 fs-11_5 lh-1_45" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(212,184,112,.07);border:1px solid rgba(212,184,112,.30);color:#d4b870;">
     ⚠ <b>Editing a character directly.</b> Incremental <b>Level Up</b> is the canonical path for level progression and avoids inconsistencies; bulk editing here may introduce them. <b>Edit</b> remains fully versatile and is the right tool for GM adjustments, bug-hunting, and character cleanup — proceed with that intent.
   </div>
   <!-- v8.4.0: Hero's Gift retcon panel. Visible only when editing a v8.4.0+
        Hero-classed character. Allows changing heroesGiftChoice as a GM
        retcon — saveCharacter detects the change, runs the compliance scan,
        and records a GM exception listing any newly-broken prereq chains. -->
-  <div id="edit-heroes-gift-retcon" class="fs-12 lh-1_5" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(196,153,212,.06);border:1px solid rgba(196,153,212,.25);border-radius:3px;color:var(--g85);">
+  <div id="edit-heroes-gift-retcon" class="rounded-3 fs-12 lh-1_5" style="display:none;margin:.5rem 0;padding:.55rem .75rem;background:rgba(196,153,212,.06);border:1px solid rgba(196,153,212,.25);color:var(--g85);">
     <div class="font-serif fs-10 c-vio ls-0_05em uppercase mb-5">⬟ Hero's Gift — Retcon</div>
     <div class="mb-6">Current assignment: <b id="edit-hg-current">—</b>. Changing this will record a GM exception and run a compliance scan to detect any prereq chains broken by the retcon.</div>
     <label class="items-center gap-8" style="display:flex;">
@@ -374,24 +374,24 @@
          the current title pre-filled and selected. Enter/Save commits;
          Escape/Cancel reverts. Empty input on commit clears the override
          (equivalent to clicking ↻ Regenerate). -->
-    <div id="scenario-title-row" class="items-center gap-8 flex-wrap" style="display:flex;margin-top:.5rem;padding:7px 11px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+    <div id="scenario-title-row" class="rounded-3 items-center gap-8 flex-wrap" style="display:flex;margin-top:.5rem;padding:7px 11px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
       <span class="font-serif fs-9 uppercase ls-0_1em c-g70">Scenario Title:</span>
       <!-- Display mode (default) -->
       <span id="scenario-title-display" class="italic fs-14 flex-1" style="font-family:'Epics Serif','Crimson Pro',serif;color:var(--gold);min-width:200px;"></span>
       <!-- Edit mode (hidden by default; toggled by onScenarioTitleOverride). The
            input mimics the display span's typography for visual continuity. -->
-      <input type="text" id="scenario-title-input" class="italic fs-14 p-2-6 flex-1" style="display:none;font-family:'Epics Serif','Crimson Pro',serif;color:var(--gold);background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.5);border-radius:2px;min-width:200px;outline:none;" placeholder="Type a custom title, or leave blank to revert to auto-generated" maxlength="200">
-      <button type="button" onclick="onScenarioTitleOverride()" id="scenario-title-edit-btn" class="p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Override with a custom title">✎ Override</button>
-      <button type="button" onclick="onScenarioTitleSaveEdit()" id="scenario-title-save-btn" class="p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);border-radius:3px;" title="Save (Enter)">✓ Save</button>
-      <button type="button" onmousedown="window._scenarioTitleCancelling=true;" onclick="onScenarioTitleCancelEdit()" id="scenario-title-cancel-btn" class="p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Cancel (Escape)">✕ Cancel</button>
-      <button type="button" onclick="onScenarioTitleRegenerate()" id="scenario-title-regen-btn" class="p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);border-radius:3px;" title="Re-generate from current Six Scales">↻ Regenerate</button>
+      <input type="text" id="scenario-title-input" class="rounded-2 italic fs-14 p-2-6 flex-1" style="display:none;font-family:'Epics Serif','Crimson Pro',serif;color:var(--gold);background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.5);min-width:200px;outline:none;" placeholder="Type a custom title, or leave blank to revert to auto-generated" maxlength="200">
+      <button type="button" onclick="onScenarioTitleOverride()" id="scenario-title-edit-btn" class="rounded-3 p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);" title="Override with a custom title">✎ Override</button>
+      <button type="button" onclick="onScenarioTitleSaveEdit()" id="scenario-title-save-btn" class="rounded-3 p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);" title="Save (Enter)">✓ Save</button>
+      <button type="button" onmousedown="window._scenarioTitleCancelling=true;" onclick="onScenarioTitleCancelEdit()" id="scenario-title-cancel-btn" class="rounded-3 p-3-8 fs-11 cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);" title="Cancel (Escape)">✕ Cancel</button>
+      <button type="button" onclick="onScenarioTitleRegenerate()" id="scenario-title-regen-btn" class="rounded-3 p-3-8 fs-11 cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g75);border:1px solid rgba(200,151,30,.3);" title="Re-generate from current Six Scales">↻ Regenerate</button>
     </div>
     <div id="six-levels-summary" class="fs-12 lh-1_6 mt-0_6rem p-8-12 rounded-2" style="color:var(--g70);background:rgba(0,0,0,.2);border-left:2px solid rgba(200,151,30,.3);"></div>
     <!-- v8.3.17: Lock/sandbox controls + status -->
     <div id="six-levels-gate-controls" class="gap-8 items-center flex-wrap" style="margin-top:.75rem;display:flex;">
-      <button type="button" id="six-levels-lock-btn" onclick="lockSixLevels()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:var(--lock-bg);color:var(--gold);border:1px solid rgba(200,151,30,.5);border-radius:3px;">🔒 Lock as Official</button>
-      <button type="button" id="six-levels-sandbox-btn" onclick="enterSandboxMode()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);border-radius:3px;">⚡ Use Sandbox Mode</button>
-      <button type="button" id="six-levels-unlock-btn" onclick="unlockSixLevels()" class="p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);border-radius:3px;">🔓 Unlock &amp; Edit</button>
+      <button type="button" id="six-levels-lock-btn" onclick="lockSixLevels()" class="rounded-3 p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:var(--lock-bg);color:var(--gold);border:1px solid rgba(200,151,30,.5);">🔒 Lock as Official</button>
+      <button type="button" id="six-levels-sandbox-btn" onclick="enterSandboxMode()" class="rounded-3 p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);">⚡ Use Sandbox Mode</button>
+      <button type="button" id="six-levels-unlock-btn" onclick="unlockSixLevels()" class="rounded-3 p-6-14 font-serif fs-11 uppercase ls-0_1em cursor-pointer" style="display:none;background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.25);">🔓 Unlock &amp; Edit</button>
       <span id="six-levels-gate-help" class="fs-10 italic flex-1" style="color:var(--g50);">Lock to enable race, class, and occupation choices below — or use sandbox to explore.</span>
     </div>
   </div>
@@ -413,7 +413,7 @@
         <!-- v8.68.0 (Adam's simple model): the Hybrid two-parent picker.
              Shown only while Race = Hybrid; RLM auto-computes A+B+1 with a
              GM-override field for tailored builds (dropped abilities noted). -->
-        <div id="hybrid-row" class="mt-6 fs-11_5" style="display:none;padding:7px 9px;border:1px solid rgba(200,151,30,.3);border-radius:3px;">
+        <div id="hybrid-row" class="rounded-3 mt-6 fs-11_5" style="display:none;padding:7px 9px;border:1px solid rgba(200,151,30,.3);">
           <div class="gap-8 flex-wrap items-center" style="display:flex;">
             <span>Parent A <select id="c-hyb-a" onchange="updateHybridForm()"></select></span>
             <span>Parent B <select id="c-hyb-b" onchange="updateHybridForm()"></select></span>
@@ -436,7 +436,7 @@
       </div>
       <div class="fr"><label>Allegiance(s)</label><input type="text" id="c-allegiance" placeholder="e.g. The Crown, Guild of Shadows…"></div>
     </div>
-    <div id="race-info" class="fs-13" style="background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.15);border-radius:3px;padding:9px 12px;color:var(--g80);"></div>
+    <div id="race-info" class="rounded-3 fs-13" style="background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.15);padding:9px 12px;color:var(--g80);"></div>
   </div>
 
   <!-- III: Ability Scores -->
@@ -460,7 +460,7 @@
          The panel only renders content when totalLvl >= 4. Each bump is a dropdown letting the
          player choose which attribute to bump. Bumps are stored on c.attrBumps and applied
          AFTER racial mods at display time, so the attribute budget tracker stays clean. -->
-    <div id="attr-bumps-panel" style="margin-top:.75rem;display:none;padding:.6rem .8rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+    <div id="attr-bumps-panel" class="rounded-3" style="margin-top:.75rem;display:none;padding:.6rem .8rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
       <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-6">Attribute Bumps — Level 4 / 8 / 12 / 16 / 20</div>
       <div id="attr-bumps-rows" class="flex-col gap-5" style="display:flex;"></div>
       <div class="fs-10 c-g50 mt-6 italic lh-1_4">Per HH p.879: at every 4th character level, choose one attribute to gain a permanent +1. These bumps are applied on top of base scores and racial modifiers; they don't count against your attribute-generation budget.</div>
@@ -497,7 +497,7 @@
           <option>Squire</option><option>Student</option><option>Technician</option>
           <option>Transporter</option><option>White Collar</option>
         </select>
-        <div id="c-occ-readonly" class="p-7-10 fs-13" style="display:none;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);border-radius:3px;color:var(--g85);">
+        <div id="c-occ-readonly" class="rounded-3 p-7-10 fs-13" style="display:none;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);color:var(--g85);">
           <span id="c-occ-readonly-text"></span>
           <button class="fs-10 p-2-7 btn btn-sm" onclick="unlockOccupations()" style="float:right;margin-top:-2px;" title="Starting Occupation is fixed at character creation. Click to override (GM permission required).">⚿ Edit (GM)</button>
         </div>
@@ -585,7 +585,7 @@
          house convention (Hero's Hit Die = lower half rolled + upper half
          guaranteed) shown in every class entry's "Hit Die (of the Hero)"
          parenthetical. Saved on c.hpMode. Per-level rolls saved on c.hpRolls. -->
-    <div class="mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
+    <div class="rounded-3 mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);">
       <div class="font-serif fs-9 uppercase ls-0_1em c-g60 mb-6">HP Generation Mode</div>
       <div class="gap-6 flex-wrap items-center" style="display:flex;">
         <label class="items-center gap-4 fs-12 c-g85 cursor-pointer" style="display:inline-flex;">
@@ -603,7 +603,7 @@
       <div id="hp-roll-preview" class="fs-10 mt-4 ls-0_04em" style="color:var(--g55);"></div>
     </div>
     <!-- v8.1.7: T/ACtical Combat System — equipment AC modifiers -->
-    <div class="mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
+    <div class="rounded-3 mt-0_7rem" style="padding:.5rem .7rem;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);">
       <!-- v8.5.4 ergo C6: no uppercase transform here — it flattened the T/ACtical pun -->
       <div class="font-serif fs-9 ls-0_1em c-g60 mb-6">T/ACtical Combat — Equipment AC Modifiers</div>
       <div class="gap-10 flex-wrap" style="display:flex;align-items:flex-end;">
@@ -695,7 +695,7 @@
         <div class="stat-strip" id="sh-stats"></div>
         <!-- v8.8.0 (Adam): Resistances & Immunities aggregate — talents,
              mutations, enchanted armor abilities, magic items. -->
-        <div id="sh-resist" class="mt-6 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;"></div>
+        <div id="sh-resist" class="rounded-3 mt-6 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);"></div>
         <!-- v8.8.3: level-accrued class-feature choices (competence picks,
              Battle-Hardened, Favored Enemies, Terrain Mastery, attr bakes…) -->
         <div id="sh-classchoices" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;font-size:11.5px;line-height:1.6;"></div>
@@ -731,7 +731,7 @@
              numbers) to the bottom of the column, beneath Class Level
              Breakdown — the companion reads as an appendix to the master,
              not an interruption. -->
-        <div id="sh-companions" class="mt-10 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);border-radius:3px;"></div>
+        <div id="sh-companions" class="rounded-3 mt-10 p-6-10 fs-11_5 lh-1_6" style="display:none;background:rgba(26,20,8,.5);border:1px solid rgba(200,151,30,.18);"></div>
       </div>
       <div>
         <div class="sec-head sm">Progression</div>
@@ -826,7 +826,7 @@
 
     <!-- Char's feats -->
     <div class="sec-head sm">Known Feats</div>
-    <div id="ft-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+    <div id="ft-list" class="rounded-3" style="border:1px solid rgba(200,151,30,.15);"></div>
     <div class="btn-row"><button class="btn btn-sm btn-pri" onclick="saveFeats()">✦ Save Feats</button></div>
   </div>
 </div>
@@ -903,7 +903,7 @@
       <button class="btn btn-sm" onclick="hbgOpen()" title="GM lane: author custom weapons and armor. Entries join the shop catalogs below (gated by the scenario's Tech Scale like any canon item) and export as a file for your players. Armor can be forged from a named Tech Scale alloy (HH pp.329-331) — its hardness follows the substance's native-TS row on the Armor Hardness table (HH p.384).">🛠 Homebrew Armory</button>
     </div>
     <div id="hbg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;overflow:auto;">
-      <div class="m-5vh-auto p-18-20" style="max-width:720px;background:#1a140a;border:1px solid rgba(200,151,30,.45);border-radius:6px;">
+      <div class="rounded-6 m-5vh-auto p-18-20" style="max-width:720px;background:#1a140a;border:1px solid rgba(200,151,30,.45);">
         <div class="mb-4 modal-title">🛠 Homebrew Armory — Forge Your Arms &amp; Armor</div>
         <div class="fs-11_5 c-g60 mb-10 lh-1_5">
           GM lane. Entries join the real catalogs — browsable, purchasable (at your Purchase DC), equippable, with live stat strips and T/AC armor integrity. Book anchors: armor hardness by Tech Scale and standard substance (HH p.384); the named alloys and their characters (HH pp.329-331, the vehicular armor list — personal-armor use is a GM extrapolation the table supports).
@@ -980,7 +980,7 @@
           <button class="btn btn-sm" onclick="hbgClose()">Close</button>
         </div>
         <div class="mt-12 sec-head sm">The Armory</div>
-        <div id="hbg-list" class="overflow-y-auto" style="max-height:220px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+        <div id="hbg-list" class="rounded-3 overflow-y-auto" style="max-height:220px;border:1px solid rgba(200,151,30,.15);"></div>
       </div>
     </div>
 
@@ -1040,7 +1040,7 @@
           <option value="cursed">Cursed</option><option value="artifact">Artifacts</option>
         </select>
       </div>
-      <div id="magic-browse-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+      <div id="magic-browse-list" class="rounded-3" style="border:1px solid rgba(200,151,30,.15);"></div>
     </div>
     <!-- v8.72.0: the magic shelf's closing hairline — the matching gap below. -->
     <div style="margin:1.1rem 0 1.5rem;border-top:1px solid rgba(196,153,212,.3);"></div>
@@ -1118,7 +1118,7 @@
 
     <!-- v8.5.2 Phase D: last-cast resolution panel. Persists until dismissed
          so the numbers stay visible during table play. -->
-    <div id="pw-cast-result" class="mb-1rem" style="display:none;border:1px solid rgba(120,175,205,.4);border-left-width:3px;border-radius:3px;padding:8px 11px;background:rgba(120,175,205,.06);">
+    <div id="pw-cast-result" class="rounded-3 mb-1rem" style="display:none;border:1px solid rgba(120,175,205,.4);border-left-width:3px;padding:8px 11px;background:rgba(120,175,205,.06);">
       <div class="justify-between items-center" style="display:flex;">
         <div id="pw-cast-title" class="font-serif fs-13" style="color:rgba(120,175,205,.95);"></div>
         <button class="fs-9 p-1-6 btn btn-sm" onclick="dismissCastResult()">✕</button>
@@ -1137,7 +1137,7 @@
          reveals the rest. Records stay talents (single source of truth). -->
     <div id="pw-su-talents" style="display:none;margin-bottom:.7rem;"></div>
     <div class="sec-head sm">Known Spells &amp; Powers</div>
-    <div id="pw-known-list" class="mb-1rem" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+    <div id="pw-known-list" class="rounded-3 mb-1rem" style="border:1px solid rgba(200,151,30,.15);"></div>
 
     <!-- v8.5.4 Layer 4: dawn-preparation panel for prepared casters
          (Wizard, Cleric incl. Druid Option, Ranger). Populated by
@@ -1168,7 +1168,7 @@
         <select id="pw-theme-filter" onchange="renderPowersBrowse()" class="fs-11" style="max-width:200px;" title="Super-Power Suites by Theme (HH Ch.XI, pp.670+) — the book's thematic groupings of spells &amp; powers, a different perspective to build from (especially for super-mutants, who may buy up to 9th-level spells &amp; powers at creation with GM permission). Suite rule, applied at the table: once a character owns TWO powers from one suite, further powers from that same suite cost 1 MP less."></select>
         <label class="fs-11"><input type="checkbox" id="pw-castable-only" checked onchange="renderPowersBrowse()"> <span id="pw-castable-lbl">castable by this character</span></label>
       </div>
-      <div id="pw-browse-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+      <div id="pw-browse-list" class="rounded-3" style="border:1px solid rgba(200,151,30,.15);"></div>
     </div>
   </div>
 </div>
@@ -1190,7 +1190,7 @@
     </div>
 
     <div class="sec-head sm">Your Mutations &amp; MP Ledger</div>
-    <div id="mu-known-list" class="mb-1rem" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+    <div id="mu-known-list" class="rounded-3 mb-1rem" style="border:1px solid rgba(200,151,30,.15);"></div>
 
     <!-- v8.6.0 mutation audit: live mechanical-effects panel — wired bonuses
          (skills/saves/NAC) summarized + display-tier effects (senses, natural
@@ -1211,7 +1211,7 @@
           <option value="">All kinds</option><option value="advantage">Advantages</option><option value="drawback">Drawbacks</option><option value="attribute">Attribute mutations</option>
         </select>
       </div>
-      <div id="mu-browse-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+      <div id="mu-browse-list" class="rounded-3" style="border:1px solid rgba(200,151,30,.15);"></div>
     </div>
   </div>
 </div>
@@ -1250,7 +1250,7 @@
 
     <!-- Owned talents -->
     <div class="sec-head sm">Owned Talents</div>
-    <div id="tl-list" style="border:1px solid rgba(200,151,30,.15);border-radius:3px;min-height:60px;"></div>
+    <div id="tl-list" class="rounded-3" style="border:1px solid rgba(200,151,30,.15);min-height:60px;"></div>
   </div>
 </div>
 
@@ -1282,7 +1282,7 @@
       <option value="owned">⚿ Owned</option>
     </select>
   </div>
-  <div id="talent-browser-list" class="overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+  <div id="talent-browser-list" class="rounded-3 overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);"></div>
 </div>
 
 <!-- =================== TRACKER =================== -->
@@ -1323,7 +1323,7 @@
           <!-- v8.2.3 (Issue A): HP mode + re-roll controls. -->
           <button class="ilbtn" onclick="toggleHpModePanel()" title="Change HP generation mode (Hero / Random / Maximum) and re-roll if needed.">⚙ HP Mode</button>
         </div>
-        <div id="tr-hp-mode-panel" class="mt-8" style="display:none;padding:7px 9px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+        <div id="tr-hp-mode-panel" class="rounded-3 mt-8" style="display:none;padding:7px 9px;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
           <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-5">HP Generation Mode</div>
           <div id="tr-hp-mode-radios" class="gap-10 flex-wrap items-center fs-11" style="display:flex;color:var(--g85);"></div>
           <div class="gap-6 mt-6 items-center" style="display:flex;">
@@ -1445,7 +1445,7 @@
     <div class="mt-1_25rem items-center gap-8 sec-head sm" style="display:flex;">
       <span>Action History</span>
       <span class="fs-10 c-g40 fw-400 normal-case ls-0">AP / FP audit trail</span>
-      <button type="button" onclick="clearActionLog()" class="ml-auto c-g60 p-4-8 fs-10 cursor-pointer fw-400 normal-case ls-0" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.25);min-height:24px;border-radius:2px;">Clear History</button>
+      <button type="button" onclick="clearActionLog()" class="rounded-2 ml-auto c-g60 p-4-8 fs-10 cursor-pointer fw-400 normal-case ls-0" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.25);min-height:24px;">Clear History</button>
     </div>
     <div id="tr-action-log" class="overflow-y-auto" style="max-height:340px;margin-bottom:1.25rem;"></div>
 
@@ -1477,12 +1477,12 @@
       <div id="apfp-modal-radios"></div>
       <div style="margin-top:.9rem;">
         <label for="apfp-modal-note" class="font-serif fs-10 c-g70 uppercase ls-0_08em mb-4" style="display:block;">Note <span class="fw-400 normal-case ls-0 c-g45">(optional — for campaign tracking)</span></label>
-        <input type="text" id="apfp-modal-note" maxlength="240" placeholder="What happened? (e.g. 'Saved the rogue from the trap', 'Rerolled the Diplomacy check')" class="w-full p-6-10 fs-12" style="background:rgba(0,0,0,.35);color:var(--gold);border:1px solid rgba(200,151,30,.4);border-radius:2px;">
+        <input type="text" id="apfp-modal-note" maxlength="240" placeholder="What happened? (e.g. 'Saved the rogue from the trap', 'Rerolled the Diplomacy check')" class="rounded-2 w-full p-6-10 fs-12" style="background:rgba(0,0,0,.35);color:var(--gold);border:1px solid rgba(200,151,30,.4);">
       </div>
     </div>
     <div class="justify-end" style="padding:.7rem 1.2rem;border-top:1px solid rgba(200,151,30,.2);display:flex;gap:.5rem;">
-      <button type="button" onclick="closeAPFPModal()" class="c-g75 p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.3);border-radius:2px;">Cancel</button>
-      <button type="button" onclick="commitAPFPModal()" class="c-gold p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.18);border:1px solid rgba(200,151,30,.5);border-radius:2px;">Commit</button>
+      <button type="button" onclick="closeAPFPModal()" class="rounded-2 c-g75 p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.06);border:1px solid rgba(200,151,30,.3);">Cancel</button>
+      <button type="button" onclick="commitAPFPModal()" class="rounded-2 c-gold p-6-14 font-serif fs-11 uppercase ls-0_08em cursor-pointer" style="background:rgba(200,151,30,.18);border:1px solid rgba(200,151,30,.5);">Commit</button>
     </div>
   </div>
 </div>
@@ -1524,7 +1524,7 @@
         <option value="family">Sort: by Family</option>
       </select>
     </div>
-    <div id="feat-browser-list" class="overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);border-radius:3px;"></div>
+    <div id="feat-browser-list" class="rounded-3 overflow-y-auto" style="max-height:450px;border:1px solid rgba(200,151,30,.15);"></div>
   </div>
 </div>
 

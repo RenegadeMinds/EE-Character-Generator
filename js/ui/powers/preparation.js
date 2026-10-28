@@ -428,7 +428,7 @@ function renderPrepPanel(c) {
   _prepCtrs = prepContributorsOf(c);
   if (!_prepCtrs.length) { host.innerHTML = ''; return; }
   let html = `<div class="sec-head sm">Prepared Spells <span class="fw-400 fs-10 o-60 c-dim">(memorized at dawn — PP, Magic-feat and augment costs ALL paid at preparation, per instance; casting is free)</span></div>`;
-  html += `<div class="mb-1rem" style="border:1px solid rgba(220,205,138,.25);border-radius:3px;">`;
+  html += `<div class="rounded-3 mb-1rem" style="border:1px solid rgba(220,205,138,.25);">`;
   _prepCtrs.forEach((pc, pi) => {
     const c2 = chars.find(x => x.id === curId);
     const list = getPreparedList(c2, pc.poolName, pc.ctrKey);
@@ -459,7 +459,7 @@ function renderPrepPanel(c) {
       ? list.map((r, idx) => {
           const left = (r.qty || 0) - (r.cast || 0);
           return `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11.5px;padding:3px 0 3px 12px;${left <= 0 ? 'opacity:.45;' : ''}">
-            <div><b>${escapeHTML(r.dispName || r.name)}</b> <span class="fs-10 o-60 c-dim">lvl ${r.lvl}${r.free ? ' · FREE specialty' : ` · ${r.cost} PP`}</span>${(r.metas || []).includes('Quicken Spell') ? ' <span class="fs-9 c-vio" style="border:1px solid rgba(196,153,212,.4);border-radius:3px;padding:0 3px;" title="Quickened at memorization — this instance casts as a SWIFT action (no AoO, one per round).">swift</span>' : ''}
+            <div><b>${escapeHTML(r.dispName || r.name)}</b> <span class="fs-10 o-60 c-dim">lvl ${r.lvl}${r.free ? ' · FREE specialty' : ` · ${r.cost} PP`}</span>${(r.metas || []).includes('Quicken Spell') ? ' <span class="rounded-3 fs-9 c-vio" style="border:1px solid rgba(196,153,212,.4);padding:0 3px;" title="Quickened at memorization — this instance casts as a SWIFT action (no AoO, one per round).">swift</span>' : ''}
               <span style="font-size:10px;color:${left > 0 ? '#6dba88' : 'var(--red-text)'};margin-left:6px;">${left}/${r.qty} left${r.cast ? ` (${r.cast} cast)` : ''}</span></div>
             <div>
               <button class="btn btn-sm" style="font-size:10px;${left <= 0 ? 'opacity:.5;' : 'border-color:rgba(120,175,205,.5);color:rgba(120,175,205,.95);'}" title="Cast a prepared instance (no PP)" onclick="castPreparedAt(${pi},${idx})">⚡ Cast</button>

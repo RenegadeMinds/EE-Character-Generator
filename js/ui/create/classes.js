@@ -201,7 +201,7 @@ function renderClassList(){
   // versatile per decision 5.
   const isL1Genesis = editId === null;
   if(formClasses.length===0){
-    list.innerHTML=`<div class="p-1rem text-center c-g40 italic" style="border:1px dashed rgba(200,151,30,.2);border-radius:3px;">No classes added yet — click "+ Add Class" to begin.</div>`;
+    list.innerHTML=`<div class="rounded-3 p-1rem text-center c-g40 italic" style="border:1px dashed rgba(200,151,30,.2);">No classes added yet — click "+ Add Class" to begin.</div>`;
   } else {
     list.innerHTML=formClasses.map((e,i)=>{
       const cls=getClassEntry(e);

@@ -67,12 +67,12 @@ function renderCareerCompass(c) {
         `<option value="${esc(n)}"${st && st.goal === n ? ' selected' : ''}>${esc(n)}</option>`).join('')}</optgroup>`).join('')}
     </select>`;
     if (!st) {
-      slot.innerHTML = `<div class="items-center gap-8 p-5-10 fs-11 c-g60" style="display:inline-flex;border:1px dashed rgba(200,151,30,.3);border-radius:3px;">
+      slot.innerHTML = `<div class="rounded-3 items-center gap-8 p-5-10 fs-11 c-g60" style="display:inline-flex;border:1px dashed rgba(200,151,30,.3);">
         ⭐ Career Compass ${selHTML}</div>`;
       return;
     }
     if (st.invalid) {
-      slot.innerHTML = `<div class="p-5-10 fs-11 c-red-text" style="border:1px solid rgba(212,112,112,.3);border-radius:3px;">
+      slot.innerHTML = `<div class="rounded-3 p-5-10 fs-11 c-red-text" style="border:1px solid rgba(212,112,112,.3);">
         ⭐ Career goal "${esc(st.goal)}" not found (renamed?). <button class="fs-10 btn btn-sm" onclick="setCareerGoal('')">Clear</button></div>`;
       return;
     }
@@ -82,7 +82,7 @@ function renderCareerCompass(c) {
     else if (st.met) statusChip = `<span class="bold" style="color:#6dba88;">✓ UNLOCKED — take your first level!</span>`;
     else statusChip = `<span class="c-g85">${st.metCount}/${st.totalCount} met · earliest entry ~level ${st.earliest}${st.gmGated ? ' + GM gate' : ''} <span class="o-55 c-dim">(best case)</span></span>`;
     const arrow = _compassExp() ? '▾' : '▸';
-    let html = `<div class="fs-12" style="border:1px solid rgba(125,170,220,.35);border-radius:3px;background:rgba(125,170,220,.05);">
+    let html = `<div class="rounded-3 fs-12" style="border:1px solid rgba(125,170,220,.35);background:rgba(125,170,220,.05);">
       <div class="items-center gap-8 p-6-10 flex-wrap" style="display:flex;">
         <span onclick="toggleCompass()" class="cursor-pointer font-serif ls-0_05em" style="color:#7daadc;">${arrow} ⭐ Career Compass:</span>
         <b class="c-gold">${esc(st.goal)}</b>

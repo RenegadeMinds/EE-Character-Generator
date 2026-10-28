@@ -120,7 +120,7 @@ function wealthChartHTML(c) {
   }
   return `<details ${_wealthChartOpen ? 'open' : ''} ontoggle="_wealthChartOpen=this.open" class="mt-8 fs-11">
     <summary class="cursor-pointer c-g80">📊 Wealth Score / Purchase DC chart <span class="cite cite-HH" title="Hero's Handbook p.45 — the Score/DC currency table (1 gp = $100 = 100 credits)">HH 45</span> <span class="op-0_5 fs-9_5">— your current score is highlighted</span></summary>
-    <div class="overflow-y-auto mt-6 lh-1_7" style="columns:3;column-gap:18px;max-height:260px;padding:6px;border:1px solid rgba(200,151,30,.2);border-radius:3px;">${rows.join('')}</div>
+    <div class="rounded-3 overflow-y-auto mt-6 lh-1_7" style="columns:3;column-gap:18px;max-height:260px;padding:6px;border:1px solid rgba(200,151,30,.2);">${rows.join('')}</div>
   </details>`;
 }
 function renderWealthPanel(c) {

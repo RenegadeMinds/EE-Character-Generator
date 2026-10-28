@@ -72,7 +72,7 @@ function renderMagicBrowse() {
     return `<div class="p-6-9" style="border-bottom:1px solid rgba(200,151,30,.08);">
       <div class="justify-between items-center gap-6" style="display:flex;">
         <div style="${desc ? 'cursor:pointer;' : ''}flex:1;" ${desc ? `onclick="toggleMagicDetail(${i})"` : ''}><b>${escapeHTML(m.name)}</b>
-          <span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
+          <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[m.type] || m.type}</span>
           <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${m.cl ? (m.cl_kind || 'CL') + ' ' + m.cl + ' · ' : ''}${magicPriceLabel(m)}</span>
           ${desc ? `<span class="fs-10 o-40 c-dim">${open ? '▾' : '▸'}</span>` : ''}</div>
         ${addBtn}
@@ -182,7 +182,7 @@ function renderMagicInventory(c) {
     const slotDef = ITEM_SLOTS.find(s => s.id === it.slot);
     return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
       <div><b>${escapeHTML(it.customName || it.ref)}${it.tier ? ` +${it.tier}` : ''}</b>${it.customName ? ` <span class="fs-9 o-55 c-dim">(${escapeHTML(it.ref)})</span>` : ''}${(MAGIC_ITEM_EFFECTS[it.ref] && it.equipped) ? ' <span class="fs-9 c-pb90" title="firm-wired: effect applies while equipped">⚡wired</span>' : ''}
-        <span class="fs-9 p-1-5 ml-4" style="border-radius:2px;background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
+        <span class="rounded-2 fs-9 p-1-5 ml-4" style="background:rgba(196,153,212,.12);border:1px solid rgba(196,153,212,.3);">${MAGIC_TYPE_LABELS[def.type] || def.type || 'item'}</span>
         <span class="fs-10 o-55 c-dim" style="margin-left:5px;">${slotDef ? slotDef.label : it.slot} · ${magicPriceLabel(def)}</span>
         ${it.equipped ? '<span class="fs-10" style="color:#6dba88;margin-left:5px;">● equipped</span>' : ''}</div>
       <div>
@@ -204,7 +204,7 @@ function magicSlotRowsHTML(c, interactive) {
   const slotById = (id) => ITEM_SLOTS.find(s => s.id === id) || {};
   const chipOf = (it) => interactive
     ? renderEquippedItemChip(it)
-    : `<span class="items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);border-radius:3px;">${escapeHTML(itemDisplayName(it))}</span>`;
+    : `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(200,151,30,.08);border:1px solid rgba(200,151,30,.25);">${escapeHTML(itemDisplayName(it))}</span>`;
   const rows = Object.keys(SLOT_GROUPS).map(gid => {
     const g = SLOT_GROUPS[gid];
     const inGroup = (i) => (i.catalogue === 'magic' && g.slots.includes(i.slot)) || (i.catalogue === 'equipment' && g.slots.includes((gearDef(i) || {}).slot));
@@ -213,7 +213,7 @@ function magicSlotRowsHTML(c, interactive) {
     const free = g.cap - equipped.length - (armorWorn ? 1 : 0);
     const unequipped = c.items.filter(i => inGroup(i) && !i.equipped);
     const chips = equipped.map(chipOf).join('')
-      + (armorWorn ? `<span class="items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(120,145,170,.1);border:1px solid rgba(120,145,170,.3);border-radius:3px;" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
+      + (armorWorn ? `<span class="rounded-3 items-center p-2-7 fs-11 mr-4" style="display:inline-flex;background:rgba(120,145,170,.1);border:1px solid rgba(120,145,170,.3);" title="One robe OR suit of armor on the body — the worn armor occupies this place.">🛡 suit of armor</span>` : '');
     const eqSel = (interactive && free > 0 && unequipped.length)
       ? `<select onchange="if(this.value){toggleItemEquipped(this.value);this.value='';}" class="fs-11 ml-6"><option value="">+ equip…</option>${unequipped.map(i => `<option value="${i.id}">${escapeHTML(i.ref)}</option>`).join('')}</select>`
       : '';

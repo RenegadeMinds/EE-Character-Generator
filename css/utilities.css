@@ -9,7 +9,7 @@
        .c-gold       color:var(--gold)
        .items-center align-items:center
      They replace style="..." attributes that the page code (js/ui/...) and
-     index.html used to repeat by hand: about 3,900 declarations on 1,780
+     index.html used to repeat by hand: about 4,000 declarations on some 1,800
      elements were moved here, so the same look is now written once.
 
    NAMING
@@ -255,6 +255,7 @@
 .border-none{border:none}
 .rounded-2{border-radius:2px}
 .rounded-3{border-radius:3px}
+.rounded-6{border-radius:6px}
 
 /* ---- BEHAVIOUR ---- */
 .cursor-help{cursor:help}

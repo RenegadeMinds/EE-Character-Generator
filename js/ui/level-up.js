@@ -100,7 +100,7 @@ function lvlupRenderClassChoice() {
   document.getElementById('lvlup-title').textContent = `⬆ ${c.name} reaches Level ${c.totalLvl + 1}`;
   const optsHtml = lu.options.map((o, i) => {
     const checked = (lu.choice === o) ? 'checked' : '';
-    return `<label class="gap-6 items-center p-6-8 cursor-pointer mb-4" style="display:flex;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);border-radius:3px;">
+    return `<label class="rounded-3 gap-6 items-center p-6-8 cursor-pointer mb-4" style="display:flex;background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.15);">
       <input type="radio" name="lvlup-choice" value="${i}" ${checked} onchange="lvlupOnClassChoice(${i})">
       <span>${escapeHTML(o.label)}</span>
     </label>`;
@@ -210,7 +210,7 @@ function lvlupRenderNewClassForm() {
     names.map(n => `<option value="${escapeHTML(n)}" ${n===lu.newClassName?'selected':''}>${badgeOf(n)}${escapeHTML(n)}</option>`)
   ).join('');
   return `
-    <div class="mt-8 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+    <div class="rounded-3 mt-8 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
       <div class="font-serif fs-9 uppercase ls-0_1em c-g70 mb-5">New Multiclass</div>
       <div class="gap-8 flex-wrap items-center" style="display:flex;">
         <label class="fs-11 c-g75">Tier:</label>
@@ -402,7 +402,7 @@ function lvlupRenderHpRoll() {
   if (owed.bumps > 0) {
     const sel = lu.bumpChoice || '';
     bumpUi = `
-      <div class="mt-10 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">
+      <div class="rounded-3 mt-10 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">
         <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-6">Attribute Bump (Level ${newTotalLvl})</div>
         <div class="gap-6 flex-wrap" style="display:flex;">
           ${ATTR_NAMES.map(a => `
@@ -421,7 +421,7 @@ function lvlupRenderHpRoll() {
         ? `Advancing <b class="c-gold">${escapeHTML(lu.choice.classRef.name)}</b> from level ${lu.choice.classRef.level} to ${lu.choice.classRef.level + 1}.`
         : `Adding a new class: <b class="c-gold">${escapeHTML(lu.newClassName)}</b> (${lu.newClassTier}, level 1).`}
     </p>
-    <div style="padding:10px 12px;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);border-radius:3px;">
+    <div class="rounded-3" style="padding:10px 12px;background:rgba(200,151,30,.05);border:1px solid rgba(200,151,30,.2);">
       <div class="font-serif fs-10 uppercase ls-0_1em c-g70 mb-6">HP Roll — ${escapeHTML(modeLabel)}</div>
       <div class="gap-10 items-center flex-wrap" style="display:flex;">
         <span class="font-serif c-gold fw-600" style="font-size:22px;">+${totalHpThisLevel} HP</span>

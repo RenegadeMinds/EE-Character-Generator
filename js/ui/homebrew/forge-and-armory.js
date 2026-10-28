@@ -157,7 +157,7 @@ function hbgRenderList() {
           + (r.hb_gadget ? ` · ⚙ ${r.hb_gadget} (standard feature)` : '')
           + (r.hb_tech ? [r.hb_tech.aa ? (r.hb_tech.aa === 4 ? ' · ⚡⛏ Power Wpn' : ` · ⛏ AA ${['','I','II','III'][r.hb_tech.aa]}`) : '', r.hb_tech.stun ? ' · Stun Pulse' : '', r.hb_tech.emp ? ' · EMP' : '', r.hb_tech.reach ? ' · Reach +5′' : '', r.hb_tech.heavyCrit ? ' · ×3' : '', r.hb_tech.powerPack ? ' · ⚡pack' : ''].join('') : '');
         return `<div class="justify-between items-center gap-6 p-4-8 fs-12" style="display:flex;border-bottom:1px solid rgba(200,151,30,.08);">
-          <div><b>${escapeHTML(r.name)}</b> <span class="fs-9 p-1-5" style="border-radius:2px;background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
+          <div><b>${escapeHTML(r.name)}</b> <span class="rounded-2 fs-9 p-1-5" style="background:rgba(120,175,205,.12);border:1px solid rgba(120,175,205,.3);">${r.category === 'weapon' ? '⚔' : '🛡'} TS ${r.tl} · DC ${r.dc}</span>
             <div class="fs-10_5 op-0_6">${escapeHTML(line)}${r.hb_notes ? ` — ${escapeHTML(r.hb_notes)}` : ''}</div></div>
           <button class="fs-10 btn btn-sm btn-danger" onclick="hbgDelete(${i})">✕</button>
         </div>`;

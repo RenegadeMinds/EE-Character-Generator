@@ -179,8 +179,8 @@ function onActionLogNoteEditStart(entryId) {
   const c = chars.find(x => x.id === curId);
   const existing = (c && (c.actionLog || []).find(e => e.id === entryId)?.note) || '';
   noteRow.innerHTML = `
-    <input type="text" class="flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.4);border-radius:2px;">
-    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="p-2-6 fs-10 cursor-pointer" style="background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);border-radius:2px;">✓</button>
+    <input type="text" class="rounded-2 flex-1 min-w-160 fs-11 c-gold p-2-6 al-note-input" value="${escapeHTML(existing)}" placeholder="Type a note (or leave blank to clear)" maxlength="240" style="background:rgba(0,0,0,.35);border:1px solid rgba(200,151,30,.4);">
+    <button type="button" onclick="onActionLogNoteEditSave('${entryId}')" class="rounded-2 p-2-6 fs-10 cursor-pointer" style="background:rgba(125,180,135,.15);color:#6dba88;border:1px solid rgba(125,180,135,.5);">✓</button>
     <button type="button" onclick="renderActionLog(chars.find(x=>x.id===curId))" style="background:rgba(200,151,30,.06);color:var(--g70);border:1px solid rgba(200,151,30,.3);padding:2px 6px;font-size:10px;cursor:pointer;border-radius:2px;">✕</button>
   `;
   const inp = noteRow.querySelector('input');

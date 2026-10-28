@@ -518,7 +518,7 @@ function renderOccupationPicker(slot){
     rows.push(`<div class="fs-10 c-g55 mt-6" style="letter-spacing:.02em;">${meta.join(' &middot; ')}</div>`);
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div class="p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="rounded-3 p-8-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">${rows.join('')}</div>`;
 }
 
 // Read-only display of an occupation's picks. Used when the occupation is
@@ -544,7 +544,7 @@ function renderOccupationPickerReadonly(slot, occ, picks){
     return;
   }
   picker.style.display = 'block';
-  picker.innerHTML = `<div class="p-7-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);border-radius:3px;">${rows.join('')}</div>`;
+  picker.innerHTML = `<div class="rounded-3 p-7-10" style="background:rgba(200,151,30,.04);border:1px solid rgba(200,151,30,.18);">${rows.join('')}</div>`;
 }
 
 // Called by each pick-select's onchange.

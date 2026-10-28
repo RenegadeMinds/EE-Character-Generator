@@ -831,7 +831,7 @@ function renderSheetStateBanners(c) {
     const rt = rageTier(c);
     const chunks = [];
     if (c.nullified) {
-      chunks.push(`<div class="p-6-10 fs-12" style="background:rgba(212,112,112,.12);border:1px solid rgba(212,112,112,.5);border-radius:3px;">
+      chunks.push(`<div class="rounded-3 p-6-10 fs-12" style="background:rgba(212,112,112,.12);border:1px solid rgba(212,112,112,.5);">
               <b class="c-red-text">⊘ NULLIFIED</b> — all Supernatural modifiers suppressed (Null Power Field or equivalent): Su ability bakes${suAttrs.some(v=>v) ? ` (${suAttrs.map((v,i)=>v?`${['STR','DEX','CON','INT','WIS','CHA'][i]} −${v}`:null).filter(Boolean).join(', ')})` : ''}, Bulletproof, Nigh-Invulnerable, Hyper-Speed, Energy Immunity, Super-Smash, and the Super-Strong carry/size riders.
               <span class="op-0_7">Buff super-powers, Su item effects, and other unwired Su abilities: GM adjudicates. Rage is Ex — it still works.</span>
               <button class="fs-10 ml-8 btn btn-sm" onclick="toggleNullified()">Restore</button></div>`);
@@ -839,20 +839,20 @@ function renderSheetStateBanners(c) {
     if (rt && c.raging) {
       const conRaged = am(effAttrs(c)[2]);
       const hpRider = (rt.attr / 2) * (c.totalLvl || 0);
-      chunks.push(`<div class="p-6-10 fs-12" style="background:rgba(212,140,70,.14);border:1px solid rgba(212,140,70,.6);border-radius:3px;">
+      chunks.push(`<div class="rounded-3 p-6-10 fs-12" style="background:rgba(212,140,70,.14);border:1px solid rgba(212,140,70,.6);">
               <b style="color:#d4865a;">🔥 ${rt.name.toUpperCase()}</b> — +${rt.attr} Str &amp; Con (baked into every derived number), +${rt.will} morale Will, −2 AC. Duration ${3 + conRaged} rounds (3 + raged Con mod); once per encounter.
               <span class="cursor-help op-0_8" title="While raging: +${hpRider} HP (the raised Con mod × character level; these vanish when the rage ends and are NOT lost first the way temporary HP are). No Cha-, Dex-, or Int-based skills (except Balance, Escape Artist, Intimidate, Ride), no Concentration, no patience/concentration abilities, no spellcasting or command/trigger/completion items, no Combat Expertise / Magic / Power feats.">+${hpRider} HP rider &amp; restrictions ⓘ</span>
               <button class="fs-10 ml-8 btn btn-sm" onclick="toggleRage()">End Rage${berserkerLvl(c) >= 17 ? '' : ' (→ Fatigued)'}</button></div>`);
     }
     if (c.fatigued && !c.raging) {
-      chunks.push(`<div class="p-5-10 fs-11_5" style="background:rgba(150,150,150,.1);border:1px solid rgba(180,180,180,.4);border-radius:3px;">
+      chunks.push(`<div class="rounded-3 p-5-10 fs-11_5" style="background:rgba(150,150,150,.1);border:1px solid rgba(180,180,180,.4);">
               <b class="op-0_8">😮‍💨 FATIGUED</b> — −2 Str, −2 Dex (baked), can’t charge or run. Lasts the encounter (post-Rage) or until 8 hours’ rest.
               <button class="fs-10 ml-8 btn btn-sm" onclick="clearFatigue()">Recover</button></div>`);
     }
     // v8.8.3: Euphoriac banner (Ex — works while nullified).
     const euB = euphoriacBonus(c);
     if (euB && c.euphoric) {
-      chunks.push(`<div class="p-5-10 fs-11_5" style="background:rgba(120,175,205,.1);border:1px solid rgba(120,175,205,.5);border-radius:3px;">
+      chunks.push(`<div class="rounded-3 p-5-10 fs-11_5" style="background:rgba(120,175,205,.1);border:1px solid rgba(120,175,205,.5);">
               <b style="color:#78afcd;">⚡ EUPHORIC</b> — +${euB} morale on attack rolls, damage rolls, and saving throws (baked). Lasts (wild-surge intensity) rounds; not gained if neuralgia struck.
               <button class="fs-10 ml-8 btn btn-sm" onclick="toggleEuphoric()">Fades</button></div>`);
     }
@@ -874,7 +874,7 @@ function renderSheetStateBanners(c) {
           const used = abilityUsed(c, 'rage'), mx = rageUsesPerDay(c);
           rageEl.innerHTML = `<button class="w-full fs-10 btn btn-sm" style="border-color:rgba(212,140,70,.5);color:#d4865a;" title="Fly into a ${rt.name}: +${rt.attr} Str/Con, +${rt.will} morale Will, −2 AC for 3 + raged Con mod rounds. Free action on your own action; once per encounter. ${used}/${mx} used today." onclick="toggleRage()">🔥 Rage! <span class="o-60 c-dim">${used}/${mx} today</span></button>`;
         } else {
-          rageEl.innerHTML = `<div class="text-center fs-10" style="padding:3px 6px;color:#d4865a;border:1px solid rgba(212,140,70,.6);border-radius:3px;background:rgba(212,140,70,.14);" title="${rt.name} active — the banner below carries the numbers and the End Rage button.">🔥 ${rt.name.toUpperCase()} — see banner</div>`;
+          rageEl.innerHTML = `<div class="rounded-3 text-center fs-10" style="padding:3px 6px;color:#d4865a;border:1px solid rgba(212,140,70,.6);background:rgba(212,140,70,.14);" title="${rt.name} active — the banner below carries the numbers and the End Rage button.">🔥 ${rt.name.toUpperCase()} — see banner</div>`;
         }
       } else { rageEl.style.display = 'none'; rageEl.innerHTML = ''; }
     }
@@ -1397,7 +1397,7 @@ function sheetTalentsHtml(c) {
   // WHICH talent is the Gift (the budget just carries +1), so the chip
   // crowns the section, not a specific pick.
   const _giftTalentChip = (!isLegacyCharacter(c) && c.heroesGiftChoice === 'talent')
-    ? ` <span class="fs-9 c-vio p-1-5 ml-4 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);border-radius:2px;" title="Hero's Gift — assigned as a Talent: +1 talent in this budget. Which specific talent is the Gift isn't tracked; the budget carries it. To reassign (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.">⬟ incl. Hero's Gift</span>`
+    ? ` <span class="rounded-2 fs-9 c-vio p-1-5 ml-4 cursor-help" style="border:1px solid rgba(196,153,212,.45);background:rgba(196,153,212,.1);" title="Hero's Gift — assigned as a Talent: +1 talent in this budget. Which specific talent is the Gift isn't tracked; the budget carries it. To reassign (feat ↔ talent), retcon via ✎ Edit — downstream prereq chains may break; the GM-exception ledger records any breaks detected.">⬟ incl. Hero's Gift</span>`
     : '';
   let talentsHtml = `<br><br><b class="c-gold">Talents</b> <span class="fs-10 c-g55">(${tBudget.totalPicked} / ${tBudget.totalOwed})</span>${_giftTalentChip}`;
   if (!ownedTalents.length) {
